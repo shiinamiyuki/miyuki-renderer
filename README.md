@@ -19,17 +19,18 @@ A non-local means filter is used as denoiser (using opencv)
 ## TODO List:
 
 1. ~~Path tracing with next event estimation~~
-2.  ~~Photon mapping~~
-3.  sppm  (Stochastic Progressive Photon Mapping)
-4.  Loading model files using GUI
-5.  Physically based reflection models
-6.  Better sampler
-7.  Texture
-8.  Volumetric
-9.  Participating media
-10.  Spectrum
-11.  Depth of field
-12.  Non-local means filter (I wrote one but it doesn't work)
+2. ~~Photon mapping~~
+3. sppm  (Stochastic Progressive Photon Mapping)
+4. Loading model files using GUI
+5. Physically based reflection models
+6. Better sampler
+7. Texture
+8. Volumetric
+9. Participating media
+10. Spectrum
+11. Depth of field
+12.  Refactoring (the GUI module is rubbish)
+13. Non-local means filter (I wrote one but it doesn't work)
 
 ## Gallery
 
