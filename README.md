@@ -1,6 +1,6 @@
 # Miyuki Renderer
 
-This is a hobby project as I learning pbrt. (see http://pbrt.org)
+This is a hobby project as I learn pbrt. (see http://pbrt.org)
 
 Inspired by https://github.com/JamesGriffin/Path-Tracer, 	https://github.com/fogleman/pt
 
