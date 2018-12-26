@@ -1,0 +1,16 @@
+#pragma once
+#include "../Miyuki/Miyuki.h"
+#include <QVector3D>
+#include <QVector>
+#include <QString>
+#include <QImage>
+#include <QPixmap>
+#include <QEvent>
+#include <QResizeEvent>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QFile>
+#include <QTextStream>
+#include <QDir>
+#include <QCheckBox>
+#include <QClipboard>
