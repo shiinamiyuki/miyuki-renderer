@@ -8,7 +8,7 @@ Inspired by https://github.com/JamesGriffin/Path-Tracer, 	https://github.com/fog
 
 ##  Features:
 
-It is currently using path tracing as well as photon mapping. I chose BVH as acceleration structure, with naive split strategy.
+It is currently using path tracing as well as photon mapping (https://graphics.stanford.edu/courses/cs348b-00/course8.pdf). I chose BVH as acceleration structure, with naive split strategy.
 
 It loads .obj files using tiny_obj_loader (the same as my previous projects).
 
@@ -20,7 +20,7 @@ A non-local means filter is used as denoiser (using opencv)
 
 1. ~~Path tracing with next event estimation~~
 2. ~~Photon mapping~~
-3. sppm  (Stochastic Progressive Photon Mapping)
+3. sppm  (Stochastic Progressive Photon Mapping) (see https://www.ci.i.u-tokyo.ac.jp/~hachisuka/ppm.pdf and https://www.ci.i.u-tokyo.ac.jp/~hachisuka/sppm.pdf)
 4. Loading model files using GUI
 5. Physically based reflection models
 6. Better sampler
