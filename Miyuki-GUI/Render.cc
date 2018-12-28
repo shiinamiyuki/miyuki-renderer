@@ -24,7 +24,7 @@ int Render::maxInteractiveRenderSample()
 {
 	if (mode == Mode::preview)return 1;
 	else if (mode == Mode::renderPathTracing)return 1280;
-	else if (mode == Mode::renderPM)return 16;
+	else if (mode == Mode::renderPM)return 1280;
 	else return 0;
 }
 
@@ -37,7 +37,7 @@ void Render::renderPass()
 		preview();
 	}
 	else {
-		render(&pmRenderer);
+		render(&sppm);
 	}
 }
 
@@ -84,7 +84,17 @@ void Render::copyImage(QPixmap & pixmap)
 	QImage image(pixel.data(), w, h, QImage::Format::Format_RGBA8888);
 	pixmap.convertFromImage(image);
 }
-
+std::string format3digits(int x) {
+	if (x >= 100) {
+		return fmt::format("{}",x);
+	}
+	else if (x >= 10) {
+		return fmt::format("0{}", x);
+	}
+	else {
+		return fmt::format("00{}", x);
+	}
+}
 void Render::interactiveRender()
 {
 	while (true) {
@@ -101,17 +111,24 @@ void Render::interactiveRender()
 			if (rate > 1000000) {
 				msg = fmt::format("Iteration: {} {}, {}, {} Samples/sec\r",
 					sampleCount,
-					rate / 1000000, (rate % 1000000) / 1000, (rate % 1000));
+					rate / 1000000,
+					format3digits((rate % 1000000) / 1000), 
+					format3digits((rate % 1000)));
 			}
 			else {
 				msg = fmt::format("Iteration: {} {}, {} Samples/sec\r",
 					sampleCount,
-					(rate % 1000000) / 1000, (rate % 1000));
+					format3digits((rate % 1000000) / 1000),
+					format3digits((rate % 1000)));
 			}
 			window->ui.status->setText(QString::fromStdString(msg));
 			if (option.sleepTime > 0)
 				std::this_thread::sleep_for(std::chrono::milliseconds(option.sleepTime));
 			window->updateImage();
+			do {
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+			while (window->saving);
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}

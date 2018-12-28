@@ -256,7 +256,7 @@ namespace Miyuki {
 	
 	using vec3f4 = pvec3<Float4>;
 	using vec3f8 = pvec3<Float8>;
-
+//#define USE_VEC8
 #ifdef USE_VEC8
 	using simdVec = vec3f8;
 #else

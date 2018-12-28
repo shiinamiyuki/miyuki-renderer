@@ -151,8 +151,8 @@ void Miyuki::SIMDTriangle::intersect(const SIMDRay & ray, Intersection & interse
 		}
 	}*/
 	for (int i = 0; i < simdVec::width(); i++) {
-		if (fabs(a[i]) > 0.01 && u[i] >= 0.0 && u[i] <= 1.0 && v[i]>= 0.0 && u[i] + v[i] <= 1.0) {
-			if (trigs[i] && t[i] > eps) {
+		if (trigs[i] && fabs(a[i]) > 0.01 && u[i] >= 0.0 && u[i] <= 1.0 && v[i]>= 0.0 && u[i] + v[i] <= 1.0) {
+			if ( t[i] > eps) {
 				auto n = vec3(norm.x[i], norm.y[i], norm.z[i]);
 				intersection.merge(trigs[i], t[i], n);
 			}

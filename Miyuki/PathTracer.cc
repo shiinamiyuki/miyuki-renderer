@@ -52,14 +52,46 @@ vec3 Miyuki::PathTracer::trace(int x0, int y0)
 {
 
 	RenderContext ctx = scene->getRenderContext(x0, y0);
-	while (ctx.depth < 5) {
+	while (ctx.depth < scene->option.maxDepth) {
 		intersect(ctx.ray, ctx.intersection);
 		if (!ctx.intersection.hit()) {
 			break;
 		}
 		ctx.ray.o += ctx.ray.d * ctx.intersection.distance;
-		if (!ctx.intersection.object->getMaterial().render(this,ctx))
+		auto object = ctx.intersection.object;
+		auto& material = object->getMaterial();
+		vec3 wo;
+		vec3 rad;
+		Float prob;
+		BxDFType type = material.sample(ctx.Xi, ctx.ray.d, ctx.intersection.normal, wo, rad, prob);
+		if (prob < eps)
 			break;
+		if (type == BxDFType::none)break;
+		
+		if (type == BxDFType::emission) {
+			if(ctx.sampleEmit)
+				ctx.color += ctx.throughput * rad / prob;
+			break;
+		}
+		ctx.throughput *= rad / prob;
+		if (type == BxDFType::diffuse) {
+			ctx.sampleEmit = false;
+			auto direct = sampleLights(ctx);
+			ctx.color += direct * ctx.throughput;
+			ctx.throughput *= vec3::dotProduct(wo, ctx.intersection.normal)  * (2 * pi);
+		}
+		else {
+			ctx.sampleEmit = true;
+		}
+		ctx.ray.d = wo;
+		const Float P = max(ctx.throughput);
+		if (erand48(ctx.Xi) < P) {
+			ctx.throughput /= P;
+		}
+		else {
+			break;
+		}
+		ctx.depth++;
 	}
 	return ctx.color;
 }

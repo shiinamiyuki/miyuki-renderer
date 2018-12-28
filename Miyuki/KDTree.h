@@ -125,6 +125,37 @@ namespace Miyuki {
 				return maxDist;
 			}
 		}
+		void findWithin(const Point& p,
+			Float maxDist,
+			PointVec& result) {
+			result.clear();
+			if (nodes.empty())return;
+			int stack[128];
+			int sp = 0;
+			stack[sp++] = 0;
+			auto dist = DistFunc();
+			while (sp > 0) {
+				int ptr = stack[--sp];
+				if (ptr < 0)continue;
+				int a = nodes[ptr].axis;
+				auto& pivot = nodes[ptr].pivot;
+				Float d = p.axis(a) - pivot.axis(a);
+				Float realDist = dist(p, pivot);;
+				if (realDist < maxDist) {
+					result.emplace_back(pivot);
+				}
+				if (d < 0) {
+					if (d*d < maxDist*maxDist)
+						stack[sp++] = nodes[ptr].right;
+					stack[sp++] = nodes[ptr].left;
+				}
+				else {
+					if (d*d < maxDist*maxDist)
+						stack[sp++] = nodes[ptr].left;
+					stack[sp++] = nodes[ptr].right;
+				}
+			}
+		}
 	};
 }
 

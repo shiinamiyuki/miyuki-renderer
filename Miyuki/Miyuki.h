@@ -29,7 +29,7 @@
 namespace Miyuki {
 	using Color = vec3;
 	using Seed = unsigned short;
-	const Float eps = 0.0001;
+	const Float eps = 0.01;
 	constexpr Float pi = 3.1415926535897;
 	constexpr Float inf = 1000000000;
 	template<typename T>
@@ -71,5 +71,5 @@ namespace Miyuki {
 		return vec3(xx, yy, zz);
 	}
 }
-#define USE_VEC8
+
 #define ENABLE_SIMD

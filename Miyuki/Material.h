@@ -4,12 +4,22 @@
 namespace Miyuki {
 	class PathTracer;
 	struct RenderContext;
+	enum class BxDFType {
+		none = 0,
+		diffuse = 1,
+		specular = 1 << 2,
+		glossy = 1 << 3,
+		emission = 1 << 16,
+		all = diffuse | specular | glossy
+	};
+	inline bool hasBxDFType(BxDFType a, BxDFType b) {
+		return (unsigned int)a & (unsigned int)b;
+	}
 	struct Material
 	{
 		vec3 emittance;
 		vec3 diffuse;
 		vec3 specular;
-		vec3 ambient;
 		double roughness;
 		double Tr;
 		double Ni;
@@ -17,7 +27,8 @@ namespace Miyuki {
 		Material(const vec3&Ka, const vec3&Kd, const vec3&Ks)
 			:emittance(Ka), diffuse(Kd), specular(Ks) {}
 		bool render(PathTracer*,RenderContext &)const; // true for continue rendering, false for termination
-		bool sample(const vec3& wi, const vec3& norm, vec3& wo, Float &);
+		BxDFType sample(Seed * Xi, const vec3& wi, const vec3& norm, vec3& wo,vec3& rad, Float &)const;
+		Float brdf(const vec3& wi, const vec3& norm, const vec3& wo)const;
 		static Material makeRefr(const vec3&spec, double Ni) {
 			Material m(vec3(0, 0, 0), vec3(0, 0, 0), spec);
 			m.Tr = 1;
@@ -41,5 +52,5 @@ namespace Miyuki {
 	inline vec3 reflect(const vec3& dir, const vec3 & norm) {
 		return dir - 2 * vec3::dotProduct(dir, norm)*norm;
 	}
-	vec3 refract(const vec3&dir, const vec3 &norm, const Float Ni, Float & prob);
+	vec3 refract(Seed* Xi,const vec3&dir, const vec3 &norm, const Float Ni, Float & prob);
 }

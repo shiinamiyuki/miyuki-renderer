@@ -12,8 +12,11 @@ MainWindow::MainWindow(QWidget *parent)
 	startTimer(1000 / 30);
 
 	connect(ui.capture, &QPushButton::pressed, this, &MainWindow::save);
-	connect(ui.checkBox, &QCheckBox::stateChanged, this, &MainWindow::switchMode);
+	//connect(ui.checkBox, &QCheckBox::stateChanged, this, &MainWindow::switchMode);
 	connect(ui.actionTo_Clipboard, &QAction::triggered, this, &MainWindow::copyToClipboard);
+	connect(ui.actionSPPM, &QAction::triggered, this, &MainWindow::useSPPM);
+	connect(ui.actionPath_tracing, &QAction::triggered, this, &MainWindow::usePT);
+	connect(ui.actionModel_View, &QAction::triggered, this, &MainWindow::useRT);
 }
 /*
 std::thread load([&]() {
@@ -39,14 +42,35 @@ std::thread load([&]() {
 void MainWindow::start()	
 {
 	log(fmt::format("SIMD width={}bit\n", 8*sizeof(Float)*simdVec::width()));
-	std::thread load([&]() {
+	std::function<void(void)> causticTest = [&]() {
+		render->openSession("default");
+		render->moveCameraTo(vec3(280, 250, -550));
+		render->loadObj("box.obj");
+		render->option.maxDepth = 16;
+		render->addObject(new Sphere(vec3(130, 350, 350), 80, Material::makeRefr(vec3(1, 1, 1), 1.5)));
+		render->addObject(new Sphere(vec3(270, 100, 350), 80, Material::makeRefr(vec3(1, 1, 1), 1.5)));
+		render->addObject(new Sphere(vec3(270, 450, 350), 60, Material::makeEmission(vec3(1, 1, 1)* 20)));
+		render->addObject(new Sphere(vec3(270, 450, 350), 80, Material::makeRefr(vec3(1, 1, 1), 1.5)));
+		render->prepare();
+		render->interactiveRender();
+	};
+	auto defaultLoad = [&]() {
 		render->openSession("default");
 		render->moveCameraTo(vec3(280, 250, -550));
 		render->loadObj("cornell_box.obj");
+		render->option.maxDepth = 16;
+	//	render->option.sppm.initialRadius
 		//render->addObject(new Sphere(vec3(130, 350, 350), 80, Material::makeRefr(vec3(1, 1, 1), 1.5)));
+		
+		/*
+		render->loadObj("suzanne.obj",vec3(100,380,350),vec3(0,0,0),80);
+		render->addObject(new Sphere(vec3(150, 380, 350), 2, Material::makeEmission(400*vec3(60, 60, 60))));
+		render->addObject(new Sphere(vec3(250, -100000 + 1, 250), 100000, Material::makeDiffuse(vec3(1, 1, 1))));
+		*/
 		render->prepare();
 		render->interactiveRender();
-	});
+	};
+	std::thread load(defaultLoad);
 
 	load.detach();
 }
@@ -69,33 +93,33 @@ void MainWindow::timerEvent(QTimerEvent * e)
 
 void MainWindow::save()
 {
-	saving = true;
-	if (!QDir("snapshots").exists())
-		QDir().mkdir("snapshots");
-	auto t = time(0);
-	QString name = QString("snapshots/snapshots-").append(std::ctime(&t)).append(".png");
-	name.replace(' ', "-");
-	name.replace('\n', "-");
-	name.replace(':', "-");
-	if (!image.save(name)) {
-		log(QString("cannot save ").append(name));
-	}
-	else {
-		log(QString("saved ").append(name));
-	}
-	saving = false;
-	system(fmt::format("py scripts/filter.py {}", name.toStdString()).c_str());
+	if (saving)return;
+	//std::thread s([&](){
+		saving = true;
+		//render->copyFiltered(image);
+		if (!QDir("snapshots").exists())
+			QDir().mkdir("snapshots");
+		auto t = time(0);
+		QString name = QString("snapshots/snapshots-").append(std::ctime(&t)).append(".png");
+		name.replace(' ', "-");
+		name.replace('\n', "-");
+		name.replace(':', "-");
+		if (!image.save(name)) {
+			log(QString("cannot save ").append(name));
+		}
+		else {
+			log(QString("saved ").append(name));
+		}
+		saving = false;
+	//});
+	//s.detach();
+	//system(fmt::format("py scripts/filter.py {}", name.toStdString()).c_str());
 }
 
 void MainWindow::switchMode()
 {
 	render->resetSample();
-	if (ui.checkBox->isChecked()) {
-		render->mode = Render::Mode::renderPathTracing;
-	}
-	else {
-		render->mode = Render::Mode::preview;
-	}
+
 }
 
 void MainWindow::copyToClipboard()
@@ -122,4 +146,22 @@ void MainWindow::startFinal()
 
 void MainWindow::stop()
 {
+}
+
+void MainWindow::usePT()
+{
+	render->resetSample();
+	render->mode = Render::Mode::renderPathTracing;
+}
+
+void MainWindow::useRT()
+{
+	render->resetSample();
+	render->mode = Render::Mode::preview;
+}
+
+void MainWindow::useSPPM()
+{
+	render->resetSample();
+	render->mode = Render::Mode::renderPM;
 }

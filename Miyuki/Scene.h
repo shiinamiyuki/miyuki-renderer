@@ -7,13 +7,14 @@
 #include "Logger.h"
 #include "PathTracer.h"
 #include "PhotonMap.h"
-
+#include "sppm.h"
 namespace Miyuki {
 	class PhotonMapRenderer;
 	class Scene
 	{
 		friend class PathTracer;
 		friend class PhotonMapRenderer;
+		friend class SPPM;
 	protected:
 		Logger * logger;
 		Camera camera, dummy;
@@ -28,6 +29,16 @@ namespace Miyuki {
 			int maxDepth;
 			bool directLighting;
 			int sleepTime;
+			struct SPPMpara {
+				Float initialRadius;
+				Float alpha;
+				int numPhoton;
+				SPPMpara() {
+					initialRadius = 4;
+					alpha = 0.3;
+					numPhoton = 1000000;
+				}
+			}sppm;
 			Option() {
 				startNew = false;
 				maxDepth = 5;
@@ -70,6 +81,7 @@ namespace Miyuki {
 		int sampleCount;
 		PathTracer tracer;
 		PhotonMapRenderer pmRenderer;
+		SPPM sppm;
 		void trace(int x, int y);
 		Ray cameraRay(int x, int y);
 		void loadSessionData();

@@ -89,7 +89,102 @@ bool Miyuki::Material::render(PathTracer* tracer,RenderContext &ctx)const
 	return true;
 }
 
-vec3 Miyuki::refract(const vec3 & dir, const vec3 & norm, const Float Ni, Float & prob)
+BxDFType Miyuki::Material::sample(
+	Seed * Xi,
+	const vec3 & wi, 
+	const vec3 & norm,
+	vec3 & wo, 
+	vec3& rad, 
+	Float &prob)const
 {
-	return vec3();
+	const auto& Ke = emittance;
+	const auto& Kd = diffuse;
+	const auto& Ks = specular;
+	//const auto& Ka = ambient;
+	auto& n = norm;
+
+	const Float p1 = max(Ke);
+	const Float p2 = max(Kd);
+	const Float p3 = max(Ks);
+	const Float total = p1 + p2 + p3;
+	prob = 1;
+	if (total < eps) {
+		prob = 0;
+		return BxDFType::none;
+	}
+	Float x = erand48(Xi) * total;
+	if (x < p1) {
+		prob = p1 / total;
+		rad = Ke;
+		return BxDFType::emission;
+	}
+	else if (x < p1 + p2) {
+		wo = randomVectorInHemisphere(norm, Xi);
+		prob = p2 / total;
+		rad = Kd * brdf(wi ,norm, wo);
+		return BxDFType::diffuse;
+	}
+	else {
+		rad = Ks;
+		Float u = erand48(Xi);
+		if (u < Tr) {
+			Float p;
+			wo = refract(Xi, wi, norm, Ni, p);
+			prob = p3 / total * Tr * p;
+		}
+		else {
+			wo = reflect(wi, norm);
+			prob = p3 / total * (1 - Tr);
+		}
+		return BxDFType::specular;
+	}
+}
+
+Float Miyuki::Material::brdf(const vec3 & wi, const vec3 & norm, const vec3 & wo)const
+{
+	// Lambertian: 1 / pi; Specular 0
+	return 1 / pi;
+}
+
+vec3 Miyuki::refract(Seed * Xi, const vec3 & dir, const vec3 & norm, const Float Ni, Float & prob)
+{
+	vec3 wo;
+	Float n1, n2;
+	auto n = norm;
+	if (vec3::dotProduct(dir, n) < 0) {
+		n1 = 1;
+		n2 = Ni;
+	}
+	else {
+		n1 = Ni;
+		n2 = 1;
+		n *= -1.0;
+	}
+	Float c = -vec3::dotProduct(dir, n);
+	Float n12 = n1 / n2;
+	Float s2 = n12 * n12*(1 - c * c);
+	Float root = 1 - s2;
+	Float Rpara, Rpend;
+	
+	if (root >= 0) {
+		Float cosT = sqrt(root);
+		Rpara = (n1 * c - n2 * cosT) / (n1 * c + n2 * cosT);
+		Rpend = (n2 * c - n1 * cosT) / (n2 * c + n1 * cosT);
+		Float R = (Rpara + Rpend) / 2;
+		Float u = erand48(Xi);
+		if (u < R) {
+			wo = dir - 2 * (vec3::dotProduct(dir, n)) * n;
+			prob = R;
+		}
+		else {
+			wo = n12 * dir + (n12 * c - cosT) * n;
+			prob = 1 - R;
+		}
+
+	}
+	else {
+		wo = dir - 2 * (vec3::dotProduct(dir, n)) * n;
+		prob = 1;
+	}
+	return wo;
 }

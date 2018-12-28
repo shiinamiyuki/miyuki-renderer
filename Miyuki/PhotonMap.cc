@@ -158,7 +158,6 @@ void Miyuki::PhotonMapRenderer::reset()
 void Miyuki::PhotonMapRenderer::tracePhoton(unsigned long long N)
 {
 	logger->log("Tracing {} photons\n", N);
-	photons.resize(N); 
 	Seed Xi[2] = { 0,rand() };
 	For(0u, N, [&](unsigned int i) {
 		

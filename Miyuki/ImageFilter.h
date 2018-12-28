@@ -5,7 +5,6 @@ namespace Miyuki {
 	struct ImageSampler {
 		vec3 * image;
 		int w, h;
-		vec3 nil;
 		ImageSampler(vec3 *i, int _w, int _h) :w(_w), h(_h), image(i) {}
 		vec3& operator () (int x, int y) {
 			x = x < 0 ? 0 : x;

@@ -20,7 +20,6 @@ public:
 		ui.log->append(QString::fromLatin1(s));
 	}
 	void start();
-	
 private:
 	Ui::MainWindowClass ui;
 	volatile bool saving;
@@ -35,6 +34,9 @@ private:
 	void startInteractive();
 	void startFinal();
 	void stop();
+	void usePT();
+	void useRT();
+	void useSPPM();
 public:
 	Render* getRender()const { return render; }
 };

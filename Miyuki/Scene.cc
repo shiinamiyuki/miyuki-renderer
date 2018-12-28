@@ -296,9 +296,6 @@ void  Miyuki::Scene::loadObj(const char *filename, vec3 translation, vec3 rotati
 				material.emittance.z() = materials[id].emission[2];
 				material.diffuse.z() = materials[id].diffuse[2];
 				material.specular.z() = materials[id].specular[2];
-				material.ambient.x() = materials[id].ambient[0];
-				material.ambient.y() = materials[id].ambient[1];
-				material.ambient.z() = materials[id].ambient[2];
 			}
 			else {
 				material.emittance.x() = 0;

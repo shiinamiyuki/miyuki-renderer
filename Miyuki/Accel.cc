@@ -18,6 +18,7 @@ AABB getBoundBox(const std::vector<Primitive*> objects) {
 
 void Miyuki::BVH::intersect(const Ray & _ray, Intersection & isct)
 {
+	
 	int stack[40];
 	int sp = 0;
 	int root = 0;
