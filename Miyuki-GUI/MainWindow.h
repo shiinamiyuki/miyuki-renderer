@@ -37,6 +37,7 @@ private:
 	void usePT();
 	void useRT();
 	void useSPPM();
+	void useBDPT();
 public:
 	Render* getRender()const { return render; }
 };

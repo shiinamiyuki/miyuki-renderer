@@ -13,11 +13,7 @@ class Render : public Miyuki::Scene
 	int maxInteractiveRenderSample();
 	void renderPass();
 public:
-	enum class Mode {
-		preview,
-		renderPathTracing,
-		renderPM,
-	}mode;
+	
 	void initLogger()override;
 	Render(MainWindow*,int w,int h);
 	~Render();

@@ -25,6 +25,7 @@ int Render::maxInteractiveRenderSample()
 	if (mode == Mode::preview)return 1;
 	else if (mode == Mode::renderPathTracing)return 1280;
 	else if (mode == Mode::renderPM)return 1280;
+	else if (mode == Mode::renderBDPT)return 1280;
 	else return 0;
 }
 
@@ -32,11 +33,11 @@ void Render::renderPass()
 {
 	if (mode == Mode::renderPathTracing) {
 		render(&tracer);
-	}
-	else if(mode == Mode::preview){
+	}else if (mode == Mode::renderBDPT) {
+		render(&bdpt);
+	}else if (mode == Mode::preview) {
 		preview();
-	}
-	else {
+	}else {
 		render(&sppm);
 	}
 }

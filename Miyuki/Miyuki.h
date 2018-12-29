@@ -25,6 +25,7 @@
 
 #ifdef USE_PPL
 #include <ppl.h>
+#include <concurrent_vector.h>
 #endif
 namespace Miyuki {
 	using Color = vec3;
@@ -46,6 +47,10 @@ namespace Miyuki {
 #omp parallel for
 	for (int i = a; i < b; i++) { f(i); }
 #endif
+	}
+
+	inline void parallelInvoke(std::function<void(void)>f1, std::function<void(void)>f2) {
+		concurrency::parallel_invoke(f1, f2);
 	}
 	inline Float max(const vec3 & v) {
 		return std::max(std::max(v.x(), v.y()), v.z());

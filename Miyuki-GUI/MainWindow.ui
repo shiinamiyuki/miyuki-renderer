@@ -251,19 +251,6 @@
      <string/>
     </property>
    </widget>
-   <widget class="QCheckBox" name="checkBox">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>0</y>
-      <width>121</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Render</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="capture">
     <property name="geometry">
      <rect>
@@ -484,9 +471,19 @@
     <addaction name="actionStart_Final_Rendering"/>
     <addaction name="actionStop_Rendering"/>
    </widget>
+   <widget class="QMenu" name="menuIntegrator">
+    <property name="title">
+     <string>Integrator</string>
+    </property>
+    <addaction name="actionModel_View"/>
+    <addaction name="actionPath_tracing"/>
+    <addaction name="actionBDPT"/>
+    <addaction name="actionSPPM"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAction"/>
    <addaction name="menuRender"/>
+   <addaction name="menuIntegrator"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -521,6 +518,31 @@
   <action name="actionStop_Rendering">
    <property name="text">
     <string>Stop Rendering</string>
+   </property>
+  </action>
+  <action name="actionPath_tracing">
+   <property name="text">
+    <string>Path tracing</string>
+   </property>
+  </action>
+  <action name="actionSPPM">
+   <property name="text">
+    <string>SPPM</string>
+   </property>
+  </action>
+  <action name="actionModel_View">
+   <property name="text">
+    <string>Model View</string>
+   </property>
+  </action>
+  <action name="actionBDPT">
+   <property name="text">
+    <string>BDPT</string>
+   </property>
+  </action>
+  <action name="actionPhoton_Mapping">
+   <property name="text">
+    <string>Photon Mapping</string>
    </property>
   </action>
  </widget>

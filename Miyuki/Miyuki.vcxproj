@@ -160,6 +160,7 @@
     <ClCompile Include="Accel.cc" />
     <ClCompile Include="Camera.cc" />
     <ClCompile Include="Filter.cc" />
+    <ClCompile Include="Intersection.cc" />
     <ClCompile Include="KDTree.cc" />
     <ClCompile Include="lib\fmt\format.cc" />
     <ClCompile Include="lib\fmt\posix.cc" />
@@ -173,6 +174,7 @@
     <ClCompile Include="PhotonMap.cc" />
     <ClCompile Include="Primitive.cc" />
     <ClCompile Include="Scene.cc" />
+    <ClCompile Include="sppm.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
@@ -191,6 +193,7 @@
     <ClInclude Include="Primitive.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="sppm.h" />
     <ClInclude Include="vec.h" />
     <ClInclude Include="XMLReader.h" />
   </ItemGroup>

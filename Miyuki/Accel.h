@@ -11,6 +11,7 @@ namespace Miyuki {
 		virtual void clear() = 0;
 		virtual std::string getBuildInfo() const{ return ""; }
 		virtual ~AccelerationStructure() {}
+		virtual Float dim()const { return 0; }
 	};
 	class BVH : public AccelerationStructure {
 		struct InternalNode {
@@ -33,5 +34,6 @@ namespace Miyuki {
 		void construct(const std::vector<Primitive*>&) override;
 		void clear()override;
 		std::string getBuildInfo()const override;
+		Float dim()const override{ return (nodes[0].box.max - nodes[0].box.min).max(); }
 	};
 }

@@ -7,11 +7,11 @@ namespace Miyuki {
 			return (a - b).length();
 		}
 	};
-	template<typename Point, class DistFunc = DefaultPointDist<Point>>
+	template<typename Point, class DistFunc = DefaultPointDist<Point>,typename Container = std::vector<Point> >
 	class KDTree
 	{
 	public:
-		using PointVec = std::vector<Point>;
+		using PointVec = Container;
 		struct Node {
 			int axis;
 			int left, right;
@@ -23,23 +23,45 @@ namespace Miyuki {
 		KDTree() {  nodes.reserve(1000000); }
 		~KDTree() {}
 		void clear() { nodes.clear(); }
-		//O(n*log^2(n))
-		size_t construct(PointVec& vec, int i, int j, int depth) {
+		std::mutex mutex;
+		size_t construct(std::vector<Point*>& vec, int i, int j, int depth) {
 			if (i >= j)return -1;
-			int axis  = depth % 3;
+			int axis = depth % 3;
+			mutex.lock();
 			auto ptr = nodes.size();
-			std::sort(vec.begin() + i, vec.begin() + j, [&](const Point&a, const Point&b) {
-				return a.axis(axis) < b.axis(axis);
+			nodes.emplace_back(Node(axis));
+			mutex.unlock();
+			
+			std::sort(vec.begin() + i, vec.begin() + j, [&](const Point*a, const Point*b) {
+				return a->axis(axis) < b->axis(axis);
 			});
 			int med = (i + j) / 2;
 			auto pivot = vec[med];
-			nodes.emplace_back(Node(axis));
+			
 			Node n(axis);
-			n.pivot = pivot;
-			n.left = construct(vec, i, med, depth + 1);
-			n.right = construct(vec, med + 1, j, depth + 1);
+			n.pivot = *pivot;
+			if (depth < 3) {
+				parallelInvoke(
+				[&](){
+					n.left = construct(vec, i, med, depth + 1);
+				}, [&]() {
+					n.right = construct(vec, med + 1, j, depth + 1);
+				});
+			}
+			else {
+				n.left = construct(vec, i, med, depth + 1);
+				n.right = construct(vec, med + 1, j, depth + 1);
+			}
 			nodes[ptr] = n;
 			return ptr;
+		}
+		//O(n*log^2(n))
+		void construct(PointVec& vec, int i, int j, int depth) {
+			std::vector<Point*> v;
+			for (int i = 0; i < vec.size(); i++) {
+				v.emplace_back(&vec[i]);
+			}
+			construct(v, i, j, depth);
 		}
 	private:
 		void maxHeapify(const Point& p,int idx, PointVec& result) {
@@ -142,7 +164,7 @@ namespace Miyuki {
 				Float d = p.axis(a) - pivot.axis(a);
 				Float realDist = dist(p, pivot);;
 				if (realDist < maxDist) {
-					result.emplace_back(pivot);
+					result.push_back(pivot);
 				}
 				if (d < 0) {
 					if (d*d < maxDist*maxDist)

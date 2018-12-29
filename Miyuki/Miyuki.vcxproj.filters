@@ -66,6 +66,12 @@
     <ClCompile Include="Filter.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sppm.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Intersection.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h">
@@ -120,6 +126,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Filter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sppm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

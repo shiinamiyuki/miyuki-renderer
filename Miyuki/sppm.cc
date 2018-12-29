@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "Intersection.h"
 #include "Primitive.h"
+
 using namespace Miyuki;
 
 
@@ -9,8 +10,8 @@ void Miyuki::SPPM::init(int w, int h)
 {
 	image.clear();
 	image.resize(w * h);
-	for (auto i : image) {
-		i.radius = scene->option.sppm.initialRadius;
+	for (auto& i : image) {
+		i.radius = scene->option.sppm.initialRadius * 0.01 * scene->getAccel()->dim();
 		i.alpha = scene->option.sppm.alpha;
 	}
 }
@@ -64,7 +65,7 @@ void Miyuki::SPPM::tracePhoton(Float N, Seed * Xi)
 {
 	vec3 flux;
 	Ray ray(vec3(0, 0, 0), vec3(0, 0, 0));
-	emitPhoton(N, flux, ray, Xi);
+	emitPhoton(N, flux, ray, Xi); 
 	Intersection isct;
 	Float F = flux.max();
 	for (int depth = 0; depth < scene->option.maxDepth; depth++) {
@@ -79,19 +80,18 @@ void Miyuki::SPPM::tracePhoton(Float N, Seed * Xi)
 		Float p1 = Kd.max(), p2 = Ks.max();
 		Float total = p1 + p2;
 		if (total < eps)break;
-
+		
 		vec3 wo;
 		vec3 rad;
 		Float prob;
 		BxDFType type = material.sample(Xi, ray.d, isct.normal, wo, rad, prob);
-
 		if (BxDFType::none == type) {
 			break;
 		}
 		if (type == BxDFType::emission)break;
 		
 		if (type == BxDFType::diffuse) {
-			photons.emplace_back(Photon(ray.o, ray.d, flux));
+			pushPhoton(Photon(ray.o, ray.d, flux));
 			flux *= std::max(Float(0), -vec3::dotProduct(ray.d, isct.normal)) * 2 * pi;
 		}
 		flux *= rad / prob;
@@ -117,8 +117,10 @@ void Miyuki::SPPM::photonPass(int N)
 	Ne += N;
 	photonMap.clear();
 	photons.clear();
-	Seed *Xi = scene->Xi;
-	For(0u, N, [&](unsigned int i) {
+	int r = rand();
+	Seed Xi[] = { 0, r };
+	parallelFor(0u, N, [&](unsigned int i) {
+		
 		tracePhoton(N, Xi);
 	});
 	//logger->log("photons = {}\n", photons.size());
@@ -199,11 +201,17 @@ void Miyuki::SPPM::buildPhotonMap()
 	}
 }
 
+void Miyuki::SPPM::pushPhoton(Photon &&p)
+{
+	std::lock_guard<std::mutex> lock(photonMutex);
+	photons.push_back(p);
+}
+
 vec3 Miyuki::SPPM::Region::estimateRadiance(SPPM * sppm, const vec3& refl, const vec3 & p0, const vec3 & norm)
 {
 	Photon p;
 	p.pos = p0;
-	std::vector<Photon> nn;
+	decltype(photonMap)::PointVec nn;
 	//Float r = sppm->photonMap.knn(p, radius, 100, nn) + eps;
 	sppm->photonMap.findWithin(p, radius, nn);
 	vec3 rad = vec3(0, 0, 0);
@@ -214,17 +222,24 @@ vec3 Miyuki::SPPM::Region::estimateRadiance(SPPM * sppm, const vec3& refl, const
 	rad *= refl;
 	auto R = radius;
 	auto M = nn.size();
-	radius = R * sqrt((N + alpha * M) / (N + M)); //R_{i+1}
 	auto Phi = rad;
-	flux = (flux + Phi) * (radius / R) * (radius / R);
-	N = N + alpha * nn.size();
+	if (N > 0) {
+		radius = R * sqrt((N + alpha * M) / (N + M)); //R_{i+1}
+		
+		flux = (flux + Phi) * (radius / R) * (radius / R);
+		N = N + alpha * nn.size();
+	}
+	else {
+		N = nn.size();
+		flux = Phi;
+	}
 	Float frac = (sppm->Ne * pi * radius * radius);
-	radiance =  flux / frac ;
+	radiance = flux / frac;
 	constexpr Float maxR = 3;
-	if (radiance.max() > maxR) {
+/*	if (radiance.max() > maxR) {
 		radiance *= maxR / radiance.max();
 		flux *= maxR / radiance.max();
-	}
+	}*/
 	return radiance;
 }
 
@@ -239,6 +254,7 @@ void Miyuki::SPPM::render(Scene *s)
 	logger = s->getLogger();
 	if (scene->sampleCount<=0) {
 		Ne = 0;
+		logger->log("sppm lookup radius = {}\n", scene->option.sppm.initialRadius * 0.01 * scene->accel->dim());
 		init(scene->getDimension().x(), scene->getDimension().y());
 		computeTotalPower();
 	}

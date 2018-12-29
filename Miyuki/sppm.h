@@ -6,6 +6,7 @@
 namespace Miyuki {
 	class SPPM : public Integrator
 	{
+		std::mutex photonMutex;
 		Scene * scene;
 		Logger * logger;
 		long long Ne;
@@ -15,21 +16,21 @@ namespace Miyuki {
 		struct Region {
 			std::vector<Hitpoint> hitpoints;
 			vec3 flux;
-			Float radius;
+			double radius;
 			vec3 radiance;
 			vec3 nonDiffuse;
-			Float alpha;
-			int N;
+			double alpha;
+			double N;
 			Region() :flux(0, 0, 0), nonDiffuse(0,0,0){
 				radius = 1;
-				N = 1;
+				N = 0;
 			}
 			vec3 estimateRadiance(SPPM * sppm,const vec3& refl,const vec3&p, const vec3&norm);
 		};
 		std::vector<Region> image;
 		std::vector<Photon> photons;
 		std::vector<Float> powerIntergral;
-		KDTree<Photon, PhotonDist> photonMap;
+		KDTree<Photon, PhotonDist,decltype(photons)> photonMap;
 		Float power;
 		void init(int w,int h);		
 		void computeTotalPower();
@@ -40,6 +41,7 @@ namespace Miyuki {
 		void photonPass(int N);
 		void cameraPass();
 		void buildPhotonMap();
+		void pushPhoton(Photon&&);
 	public:
 		SPPM();
 		void render(Scene *)override;

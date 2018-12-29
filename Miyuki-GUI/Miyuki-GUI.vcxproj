@@ -92,7 +92,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <AdditionalIncludeDirectories>$(ProjectDir)\Miyuki;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <FloatingPointModel>Precise</FloatingPointModel>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -124,6 +124,7 @@
     <ClCompile Include="..\Miyuki\Accel.cc" />
     <ClCompile Include="..\Miyuki\Camera.cc" />
     <ClCompile Include="..\Miyuki\ImageFilter.cc" />
+    <ClCompile Include="..\Miyuki\Intersection.cc" />
     <ClCompile Include="..\Miyuki\KDTree.cc" />
     <ClCompile Include="..\Miyuki\lib\fmt\format.cc" />
     <ClCompile Include="..\Miyuki\lib\fmt\posix.cc" />
@@ -136,6 +137,7 @@
     <ClCompile Include="..\Miyuki\PhotonMap.cc" />
     <ClCompile Include="..\Miyuki\Primitive.cc" />
     <ClCompile Include="..\Miyuki\Scene.cc" />
+    <ClCompile Include="..\Miyuki\sppm.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="MainWindow.cc" />
     <ClCompile Include="Render.cc" />
@@ -168,6 +170,7 @@
     <ClInclude Include="..\Miyuki\Primitive.h" />
     <ClInclude Include="..\Miyuki\Ray.h" />
     <ClInclude Include="..\Miyuki\Scene.h" />
+    <ClInclude Include="..\Miyuki\sppm.h" />
     <ClInclude Include="..\Miyuki\vec.h" />
     <ClInclude Include="..\Miyuki\XMLReader.h" />
     <ClInclude Include="MiyukiGUI.h" />

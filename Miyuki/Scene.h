@@ -15,6 +15,7 @@ namespace Miyuki {
 		friend class PathTracer;
 		friend class PhotonMapRenderer;
 		friend class SPPM;
+		friend class BDPT;
 	protected:
 		Logger * logger;
 		Camera camera, dummy;
@@ -27,6 +28,7 @@ namespace Miyuki {
 		struct Option {
 			bool startNew;
 			int maxDepth;
+			int rrStartDepth;
 			bool directLighting;
 			int sleepTime;
 			struct SPPMpara {
@@ -34,18 +36,26 @@ namespace Miyuki {
 				Float alpha;
 				int numPhoton;
 				SPPMpara() {
-					initialRadius = 4;
-					alpha = 0.3;
-					numPhoton = 1000000;
+					initialRadius = 1;
+					alpha = 0.7;
+					numPhoton = 100000;
 				}
 			}sppm;
 			Option() {
 				startNew = false;
 				maxDepth = 5;
+				rrStartDepth = 5;
 				directLighting = true;
 				sleepTime = 0;
+
 			}
 		};
+		enum class Mode {
+			preview,
+			renderPathTracing,
+			renderPM,
+			renderBDPT,
+		}mode;
 		struct Reader {
 			vector<std::string> tokens;
 			std::string source;
@@ -79,6 +89,7 @@ namespace Miyuki {
 		vec3 worldColor;
 		int w, h;
 		int sampleCount;
+		BDPT bdpt;
 		PathTracer tracer;
 		PhotonMapRenderer pmRenderer;
 		SPPM sppm;

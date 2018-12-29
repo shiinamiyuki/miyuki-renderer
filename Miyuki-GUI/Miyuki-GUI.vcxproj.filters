@@ -64,6 +64,12 @@
     <ClCompile Include="..\Miyuki\ImageFilter.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Miyuki\sppm.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Miyuki\Intersection.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -167,6 +173,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Miyuki\ImageFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Miyuki\sppm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
