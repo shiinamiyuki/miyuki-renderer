@@ -121,12 +121,12 @@ BxDFType Miyuki::Material::sample(
 	else if (x < p1 + p2) {
 		wo = randomVectorInHemisphere(norm, Xi);
 		prob = p2 / total;
-		rad = Kd * brdf(wi ,norm, wo);
+		rad = Kd *brdf(wi, norm, wo);
 		return BxDFType::diffuse;
 	}
 	else {
 		rad = Ks;
-		Float u = erand48(Xi);
+	/*	Float u = erand48(Xi);
 		if (u < Tr) {
 			Float p;
 			wo = refract(Xi, wi, norm, Ni, p);
@@ -135,6 +135,46 @@ BxDFType Miyuki::Material::sample(
 		else {
 			wo = reflect(wi, norm);
 			prob = p3 / total * (1 - Tr);
+		}*/
+		Float n1, n2;
+		auto n = norm;
+		if (vec3::dotProduct(wi, n) < 0) {
+			n1 = 1;
+			n2 = Ni;
+		}
+		else {
+			n1 = Ni;
+			n2 = 1;
+			n *= -1.0;
+		}
+		Float c = -vec3::dotProduct(wi, n);
+		Float n12 = n1 / n2;
+		Float s2 = n12 * n12 *(1 - c * c);
+		Float root = 1 - s2;
+		Float Rpara, Rorth;
+
+		if (root >= 0) {
+			Float cosT = sqrt(root);
+			Rpara = (n1 * c - n2 * cosT) / (n1 * c + n2 * cosT);
+			Rorth = (n2 * c - n1 * cosT) / (n2 * c + n1 * cosT);
+			Float R = (Rpara * Rpara + Rorth * Rorth) / 2;
+			Float u = erand48(Xi);
+			Float T = (1 - R) * Tr;
+			Float tot = R + T;
+			u *= tot;
+			if (u  < R) {
+				wo = wi - 2 * (vec3::dotProduct(wi, n)) * n;
+				prob = R / tot;
+			}
+			else {
+				wo = n12 * wi + (n12 * c - cosT) * n;
+				prob = T / tot;
+			}
+
+		}
+		else {
+			wo = wi - 2 * (vec3::dotProduct(wi, n)) * n;
+			prob = 1;
 		}
 		return BxDFType::specular;
 	}
@@ -144,6 +184,38 @@ Float Miyuki::Material::brdf(const vec3 & wi, const vec3 & norm, const vec3 & wo
 {
 	// Lambertian: 1 / pi; Specular 0
 	return 1 / pi;
+}
+
+Float Miyuki::Material::reflectance(const vec3 & wi, const vec3 & norm)const
+{
+	Float n1, n2;
+	auto n = norm;
+	if (vec3::dotProduct(wi, n) < 0) {
+		n1 = 1;
+		n2 = Ni;
+	}
+	else {
+		n1 = Ni;
+		n2 = 1;
+		n *= -1.0;
+	}
+	Float c = -vec3::dotProduct(wi, n);
+	Float n12 = n1 / n2;
+	Float s2 = n12 * n12 *(1 - c * c);
+	Float root = 1 - s2;
+	Float Rpara, Rorth;
+
+	if (root >= 0) {
+		Float cosT = sqrt(root);
+		Rpara = (n1 * c - n2 * cosT) / (n1 * c + n2 * cosT);
+		Rorth = (n2 * c - n1 * cosT) / (n2 * c + n1 * cosT);
+		Float R = (Rpara * Rpara + Rorth * Rorth) / 2;
+		//Float T = (1 - R) * Tr;
+		return R;
+	}
+	else {
+		return 1;
+	}
 }
 
 vec3 Miyuki::refract(Seed * Xi, const vec3 & dir, const vec3 & norm, const Float Ni, Float & prob)
@@ -162,15 +234,15 @@ vec3 Miyuki::refract(Seed * Xi, const vec3 & dir, const vec3 & norm, const Float
 	}
 	Float c = -vec3::dotProduct(dir, n);
 	Float n12 = n1 / n2;
-	Float s2 = n12 * n12*(1 - c * c);
+	Float s2 = n12 * n12 *(1 - c * c);
 	Float root = 1 - s2;
-	Float Rpara, Rpend;
+	Float Rpara, Rorth;
 	
 	if (root >= 0) {
 		Float cosT = sqrt(root);
 		Rpara = (n1 * c - n2 * cosT) / (n1 * c + n2 * cosT);
-		Rpend = (n2 * c - n1 * cosT) / (n2 * c + n1 * cosT);
-		Float R = (Rpara + Rpend) / 2;
+		Rorth = (n2 * c - n1 * cosT) / (n2 * c + n1 * cosT);
+		Float R = (Rpara * Rpara + Rorth * Rorth) / 2;
 		Float u = erand48(Xi);
 		if (u < R) {
 			wo = dir - 2 * (vec3::dotProduct(dir, n)) * n;

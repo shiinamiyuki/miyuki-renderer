@@ -48,7 +48,8 @@ void MainWindow::start()
 		render->openSession("default");
 		render->moveCameraTo(vec3(280, 250, -550));
 		render->loadObj("box.obj");
-		render->option.maxDepth = 16;
+		render->option.maxDepth = 32;
+		render->option.rrStartDepth = 10;
 		render->loadObj("suzanne.obj", vec3(100, 250, 350), vec3(0, 0, 0), 120);
 	//	render->addObject(new Sphere(vec3(130, 350, 350), 80, Material::makeRefr(vec3(1, 1, 1), 1.5)));
 	//	render->addObject(new Sphere(vec3(270, 100, 350), 80, Material::makeRefr(vec3(1, 1, 1), 1.5)));
@@ -61,7 +62,7 @@ void MainWindow::start()
 		render->openSession("default");
 		render->moveCameraTo(vec3(280, 250, -550));
 		render->loadObj("cornell_box.obj");
-		render->option.maxDepth = 16;
+		render->option.maxDepth = 5;
 	//	render->option.sppm.initialRadius
 		//render->addObject(new Sphere(vec3(130, 350, 350), 80, Material::makeRefr(vec3(1, 1, 1), 1.5)));
 		
@@ -73,7 +74,28 @@ void MainWindow::start()
 		render->prepare();
 		render->interactiveRender();
 	};
-	std::thread load(causticTest);
+	auto nature = [&]() {
+		render->openSession("default");
+		render->moveCameraTo(vec3(0, 100, -480));
+		render->loadObj("nature.obj",vec3(0,0,-200),vec3(0,0,0),2);
+	
+		render->addObject(new Sphere(vec3(250, 500, -250), 80, Material::makeEmission(vec3(60, 60, 60))));
+	
+		render->addObject(new Sphere(vec3(250, -100000 + 1, 250), 100000, Material::makeDiffuse(vec3(1, 1, 1))));
+	
+		render->option.sppm.initialRadius = 0.1 * 0.01;
+
+		render->prepare();
+		render->interactiveRender();
+	};
+	auto orig = [&]() {
+		render->openSession("default");
+		render->loadObj("CornellBox-Original.obj", vec3(0, 0, 0), vec3(0, pi, 0), 2);
+		render->moveCameraTo(vec3(0,2,-7));
+		render->prepare();
+		render->interactiveRender();
+	};
+	std::thread load(defaultLoad);
 
 	load.detach();
 }

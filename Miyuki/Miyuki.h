@@ -75,6 +75,9 @@ namespace Miyuki {
 		const Float yy = r * sin(phi);
 		return vec3(xx, yy, zz);
 	}
+	inline int toInt(Float x) {
+		return int(pow(clamp(x, 0, 1), 1 / 2.2) * 255 + .5); 
+	}
 }
 
 #define ENABLE_SIMD

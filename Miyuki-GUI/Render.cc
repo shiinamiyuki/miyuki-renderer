@@ -77,9 +77,9 @@ void Render::copyImage(QPixmap & pixmap)
 	pixel.resize(w*h*4);
 	concurrency::parallel_for((size_t)0,screen.size(),[&](unsigned int idx) {
 		auto & i = screen[idx];
-		pixel[idx * 4] = (static_cast<unsigned char>(clamp(i.x(), 0, 1) * 255));
-		pixel[idx * 4  + 1] = (static_cast<unsigned char>(clamp(i.y(), 0, 1) * 255));
-		pixel[idx * 4  + 2] = (static_cast<unsigned char>(clamp(i.z(), 0, 1) * 255));
+		pixel[idx * 4] = static_cast<unsigned char>(toInt(i.x()));
+		pixel[idx * 4  + 1] = static_cast<unsigned char>(toInt(i.y()));
+		pixel[idx * 4  + 2] = static_cast<unsigned char>(toInt(i.z()));
 		pixel[idx * 4  + 3] = (255);
 	});
 	QImage image(pixel.data(), w, h, QImage::Format::Format_RGBA8888);

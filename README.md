@@ -34,22 +34,7 @@ A non-local means filter is used as denoiser (using opencv)
 16. Non-local means filter (I wrote one but it doesn't work)
 
 ## Gallery
-These are rendered with sppm. (ignore some artifacts due to single precisions)
-![](gallery/suzanne.png)
 
-![](gallery/sppm_caustic_box.png)
+![](gallery/snapshots-Sun-Dec-30-15-01-56-2018-.png)
 
-![](gallery/sppm_caustic.png)
-
-![](gallery/sppm_cornell.png)
-
-These are rendered with path tracing with a denoiser.
-
-![](gallery/xmas.png)
-
-![](gallery/gopher.png)
-
-![](gallery/cornell.png)
-
-
-
+![](gallery/snapshots-Sun-Dec-30-15-35-17-2018-.png)

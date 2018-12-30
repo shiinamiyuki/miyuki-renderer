@@ -23,13 +23,15 @@ vec3 Miyuki::PathTracer::sampleLights(const Ray & ray, Intersection & isct, Seed
 	shadow.normalize();
 	Intersection vis;
 	vis.exclude = isct.object;
-	Ray shadowRay(ray.o + eps * shadow, shadow);
+	Ray shadowRay(ray.o , shadow);
 	intersect(shadowRay, vis);
 	if (vis.hit() && vis.object == light) {
-		color += area / (distSqr + eps)
+		color += area / (distSqr + 0.001)
 			* std::max(Float(0.0), -(vec3::dotProduct(shadow, vis.normal)))
 			* light->getMaterial().emittance
-			* std::max(Float(0.0), (vec3::dotProduct(shadow, isct.normal)));
+			//* (1 - isct.object->getMaterial().reflectance(shadow * -1,isct.normal))
+			* std::max(Float(0.0), (vec3::dotProduct(shadow, isct.normal)))
+			*  light->getMaterial().emissionStrength;
 	}
 	//}
 	return color * scene->lights.size();
@@ -50,7 +52,6 @@ void Miyuki::PathTracer::prepare()
 
 vec3 Miyuki::PathTracer::trace(int x0, int y0)
 {
-
 	RenderContext ctx = scene->getRenderContext(x0, y0);
 	while (ctx.depth < scene->option.maxDepth) {
 		intersect(ctx.ray, ctx.intersection);
@@ -70,22 +71,28 @@ vec3 Miyuki::PathTracer::trace(int x0, int y0)
 		
 		if (type == BxDFType::emission) {
 			if(ctx.sampleEmit)
-				ctx.color += ctx.throughput * rad / prob;
+				ctx.color += ctx.throughput * rad / prob * material.emissionStrength;
 			break;
 		}
-		ctx.throughput *= rad / prob;
+		ctx.throughput *= rad/ prob;
+		
 		if (type == BxDFType::diffuse) {
+		//	Float R = material.reflectance(ctx.ray.d, ctx.intersection.normal);
 			ctx.sampleEmit = false;
 			auto direct = sampleLights(ctx);
-			ctx.color += direct * ctx.throughput;
-			ctx.throughput *= vec3::dotProduct(wo, ctx.intersection.normal)  * (2 * pi);
+		//	ctx.throughput *= 1 - R;
+			ctx.color += direct * ctx.throughput ;
+			ctx.throughput *= pi;// vec3::dotProduct(wo, ctx.intersection.normal)  * (2 * pi);
 		}
 		else {
 			ctx.sampleEmit = true;
 		}
 		ctx.ray.d = wo;
+		
+		
+		
 		const Float P = max(ctx.throughput);
-		if (ctx.depth > scene->option.rrStartDepth) {
+		if (ctx.depth > scene->option.rrStartDepth && P < 1) {
 			if (erand48(ctx.Xi) < P) {
 				ctx.throughput /= P;
 			}
@@ -154,8 +161,9 @@ void Miyuki::BDPT::traceLightPath(Seed*Xi, Path &path)
 		auto n = light->getNormOfPoint(ray.o);
 		ray.d = randomVectorInHemisphere(n, Xi);
 		radiance = light->getMaterial().emittance
-			* light->area() * 2 * pi * scene->lights.size();
+			* light->area() * pi / (eps + vec3::dotProduct(n,ray.d)) * scene->lights.size();
 		LightVertex v0;
+		v0.pdf = 1 / light->area();
 		v0.normal = n;
 		v0.wi = ray.d;
 		v0.wo = vec3(0, 0, 0);
@@ -200,7 +208,9 @@ void Miyuki::BDPT::traceLightPath(Seed*Xi, Path &path)
 		v.hitpoint = ray.o;
 		v.object = object;
 		v.type = type;
-		
+		v.pdf = path.back().pdf
+			* std::max(Float(0), vec3::dotProduct(ray.d, path.back().normal))
+			/ (ray.o -  path.back().hitpoint).lengthSquared(); // is this correct ? 
 		if (type == BxDFType::diffuse) {
 			refl *= std::max(Float(0), -vec3::dotProduct(ray.d, isct.normal));
 		}
@@ -248,7 +258,13 @@ void Miyuki::BDPT::traceEyePath(RenderContext & ctx, Path &path)
 		if (prob < eps)
 			break;
 		if (type == BxDFType::none)break;
-
+		if (ctx.depth == 0) {
+			v.pdf = 1;
+		}
+		else {
+			v.pdf = path.back().pdf * std::max(Float(0), vec3::dotProduct(ray.d, path.back().normal))
+				/ (ray.o - path.back().hitpoint).lengthSquared(); // is this correct ? 
+		}
 		if (type == BxDFType::emission) {
 			ctx.color = rad / prob;
 			v.normal = ctx.intersection.normal;
@@ -274,7 +290,7 @@ void Miyuki::BDPT::traceEyePath(RenderContext & ctx, Path &path)
 		path.emplace_back(v);
 		
 		if (type == BxDFType::diffuse) {
-			ctx.throughput *= std::max(Float(0), vec3::dotProduct(wo, ctx.intersection.normal)) * 2 * pi;
+			ctx.throughput *= pi;
 		}
 		
 		ctx.ray.d = wo;
@@ -290,7 +306,9 @@ void Miyuki::BDPT::traceEyePath(RenderContext & ctx, Path &path)
 		ctx.depth++;
 	}
 }
-
+static Float computeWeight(Float wc, Float wl) {
+	return 1 / (wc + wl + 1);
+}
 vec3 Miyuki::BDPT::connectPath(Path &eye, Path &light)
 {
 	vec3 radiance(0, 0, 0);
@@ -298,7 +316,7 @@ vec3 Miyuki::BDPT::connectPath(Path &eye, Path &light)
 	for (int i = 0; i < eye.size(); i++) {
 		auto& E = eye[i];
 		if (E.type == BxDFType::emission) {
-			Float w = 1.0 / (i + 1);
+			Float w = computeWeight(E.pdf, 0);
 			weight += w;
 			radiance += w * E.radiance;
 			continue;
@@ -307,7 +325,7 @@ vec3 Miyuki::BDPT::connectPath(Path &eye, Path &light)
 			auto& L = light[j];
 			Float c = contribution(E, L);
 			if (c > 0) {
-				Float w = 1.0 / (i + j + 2);
+				Float w = computeWeight(E.pdf, L.pdf);
 				if (L.type == BxDFType::emission)
 					radiance += E.throughput * c * L.radiance / (2 * pi) * w;
 				else

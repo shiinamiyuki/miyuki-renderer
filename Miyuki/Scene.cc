@@ -93,9 +93,9 @@ void Miyuki::Scene::saveSession()
 	std::string png = fmt::format("{}.png", session.name);
 	std::vector<unsigned char> pixel;
 	for (auto i : screen) {
-		pixel.push_back(static_cast<unsigned char>(clamp(i.x(), 0, 1) * 255));
-		pixel.push_back(static_cast<unsigned char>(clamp(i.y(), 0, 1) * 255));
-		pixel.push_back(static_cast<unsigned char>(clamp(i.z(), 0, 1) * 255));
+		pixel.push_back(static_cast<unsigned char>(toInt(i.x())));
+		pixel.push_back(static_cast<unsigned char>(toInt(i.y())));
+		pixel.push_back(static_cast<unsigned char>(toInt(i.z())));
 		pixel.push_back(255);
 	}
 	lodepng::encode(png.c_str(), pixel, w, h);
@@ -296,6 +296,9 @@ void  Miyuki::Scene::loadObj(const char *filename, vec3 translation, vec3 rotati
 				material.emittance.z() = materials[id].emission[2];
 				material.diffuse.z() = materials[id].diffuse[2];
 				material.specular.z() = materials[id].specular[2];
+				material.emissionStrength = material.emittance.max();
+				if(material.emissionStrength>eps)
+					material.emittance /= material.emissionStrength;
 			}
 			else {
 				material.emittance.x() = 0;
@@ -307,6 +310,7 @@ void  Miyuki::Scene::loadObj(const char *filename, vec3 translation, vec3 rotati
 				material.emittance.z() = 0;
 				material.diffuse.z() = 1;
 				material.specular.z() = 0;
+				material.emissionStrength = 0;
 			}
 			//logger->log("{} {} {}\n", material.emittance, material.diffuse, material.specular);
 			Polygon polygon;

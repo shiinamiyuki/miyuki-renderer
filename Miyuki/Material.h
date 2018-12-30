@@ -23,9 +23,14 @@ namespace Miyuki {
 		double roughness;
 		double Tr;
 		double Ni;
+		Float emissionStrength;
 		Material() :roughness(0),Tr(0),Ni(1) {}
 		Material(const vec3&Ka, const vec3&Kd, const vec3&Ks)
-			:emittance(Ka), diffuse(Kd), specular(Ks) {}
+			:emittance(Ka), diffuse(Kd), specular(Ks) {
+			emissionStrength = Ka.max();
+			if(emissionStrength>eps)
+			emittance /= Ka.max();
+		}
 		bool render(PathTracer*,RenderContext &)const; // true for continue rendering, false for termination
 		BxDFType sample(Seed * Xi, const vec3& wi, const vec3& norm, vec3& wo,vec3& rad, Float &)const;
 		Float brdf(const vec3& wi, const vec3& norm, const vec3& wo)const;
@@ -47,6 +52,7 @@ namespace Miyuki {
 			Material m(vec3(0, 0, 0),  vec3(0, 0, 0), c);
 			return m;
 		}
+		Float reflectance(const vec3& wi, const vec3 & n)const;
 		~Material() {}
 	};
 	inline vec3 reflect(const vec3& dir, const vec3 & norm) {

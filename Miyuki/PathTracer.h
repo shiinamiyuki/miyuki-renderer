@@ -38,6 +38,7 @@ namespace Miyuki {
 			vec3 hitpoint;
 			Primitive * object;
 			BxDFType type;
+			Float pdf;
 			LightVertex(){}
 		};
 		struct Path : public std::vector<LightVertex> {};

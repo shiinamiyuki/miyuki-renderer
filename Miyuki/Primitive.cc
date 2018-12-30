@@ -123,7 +123,7 @@ void Miyuki::SIMDTriangle::intersect(const SIMDRay & ray, Intersection & interse
 	simdVec& vertex1 = vertices[1];
 	simdVec& vertex2 = vertices[2];
 	simdVec edge1, edge2, h, s, q;
-	simdVec::Scalar a, f, u, v;
+	simdVec::Scalar a, f, u, v,uv;
 	edge1 = vertex1 - vertex0;
 	edge2 = vertex2 - vertex0;
 	h = simdVec::crossProduct(ray.d, edge2);
@@ -136,7 +136,7 @@ void Miyuki::SIMDTriangle::intersect(const SIMDRay & ray, Intersection & interse
 
 	q = simdVec::crossProduct(s, edge1);
 	v = f * simdVec::dotProduct(ray.d, q);
-
+	uv = u + v;
 	simdVec::Scalar t = f * simdVec::dotProduct(edge2, q);
 /*	static const simdVec::Scalar veps = simdVec::Scalar(0.01);
 	static const simdVec::Scalar zero = simdVec::Scalar(0);
@@ -151,8 +151,8 @@ void Miyuki::SIMDTriangle::intersect(const SIMDRay & ray, Intersection & interse
 		}
 	}*/
 	for (int i = 0; i < simdVec::width(); i++) {
-		if (trigs[i] && fabs(a[i]) > 0.01 && u[i] >= 0.0 && u[i] <= 1.0 && v[i]>= 0.0 && u[i] + v[i] <= 1.0) {
-			if ( t[i] > eps) {
+		if ( fabs(a[i]) > 0.01 && u[i] >= 0.0 && u[i] <= 1.0 && v[i]>= 0.0 && uv[i] <= 1.0) {
+			if (trigs[i] && t[i] > eps) {
 				auto n = vec3(norm.x[i], norm.y[i], norm.z[i]);
 				intersection.merge(trigs[i], t[i], n);
 			}

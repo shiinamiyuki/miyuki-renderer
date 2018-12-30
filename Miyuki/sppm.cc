@@ -55,10 +55,12 @@ void Miyuki::SPPM::emitPhoton(Float total, vec3 & flux, Ray & ray, Seed * Xi)
 	//auto light = searchLight(p);
 	auto light = scene->lights[nrand48(Xi) % scene->lights.size()];
 	ray.o = light->randomPointOnObject(Xi);
-	ray.d = randomVectorInHemisphere(light->getNormOfPoint(ray.o), Xi);
+	auto n = light->getNormOfPoint(ray.o);
+	ray.d = randomVectorInHemisphere(n, Xi);
 	ray.o += eps * ray.d;
-	flux = light->getMaterial().emittance 
-		* light->area() * 2 * pi * scene->lights.size();
+	flux = light->getMaterial().emittance *light->getMaterial().emissionStrength
+		* light->area() * scene->lights.size()
+		*  pi / (eps + vec3::dotProduct(n, ray.d));
 }
 
 void Miyuki::SPPM::tracePhoton(Float N, Seed * Xi)
@@ -92,16 +94,18 @@ void Miyuki::SPPM::tracePhoton(Float N, Seed * Xi)
 		
 		if (type == BxDFType::diffuse) {
 			pushPhoton(Photon(ray.o, ray.d, flux));
-			flux *= std::max(Float(0), -vec3::dotProduct(ray.d, isct.normal)) * 2 * pi;
+			flux *= pi;// std::max(Float(0), -vec3::dotProduct(ray.d, isct.normal)) * 2 * pi;
 		}
 		flux *= rad / prob;
 		ray.d = wo;
 		Float P = flux.max();
-		if (erand48(Xi) * F < P) {
-			flux /= P /F;
-		}
-		else {
-			break;
+		if (depth > scene->option.rrStartDepth) {
+			if (erand48(Xi) * F < P) {
+				flux /= P / F;
+			}
+			else {
+				break;
+			}
 		}
 	}
 }
