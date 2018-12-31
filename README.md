@@ -21,7 +21,7 @@ A non-local means filter is used as denoiser (using opencv)
 3. ~~sppm  (Stochastic Progressive Photon Mapping)~~ (see https://www.ci.i.u-tokyo.ac.jp/~hachisuka/ppm.pdf and https://www.ci.i.u-tokyo.ac.jp/~hachisuka/sppm.pdf)
 4. ~~Bidirectional path tracing~~
 5. Multiple Importance Sampling (MIS)
-6. Metropolis Light Transport
+6. Metropolis Light Transport (Possibly PSSMLT)
 7. Rasterizer (for fun)
 8. Toon shading
 9. Instant radiosity
