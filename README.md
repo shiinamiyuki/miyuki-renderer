@@ -22,22 +22,23 @@ A non-local means filter is used as denoiser (using opencv)
 4. ~~Bidirectional path tracing~~
 5. Multiple Importance Sampling (MIS)
 6. Metropolis Light Transport (Possibly PSSMLT)
-7. Rasterizer (for fun)
-8. Toon shading
-9. Instant radiosity
-10. Loading model files using GUI
-11. Physically based reflection models
-12. Grids
-13. Surface heuristic
-14. Better sampler
-15. Texture
-16. Volumetric
-17. Participating media
-18. Spectrum
-19. Depth of field
-20. Refactoring (the GUI module is rubbish)
-21. Non-local means filter (I wrote one but it doesn't work)
-22. Programmable shader (possibly a homemade JIT compiler)
+7. Vertex Connection and Merging (VCM)
+8. Rasterizer (for fun)
+9. Toon shading
+10. Instant radiosity
+11. Loading model files using GUI
+12. Physically based reflection models
+13. Grids
+14. Surface heuristic
+15. Better sampler
+16. Texture
+17. Volumetric
+18. Participating media
+19. Spectrum
+20. Depth of field
+21. Refactoring (the GUI module is rubbish)
+22. Non-local means filter (I wrote one but it doesn't work)
+23. Programmable shader (possibly a homemade JIT compiler)
 
 ## Gallery
 
