@@ -259,8 +259,6 @@ void Miyuki::BDPT::traceEyePath(RenderContext & ctx, Path &path)
 		if (type == BxDFType::none)break;
 		if (type == BxDFType::emission) {
 			ctx.color = rad / prob * material.emissionStrength;
-			v.pdfSA = 1 / (0.0001 + fabs(vec3::dotProduct(ray.d, ctx.intersection.normal)));
-			v.pdfA = v.pdfSA / (ctx.intersection.distance *ctx.intersection.distance);
 			v.normal = ctx.intersection.normal;
 			v.wi = ray.d;
 			v.wo = wo;
@@ -269,6 +267,17 @@ void Miyuki::BDPT::traceEyePath(RenderContext & ctx, Path &path)
 			v.type = type;
 			v.radiance = ctx.color * ctx.throughput;
 			v.throughput = ctx.throughput;
+			if (!path.empty()) {
+				v.pdfSA = LightVertex::pdfSolidAngle(path.back(), v);
+				v.pdfA = LightVertex::pdfArea(path.back(), v);
+				v.G = LightVertex::geometryTerm(path.back(), v);
+			}
+			else {
+				v.pdfSA = 1 / (0.0001 + fabs(vec3::dotProduct(ray.d, ctx.intersection.normal)));
+				v.pdfA = v.pdfSA / (ctx.intersection.distance *ctx.intersection.distance);
+				v.G = 1;
+				v.normal = ctx.intersection.normal;
+			}
 			path.emplace_back(v);
 			break;
 		}
@@ -287,7 +296,10 @@ void Miyuki::BDPT::traceEyePath(RenderContext & ctx, Path &path)
 			v.G = LightVertex::geometryTerm(path.back(), v);
 		}
 		else {
-			v.pdfSA = v.pdfA = v.G = 1;
+			v.pdfSA = 1 / (0.0001 + fabs(vec3::dotProduct(ray.d, ctx.intersection.normal)));
+			v.pdfA = v.pdfSA / (ctx.intersection.distance *ctx.intersection.distance);
+			v.normal = ctx.intersection.normal;
+			v.G = 1;
 		}
 		
 		path.emplace_back(v);
@@ -321,7 +333,8 @@ vec3 Miyuki::BDPT::connectPath(Path &eye, Path &light)
 	for (int i = 0; i < eye.size(); i++) {	
 		auto& E = eye[i];
 		if (E.type == BxDFType::emission) {
-			Float w = computeWeight(eye.computeWeight(i, scene->sampleCount/eye[0].pdfA, 0),0);
+			Float w = 1.0 / (i + 1);/*computeWeight(eye.computeWeight(i, (1+scene->sampleCount)/eye[0].pdfA, 0),0);
+			w = fabs(w);*/
 			weight += w;
 			radiance += w * E.radiance;
 			continue;
@@ -330,13 +343,20 @@ vec3 Miyuki::BDPT::connectPath(Path &eye, Path &light)
 			auto& L = light[j];
 			Float c = contribution(E, L);
 			if (c > 0) {
-				Float w;
-				Float p1 = (light.size() > 1 ? light[1].pdfA : 1) + eps;
-				w = computeWeight(
-					eye.computeWeight(i,scene->sampleCount / (eps + eye[0].pdfA), 0),
-					light.computeWeight(j,
-						1 / p1 ,
-						light[0].G / (light[0].pdfA * p1 + eps)));
+				Float w = 1.0 / (i + 1) + 1.0/(j + 1);
+				/*if (light.size() > 1) {
+					Float p1 = light[1].pdfA;
+					w = computeWeight(
+						eye.computeWeight(i, (1 + scene->sampleCount) / (eps + eye[0].pdfA), 0),
+						light.computeWeight(j,
+							1 / p1,
+							light[0].G / (light[0].pdfA * p1 + eps)));
+				}
+				else {
+					w = computeWeight(
+						eye.computeWeight(i, scene->sampleCount / (eps + eye[0].pdfA), 0), 1);
+				}
+				w = fabs(w);*/
 				if (L.type == BxDFType::emission) {
 					radiance += E.throughput
 						* c * L.radiance
@@ -348,7 +368,7 @@ vec3 Miyuki::BDPT::connectPath(Path &eye, Path &light)
 			}
 		}
 	}
-	if (weight < 0.001)
+	if (weight <= 1e-18)
 		return vec3(0, 0, 0);
 	return radiance / weight;
 }
@@ -407,11 +427,12 @@ void Miyuki::BDPT::render(Scene *s)
 	int w = dim.x();
 	int h = dim.y();
 	//generateLightPath();
+	auto limit = 10 * vec3(1, 1, 1);
 	parallelFor(0, w, [&](unsigned int i) {
 		int x = i;
 		for (int y = 0; y < h; y++) {
 			scene->getScreen()[x + scene->w * y] *= scene->sampleCount;
-			scene->getScreen()[x + scene->w * y] += min(4 * vec3(1, 1, 1), trace(x, y));
+			scene->getScreen()[x + scene->w * y] += min(limit, trace(x, y));
 			scene->getScreen()[x + scene->w * y] /= 1 + scene->sampleCount;
 		}
 	});
@@ -474,7 +495,7 @@ Float Miyuki::BDPT::Path::computeWeight(int k,Float vcm1, Float vc1) const
 	auto& path = *this;
 	Float vcm = vcm1;
 	Float vc = vc1;
-	Float weight;
+	Float weight = 1;
 	for (int i = 1; i < k; i++) {
 		auto p_i = path[i].pdfA + 0.0001;
 		auto p_s_i = path[i - 1].pdfSA;
