@@ -24,6 +24,11 @@ namespace Miyuki {
 		vec3 raycast(int x0, int y0);
 		void render(Scene *)override;
 	};
+
+
+	//	https://agraphicsguy.wordpress.com/2016/01/16/practical-implementation-of-mis-in-bidirectional-path-tracing/
+	//	https://graphics.stanford.edu/courses/cs348b-03/papers/veach-chapter10.pdf
+	//	https://graphics.stanford.edu/courses/cs348b-03/papers/veach-chapter8.pdf
 	class BDPT : public Integrator {
 	protected:
 		Logger * logger;
@@ -38,10 +43,23 @@ namespace Miyuki {
 			vec3 hitpoint;
 			Primitive * object;
 			BxDFType type;
-			Float pdf;
+			Float G;
+			Float pdfSA;		// the pdf of the this vertex, measured in solid angle
+			Float pdfA;			// the pdf of the this vertex, measured in area
+			Float ratio;		// p_{i+1}/p_i
 			LightVertex(){}
+			static Float pdfOrdinarySolidAngle(const LightVertex& from, const LightVertex&to);
+			static Float pdfSolidAngle(const LightVertex& from, const LightVertex&to);
+			static Float pdfArea(const LightVertex&from, const LightVertex&to);
+			static Float geometryTerm(const LightVertex& v1, const LightVertex&v2);
+			
 		};
-		struct Path : public std::vector<LightVertex> {};
+		struct Path : public std::vector<LightVertex> {
+			void computePDF();
+			Float computeWeight(int, Float vcm0, Float vc0)const;
+			Float pdfSolidAngle(int i);
+			Float pdfArea(int i);
+		};
 		void traceLightPath(Seed*Xi,Path&);
 		void traceEyePath(RenderContext& ctx,Path&);
 		vec3 connectPath(Path&,Path&);
