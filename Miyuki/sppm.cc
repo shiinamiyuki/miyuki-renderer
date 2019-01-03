@@ -57,12 +57,11 @@ void Miyuki::SPPM::emitPhoton(Float total, vec3 & flux, Ray & ray, Seed * Xi)
 	ray.o = light->randomPointOnObject(Xi);
 	auto n = light->getNormOfPoint(ray.o);
 	ray.d = randomVectorInHemisphere(n, Xi);
-	ray.o += eps * ray.d;
-	flux = light->getMaterial().emittance *light->getMaterial().emissionStrength
+	// ???
+	flux = light->getMaterial().emittance * light->getMaterial().emissionStrength
 		* light->area() * scene->lights.size()
-		*  pi / (eps + vec3::dotProduct(n, ray.d));
+		* pi * 2; //why not pi
 }
-
 void Miyuki::SPPM::tracePhoton(Float N, Seed * Xi)
 {
 	vec3 flux;
@@ -182,7 +181,7 @@ void Miyuki::SPPM::cameraPass()
 			}
 			r.nonDiffuse *= scene->sampleCount;
 			if (!diffuse) {
-				r.nonDiffuse += ctx.color;
+				r.nonDiffuse += min(4 * vec3(1,1,1),ctx.color);
 			}
 			r.nonDiffuse /= 1 + scene->sampleCount;
 
@@ -239,11 +238,12 @@ vec3 Miyuki::SPPM::Region::estimateRadiance(SPPM * sppm, const vec3& refl, const
 	}
 	Float frac = (sppm->Ne * pi * radius * radius);
 	radiance = flux / frac;
-	constexpr Float maxR = 3;
-/*	if (radiance.max() > maxR) {
-		radiance *= maxR / radiance.max();
+	constexpr Float maxR = 4;
+	if (radiance.max() > maxR) {
 		flux *= maxR / radiance.max();
-	}*/
+		radiance *= maxR / radiance.max();
+		
+	}
 	return radiance;
 }
 

@@ -42,6 +42,8 @@ A non-local means filter is used as denoiser (using opencv)
 
 ## Gallery
 
+![](gallery/snapshots-Thu-Jan--3-05-12-31-2019-.png)
+
 ![](gallery/snapshots-Sun-Dec-30-15-01-56-2018-.png)
 
-![](gallery/snapshots-Sun-Dec-30-15-35-17-2018-.png)
+![](gallery/snapshots-Tue-Jan--1-17-09-22-2019-.png)
