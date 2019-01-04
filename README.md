@@ -4,6 +4,8 @@ This is a hobby project as I learn pbrt. (see http://pbrt.org)
 
 Inspired by https://github.com/JamesGriffin/Path-Tracer, 	https://github.com/fogleman/pt
 
+It's so difficult to implements those algorithms, especially for one not good at statistics. Maybe I'll just stick with path tracing and sppm. They are the most simple and robust algorithms.
+
 ##  Features:
 
 It is currently using path tracing, bidirectional path tracing, photon mapping (https://graphics.stanford.edu/courses/cs348b-00/course8.pdf)., and sppm. I chose BVH as acceleration structure, with naive split strategy.
@@ -15,7 +17,7 @@ It uses SIMD instructions to intersect multiple triangles at once, resulting in 
 A non-local means filter is used as denoiser (using opencv)
 
 ## TODO List:
-
+0. Rewrite a GPU version with path tracing and sppm only
 1. ~~Path tracing with next event estimation~~
 2. ~~Photon mapping~~
 3. ~~sppm  (Stochastic Progressive Photon Mapping)~~ (see https://www.ci.i.u-tokyo.ac.jp/~hachisuka/ppm.pdf and https://www.ci.i.u-tokyo.ac.jp/~hachisuka/sppm.pdf)
