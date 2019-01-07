@@ -1,4 +1,4 @@
-# Miyuki Renderer
+Miyuki Renderer
 
 This is a hobby project as I learn pbrt. (see http://pbrt.org)
 
@@ -22,7 +22,7 @@ A non-local means filter is used as denoiser (using opencv)
 2. ~~Photon mapping~~
 3. ~~sppm  (Stochastic Progressive Photon Mapping)~~ (see https://www.ci.i.u-tokyo.ac.jp/~hachisuka/ppm.pdf and https://www.ci.i.u-tokyo.ac.jp/~hachisuka/sppm.pdf)
 4. ~~Bidirectional path tracing~~
-5. Multiple Importance Sampling (MIS)
+5. ~~Multiple Importance Sampling (MIS)~~
 6. Metropolis Light Transport (Possibly PSSMLT)
 7. Vertex Connection and Merging (VCM)
 8. Rasterizer (for fun)
@@ -43,6 +43,16 @@ A non-local means filter is used as denoiser (using opencv)
 23. Programmable shader (possibly a homemade JIT compiler)
 
 ## Gallery
+
+
+
+![](gallery/snapshots-Sun-Jan--6-20-01-23-2019-.png)
+
+Glossy surface rendered using MIS
+
+![](gallery/snapshots-Sun-Jan--6-21-42-30-2019-.png)
+
+From old CPU version:
 
 ![](gallery/snapshots-Thu-Jan--3-05-12-31-2019-.png)
 
