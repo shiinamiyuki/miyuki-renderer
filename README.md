@@ -20,27 +20,28 @@ A non-local means filter is used as denoiser (using opencv)
 0. Rewrite a GPU version with path tracing and sppm only
 1. ~~Path tracing with next event estimation~~
 2. ~~Photon mapping~~
-3. ~~sppm  (Stochastic Progressive Photon Mapping)~~ (see https://www.ci.i.u-tokyo.ac.jp/~hachisuka/ppm.pdf and https://www.ci.i.u-tokyo.ac.jp/~hachisuka/sppm.pdf)
+3. ~~sppm  (Stochastic Progressive Photon Mapping)~~ (see https://www.ci.i.u-tokyo.ac.jp/~hachisuka/ppm.pdf and https://www.ci.i.u-tokyo.ac.jp/~hachisuka/sppm.pdf) (write a GPU version)
 4. ~~Bidirectional path tracing~~
 5. ~~Multiple Importance Sampling (MIS)~~
-6. Metropolis Light Transport (Possibly PSSMLT)
-7. Vertex Connection and Merging (VCM)
-8. Rasterizer (for fun)
-9. Toon shading
-10. Instant radiosity
-11. Loading model files using GUI
-12. Physically based reflection models
-13. Grids
-14. Surface heuristic
-15. Better sampler
-16. Texture
-17. Volumetric
-18. Participating media
-19. Spectrum
-20. Depth of field
-21. Refactoring (the GUI module is rubbish)
-22. Non-local means filter (I wrote one but it doesn't work)
-23. Programmable shader (possibly a homemade JIT compiler)
+6. Faster BVH traversal
+7. Metropolis Light Transport (Possibly PSSMLT)
+8. Vertex Connection and Merging (VCM)
+9. Rasterizer (for fun)
+10. Toon shading
+11. Instant radiosity
+12. Loading model files using GUI
+13. Physically based reflection models
+14. Grids
+15. Surface heuristic
+16. Better sampler
+17. Texture
+18. Volumetric
+19. Participating media
+20. Spectrum
+21. Depth of field
+22. Refactoring (the GUI module is rubbish)
+23. Non-local means filter (I wrote one but it doesn't work)
+24. Programmable shader (possibly a homemade JIT compiler)
 
 ## Gallery
 
