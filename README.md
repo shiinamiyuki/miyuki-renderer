@@ -6,7 +6,7 @@ Inspired by https://github.com/JamesGriffin/Path-Tracer, 	https://github.com/fog
 
 SPPM and PSSMLT are amazing and we need more of these.
 
-Mark these words: 'Don't ever attempt to write complicated GPU code if you only have limit time' .
+Mark these words: 'Don't ever attempt to write complicated GPU code if you only have limited time' .
 
 我再写一次OpenCL我是狗
 
