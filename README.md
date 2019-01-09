@@ -4,7 +4,11 @@ This is a hobby project as I learn pbrt. (see http://pbrt.org)
 
 Inspired by https://github.com/JamesGriffin/Path-Tracer, 	https://github.com/fogleman/pt
 
-It's so difficult to implements those algorithms, especially for one not good at statistics. Maybe I'll just stick with path tracing and sppm. They are the most simple and robust algorithms.
+SPPM and PSSMLT are amazing and we need more of these.
+
+Mark these words: 'Don't ever attempt to write complicated GPU code if you only have limit time' .
+
+我再写一次OpenCL我是狗
 
 ##  Features:
 
@@ -17,7 +21,7 @@ It uses SIMD instructions to intersect multiple triangles at once, resulting in 
 A non-local means filter is used as denoiser (using opencv)
 
 ## TODO List:
-0. Rewrite a GPU version with path tracing and sppm only
+0. Rewrite a CPU version using Embree and replace that shit GUI with ImGUI
 1. ~~Path tracing with next event estimation~~
 2. ~~Photon mapping~~
 3. ~~sppm  (Stochastic Progressive Photon Mapping)~~ (see https://www.ci.i.u-tokyo.ac.jp/~hachisuka/ppm.pdf and https://www.ci.i.u-tokyo.ac.jp/~hachisuka/sppm.pdf) (write a GPU version)
