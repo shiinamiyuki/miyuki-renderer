@@ -1,19 +1,15 @@
 #include "Logger.h"
-#include "MainWindow.h"
-
 
 void Logger::h(const std::string & s)
 {
-	if(window)
-		window->log(s);
+	fmt::print("{}", s);
 }
 
-Logger::Logger(MainWindow *w)
-{
-	window = w;
-}
 
 
 Logger::~Logger()
 {
 }
+
+
+

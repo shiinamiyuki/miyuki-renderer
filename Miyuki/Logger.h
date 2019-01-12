@@ -1,20 +1,17 @@
 #pragma once
-#include "util.h"
-class MainWindow;
+#include "Miyuki.h"
 class Logger
 {
+
 	
-	void h(const std::string&s);
 public:
-	MainWindow *window;
+	virtual void h(const std::string&s);
 	template<typename...Arg>
 	void log(Arg... arg) {
 		auto msg = fmt::format(arg...);
 		h(msg);
 	}
-	Logger(const Logger&l) { window = l.window; }
-	Logger() { window = nullptr; }
-	Logger(MainWindow *w);
+	Logger() {}
 	~Logger();
 };
 

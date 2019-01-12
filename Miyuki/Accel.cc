@@ -1,162 +1,170 @@
 #include "Accel.h"
-#include "Render.h"
-
-AABB makeBoundBox(const QVector3D&a, const QVector3D&b) {
-	AABB box;
-	box.min = toVec3(a);
-	box.max = toVec3(b);
-	return box;
-}
-AABB makeBoundBox(const Vector&a, const Vector&b) {
-	AABB box;
-	box.min = a;
-	box.max = b;
-	return box;
-}
-AABB getBoundBox(const Primitive& p) {
-	QVector3D d(0.001, 0.001, 0.001);
-	if (p.type == TYPE_TRIANGLE) {
-		auto a = fromVec3(min(p.triangle.vertex0, min(p.triangle.vertex1, p.triangle.vertex2)));
-		auto b = fromVec3(max(p.triangle.vertex0, max(p.triangle.vertex1, p.triangle.vertex2)));
-		return makeBoundBox(a - d, b + d);
+using namespace Miyuki;
+AABB getBoundBox(const std::vector<Primitive*> objects) {
+	vec3 a{ inf,inf,inf }, b(-inf, -inf, -inf);
+	for (auto i : objects) {
+		auto box = i->getBoundBox();
+		a = min(a, box.min);
+		b = max(b, box.max);
 	}
-	else {
-		auto c = fromVec3(p.sphere.center);
-		auto r = p.sphere.radius;
-		QVector3D v(r, r, r);
-		return makeBoundBox(c - v, c + v);
+	vec3 d{ eps,eps,eps };
+	auto result = AABB(a - d, b + d);
+	for (auto i : objects) {
+		auto box = i->getBoundBox();
+		assert(AABB::intersect(box, result));
 	}
-}
-AABB merge(const AABB&a, const AABB&b) {
-	return makeBoundBox(min(a.min, b.min), max(a.max, b.max));
-}
-AABB getBoundBox(const std::vector<Primitive>& objects, const std::vector<int>& v) {
-	auto a = vec3(inf, inf, inf);
-	auto b = vec3(-inf, -inf, -inf);
-	for (auto i : v) {
-		auto box = getBoundBox(objects[i]);
-		a = min(box.min, a);
-		b = max(box.max, b);
-	}
-	return makeBoundBox(a, b);
-}
-Vector centroid(const AABB&a) {
-	return (a.min + a.max) / 2;
-}
-Vector size(const AABB&a) {
-	return ((a.max) - (a.min)) / 2;
-}
-bool intersect(const AABB &a, const AABB &b) {
-	for (unsigned int i = 0; i < 3; i++) {
-		if (abs(centroid(a).s[i] - centroid(b).s[i])<= size(a).s[i] + size(b).s[i] + 0.01) {}
-		else { return false; }
-	}
-	return true;
+	return result;
 }
 
-bool contains(const AABB &a, const AABB &b) {
-	return a.min.x <= b.min.x && b.max.x <= a.max.x
-		&&a.min.y <= b.min.y && b.max.y <= a.max.y
-		&&a.min.z <= b.min.z && b.max.z <= a.max.z;
-}
-
-
-
-int BVH::chooseAxis(const std::vector<int> rest)
+void Miyuki::BVH::intersect(const Ray & _ray, Intersection & isct)
 {
-	Vector a = vec3(inf, inf, inf), b = vec3(-inf, -inf, -inf);
-	for (auto i : rest) {
-		const auto box = boxes[i];
-		a = min(a, centroid(box));
-		b = max(b, centroid(box));
-	}
-	Vector dim;
-	vsub(b, a, dim);
-	if (dim.x > dim.y) {
-		if (dim.x > dim.z) {
-			return 0;
-		}return 2;
-	}
-	else {
-		if (dim.y > dim.z) {
-			return 1;
-		}return 2;
+	
+	int stack[40];
+	int sp = 0;
+	int root = 0;
+	Ray ray(_ray.o, _ray.d);
+	if (!nodes[root].box.intersect(ray))
+		return;
+	SIMDRay simdRay(ray);
+	stack[sp++] = 0;
+	while (sp > 0) {
+		InternalNode * node = nodes.data() + stack[--sp];
+		if (!node->leaf) {
+			if (node->left>0&&nodes[node->left].box.intersect(ray)) {
+				stack[sp++] = node->left;
+			}
+			if (node->right > 0 && nodes[node->right].box.intersect(ray)) {
+				stack[sp++] = node->right;
+			}
+		}
+		else {
+#ifdef ENABLE_SIMD
+			for (int i = node->simdBegin; i != node->simdEnd; i++) {
+				simdTrigs[i].intersect(simdRay, isct);
+			}
+#endif
+			for (int i = node->begin; i != node->end; i++) {
+				cache[i]->intersect(ray, isct);
+			}
+		}
 	}
 }
 
-AABB BVH::getBoundBox(const std::vector<int> rest)
+void Miyuki::BVH::construct(const std::vector<Primitive*>& objects)
 {
-	AABB box = makeBoundBox(vec3(inf, inf, inf), vec3(-inf, -inf, -inf));
-	for (auto i : rest) {
-		box = merge(box, boxes[i]);
-	//	box.min = min(box.min, boxes[i].min);
-	//	box.max = max(box.max, boxes[i].max);
-	}
-	Vector d=vec3(0.001,0.001,0.001);
-	vsub(box.min, d, box.min);
-	vadd(box.max,d, box.max);
-	for (auto i : rest) {
-		assert(contains(box, boxes[i]));
-	}
-	return box;
+	auto box = getBoundBox(objects);
+	std::function<int(const AABB&, std::vector<Primitive*>&, int)>
+		build = [&](const AABB& b, std::vector<Primitive*> &vec, int depth)->int {
+		int ptr = nodes.size();
+		if (vec.size() > 16 && depth < 20) {
+			nodes.emplace_back(InternalNode());
+			auto box = getBoundBox(vec);
+			auto s = (box.max - box.min) / 2;
+			auto axis = s.x() > s.y() ? (s.x() > s.z() ? 0 : 2) : (s.y() > s.z() ? 1 : 2);
+			std::sort(vec.begin(), vec.end(), [=](Primitive * a, Primitive * b) {
+				return a->getBoundBox().center().axis(axis) < b->getBoundBox().center().axis(axis);
+			});
+
+			std::vector<Primitive*> left, right;
+			for (auto i = 0; i < vec.size(); i++) {
+				if (i < vec.size() / 2)
+					left.emplace_back(vec[i]);
+				else
+					right.emplace_back(vec[i]);
+			}
+			auto L = build(getBoundBox(left), left, depth + 1);
+			auto R = build(getBoundBox(right), right, depth + 1);
+			nodes[ptr].leaf = false;
+			nodes[ptr].left = L;
+			nodes[ptr].right = R;
+			nodes[ptr].box = b;
+			nodes[ptr].begin = nodes[ptr].end = 0;
+			return ptr;
+		}
+		else if(!vec.empty()){
+			nodes.emplace_back(InternalNode());
+			nodes[ptr].leaf = true;
+#ifdef ENABLE_SIMD
+			std::vector<Triangle*> trigs;
+			std::vector<Primitive*> others;
+			for (Primitive* i : vec) {
+
+				if (i->type() == Triangle().type()) {
+					trigs.emplace_back(static_cast<Triangle*>(i));
+				}
+				else {
+					others.emplace_back(i);
+				}
+			}
+
+		/*	while (trigs.size() % simdVec::width() != 0) {
+				others.emplace_back(trigs.back());
+				trigs.pop_back();
+			}*/
+
+			nodes[ptr].begin = cache.size();
+			nodes[ptr].end = cache.size() + others.size();
+
+			for (auto i : others) {
+				cache.emplace_back(i);
+			}
+
+			nodes[ptr].simdBegin = simdTrigs.size();
+
+			for (int i = 0; i < trigs.size(); i++) {
+				assert(trigs[i]->type() == Triangle().type());
+			}
+			std::vector<Triangle*> v;
+			int cnt = 0;
+			for (int i = simdVec::width(); i <= trigs.size(); i+= simdVec::width()) {
+				v.clear();
+				for (int j = i - simdVec::width(); j < i; j++) {
+					v.emplace_back(trigs[j]);
+					cnt++;
+				}
+				simdTrigs.emplace_back(SIMDTriangle(v));
+			}
+			if ((cnt < trigs.size())) {
+				v.clear();
+				while (cnt < trigs.size()) {
+					v.emplace_back(trigs[cnt++]);
+				}
+				simdTrigs.emplace_back(SIMDTriangle(v));
+			}
+			nodes[ptr].simdEnd = simdTrigs.size();
+#else
+			nodes[ptr].begin = cache.size();
+			nodes[ptr].end = cache.size() + vec.size();
+			for (auto i : vec) {
+				cache.emplace_back(i);
+			}
+#endif
+			nodes[ptr].box = b;
+			nodes[ptr].left = -1;
+			nodes[ptr].right = -1;
+			return ptr;
+		}
+		else {
+			return -1;
+		}
+	};
+	auto v = std::vector<Primitive*>(objects);
+	build(box,v , 0);
 }
 
-void BVH::construct(const std::vector<Primitive>&v)
+void Miyuki::BVH::clear()
 {
-	std::vector<int> rest;
-	boxes.resize(v.size());
-	for (auto& i : v) {
-		boxes[i.id] = (::getBoundBox(i));
-		rest.emplace_back(i.id);
-	}
-	nodes.reserve(400);
-	construct(v, rest);
+#ifdef ENABLE_SIMD
+	simdTrigs.clear();
+#endif
+	nodes.clear();
+	cache.clear();
 }
 
-int BVH::construct(const std::vector<Primitive>& objects,  std::vector<int>& rest)
+std::string Miyuki::BVH::getBuildInfo() const
 {
-	int idx = nodes.size();
-	if (rest.empty())return -1;
-	if (rest.size() <= 16 ) {
-		nodes.emplace_back(BVHNode());
-		nodes[idx].begin = prims.size();
-		nodes[idx].end = prims.size() + rest.size();
-		nodes[idx].box = getBoundBox(rest);
-		nodes[idx].left = nodes[idx].right = -1;
-		for (auto i : rest) {
-			prims.emplace_back(i);
-			assert(contains(nodes[idx].box, boxes[i]));
-		}
-		
-		return idx;
-	}
-	else {
-		nodes.emplace_back(BVHNode());
-		
-		int axis = chooseAxis(rest);
-		auto& vbox = boxes;
-		auto box = getBoundBox(rest);;
-		std::sort(rest.begin(), rest.end(), [&](int a, int b) {
-			return centroid(vbox[a]).s[axis] < centroid(vbox[b]).s[axis];
-		});
-		int mid = rest.size() / 2;
-		std::vector<int> v1, v2;
-		for (int i = 0; i < mid; i++) {
-			v1.emplace_back(rest[i]);
-		}
-		for (int i = mid; i < rest.size(); i++) {
-			v2.emplace_back(rest[i]);
-		}
-		int left = construct(objects, v2);
-		int right = construct(objects, v1);
-
-		nodes[idx].begin = nodes[idx].end = 0;
-		nodes[idx].left = left;
-		nodes[idx].right = right;
-		nodes[idx].box = box;
-		for (auto i : rest) {
-			assert(contains(nodes[idx].box, boxes[i]));
-		}
-		return idx;
-	}
+	return fmt::format("BVH nodes:{}\nSIMD triangles:{}\nother:{}\n",
+		nodes.size(),
+		simdTrigs.size(),
+		cache.size());
 }
