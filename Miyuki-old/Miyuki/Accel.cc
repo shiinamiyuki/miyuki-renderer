@@ -148,7 +148,8 @@ void Miyuki::BVH::construct(const std::vector<Primitive*>& objects)
 			return -1;
 		}
 	};
-	build(box, std::vector<Primitive*>(objects), 0);
+	auto v = std::vector<Primitive*>(objects);
+	build(box,v , 0);
 }
 
 void Miyuki::BVH::clear()

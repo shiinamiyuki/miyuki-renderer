@@ -54,7 +54,21 @@ void defaultScene() {
 }
 int main(int argc, char *argv[])
 {
-	testKDTree();
+	MLTSampler s;
+	Sampler sampler;
+	Seed Xi[] = { 0,2,2 };
+	sampler.Xi = Xi;
+	sampler.s = &s;
+	s.start();
+	for (int i = 0; i < 10; i++) {
+		fmt::print("{} ", sampler.sample());
+	}
+	fmt::print("\n");
+	s.start();
+	for (int i = 0; i < 10; i++) {
+		fmt::print("{} ", sampler.sample());
+	}
+	fmt::print("\n");
 	
 	return 0;
 }

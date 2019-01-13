@@ -8,6 +8,7 @@
 #include "PathTracer.h"
 #include "PhotonMap.h"
 #include "sppm.h"
+#include "mlt.h"
 namespace Miyuki {
 	class PhotonMapRenderer;
 	class Scene
@@ -16,6 +17,8 @@ namespace Miyuki {
 		friend class PhotonMapRenderer;
 		friend class SPPM;
 		friend class BDPT;
+		friend class MLT;
+		SamplerBase * samplerBase;
 	protected:
 		Logger * logger;
 		Camera camera, dummy;
@@ -35,16 +38,21 @@ namespace Miyuki {
 				Float initialRadius;
 				Float alpha;
 				int numPhoton;
+				enum DirectLighting {
+					sppmDirect,
+					RTDirect
+				}direct;
 				SPPMpara() {
 					initialRadius = 1;
 					alpha = 0.7;
 					numPhoton = 100000;
+					direct = sppmDirect;
 				}
 			}sppm;
 			Option() {
 				startNew = false;
 				maxDepth = 5;
-				rrStartDepth = 5;
+				rrStartDepth = 0;
 				directLighting = true;
 				sleepTime = 0;
 
@@ -55,6 +63,7 @@ namespace Miyuki {
 			renderPathTracing,
 			renderPM,
 			renderBDPT,
+			renderMLT,
 		}mode;
 		struct Reader {
 			vector<std::string> tokens;
@@ -93,6 +102,7 @@ namespace Miyuki {
 		PathTracer tracer;
 		PhotonMapRenderer pmRenderer;
 		SPPM sppm;
+		MLT pssmlt;
 		void trace(int x, int y);
 		Ray cameraRay(int x, int y);
 		void loadSessionData();
@@ -138,7 +148,6 @@ namespace Miyuki {
 		Logger * getLogger()const { return logger; }
 		void render(Integrator *i) { i->render(this); sampleCount++; }
 		void useIntegrator(IntegratorType ty) { integratorType = ty; }
-
 		~Scene();
 	};
 }

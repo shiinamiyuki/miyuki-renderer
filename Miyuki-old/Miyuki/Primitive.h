@@ -5,6 +5,7 @@
 #include "Material.h"
 #include "aabb.h"
 #include "Float4.h"
+#include "Sampler.h"
 namespace Miyuki {
 	class Scene;
 	struct Material;
@@ -15,12 +16,17 @@ namespace Miyuki {
 		vec3 throughput;
 		Seed * Xi;
 		Scene * scene;
+		Sampler sampler;
 		bool sampleEmit;
 		bool directLighting;
 		int depth;
 		RenderContext(Scene *_s,const Ray&_r, Seed*_Xi)
 			:scene(_s),depth(0), ray(_r),Xi(_Xi),throughput(vec3(1,1,1)), sampleEmit(true){
-			directLighting = false;
+			sampler.Xi = _Xi;
+			directLighting = true;
+		}
+		Float rand() {
+			return sampler.sample();
 		}
 	};
 	class Primitive

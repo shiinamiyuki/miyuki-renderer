@@ -10,7 +10,7 @@ namespace Miyuki {
 
 		AABB(const vec3 &_u, const vec3 &_v) : min(_u), max(_v) {}
 
-		Float intersect(const Ray &ray,Float * f = nullptr) const;
+		bool intersect(const Ray &ray) const;
 
 		bool contains(const vec3 &p) const {
 			for (int i = 0; i < 3; i++) {

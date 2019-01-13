@@ -7,7 +7,7 @@ void Miyuki::Intersection::reset() {
 }
 void Miyuki::Intersection::merge(Primitive * o, Float d, const vec3 & n) {
 	bool f = false;
-	assert(d >= eps);
+//	assert(d >= eps);
 	if (!hit()) {
 		f = true;
 	}

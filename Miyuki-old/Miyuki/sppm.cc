@@ -5,7 +5,39 @@
 
 using namespace Miyuki;
 
+vec3 Miyuki::SPPM::sampleLights(RenderContext & ctx)
+{
+	return sampleLights(ctx.ray, ctx.intersection, ctx.Xi);
+}
 
+vec3 Miyuki::SPPM::sampleLights(const Ray & ray, Intersection & isct, Seed * Xi)
+{
+	vec3 color(0, 0, 0);
+	//for (auto light : scene->lights) {
+	auto light = scene->lights[nrand48(Xi) % scene->lights.size()];
+	if (isct.object == light) {
+		return  light->getMaterial().emittance;
+	}
+	auto p = light->randomPointOnObject(Xi);
+	auto area = light->area();
+	auto shadow = p - ray.o;
+	auto distSqr = shadow.lengthSquared();
+	shadow.normalize();
+	Intersection vis;
+	vis.exclude = isct.object;
+	Ray shadowRay(ray.o, shadow);
+	intersect(shadowRay, vis);
+	if (vis.hit() && vis.object == light) {
+		color += area / (distSqr + 0.001)
+			* std::max(Float(0.0), -(vec3::dotProduct(shadow, vis.normal)))
+			* light->getMaterial().emittance
+			//* (1 - isct.object->getMaterial().reflectance(shadow * -1,isct.normal))
+			* std::max(Float(0.0), (vec3::dotProduct(shadow, isct.normal)))
+			*  light->getMaterial().emissionStrength;
+	}
+	//}
+	return color * scene->lights.size();
+}
 void Miyuki::SPPM::init(int w, int h)
 {
 	image.clear();
@@ -69,6 +101,7 @@ void Miyuki::SPPM::tracePhoton(Float N, Seed * Xi)
 	emitPhoton(N, flux, ray, Xi); 
 	Intersection isct;
 	Float F = flux.max();
+	bool direct = true;
 	for (int depth = 0; depth < scene->option.maxDepth; depth++) {
 		intersect(ray, isct);
 		if (!isct.hit())
@@ -92,9 +125,12 @@ void Miyuki::SPPM::tracePhoton(Float N, Seed * Xi)
 		if (type == BxDFType::emission)break;
 		
 		if (type == BxDFType::diffuse) {
-			pushPhoton(Photon(ray.o, ray.d, flux));
+			if(!direct
+				|| scene->option.sppm.direct == Scene::Option::SPPMpara::DirectLighting::sppmDirect)
+				pushPhoton(Photon(ray.o, ray.d, flux));
 			flux *= pi;// std::max(Float(0), -vec3::dotProduct(ray.d, isct.normal)) * 2 * pi;
 		}
+		direct = false;
 		flux *= rad / prob;
 		ray.d = wo;
 		Float P = flux.max();
@@ -166,7 +202,11 @@ void Miyuki::SPPM::cameraPass()
 						ctx.ray.o,
 						ctx.intersection.normal);
 					ctx.color += lighting;
-					diffuse = true;
+					if (scene->option.sppm.direct == Scene::Option::SPPMpara::DirectLighting::sppmDirect) {
+						diffuse = true;
+					}else {
+						ctx.color += ctx.throughput * sampleLights(ctx);
+					}
 					break;
 				}
 				ctx.ray.d = wo;

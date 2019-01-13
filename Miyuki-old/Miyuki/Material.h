@@ -1,6 +1,6 @@
 #pragma once
 #include "Miyuki.h"
-
+#include "Sampler.h"
 namespace Miyuki {
 	class PathTracer;
 	struct RenderContext;
@@ -33,6 +33,7 @@ namespace Miyuki {
 		}
 		bool render(PathTracer*,RenderContext &)const; // true for continue rendering, false for termination
 		BxDFType sample(Seed * Xi, const vec3& wi, const vec3& norm, vec3& wo,vec3& rad, Float &)const;
+		BxDFType sample(Sampler& s, const vec3& wi, const vec3& norm, vec3& wo, vec3& rad, Float &)const;
 		Float brdf(const vec3& wi, const vec3& norm, const vec3& wo)const;
 		static Material makeRefr(const vec3&spec, double Ni) {
 			Material m(vec3(0, 0, 0), vec3(0, 0, 0), spec);

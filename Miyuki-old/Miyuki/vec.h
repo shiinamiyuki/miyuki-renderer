@@ -179,7 +179,9 @@ namespace Miyuki {
 			return v;
 		}
 	};
-
+	inline Float luminance(const vec3& a) {
+		return 0.299 * a.x() + 0.587 * a.y() + 0.114*a.z();
+	}
 	inline vec3 operator*(const vec3 &a, Float k) {
 		vec3 _v(a);
 		_v *= k;

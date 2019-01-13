@@ -42,6 +42,8 @@ namespace Miyuki {
 		void cameraPass();
 		void buildPhotonMap();
 		void pushPhoton(Photon&&);
+		vec3 sampleLights(RenderContext&ctx);
+		vec3 sampleLights(const Ray&ray, Intersection&isct, Seed*	Xi);
 	public:
 		SPPM();
 		void render(Scene *)override;

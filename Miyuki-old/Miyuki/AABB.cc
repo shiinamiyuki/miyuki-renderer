@@ -1,7 +1,7 @@
 
 #include "aabb.h"
 using namespace Miyuki;
-Float AABB::intersect(const Ray &ray,Float * f) const {
+bool AABB::intersect(const Ray &ray) const {
 	auto _tMin = (min - ray.o) * ray.invd;
 	auto _tMax = (max - ray.o) * ray.invd;
 	/*
@@ -49,13 +49,13 @@ Float AABB::intersect(const Ray &ray,Float * f) const {
 		tmax = tzmax;
 
 	if (tmin < eps) {
-		return tmax;
+		return tmax > eps ;
 	}
 	else if (tmax < eps) {
-		return tmin;
+		return tmin > eps;
 	}
 	else {
-		return std::min(tmin, tmax);
+		return std::min(tmin, tmax) > eps;
 	}
 	
 }

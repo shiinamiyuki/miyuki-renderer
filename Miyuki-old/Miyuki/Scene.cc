@@ -126,6 +126,7 @@ void Miyuki::Scene::readScript(const char * name)
 
 void Miyuki::Scene::prepare()
 {
+	samplerBase = new SamplerBase();
 	tracer.logger = pmRenderer.logger = logger;
 	camera = dummy;
 	sampleCount = 0;
@@ -353,7 +354,7 @@ void  Miyuki::Scene::loadObj(const char *filename, vec3 translation, vec3 rotati
 }
 RenderContext Miyuki::Scene::getRenderContext(int x0, int y0)
 {
-	Seed * _Xi = &Xi[x0 + y0 * w];
+	Seed * _Xi = &Xi[(x0 + y0 * w) * 3];
 	Float x = (2 * (Float)x0 / w - 1)* static_cast<Float>(w) / h;
 	Float y = 2 * (1 - (Float)y0 / h) - 1;
 	vec3 ro = camera.pos;
@@ -366,6 +367,8 @@ RenderContext Miyuki::Scene::getRenderContext(int x0, int y0)
 	rd = rotate(rd, vec3(0, 1, 0), camera.dir.x());
 	RenderContext ctx(this, Ray(ro, rd), _Xi);
 	ctx.directLighting = option.directLighting;
+	ctx.sampler.s = samplerBase;
+	ctx.sampler.Xi = _Xi;
 	return ctx;
 }
 Scene::~Scene()
