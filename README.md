@@ -11,3 +11,4 @@ A pbrt-style renderer.
 5. Primary Sample Space Metropolis Light Transport
 6. Bidirectional Path Tracing
 7. Multiple Importance Sampling
+8. Vertex Connection and Merging
