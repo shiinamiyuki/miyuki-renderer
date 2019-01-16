@@ -12,7 +12,6 @@ namespace Miyuki{
             sphere,
             triangle,
         }type;
-
     };
 }
 

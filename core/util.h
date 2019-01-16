@@ -22,6 +22,9 @@
 #include <limits>
 #include <mutex>
 #include <atomic>
+#include <memory>
+#include <unordered_map>
+#include <boost/filesystem.hpp>
 
 #include <embree3/rtcore.h>
 
@@ -32,36 +35,42 @@
 
 namespace Miyuki {
     using Float = float;
+
     template<typename Iter, typename Func>
-    inline void parallel_for_each(Iter begin, Iter end, Func f) {
+    inline void parallelForEach(Iter begin, Iter end, Func f) {
 #pragma omp parallel for
-        for(Iter i = begin;i<end;i++){
+        for (Iter i = begin; i < end; i++) {
             f(i);
         }
     }
 
     template<typename Iter, typename Func>
-    inline void for_each(Iter begin, Iter end, Func f) {
-        for(Iter i = begin;i<end;i++){
+    inline void forEach(Iter begin, Iter end, Func f) {
+        for (Iter i = begin; i < end; i++) {
             f(i);
         }
     }
 
     template<typename Func>
-    inline void parallel_for(size_t begin, size_t end, Func f){
-        parallel_for_each(begin,end ,f);
+    inline void parallelFor(size_t begin, size_t end, Func f) {
+        parallelForEach(begin, end, f);
     }
+
     template<typename T>
-    T clamp(T x, T a,T b){
-        if(x < a)
+    T clamp(T x, T a, T b) {
+        if (x < a)
             return a;
-        if(x > b)
+        if (x > b)
             return b;
         return x;
     }
+
     RTCDevice GetEmbreeDevice();
+
     void Init();
+
     void Exit();
+    namespace cxx = boost;
 }
 #define let const auto
 #endif //MIYUKI_UTIL_HPP

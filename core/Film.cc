@@ -6,21 +6,20 @@
 
 using namespace Miyuki;
 
-Miyuki::Vec3f Miyuki::Film::Pixel::toInt() const {
+Miyuki::Spectrum Miyuki::Film::Pixel::toInt() const {
     auto w = weightSum == 0 ? 1 : weightSum;
-    auto f = [=](Float x) {
-        return lround(pow(clamp<double>(x / w, 0, 1), 1.0 / 2.2) * 255.0);
-    };
-    return Vec3f(f(color.x()), f(color.y()), f(color.z()));
+    auto c = color;
+    c /= w;
+    return c.gammaCorrection();
 }
 
-void Film::Pixel::add(const Vec3f &c, const Float& w) {
+void Film::Pixel::add(const Spectrum &c, const Float &w) {
     color += c;
     weightSum += w;
 }
 
 Film::Pixel &Film::getPixel(const Point2f &p) {
-    return getPixel((int)p.x(),(int)p.y());
+    return getPixel((int) p.x(), (int) p.y());
 }
 
 Film::Pixel &Film::getPixel(int x, int y) {
@@ -30,5 +29,17 @@ Film::Pixel &Film::getPixel(int x, int y) {
 }
 
 Film::Pixel &Film::getPixel(const Point2i &p) {
-    return getPixel(p.x(),p.y());
+    return getPixel(p.x(), p.y());
 }
+
+void Film::writeImage(Float scale) {
+    for (auto &i:image) {
+
+    }
+}
+
+Film::Film(int w, int h) : imageBound(Point2i({0, 0}), Point2i({w, h})) {
+
+}
+
+

@@ -368,10 +368,12 @@ namespace Miyuki {
             return v[n];
         }
 
-        Float operator[](unsigned int i) {
+        Float& operator[](unsigned int i) {
             return axis(i);
         }
-
+        const Float& operator[](unsigned int i)const {
+            return axis(i);
+        }
         const Float &axis(unsigned int n) const {
             assert(n < 3);
             return v[n];
@@ -665,7 +667,17 @@ namespace Miyuki {
             x /= rhs;
             return x;
         }
+        Vec operator*(const T &rhs) const {
+            auto x = *this;
+            x *= rhs;
+            return x;
+        }
 
+        Vec operator/(const T &rhs) const {
+            auto x = *this;
+            x /= rhs;
+            return x;
+        }
         Vec operator+(const Vec &rhs) const {
             auto x = *this;
             x += rhs;

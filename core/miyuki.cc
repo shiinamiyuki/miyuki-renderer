@@ -3,7 +3,7 @@
 //
 
 #include "util.h"
-
+#include "mesh.h"
 using namespace Miyuki;
 
 class RenderSystem {
@@ -13,6 +13,8 @@ public:
     }
 
     int exec() {
+        MaterialList materialList;
+        auto m = Mesh::LoadFromObj(&materialList,"models/gopher.obj");
         return 0;
     }
 
