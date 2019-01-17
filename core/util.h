@@ -1,5 +1,5 @@
 //
-// Created by xiaoc on 2019/1/8.
+// Created by Shiina Miyuki on 2019/1/8.
 //
 
 #ifndef MIYUKI_UTIL_HPP
@@ -36,9 +36,18 @@
 namespace Miyuki {
     using Float = float;
 
+    template<typename Func>
+    double runtime(Func f) {
+        auto start = std::chrono::system_clock::now();
+        f();
+        auto end = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        return elapsed_seconds.count();
+    }
+
     template<typename Iter, typename Func>
     inline void parallelForEach(Iter begin, Iter end, Func f) {
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic, 1)
         for (Iter i = begin; i < end; i++) {
             f(i);
         }
@@ -70,6 +79,7 @@ namespace Miyuki {
     void Init();
 
     void Exit();
+
     namespace cxx = boost;
 }
 #define let const auto

@@ -1,14 +1,17 @@
 //
-// Created by xiaoc on 2019/1/15.
+// Created by Shiina Miyuki on 2019/1/15.
 //
 
 #include "mesh.h"
+#include "scene.h"
 
 using namespace Miyuki;
 using Mesh::TriangularMesh;
 
 std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *materialList, const char *filename) {
     std::shared_ptr<TriangularMesh> mesh(new TriangularMesh());
+    int mOffset = materialList->size();
+
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
@@ -28,7 +31,7 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
         fmt::print(stderr, "{}\n", err);
     }
     if (!ret) {
-        fmt::print(stderr, "error loading OBJ file {}\n",file);
+        fmt::print(stderr, "error loading OBJ file {}\n", file);
         return nullptr;
     }
     for (const auto &m :materials) {
@@ -41,14 +44,14 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
         materialList->emplace_back(material);
     }
     for (auto i = 0; i < attrib.vertices.size(); i += 3) {
-        mesh->vertex.emplace_back(Vec3f(attrib.vertices[3 * i],
-                                        attrib.vertices[3 * i + 1],
-                                        attrib.vertices[3 * i + 2]));
+        mesh->vertex.emplace_back(Vec3f(attrib.vertices[i],
+                                        attrib.vertices[i + 1],
+                                        attrib.vertices[i + 2]));
     }
     for (auto i = 0; i < attrib.normals.size(); i += 3) {
-        mesh->norm.emplace_back(Vec3f(attrib.normals[3 * i],
-                                      attrib.normals[3 * i + 1],
-                                      attrib.normals[3 * i + 2]));
+        mesh->norm.emplace_back(Vec3f(attrib.normals[i],
+                                      attrib.normals[i + 1],
+                                      attrib.normals[i + 2]));
     }
 // Loop over shapes
     for (size_t s = 0; s < shapes.size(); s++) {
@@ -62,11 +65,14 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
             for (size_t v = 0; v < fv; v++) {
                 // access to vertex
                 tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+                assert(idx.vertex_index < mesh->vertexCount());
                 triangle.vertex[v] = idx.vertex_index;
+
                 if (idx.normal_index < mesh->norm.size())
                     triangle.norm[v] = idx.normal_index;
                 else {
                     triangle.useNorm = false;
+
                 }
 //                tinyobj::real_t vx = attrib.vertices[3 * idx.vertex_index + 0];
 //                tinyobj::real_t vy = attrib.vertices[3 * idx.vertex_index + 1];
@@ -85,13 +91,31 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
                                              mesh->vertex[triangle.vertex[2]] - mesh->vertex[triangle.vertex[0]]);
             triangle.area = triangle.trigNorm.length() / 2;
             triangle.trigNorm.normalize();
-            triangle.materialId = shapes[s].mesh.material_ids[f];
+            if (!triangle.useNorm) {
+                mesh->norm.emplace_back(triangle.trigNorm);
+                for (int i = 0; i < 3; i++) {
+                    triangle.norm[i] = mesh->norm.size() - 1;
+                }
+            }
+
+            triangle.materialId = shapes[s].mesh.material_ids[f] + mOffset;
             mesh->trigs.emplace_back(triangle);
             index_offset += fv;
         }
     }
     fmt::print("{} vertices, {} normals, {} triangles\n", mesh->vertex.size(), mesh->norm.size(), mesh->trigs.size());
-    fmt::print("Done loading {}\n",filename);
+    fmt::print("Done loading {}\n", filename);
     return mesh;
 }
 
+Mesh::MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh) {
+    primitives.resize(mesh->triangleCount());
+    for (int i = 0; i < mesh->triangleCount(); i++) {
+        auto &trig = mesh->triangleArray()[i];
+        primitives[i].materialId = trig.materialId;
+        for (int k = 0; k < 3; k++) {
+            primitives[i].normal[k] = mesh->norm[trig.norm[k]];
+            primitives[i].vertices[k] =mesh->vertex[trig.vertex[k]];
+        }
+    }
+}

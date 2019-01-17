@@ -1,5 +1,5 @@
 //
-// Created by xiaoc on 2019/1/12.
+// Created by Shiina Miyuki on 2019/1/12.
 //
 
 #include "Film.h"
@@ -23,8 +23,8 @@ Film::Pixel &Film::getPixel(const Point2f &p) {
 }
 
 Film::Pixel &Film::getPixel(int x, int y) {
-    x = clamp<int>(0, x, imageBound.pMax.x());
-    y = clamp<int>(0, y, imageBound.pMax.y());
+    x = clamp<int>(x, 0, imageBound.pMax.x());
+    y = clamp<int>(y, 0, imageBound.pMax.y());
     return image[x + width() * y];
 }
 
@@ -39,7 +39,25 @@ void Film::writeImage(Float scale) {
 }
 
 Film::Film(int w, int h) : imageBound(Point2i({0, 0}), Point2i({w, h})) {
+    assert(w >= 0 && h >= 0);
+    image.resize(w * h);
+}
 
+void Film::writePNG(const std::string &filename) {
+    std::vector<unsigned char> pixelBuffer;
+    for (const auto &i:image) {
+        auto out = i.toInt();
+        pixelBuffer.emplace_back(out.r());
+        pixelBuffer.emplace_back(out.g());
+        pixelBuffer.emplace_back(out.b());
+        pixelBuffer.emplace_back(255);
+    }
+    lodepng::encode(filename, pixelBuffer, (unsigned int) width(), (unsigned int) height());
+}
+
+void Film::addSplat(const Point2i &pos, const Spectrum &c) {
+    //TODO: replace with other filters (currently box filters)
+    getPixel(pos).add(c, 1);
 }
 
 

@@ -1,9 +1,11 @@
 //
-// Created by xiaoc on 2019/1/12.
+// Created by Shiina Miyuki on 2019/1/12.
 //
 
 #include "util.h"
 #include "mesh.h"
+#include "scene.h"
+
 using namespace Miyuki;
 
 class RenderSystem {
@@ -13,8 +15,11 @@ public:
     }
 
     int exec() {
-        MaterialList materialList;
-        auto m = Mesh::LoadFromObj(&materialList,"models/gopher.obj");
+        Scene scene;
+        scene.loadObjTrigMesh("models/cornell_box.obj");
+        scene.getCamera().moveTo(Vec3f(250, 250, -500));
+        scene.renderPreview();
+        scene.writeImage("test.png");
         return 0;
     }
 

@@ -1,5 +1,5 @@
 //
-// Created by xiaoc on 2019/1/16.
+// Created by Shiina Miyuki on 2019/1/16.
 //
 
 #include "spectrum.h"

@@ -1,5 +1,5 @@
 //
-// Created by xiaoc on 2019/1/12.
+// Created by Shiina Miyuki on 2019/1/12.
 //
 
 #ifndef MIYUKI_FILM_H
@@ -37,11 +37,13 @@ namespace Miyuki {
 
         Pixel &getPixel(int x, int y);
 
-        void addSplat(const Point2i &);
+        void addSplat(const Point2i &, const Spectrum& c);
 
         void writeImage(Float scale);
 
         Film(int w = 0, int h = 0);
+
+        void writePNG(const std::string&filename);
     };
 }
 #endif //MIYUKI_FILM_H

@@ -1,5 +1,5 @@
 //
-// Created by xiaoc on 2019/1/12.
+// Created by Shiina Miyuki on 2019/1/12.
 //
 
 #include "util.h"
@@ -13,7 +13,11 @@ RTCDevice Miyuki::GetEmbreeDevice() {
 }
 
 void Miyuki::Init() {
-    GetEmbreeDevice();
+    if(!GetEmbreeDevice()){
+        fmt::print(stderr, "Error creating embree device. Exiting...\n");
+        exit(-1);
+    }
+
 }
 
 void Miyuki::Exit() {

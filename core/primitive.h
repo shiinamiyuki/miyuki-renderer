@@ -1,5 +1,5 @@
 //
-// Created by xiaoc on 2019/1/12.
+// Created by Shiina Miyuki on 2019/1/12.
 //
 
 #ifndef MIYUKI_SHAPE_H

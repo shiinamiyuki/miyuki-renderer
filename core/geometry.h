@@ -1,5 +1,5 @@
 //
-// Created by xiaoc on 2019/1/12.
+// Created by Shiina Miyuki on 2019/1/12.
 //
 
 #ifndef MIYUKI_VEC_HPP
@@ -368,12 +368,14 @@ namespace Miyuki {
             return v[n];
         }
 
-        Float& operator[](unsigned int i) {
+        Float &operator[](unsigned int i) {
             return axis(i);
         }
-        const Float& operator[](unsigned int i)const {
+
+        const Float &operator[](unsigned int i) const {
             return axis(i);
         }
+
         const Float &axis(unsigned int n) const {
             assert(n < 3);
             return v[n];
@@ -598,17 +600,15 @@ namespace Miyuki {
 
 
         Vec(const Vec &rhs) {
+            for (int i = 0; i < N; i++)
+                v[i] = rhs.v[i];
 
-            v[0] = rhs.v[0];
-            v[1] = rhs.v[1];
-            v[2] = rhs.v[2];
-            v[3] = rhs.v[3];
         }
 
         Vec(const std::initializer_list<T> &list) {
             auto iter = list.begin();
-            assert(list.size() == 3);
-            for (int i = 0; i < 3; i++) {
+            assert(list.size() == N);
+            for (int i = 0; i < N; i++) {
                 v[i] = *iter;
                 iter++;
             }
@@ -667,6 +667,7 @@ namespace Miyuki {
             x /= rhs;
             return x;
         }
+
         Vec operator*(const T &rhs) const {
             auto x = *this;
             x *= rhs;
@@ -678,6 +679,7 @@ namespace Miyuki {
             x /= rhs;
             return x;
         }
+
         Vec operator+(const Vec &rhs) const {
             auto x = *this;
             x += rhs;
@@ -693,7 +695,8 @@ namespace Miyuki {
         T &operator[](int i) { return v[i]; }
 
         const T &operator[](int i) const { return v[i]; }
-        int size()const{return N;}
+
+        int size() const { return N; }
     };
 
     using Point3f = Vec<Float, 3>;
@@ -708,9 +711,10 @@ namespace Miyuki {
         T pMin, pMax;
 
         Bound(const T &_min, const T &_max) : pMin(_min), pMax(_max) {}
-        bool contains(const T& point){
-            for(int i = 0;i<pMax.size();i++){
-                if(point[i]<pMin[i] || point[i]>pMax[i])return false;
+
+        bool contains(const T &point) {
+            for (int i = 0; i < pMax.size(); i++) {
+                if (point[i] < pMin[i] || point[i] > pMax[i])return false;
             }
             return true;
         }
@@ -720,5 +724,9 @@ namespace Miyuki {
     using Bound2f = Bound<Point2f>;
     using Bound3i = Bound<Point3i>;
     using Bound2i = Bound<Point2i>;
+
+    Vec3f cosineWeightedHemisphereSampling(const Vec3f& norm, Float u1, Float u2);
+    Vec3f sphereSampling(Float u1, Float u2);
+    Vec3f GGXImportanceSampling(const Vec3f&norm, Float u1, Float u2);
 }
 #endif //MIYUKI_VEC_HPP
