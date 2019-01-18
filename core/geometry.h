@@ -598,6 +598,29 @@ namespace Miyuki {
 
         Vec() { for (auto i = 0; i < 3; i++) { v[i] = 0; }}
 
+        Vec(T x) {
+            static_assert(N >= 1, "no x component");
+            v[0] = x;
+            for (int i = 1; i < N; i++)
+                v[i] = 0;
+        }
+
+        Vec(T x, T y) {
+            static_assert(N >= 2, "no y component");
+            v[0] = x;
+            v[1] = y;
+            for (int i = 1; i < N; i++)
+                v[i] = 0;
+        }
+
+        Vec(T x, T y, T z) {
+            static_assert(N >= 3, "no z component");
+            v[0] = x;
+            v[1] = y;
+            v[2] = z;
+            for (int i = 1; i < N; i++)
+                v[i] = 0;
+        }
 
         Vec(const Vec &rhs) {
             for (int i = 0; i < N; i++)
@@ -725,8 +748,10 @@ namespace Miyuki {
     using Bound3i = Bound<Point3i>;
     using Bound2i = Bound<Point2i>;
 
-    Vec3f cosineWeightedHemisphereSampling(const Vec3f& norm, Float u1, Float u2);
+    Vec3f cosineWeightedHemisphereSampling(const Vec3f &norm, Float u1, Float u2);
+
     Vec3f sphereSampling(Float u1, Float u2);
-    Vec3f GGXImportanceSampling(const Vec3f&norm, Float u1, Float u2);
+
+    Vec3f GGXImportanceSampling(const Vec3f &norm, Float u1, Float u2);
 }
 #endif //MIYUKI_VEC_HPP

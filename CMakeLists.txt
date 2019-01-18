@@ -22,4 +22,4 @@ add_executable(Miyuki
         core/mesh.h
         core/mesh.cc
         core/spectrum.h
-        core/spectrum.cc core/sampler.h sampler/random.h sampler/random.cc)
+        core/spectrum.cc core/sampler.h sampler/random.h sampler/random.cc core/light.h)

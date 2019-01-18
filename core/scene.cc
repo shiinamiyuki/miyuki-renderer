@@ -5,11 +5,14 @@
 #include "scene.h"
 #include "mesh.h"
 #include "spectrum.h"
+#include "../sampler/random.h"
 
 using namespace Miyuki;
 using namespace Mesh;
+
 Scene::Scene() : film(1000, 1000) {
     rtcScene = rtcNewScene(GetEmbreeDevice());
+    seeds.resize(film.width() * film.height());
 
 }
 
@@ -28,6 +31,7 @@ void Scene::loadObjTrigMesh(const char *filename) {
     addMesh(mesh);
     checkError();
 }
+
 void Scene::instantiateMesh(std::shared_ptr<Mesh::TriangularMesh> mesh) {
     instances.emplace_back(Mesh::MeshInstance(mesh));
 }
@@ -66,6 +70,42 @@ void Scene::writeImage(const std::string &filename) {
 
 void Scene::setFilmDimension(const Point2i &dim) {
     film = Film(dim.x(), dim.y());
+    seeds.resize(dim.x() * dim.y());
+}
+
+void Scene::renderAO() {
+    commit();
+    fmt::print("Rendering AO\n");
+    constexpr int N = 640;
+    auto t = runtime([&]() {
+        parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
+            for (int y = 0; y < film.height(); y++) {
+                int cnt = 0;
+                RandomSampler randomSampler(&seeds[x + film.width() * y]);
+
+                for (int i = 0; i < N; i++) {
+                    auto ctx = getRenderContext(Point2i({(int) x, y}));
+                    Intersection intersection(ctx.primary.toRTCRay());
+                    intersection.intersect(rtcScene);
+                    if (intersection.hit()) {
+                        auto hit = ctx.primary.o + intersection.rayHit.ray.tfar * ctx.primary.d;
+                        auto p = fetchIntersectedPrimitive(intersection);
+                        auto rd = cosineWeightedHemisphereSampling(p.normal[0],
+                                                                   randomSampler.nextFloat(),
+                                                                   randomSampler.nextFloat());
+                        Ray ray(hit, rd);
+                        Intersection second(ray.toRTCRay());
+                        second.intersect(rtcScene);
+                        if (!second.hit()) {
+                            cnt++;
+                        }
+                    }
+                }
+                film.addSplat(Point2i({(int) x, y}), Spectrum(Vec3f(1, 1, 1) * (Float(cnt) / N)));
+            }
+        });
+    });
+    fmt::print("Rendering end in {} secs, {} M Rays/sec\n", t, N * film.width() * film.height() / t / 1e6);
 
 }
 
@@ -80,7 +120,7 @@ void Scene::renderPreview() {
                 intersection.intersect(rtcScene);
                 if (intersection.hit()) {
                     auto p = fetchIntersectedPrimitive(intersection);
-                    Float light = std::max(Float(0.2), Vec3f::dot(p.normal[0], Vec3f(0.1,1,0.3).normalized()));
+                    Float light = std::max(Float(0.2), Vec3f::dot(p.normal[0], Vec3f(0.1, 1, 0.3).normalized()));
                     Spectrum c = Spectrum(materialList[p.materialId].kd * light);
                     film.addSplat(Point2i({(int) x, y}), c);
                 }
@@ -97,7 +137,10 @@ RenderContext Scene::getRenderContext(const Point2i &raster) {
     Float y = 2 * (1 - (Float) y0 / film.height()) - 1;
     Vec3f ro = camera.viewpoint;
     auto z = (Float) (2.0 / tan(camera.aov / 2));
-    Vec3f rd = Vec3f(x, y, 0) - Vec3f(0, 0, -z);
+    Float dx = 2.0 / film.height(), dy = 2.0 / film.height();
+    Seed *_Xi = &seeds[(x0 + y0 * film.width())];
+    Vec3f jitter = Vec3f(dx * erand48(_Xi->getPtr()), dy * erand48(_Xi->getPtr()), 0);
+    Vec3f rd = Vec3f(x, y, 0) + jitter - Vec3f(0, 0, -z);
     rd.normalize();
     rd = rotate(rd, Vec3f(1, 0, 0), camera.direction.y());
     rd = rotate(rd, Vec3f(0, 1, 0), camera.direction.x());
@@ -114,6 +157,47 @@ void Scene::checkError() {
 
 const Mesh::MeshInstance::Primitive &Scene::fetchIntersectedPrimitive(const Intersection &intersection) {
     return instances[intersection.geomID()].primitives[intersection.primID()];
+}
+
+void Scene::renderPT() {
+    commit();
+    fmt::print("Rendering\n");
+    constexpr int N = 64;
+    for (int i = 0; i < N; i++) {
+        auto t = runtime([&]() {
+            parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
+                for (int y = 0; y < film.height(); y++) {
+                    RandomSampler randomSampler(&seeds[x + film.width() * y]);
+                    auto ctx = getRenderContext(Point2i({(int) x, y}));
+                    Ray ray = ctx.primary;
+                    Spectrum color(0, 0, 0);
+                    Vec3f refl(1, 1, 1);
+                    for (int depth = 0; depth < 5; depth++) {
+                        Intersection intersection(ray);
+                        intersection.intersect(rtcScene);
+                        if (!intersection.hit())
+                            break;
+                        ray.o += ray.d * intersection.hitDistance();
+                        auto p = fetchIntersectedPrimitive(intersection);
+                        auto &m = materialList[p.materialId];
+                        auto tot = m.ka.max() + m.kd.max();
+                        auto x = randomSampler.nextFloat() * tot;
+                        if (x < m.ka.max()) {
+                            color += m.ka * refl;
+                            break;
+                        } else {
+                            refl *= m.kd;
+                            ray.d = cosineWeightedHemisphereSampling(p.normal[0],
+                                                                     randomSampler.nextFloat(),
+                                                                     randomSampler.nextFloat());
+                        }
+                    }
+                    film.addSplat(Point2i(x, y), color);
+                }
+            });
+        });
+        fmt::print("{}th iteration in {} secs, {} M Rays/sec\n", 1 + i, t, film.width() * film.height() / t / 1e6);
+    }
 }
 
 
@@ -135,8 +219,20 @@ RTCRay Ray::toRTCRay() const {
     return ray;
 }
 
+Ray::Ray(const RTCRay &ray) {
+
+}
+
 Intersection::Intersection(const RTCRay &ray) {
     rayHit.ray = ray;
+    rayHit.ray.flags = 0;
+    rayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
+    rayHit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
+    rtcInitIntersectContext(&context);
+}
+
+Intersection::Intersection(const Ray &ray) {
+    rayHit.ray = ray.toRTCRay();
     rayHit.ray.flags = 0;
     rayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
     rayHit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
@@ -146,3 +242,12 @@ Intersection::Intersection(const RTCRay &ray) {
 void Intersection::intersect(RTCScene scene) {
     rtcIntersect1(scene, &context, &rayHit);
 }
+
+void Intersection::occlude(RTCScene scene) {
+    rtcOccluded1(scene, &context, &rayHit.ray);
+}
+
+Vec3f Intersection::intersectionPoint() const {
+    return Vec3f();
+}
+

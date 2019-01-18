@@ -10,13 +10,14 @@
 namespace Miyuki {
     class RandomSampler : public Sampler {
     public:
+        RandomSampler(Seed *s):Sampler(s){}
         Float nextFloat() override;
 
         int nextInt() override;
 
-        Float nextFloat(Seed &seed) override;
+        Float nextFloat(Seed *seed) override;
 
-        int nextInt(Seed &seed) override;
+        int nextInt(Seed *seed) override;
     };
 }
 #endif //MIYUKI_RANDOM_H

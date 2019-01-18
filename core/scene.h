@@ -51,6 +51,8 @@ namespace Miyuki {
 
         Ray(const Vec3f &_o, const Vec3f &_d) : o(_o), d(_d) {}
 
+        Ray(const RTCRay &ray);
+
         RTCRay toRTCRay() const;
     };
 
@@ -65,14 +67,21 @@ namespace Miyuki {
         RTCRayHit rayHit;
 
         Intersection(const RTCRay &ray);
+        Intersection(const Ray &ray);
 
         void intersect(RTCScene scene);
+
+        void occlude(RTCScene scene);
 
         bool hit() const { return rayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID; }
 
         unsigned int geomID() const { return rayHit.hit.geomID; }
 
         unsigned int primID() const { return rayHit.hit.primID; }
+
+        Float hitDistance() const { return rayHit.ray.tfar; }
+
+        Vec3f intersectionPoint() const;
     };
 
     class Scene {
@@ -104,6 +113,10 @@ namespace Miyuki {
         void setFilmDimension(const Point2i &);
 
         void renderPreview();
+
+        void renderAO();
+
+        void renderPT();
 
         Camera &getCamera() { return camera; }
 

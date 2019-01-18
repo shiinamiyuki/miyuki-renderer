@@ -17,8 +17,10 @@ public:
     int exec() {
         Scene scene;
         scene.loadObjTrigMesh("models/cornell_box.obj");
-        scene.getCamera().moveTo(Vec3f(250, 250, -500));
-        scene.renderPreview();
+        scene.getCamera().moveTo(Vec3f(280, 260, -520));
+//        scene.getCamera().moveTo(Vec3f(10,3,0));
+//        scene.getCamera().rotateTo(Vec3f(-M_PI/2,0,0));
+        scene.renderPT();
         scene.writeImage("test.png");
         return 0;
     }
