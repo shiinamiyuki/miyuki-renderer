@@ -6,13 +6,15 @@
 #define MIYUKI_SCENE_HPP
 
 #include "util.h"
-#include "Film.h"
+#include "film.h"
 #include "mesh.h"
 #include "sampler.h"
 #include "light.h"
 #include "intersection.h"
 #include "ray.h"
 #include "interaction.h"
+#include "integrator.h"
+#include "../integrator/ao.h"
 
 namespace Miyuki {
     struct Material {
@@ -53,6 +55,7 @@ namespace Miyuki {
     struct Ray;
     struct Intersection;
     struct Interaction;
+
     struct RenderContext {
         Ray primary;
 
@@ -60,7 +63,9 @@ namespace Miyuki {
     };
 
     class Light;
+
     class Scene {
+        friend class AOIntegrator;
 
         RTCScene rtcScene;
         Film film;
@@ -85,6 +90,9 @@ namespace Miyuki {
         void fetchInteraction(const Intersection &, Ref<Interaction> interaction);
 
     public:
+        RTCScene sceneHandle() const { return rtcScene; }
+
+        void prepare();
 
         void loadObjTrigMesh(const char *filename);
 
@@ -93,8 +101,6 @@ namespace Miyuki {
         void setFilmDimension(const Point2i &);
 
         void renderPreview();
-
-        void renderAO();
 
         void renderPT();
 

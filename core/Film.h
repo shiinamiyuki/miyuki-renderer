@@ -15,9 +15,9 @@ namespace Miyuki {
 
         struct Pixel {
             Spectrum color;
-            Float weightSum;
+            Float filterWeightSum;
 
-            Pixel() : color(0, 0, 0), weightSum(0) {}
+            Pixel() : color(0, 0, 0), filterWeightSum(0) {}
 
             Spectrum toInt() const;
 
@@ -37,13 +37,13 @@ namespace Miyuki {
 
         Pixel &getPixel(int x, int y);
 
-        void addSplat(const Point2i &, const Spectrum& c);
+        void addSplat(const Point2i &, const Spectrum &c, Float weight = 1);
 
-        void writeImage(Float scale);
+        void scaleImageColor(Float scale);
 
         Film(int w = 0, int h = 0);
 
-        void writePNG(const std::string&filename);
+        void writePNG(const std::string &filename);
     };
 }
 #endif //MIYUKI_FILM_H

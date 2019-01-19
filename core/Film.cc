@@ -7,7 +7,7 @@
 using namespace Miyuki;
 
 Miyuki::Spectrum Miyuki::Film::Pixel::toInt() const {
-    auto w = weightSum == 0 ? 1 : weightSum;
+    auto w = filterWeightSum == 0 ? 1 : filterWeightSum;
     auto c = color;
     c /= w;
     return c.gammaCorrection();
@@ -15,7 +15,7 @@ Miyuki::Spectrum Miyuki::Film::Pixel::toInt() const {
 
 void Film::Pixel::add(const Spectrum &c, const Float &w) {
     color += c;
-    weightSum += w;
+    filterWeightSum += w;
 }
 
 Film::Pixel &Film::getPixel(const Point2f &p) {
@@ -32,9 +32,9 @@ Film::Pixel &Film::getPixel(const Point2i &p) {
     return getPixel(p.x(), p.y());
 }
 
-void Film::writeImage(Float scale) {
+void Film::scaleImageColor(Float scale) {
     for (auto &i:image) {
-
+        i.color *= scale;
     }
 }
 
@@ -55,9 +55,8 @@ void Film::writePNG(const std::string &filename) {
     lodepng::encode(filename, pixelBuffer, (unsigned int) width(), (unsigned int) height());
 }
 
-void Film::addSplat(const Point2i &pos, const Spectrum &c) {
-    //TODO: replace with other filters (currently box filters)
-    getPixel(pos).add(c, 1);
+void Film::addSplat(const Point2i &pos, const Spectrum &c, Float weight) {
+    getPixel(pos).add(c, weight);
 }
 
 

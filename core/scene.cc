@@ -73,42 +73,6 @@ void Scene::setFilmDimension(const Point2i &dim) {
     seeds.resize(dim.x() * dim.y());
 }
 
-void Scene::renderAO() {
-    commit();
-    fmt::print("Rendering AO\n");
-    constexpr int N = 640;
-    auto t = runtime([&]() {
-        parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
-            for (int y = 0; y < film.height(); y++) {
-                int cnt = 0;
-                RandomSampler randomSampler(&seeds[x + film.width() * y]);
-
-                for (int i = 0; i < N; i++) {
-                    auto ctx = getRenderContext(Point2i({(int) x, y}));
-                    Intersection intersection(ctx.primary.toRTCRay());
-                    intersection.intersect(rtcScene);
-                    if (intersection.hit()) {
-                        auto hit = ctx.primary.o + intersection.rayHit.ray.tfar * ctx.primary.d;
-                        auto p = fetchIntersectedPrimitive(intersection);
-                        auto rd = cosineWeightedHemisphereSampling(p.normal[0],
-                                                                   randomSampler.nextFloat(),
-                                                                   randomSampler.nextFloat());
-                        Ray ray(hit, rd);
-                        Intersection second(ray.toRTCRay());
-                        second.intersect(rtcScene);
-                        if (!second.hit()) {
-                            cnt++;
-                        }
-                    }
-                }
-                film.addSplat(Point2i({(int) x, y}), Spectrum(Vec3f(1, 1, 1) * (Float(cnt) / N)));
-            }
-        });
-    });
-    fmt::print("Rendering end in {} secs, {} M Rays/sec\n", t, N * film.width() * film.height() / t / 1e6);
-
-}
-
 void Scene::renderPreview() {
     commit();
     fmt::print("Rendering preview\n");
@@ -219,6 +183,10 @@ void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> 
     interaction->uv = Point2f(intersection.rayHit.hit.u, intersection.rayHit.hit.v);
     interaction->geomID = intersection.geomID();
     interaction->primID = intersection.primID();
+}
+
+void Scene::prepare() {
+    commit();
 }
 
 

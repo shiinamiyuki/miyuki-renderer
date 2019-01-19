@@ -20,7 +20,9 @@ public:
         scene.getCamera().moveTo(Vec3f(280, 260, -520));
 //        scene.getCamera().moveTo(Vec3f(10,3,0));
 //        scene.getCamera().rotateTo(Vec3f(-M_PI/2,0,0));
-        scene.renderPT();
+        scene.prepare();
+        AOIntegrator aoIntegrator;
+        aoIntegrator.render(&scene);
         scene.writeImage("test.png");
         return 0;
     }
