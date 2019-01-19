@@ -43,7 +43,7 @@ namespace Miyuki {
         explicit Light(const Spectrum &_ka) : ka(_ka) {}
         // virtual Spectrum sampleLe(Float *pdfPos, Float *pdfDir) const = 0;
 
-        // u used for sampling a point on light, wi is the sampled direction, from x to L
+        // u used for sampling a point on light, wi is the sampled direction, from L to x
         virtual Spectrum sampleLi(const Point2f &u,
                                   const Interaction &interaction,
                                   Vec3f *wi,

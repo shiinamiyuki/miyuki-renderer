@@ -14,17 +14,13 @@
 #include "ray.h"
 #include "interaction.h"
 #include "integrator.h"
+#include "material.h"
 #include "../integrator/ao.h"
 #include "../integrator/pathtracer.h"
 
 namespace Miyuki {
-    struct Material {
-        Spectrum ka, kd, ks;
-        Float glossiness;
 
-        Material() {}
-    };
-
+    class Material;
     class MaterialList :
             public std::vector<Material> {
         std::unordered_map<std::string, int> map;
@@ -74,8 +70,8 @@ namespace Miyuki {
         Camera camera;
         std::vector<Mesh::MeshInstance> instances;
         std::vector<Seed> seeds;
-        std::vector<Light *> lightList; // contains all user defined lights
-        std::vector<Light *> lights;    // contains all lights after commit() is called
+        std::vector<std::shared_ptr<Light>> lightList; // contains all user defined lights
+        std::vector<std::shared_ptr<Light>> lights;    // contains all lights after commit() is called
 
         // commit and preprocess scene
         void commit();
@@ -89,6 +85,11 @@ namespace Miyuki {
         const Mesh::MeshInstance::Primitive &fetchIntersectedPrimitive(const Intersection &);
 
         void fetchInteraction(const Intersection &, Ref<Interaction> interaction);
+
+        void foreachPixel(std::function<void(const Point2i&)>);
+
+        Light* chooseOneLight(Sampler&)const;
+        const std::vector<std::shared_ptr<Light>>& getAllLights()const;
 
     public:
         RTCScene sceneHandle() const { return rtcScene; }

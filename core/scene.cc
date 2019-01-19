@@ -23,6 +23,24 @@ Scene::~Scene() {
 void Scene::commit() {
     rtcCommitScene(rtcScene);
     checkError();
+    lights = lightList;
+    for (const auto &instance : instances) {
+        for (const auto &primitive : instance.primitives) {
+            auto &material = materialList[primitive.materialId];
+            if (material.ka.max() > 0.1) {
+                lights.emplace_back(std::shared_ptr<Light>(new AreaLight(primitive, material.ka)));
+            }
+        }
+    }
+}
+
+Light *Scene::chooseOneLight(Sampler &sampler) const {
+    int idx = sampler.nextInt() % (int) lights.size();
+    return lights[idx].get();
+}
+
+const std::vector<std::shared_ptr<Light>> &Scene::getAllLights() const {
+    return lights;
 }
 
 void Scene::loadObjTrigMesh(const char *filename) {
@@ -171,6 +189,7 @@ void Scene::renderPT() {
     }
 }
 
+// TODO: coord on triangle, see Embree's documentation
 void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> interaction) {
     interaction->primitive = makeRef<const Mesh::MeshInstance::Primitive>(&fetchIntersectedPrimitive(intersection));
     interaction->norm = interaction->primitive->normal[0];
@@ -188,6 +207,17 @@ void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> 
 
 void Scene::prepare() {
     commit();
+    if (lights.empty()) {
+        fmt::print(stderr, "No lights!\n");
+    }
+}
+
+void Scene::foreachPixel(std::function<void(const Point2i &)> f) {
+    parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
+        for (int y = 0; y < film.height(); y++) {
+            f(Point2i(x, y));
+        }
+    });
 }
 
 

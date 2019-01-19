@@ -12,3 +12,16 @@ static auto gamma = [](Float x) -> int {
 RGBSpectrum RGBSpectrum::gammaCorrection() const {
     return RGBSpectrum(gamma(r()), gamma(g()), gamma(b()));
 }
+
+bool RGBSpectrum::hasNaNs() const {
+    return !std::isnan(r()) && !std::isnan(g()) && !std::isnan(b());
+}
+
+static Float removeNaN(Float x) {
+    if (std::isnan(x))return 0;
+    return x;
+}
+
+RGBSpectrum removeNaNs(const RGBSpectrum &spectrum) {
+    return RGBSpectrum(removeNaN(spectrum.r()), removeNaN(spectrum.g()), removeNaN(spectrum.b()));
+}

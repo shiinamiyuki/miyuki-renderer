@@ -9,8 +9,11 @@
 
 namespace Miyuki {
     class PathTracer : public Integrator {
+        void iteration(Scene *);
     public:
         void render(Scene *) override;
     };
+
+
 }
 #endif //MIYUKI_PATH_H

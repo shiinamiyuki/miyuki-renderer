@@ -56,6 +56,7 @@ void Film::writePNG(const std::string &filename) {
 }
 
 void Film::addSplat(const Point2i &pos, const Spectrum &c, Float weight) {
+    assert(!c.hasNaNs());
     getPixel(pos).add(c, weight);
 }
 

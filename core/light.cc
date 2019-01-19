@@ -29,11 +29,11 @@ AreaLight::sampleLi(const Point2f &u, const Interaction &interaction, Vec3f *wi,
                              primitive->vertices[2],
                              x,
                              y);
-    auto Wi = (p - interaction.hitpoint);
+    auto Wi = (interaction.hitpoint - p);
     auto dist = Wi.lengthSquared();
     *wi = Wi / sqrt(dist);
-    *pdf = dist / (-Vec3f::dot(primitive->normalAt(u), *wi) * area);
-    tester->shadowRay = Ray(p, *wi * -1);
+    *pdf = dist / (Vec3f::dot(primitive->normalAt(u), *wi) * area);
+    tester->shadowRay = Ray(p, *wi);
     tester->targetPrimID = interaction.primID;
     tester->targetGeomID = interaction.geomID;
     return ka;

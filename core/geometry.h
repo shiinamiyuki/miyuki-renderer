@@ -757,5 +757,9 @@ namespace Miyuki {
     Float GGXDistribution(const Vec3f &m, const Vec3f &n, float alpha_g);
 
     Vec3f pointOnTriangle(const Vec3f &v1, const Vec3f &v2, const Vec3f &v3, Float u1, Float u2);
+
+    const Float PI = 3.1415926535f;
+    const Float INVPI = 1.0 / PI;
+    const Float PI2 = PI / 2;
 }
 #endif //MIYUKI_VEC_HPP

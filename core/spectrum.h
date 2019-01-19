@@ -14,41 +14,57 @@ namespace Miyuki {
     public:
 
     };
+
     template<>
-    class CoefficientSpectrum<3>: public Vec3f{};
+    class CoefficientSpectrum<3> : public Vec3f {
+    };
+
     class RGBSpectrum : public CoefficientSpectrum<3> {
     public:
-        explicit RGBSpectrum(const Vec3f&c){
+        explicit RGBSpectrum(const Vec3f &c) {
             v[0] = c[0];
             v[1] = c[1];
             v[2] = c[2];
         }
-        explicit RGBSpectrum(const Vec<Float,3> &c){
+
+        explicit RGBSpectrum(const Vec<Float, 3> &c) {
             v[0] = c[0];
             v[1] = c[1];
             v[2] = c[2];
         }
+
         RGBSpectrum(Float x = 0, Float y = 0, Float z = 0) {
             v[0] = x;
             v[1] = y;
             v[2] = z;
         }
-        RGBSpectrum &operator = (const Vec3f&c){
+
+        RGBSpectrum &operator=(const Vec3f &c) {
             v[0] = c[0];
             v[1] = c[1];
             v[2] = c[2];
             return *this;
         }
-        RGBSpectrum &operator = (const Vec<Float,3>&c){
+
+        RGBSpectrum &operator=(const Vec<Float, 3> &c) {
             v[0] = c[0];
             v[1] = c[1];
             v[2] = c[2];
             return *this;
         }
+
         // performs gamma correction and maps the output to [0, 255)
         RGBSpectrum gammaCorrection() const;
+
+        bool hasNaNs() const;
     };
 
+    RGBSpectrum removeNaNs(const RGBSpectrum);
+
     using Spectrum = RGBSpectrum;
+
+    inline Spectrum clampRadiance(const Spectrum &s, Float maxR) {
+        return {clamp<Float>(s.r(), 0, maxR), clamp<Float>(s.g(), 0, maxR), clamp<Float>(s.b(), 0, maxR)};
+    }
 }
 #endif //MIYUKI_SPECTRUM_H
