@@ -4,7 +4,7 @@ Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-p
 
 ## Current Progress
 
-We only have basic path tracing and ambient occlusion.
+We have ambient occlusion and path tracing with next event estimation and multiple importance sampling.
 
 ##  TODO List
 
@@ -12,9 +12,10 @@ We only have basic path tracing and ambient occlusion.
 2. ~~Ambient Occlusion~~
 3. Stochastic Progressive Photon Mapping
 4. Primary Sample Space Metropolis Light Transport
-5. Bidirectional Path Tracing
-6. Multiple Importance Sampling
-7. Vertex Connection and Merging
+5. Multiplex Metropolis Light Transport
+6. Bidirectional Path Tracing with MIS
+7. Multiple Importance Sampling
+8. Vertex Connection and Merging
 
 # About the Miyuki_old
 
