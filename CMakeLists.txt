@@ -12,7 +12,6 @@ add_executable(Miyuki
         core/miyuki.cc
         core/geometry.h
         core/geometry.cc
-        core/primitive.h
         core/util.cc
         core/scene.cc
         core/scene.h
@@ -22,4 +21,13 @@ add_executable(Miyuki
         core/mesh.h
         core/mesh.cc
         core/spectrum.h
-        core/spectrum.cc core/sampler.h sampler/random.h sampler/random.cc core/light.h)
+        core/spectrum.cc
+        core/sampler.h
+        core/light.h
+        core/intersection.h
+        core/intersection.cc
+        core/ray.h
+        core/ray.cc
+        sampler/random.h
+        sampler/random.cc
+        core/interaction.h core/interaction.cc)

@@ -162,7 +162,7 @@ const Mesh::MeshInstance::Primitive &Scene::fetchIntersectedPrimitive(const Inte
 void Scene::renderPT() {
     commit();
     fmt::print("Rendering\n");
-    constexpr int N = 64;
+    constexpr int N = 128;
     for (int i = 0; i < N; i++) {
         auto t = runtime([&]() {
             parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
@@ -178,7 +178,9 @@ void Scene::renderPT() {
                         if (!intersection.hit())
                             break;
                         ray.o += ray.d * intersection.hitDistance();
-                        auto p = fetchIntersectedPrimitive(intersection);
+                        Interaction interaction;
+                        fetchInteraction(intersection, makeRef(&interaction));
+                        auto& p = *interaction.primitive;
                         auto &m = materialList[p.materialId];
                         auto tot = m.ka.max() + m.kd.max();
                         auto x = randomSampler.nextFloat() * tot;
@@ -187,9 +189,14 @@ void Scene::renderPT() {
                             break;
                         } else {
                             refl *= m.kd;
-                            ray.d = cosineWeightedHemisphereSampling(p.normal[0],
+                            ray.d = cosineWeightedHemisphereSampling(interaction.norm,
                                                                      randomSampler.nextFloat(),
                                                                      randomSampler.nextFloat());
+                        }
+                        if (randomSampler.nextFloat() < refl.max()) {
+                            refl /= refl.max();
+                        } else {
+                            break;
                         }
                     }
                     film.addSplat(Point2i(x, y), color);
@@ -200,52 +207,19 @@ void Scene::renderPT() {
     }
 }
 
+void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> interaction) {
+    interaction->primitive = makeRef<const Mesh::MeshInstance::Primitive>(&fetchIntersectedPrimitive(intersection));
+    interaction->norm = interaction->primitive->normal[0];
+    interaction->wi = Vec3f(intersection.rayHit.ray.dir_x,
+                            intersection.rayHit.ray.dir_y,
+                            intersection.rayHit.ray.dir_z);
+}
+
 
 void Camera::lookAt(const Vec3f &pos) {
     assert(false);
 }
 
-RTCRay Ray::toRTCRay() const {
-    RTCRay ray;
-    ray.dir_x = d.x();
-    ray.dir_y = d.y();
-    ray.dir_z = d.z();
-    ray.org_x = o.x();
-    ray.org_y = o.y();
-    ray.org_z = o.z();
-    ray.tnear = EPS;
-    ray.tfar = INF;
-    ray.flags = 0;
-    return ray;
-}
-
-Ray::Ray(const RTCRay &ray) {
-
-}
-
-Intersection::Intersection(const RTCRay &ray) {
-    rayHit.ray = ray;
-    rayHit.ray.flags = 0;
-    rayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
-    rayHit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
-    rtcInitIntersectContext(&context);
-}
-
-Intersection::Intersection(const Ray &ray) {
-    rayHit.ray = ray.toRTCRay();
-    rayHit.ray.flags = 0;
-    rayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
-    rayHit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
-    rtcInitIntersectContext(&context);
-}
-
-void Intersection::intersect(RTCScene scene) {
-    rtcIntersect1(scene, &context, &rayHit);
-}
-
-void Intersection::occlude(RTCScene scene) {
-    rtcOccluded1(scene, &context, &rayHit.ray);
-}
 
 Vec3f Intersection::intersectionPoint() const {
     return Vec3f();

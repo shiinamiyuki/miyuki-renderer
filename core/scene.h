@@ -9,6 +9,10 @@
 #include "Film.h"
 #include "mesh.h"
 #include "sampler.h"
+#include "light.h"
+#include "intersection.h"
+#include "ray.h"
+#include "interaction.h"
 
 namespace Miyuki {
     struct Material {
@@ -46,43 +50,15 @@ namespace Miyuki {
                 : viewpoint(v), direction(d), aov(M_PI / 2) {}
     };
 
-    struct Ray {
-        Vec3f o, d;
-
-        Ray(const Vec3f &_o, const Vec3f &_d) : o(_o), d(_d) {}
-
-        Ray(const RTCRay &ray);
-
-        RTCRay toRTCRay() const;
-    };
-
+    struct Ray;
+    struct Intersection;
+    struct Interaction;
     struct RenderContext {
         Ray primary;
 
         RenderContext(const Ray &r) : primary(r) {}
     };
 
-    struct Intersection {
-        RTCIntersectContext context;
-        RTCRayHit rayHit;
-
-        Intersection(const RTCRay &ray);
-        Intersection(const Ray &ray);
-
-        void intersect(RTCScene scene);
-
-        void occlude(RTCScene scene);
-
-        bool hit() const { return rayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID; }
-
-        unsigned int geomID() const { return rayHit.hit.geomID; }
-
-        unsigned int primID() const { return rayHit.hit.primID; }
-
-        Float hitDistance() const { return rayHit.ray.tfar; }
-
-        Vec3f intersectionPoint() const;
-    };
 
     class Scene {
 
@@ -92,17 +68,21 @@ namespace Miyuki {
         Camera camera;
         std::vector<Mesh::MeshInstance> instances;
         std::vector<Seed> seeds;
+        std::vector<Light *> lightList; // contains all user defined lights
+        std::vector<Light *> lights;    // contains all lights after commit() is called
 
+        // commit and preprocess scene
         void commit();
 
         void checkError();
 
         void addMesh(std::shared_ptr<Mesh::TriangularMesh>);
 
-        // must be called after `addMesh`
         void instantiateMesh(std::shared_ptr<Mesh::TriangularMesh>);
 
         const Mesh::MeshInstance::Primitive &fetchIntersectedPrimitive(const Intersection &);
+
+        void fetchInteraction(const Intersection &, Ref<Interaction> interaction);
 
     public:
 

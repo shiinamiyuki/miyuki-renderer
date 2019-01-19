@@ -24,6 +24,27 @@ Miyuki::Vec3f Miyuki::sphereSampling(Miyuki::Float u1, Miyuki::Float u2) {
     return Vec3f(x, y, z);
 }
 
-Miyuki::Vec3f Miyuki::GGXImportanceSampling(const Miyuki::Vec3f &norm, Miyuki::Float u1, Miyuki::Float u2) {
-    return Miyuki::Vec3f();
+Miyuki::Vec3f
+Miyuki::GGXImportanceSampling(Float roughness, const Miyuki::Vec3f &norm, Miyuki::Float u1, Miyuki::Float u2) {
+    auto tm = atan(roughness * sqrt(u1 / (1 - u1)));
+    auto phim = 2 * M_PI * u2;
+    auto x = norm.x();
+    Vec3f u = Vec3f::cross((fabs(x) > 0.1)
+                           ? Vec3f(0, 1, 0)
+                           : Vec3f(1, 0, 0), norm);
+    Vec3f v = Vec3f::cross(norm, u);
+    Vec3f r = u * cos(phim) * sin(tm) + v * sin(phim) * sin(tm) + norm * cos(tm);
+    return r;
+}
+
+Vec3f randomPointOnTriangle(const Vec3f &v1, const Vec3f &v2, const Vec3f &v3, Float u1, Float u2) {
+    // (v2 - v1) * u1  + (v3 - v1) * (1 - u1) * u2 + v1;
+    return v1 * (u1 * (u2 - 1) - u2 + 1) + v3 * (u2 - u1 * u2) + u1 * v2;
+}
+
+Float GGXDistribution(const Vec3f &m, const Vec3f &n, float alpha_g) {
+    alpha_g *= alpha_g;
+    float d = Vec3f::dot(m, n);
+    if (d <= 0)return 0;
+    return (Float) std::max(0.0, alpha_g / (M_PI * pow(d * d * (alpha_g - 1) + 1, 2)) + 0.001);
 }

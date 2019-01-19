@@ -24,6 +24,7 @@
 #include <atomic>
 #include <memory>
 #include <unordered_map>
+#include <type_traits>
 #include <boost/filesystem.hpp>
 
 #include <embree3/rtcore.h>
@@ -81,6 +82,24 @@ namespace Miyuki {
     void Exit();
 
     namespace cxx = boost;
+
+    template<typename T>
+    class Ref {
+        using Ty = typename std::remove_reference<T>::type;
+        Ty *ptr;
+    public:
+        explicit Ref(Ty *p) : ptr(p) {}
+
+        Ref() : ptr(nullptr) {}
+
+        Ty &operator*() { return *ptr; }
+
+        Ty *operator->() { return ptr; }
+        operator bool(){return ptr;}
+    };
+
+    template<typename T>
+    Ref<T> makeRef(T *p) { return Ref<T>(p); }
 }
 #define let const auto
 #endif //MIYUKI_UTIL_HPP
