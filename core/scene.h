@@ -15,6 +15,7 @@
 #include "interaction.h"
 #include "integrator.h"
 #include "../integrator/ao.h"
+#include "../integrator/pathtracer.h"
 
 namespace Miyuki {
     struct Material {
@@ -66,7 +67,7 @@ namespace Miyuki {
 
     class Scene {
         friend class AOIntegrator;
-
+        friend class PathTracer;
         RTCScene rtcScene;
         Film film;
         MaterialList materialList;

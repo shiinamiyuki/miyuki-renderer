@@ -9,9 +9,11 @@
 #include "mesh.h"
 
 namespace Miyuki {
+    struct Material;
     struct Interaction {
         using Primitive = Mesh::MeshInstance::Primitive;
         Ref<const Primitive> primitive;
+        Ref<const Material> material;
         Vec3f wi, norm, hitpoint;
         Point2f uv;
         int geomID, primID;

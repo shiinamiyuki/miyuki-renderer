@@ -16,5 +16,8 @@ namespace Miyuki {
 
         virtual void render(Scene *) = 0;
     };
+
+    template<typename T>
+    Integrator *createIntegrator() { return nullptr; }
 }
 #endif //MIYUKI_INTEGRATOR_H

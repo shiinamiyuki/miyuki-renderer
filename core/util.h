@@ -100,6 +100,7 @@ namespace Miyuki {
         const Ty &operator*()const { return *ptr; }
 
         const Ty *operator->()const { return ptr; }
+        Ref& operator = (Ty *p){ptr = p;return *this;}
     };
 
     template<typename T>

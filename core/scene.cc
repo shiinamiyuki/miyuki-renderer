@@ -183,6 +183,7 @@ void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> 
     interaction->uv = Point2f(intersection.rayHit.hit.u, intersection.rayHit.hit.v);
     interaction->geomID = intersection.geomID();
     interaction->primID = intersection.primID();
+    interaction->material = &materialList[interaction->primitive->materialId];
 }
 
 void Scene::prepare() {

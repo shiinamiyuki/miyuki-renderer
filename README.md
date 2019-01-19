@@ -1,21 +1,20 @@
 # Miyuki Renderer(WIP)
 
-Goal: a high performance pbrt-style renderer.
+Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-primitive intersection.
 
 ## Current Progress
 
 We only have basic path tracing and ambient occlusion.
 
-##  Will have following features
+##  TODO List
 
-1. Accelerated ray-primitive intersection using Embree
-2. Volumetric Path tracing with NEE
-3. Ambient Occlusion
-4. Stochastic Progressive Photon Mapping
-5. Primary Sample Space Metropolis Light Transport
-6. Bidirectional Path Tracing
-7. Multiple Importance Sampling
-8. Vertex Connection and Merging
+1. Volumetric Path tracing with NEE
+2. ~~Ambient Occlusion~~
+3. Stochastic Progressive Photon Mapping
+4. Primary Sample Space Metropolis Light Transport
+5. Bidirectional Path Tracing
+6. Multiple Importance Sampling
+7. Vertex Connection and Merging
 
 # About the Miyuki_old
 
