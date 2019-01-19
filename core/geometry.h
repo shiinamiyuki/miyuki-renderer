@@ -756,6 +756,6 @@ namespace Miyuki {
 
     Float GGXDistribution(const Vec3f &m, const Vec3f &n, float alpha_g);
 
-    Vec3f randomPointOnTriangle(const Vec3f& v1,const Vec3f& v2,const Vec3f& v3, Float u1, Float u2);
+    Vec3f pointOnTriangle(const Vec3f &v1, const Vec3f &v2, const Vec3f &v3, Float u1, Float u2);
 }
 #endif //MIYUKI_VEC_HPP

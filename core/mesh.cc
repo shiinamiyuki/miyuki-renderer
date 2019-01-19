@@ -119,3 +119,7 @@ Mesh::MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh) {
         }
     }
 }
+
+Vec3f Mesh::MeshInstance::Primitive::normalAt(const Point2f &) const {
+    return normal[0];
+}

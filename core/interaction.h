@@ -12,8 +12,9 @@ namespace Miyuki {
     struct Interaction {
         using Primitive = Mesh::MeshInstance::Primitive;
         Ref<const Primitive> primitive;
-        Vec3f wi, norm;
-        Point2f localCoord;
+        Vec3f wi, norm, hitpoint;
+        Point2f uv;
+        int geomID, primID;
     };
 
 }

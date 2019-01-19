@@ -59,7 +59,7 @@ namespace Miyuki {
         RenderContext(const Ray &r) : primary(r) {}
     };
 
-
+    class Light;
     class Scene {
 
         RTCScene rtcScene;

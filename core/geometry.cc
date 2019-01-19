@@ -37,12 +37,12 @@ Miyuki::GGXImportanceSampling(Float roughness, const Miyuki::Vec3f &norm, Miyuki
     return r;
 }
 
-Vec3f randomPointOnTriangle(const Vec3f &v1, const Vec3f &v2, const Vec3f &v3, Float u1, Float u2) {
+Vec3f Miyuki::pointOnTriangle(const Vec3f &v1, const Vec3f &v2, const Vec3f &v3, Float u1, Float u2) {
     // (v2 - v1) * u1  + (v3 - v1) * (1 - u1) * u2 + v1;
     return v1 * (u1 * (u2 - 1) - u2 + 1) + v3 * (u2 - u1 * u2) + u1 * v2;
 }
 
-Float GGXDistribution(const Vec3f &m, const Vec3f &n, float alpha_g) {
+Float Miyuki::GGXDistribution(const Vec3f &m, const Vec3f &n, float alpha_g) {
     alpha_g *= alpha_g;
     float d = Vec3f::dot(m, n);
     if (d <= 0)return 0;

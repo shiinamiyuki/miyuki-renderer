@@ -30,4 +30,4 @@ add_executable(Miyuki
         core/ray.cc
         sampler/random.h
         sampler/random.cc
-        core/interaction.h core/interaction.cc)
+        core/interaction.h core/interaction.cc core/light.cc)

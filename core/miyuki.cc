@@ -10,7 +10,7 @@ using namespace Miyuki;
 
 class RenderSystem {
 public:
-    RenderSystem() {
+    RenderSystem(int argc, char **argv) {
         Init();
     }
 
@@ -31,6 +31,6 @@ public:
 };
 
 int main(int argc, char **argv) {
-    RenderSystem renderSystem;
+    RenderSystem renderSystem(argc, argv);
     return renderSystem.exec();
 }

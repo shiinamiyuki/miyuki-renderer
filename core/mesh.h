@@ -53,6 +53,7 @@ namespace Miyuki {
                 Vec3f textCoord[3];
                 int materialId;
                 Primitive(){}
+                Vec3f normalAt(const Point2f&)const;
             };
             std::vector<Primitive> primitives;
             const Primitive& getPrimitive(unsigned int primID)const{return primitives[primID];}

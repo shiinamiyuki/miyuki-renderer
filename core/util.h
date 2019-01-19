@@ -95,7 +95,11 @@ namespace Miyuki {
         Ty &operator*() { return *ptr; }
 
         Ty *operator->() { return ptr; }
-        operator bool(){return ptr;}
+        operator bool()const{return ptr;}
+
+        const Ty &operator*()const { return *ptr; }
+
+        const Ty *operator->()const { return ptr; }
     };
 
     template<typename T>

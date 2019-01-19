@@ -180,7 +180,7 @@ void Scene::renderPT() {
                         ray.o += ray.d * intersection.hitDistance();
                         Interaction interaction;
                         fetchInteraction(intersection, makeRef(&interaction));
-                        auto& p = *interaction.primitive;
+                        auto &p = *interaction.primitive;
                         auto &m = materialList[p.materialId];
                         auto tot = m.ka.max() + m.kd.max();
                         auto x = randomSampler.nextFloat() * tot;
@@ -213,6 +213,12 @@ void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> 
     interaction->wi = Vec3f(intersection.rayHit.ray.dir_x,
                             intersection.rayHit.ray.dir_y,
                             intersection.rayHit.ray.dir_z);
+    interaction->hitpoint = Vec3f(intersection.rayHit.ray.org_x,
+                                  intersection.rayHit.ray.org_y,
+                                  intersection.rayHit.ray.org_z) + interaction->wi * intersection.hitDistance();
+    interaction->uv = Point2f(intersection.rayHit.hit.u, intersection.rayHit.hit.v);
+    interaction->geomID = intersection.geomID();
+    interaction->primID = intersection.primID();
 }
 
 
