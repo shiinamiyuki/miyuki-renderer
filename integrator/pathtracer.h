@@ -6,10 +6,15 @@
 #define MIYUKI_PATH_H
 
 #include "../core/integrator.h"
+#include "../core/geometry.h"
+#include "../core/sampler.h"
 
 namespace Miyuki {
     class PathTracer : public Integrator {
+        //void renderPixel(const Point2i &, Sampler &);
+
         void iteration(Scene *);
+
     public:
         void render(Scene *) override;
     };

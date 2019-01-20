@@ -30,4 +30,12 @@ add_executable(Miyuki
         core/ray.cc
         sampler/random.h
         sampler/random.cc
-        core/interaction.h core/interaction.cc core/light.cc integrator/ao.h integrator/ao.cc integrator/pathtracer.h integrator/pathtracer.cc core/material.h core/material.cc)
+        core/interaction.h
+        core/interaction.cc
+        core/light.cc
+        integrator/ao.h
+        integrator/ao.cc
+        integrator/pathtracer.h
+        integrator/pathtracer.cc
+        core/material.h
+        core/material.cc core/transform.h core/transform.cc)

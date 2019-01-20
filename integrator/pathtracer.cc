@@ -15,7 +15,7 @@ void PathTracer::render(Scene *scene) {
     fmt::print("Rendering\n");
     auto &film = scene->film;
     auto &seeds = scene->seeds;
-    constexpr int N = 64;
+    constexpr int N = 4;
     for (int i = 0; i < N; i++) {
         auto t = runtime([&]() {
             iteration(scene);
@@ -25,6 +25,7 @@ void PathTracer::render(Scene *scene) {
 }
 
 void PathTracer::iteration(Scene *scene) {
+    //TODO: refactoring, handle sampling based on BxDF tags ?
     auto &film = scene->film;
     auto &seeds = scene->seeds;
     scene->foreachPixel([&](const Point2i &pos) {
@@ -66,19 +67,45 @@ void PathTracer::iteration(Scene *scene) {
                                                   randomSampler.nextFloat()),
                                           interaction, &L, &lightPdf, &visibilityTester) * scene->lights.size();
                 Float cosWi = -Vec3f::dot(L, interaction.norm);
-                if (lightPdf > 0 && cosWi > 0 && visibilityTester.visible(scene->sceneHandle())) {
+                Float brdf = material.f(sampledType, interaction, ray.d, -1 * L);
+                if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(scene->sceneHandle())) {
+                    // balanced heuristics
                     auto misPdf = pdf + lightPdf;
                     weightLight = 1 / misPdf;
                     radiance += throughput * ka / misPdf * cosWi;
-
+                    // suppress fireflies
+                    radiance = clampRadiance(radiance, 4);
                 } else {
                     weightLight = 1;
                 }
                 throughput *= Vec3f::dot(interaction.norm, wi) / pdf;
 
             } else {
-                weightLight = 1;
-                throughput *= sample / pdf;
+                assert(hasBxDFType(sampledType, BxDFType::specular));
+                if (hasBxDFType(sampledType, BxDFType::glossy)) {
+                    throughput *= sample;
+                    auto light = scene->chooseOneLight(randomSampler);
+                    Vec3f L;
+                    Float lightPdf;
+                    VisibilityTester visibilityTester;
+                    auto ka = light->sampleLi(Point2f(randomSampler.nextFloat(),
+                                                      randomSampler.nextFloat()),
+                                              interaction, &L, &lightPdf, &visibilityTester) * scene->lights.size();
+                    Float cosWi = -Vec3f::dot(L, interaction.norm);
+                    Float brdf = material.f(sampledType, interaction, ray.d, -1 * L);
+                    if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(scene->sceneHandle())) {
+                        auto misPdf = brdf + lightPdf;
+                        radiance += brdf * throughput * ka / misPdf;
+                        weightLight = 1 / misPdf;
+                        radiance = clampRadiance(radiance, 4);
+                    } else {
+                        weightLight = 1;
+                    }
+                    throughput /= pdf;
+                } else {
+                    weightLight = 1;
+                    throughput *= sample / pdf;
+                }
             }
             ray.d = wi;
             if (randomSampler.nextFloat() < throughput.max()) {
@@ -87,7 +114,6 @@ void PathTracer::iteration(Scene *scene) {
                 break;
             }
         }
-        radiance = clampRadiance(radiance, 4);
         film.addSplat(pos, radiance);
     });
 }

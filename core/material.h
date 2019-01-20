@@ -15,20 +15,28 @@ namespace Miyuki {
     enum class BxDFType {
         none = 0,
         diffuse = 1,
-        specular = 2,
-        emission = 4,
-        all = diffuse | specular | emission,
+        specular = 2, // this field is for all specular transmissions, including specular/glossy reflection/refraction
+        refraction = 4, //this field indicates we are sampling refraction not reflection
+        emission = 8,
+        glossy = 16,
+        all = diffuse | specular | emission | glossy,
     };
 
-    inline bool isDeltaDistribution(BxDFType type) {
-        return (int) type & (int) BxDFType::specular;
+    inline bool hasBxDFType(BxDFType query, BxDFType ty) {
+        return (bool) ((int) query & (int) ty);
     }
+
+    inline bool isDeltaDistribution(BxDFType type) {
+        return hasBxDFType(type, BxDFType::specular) && !hasBxDFType(type, BxDFType::glossy);
+    }
+
     struct Interaction;
+
     class Material {
     public:
         // TODO: make these private
         Spectrum ka, kd, ks;
-        Float glossiness;
+        Float glossiness, ior, tr;
     private:
 
     public:
@@ -45,8 +53,12 @@ namespace Miyuki {
                          BxDFType sampleType = BxDFType::all,
                          BxDFType *_sampled = nullptr) const;
 
+        // BRDF, given world space wo and wi
+        Float f(BxDFType type, const Interaction &, const Vec3f &wo, const Vec3f &wi)const;
+
     };
-    inline Vec3f reflect(const Vec3f&norm, const Vec3f& i){
+
+    inline Vec3f reflect(const Vec3f &norm, const Vec3f &i) {
         return i - 2 * Vec3f::dot(norm, i) * norm;
     }
 }

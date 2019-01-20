@@ -23,7 +23,6 @@ Spectrum Material::sampleF(Sampler &sampler,
     BxDFType sampled = BxDFType::none;
     Spectrum color;
     Float pdf = 0;
-    Float x1 = sampler.nextFloat(), x2 = sampler.nextFloat(); // used to determine wi
     Vec3f wi;
     if (total < EPS) {
         *_sampled = sampled;
@@ -37,13 +36,52 @@ Spectrum Material::sampleF(Sampler &sampler,
     } else if (x < p1 + p2) {
         sampled = BxDFType::diffuse;
         color = kd * INVPI * total / p2;
-        wi = cosineWeightedHemisphereSampling(interaction.norm, x1, x2);
+        wi = cosineWeightedHemisphereSampling(interaction.norm, sampler.nextFloat(), sampler.nextFloat());
         pdf = Vec3f::dot(interaction.norm, wi) / PI;
     } else {
-        sampled = BxDFType::specular;
         color = ks * total / p3;
+        Vec3f norm = interaction.norm;
+        sampled = static_cast<BxDFType >((int) sampled | (int) BxDFType::specular);
+        if (glossiness > 0.01) {
+            norm = GGXImportanceSampling(glossiness, norm, sampler.nextFloat(), sampler.nextFloat());
+            sampled = static_cast<BxDFType >((int) sampled | (int) BxDFType::glossy);
+        }
+        if (sampler.nextFloat() < tr) {
+            Float n1, n2;
+            Float cosI = Vec3f::dot(wo, norm);
+            if (cosI < 0) {
+                n1 = 1;
+                n2 = ior;
+                cosI = -cosI;
+            } else {
+                n1 = ior;
+                n2 = 1;
+            }
+            Float n12 = n1 / n2;
+            Float s2 = n12 * n12 * (1 - cosI * cosI);
+            Float root = 1 - s2;
+            Float T, R;
+
+            if (root >= 0) {
+                auto cosT = sqrt(root);
+                auto Rpara = (n1 * cosI - n2 * cosT) / (n1 * cosI + n2 * cosT);
+                auto Rorth = (n2 * cosI - n1 * cosT) / (n2 * cosI + n1 * cosT);
+                R = (Float) (Rpara * Rpara + Rorth * Rorth) / 2;
+            } else {
+                R = 1;
+            }
+            T = 1 - R;
+            if (sampler.nextFloat() < R) {
+                color /= R;
+            } else {
+                color /= T;
+                sampled = static_cast<BxDFType >((int) sampled | (int) BxDFType::refraction);
+            }
+        } else {
+            color /= 1 - tr;
+        }
+        wi = reflect(norm,wo);
         pdf = 1;
-        wi = reflect(interaction.norm, wo);
     }
     if (_sampled) {
         *_sampled = sampled;
@@ -51,4 +89,21 @@ Spectrum Material::sampleF(Sampler &sampler,
     *_wi = wi;
     *_pdf = pdf;
     return color;
+}
+
+Float Material::f(BxDFType type, const Interaction &interaction, const Vec3f &wo, const Vec3f &wi)const {
+    if (type == BxDFType::diffuse) {
+        return INVPI;
+    } else if (type == BxDFType::specular) {
+        return 0;
+    } else if (hasBxDFType(type, BxDFType::glossy)) {
+        if (!hasBxDFType(type, BxDFType::refraction)) {
+            Vec3f microfacet = (wi - wo).normalized();
+            Float distribution = GGXDistribution(interaction.norm, microfacet, glossiness);
+            return distribution;
+        } else {
+            return 0; // TODO: glossy refraction
+        }
+    }
+    return 0;
 }
