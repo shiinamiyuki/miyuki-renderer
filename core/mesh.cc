@@ -40,7 +40,7 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
             material.ka[i] = m.emission[i];
             material.kd[i] = m.diffuse[i];
             material.ks[i] = m.specular[i];
-            material.glossiness = m.roughness;
+            material.glossiness = pow(m.roughness, 2);
             material.ior = m.ior;
             material.tr = 1 - m.dissolve;
         }

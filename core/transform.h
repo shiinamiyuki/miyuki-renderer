@@ -14,6 +14,7 @@ namespace Miyuki {
         Vec3f rotation;
         Transform();
         Transform(const Vec3f&t,const Vec3f&r);
+        //rotation then translation
         Vec3f apply(const Vec3f&);
     };
 }

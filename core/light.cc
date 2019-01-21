@@ -24,6 +24,10 @@ Spectrum
 AreaLight::sampleLi(const Point2f &u, const Interaction &interaction, Vec3f *wi, Float *pdf,
                     VisibilityTester *tester) const {
     Float x = u.x(), y = u.y();
+    if (x + y > 1) {
+        x = 1 - x;
+        y = 1 - y;
+    }
     auto p = pointOnTriangle(primitive->vertices[0],
                              primitive->vertices[1],
                              primitive->vertices[2],

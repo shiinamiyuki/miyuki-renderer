@@ -14,6 +14,10 @@ Transform::Transform(const Vec3f &t, const Vec3f &r) : translation(t), rotation(
 
 }
 
-Vec3f Transform::apply(const Vec3f &) {
-    return Vec3f();
+Vec3f Transform::apply(const Vec3f &_v) {
+    auto v = _v;
+    v = rotate(v, Vec3f(1, 0, 0), rotation.y());
+    v = rotate(v, Vec3f(0, 1, 0), rotation.x());
+    v = rotate(v, Vec3f(0, 0, 1), rotation.z());
+    return v + translation;
 }

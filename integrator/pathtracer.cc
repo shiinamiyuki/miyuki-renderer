@@ -15,7 +15,7 @@ void PathTracer::render(Scene *scene) {
     fmt::print("Rendering\n");
     auto &film = scene->film;
     auto &seeds = scene->seeds;
-    constexpr int N = 4;
+    constexpr int N = 16;
     for (int i = 0; i < N; i++) {
         auto t = runtime([&]() {
             iteration(scene);
@@ -53,7 +53,7 @@ void PathTracer::iteration(Scene *scene) {
             auto sample = material.sampleF(randomSampler, interaction, ray.d, &wi, &pdf, BxDFType::all, &sampledType);
             if (sampledType == BxDFType::none)break;
             if (sampledType == BxDFType::emission) {
-                radiance += throughput * sample / pdf * weightLight;
+                radiance += throughput * sample / pdf * clamp<Float>(weightLight, 0, 1);
                 break;
             } else if (sampledType == BxDFType::diffuse) {
                 // TODO: should we optimize the code to cancel the cosine term?
@@ -68,18 +68,15 @@ void PathTracer::iteration(Scene *scene) {
                                           interaction, &L, &lightPdf, &visibilityTester) * scene->lights.size();
                 Float cosWi = -Vec3f::dot(L, interaction.norm);
                 Float brdf = material.f(sampledType, interaction, ray.d, -1 * L);
+                // balanced heuristics
+                auto misPdf = pdf + lightPdf;
+                weightLight = 1 / misPdf;
                 if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(scene->sceneHandle())) {
-                    // balanced heuristics
-                    auto misPdf = pdf + lightPdf;
-                    weightLight = 1 / misPdf;
                     radiance += throughput * ka / misPdf * cosWi;
                     // suppress fireflies
                     radiance = clampRadiance(radiance, 4);
-                } else {
-                    weightLight = 1;
                 }
                 throughput *= Vec3f::dot(interaction.norm, wi) / pdf;
-
             } else {
                 assert(hasBxDFType(sampledType, BxDFType::specular));
                 if (hasBxDFType(sampledType, BxDFType::glossy)) {
@@ -93,13 +90,11 @@ void PathTracer::iteration(Scene *scene) {
                                               interaction, &L, &lightPdf, &visibilityTester) * scene->lights.size();
                     Float cosWi = -Vec3f::dot(L, interaction.norm);
                     Float brdf = material.f(sampledType, interaction, ray.d, -1 * L);
+                    auto misPdf = brdf + lightPdf;
+                    weightLight = 1 / misPdf;
                     if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(scene->sceneHandle())) {
-                        auto misPdf = brdf + lightPdf;
                         radiance += brdf * throughput * ka / misPdf;
-                        weightLight = 1 / misPdf;
                         radiance = clampRadiance(radiance, 4);
-                    } else {
-                        weightLight = 1;
                     }
                     throughput /= pdf;
                 } else {

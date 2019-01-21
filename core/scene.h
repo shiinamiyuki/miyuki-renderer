@@ -17,10 +17,12 @@
 #include "material.h"
 #include "../integrator/ao.h"
 #include "../integrator/pathtracer.h"
+#include "transform.h"
 
 namespace Miyuki {
 
     class Material;
+
     class MaterialList :
             public std::vector<Material> {
         std::unordered_map<std::string, int> map;
@@ -63,7 +65,9 @@ namespace Miyuki {
 
     class Scene {
         friend class AOIntegrator;
+
         friend class PathTracer;
+
         RTCScene rtcScene;
         Film film;
         MaterialList materialList;
@@ -86,25 +90,24 @@ namespace Miyuki {
 
         void fetchInteraction(const Intersection &, Ref<Interaction> interaction);
 
-        void foreachPixel(std::function<void(const Point2i&)>);
+        void foreachPixel(std::function<void(const Point2i &)>);
 
-        Light* chooseOneLight(Sampler&)const;
-        const std::vector<std::shared_ptr<Light>>& getAllLights()const;
+        Light *chooseOneLight(Sampler &) const;
+
+        const std::vector<std::shared_ptr<Light>> &getAllLights() const;
 
     public:
         RTCScene sceneHandle() const { return rtcScene; }
 
         void prepare();
 
-        void loadObjTrigMesh(const char *filename);
+        void loadObjTrigMesh(const char *filename, const Transform &transform = Transform());
 
         void writeImage(const std::string &filename);
 
         void setFilmDimension(const Point2i &);
 
         void renderPreview();
-
-        void renderPT();
 
         Camera &getCamera() { return camera; }
 
