@@ -9,6 +9,7 @@
 #include "scene.h"
 #include "ray.h"
 namespace Miyuki {
+    class Scene;
     struct Intersection {
         RTCIntersectContext context;
         RTCRayHit rayHit;
@@ -17,7 +18,7 @@ namespace Miyuki {
 
         Intersection(const Ray &ray);
 
-        void intersect(RTCScene scene);
+        void intersect(const Scene& scene);
 
         void occlude(RTCScene scene);
 

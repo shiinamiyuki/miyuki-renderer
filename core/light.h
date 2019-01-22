@@ -15,6 +15,8 @@ namespace Miyuki {
 
     class Light;
 
+    class Scene;
+
     struct VisibilityTester {
         int targetGeomID;
         int targetPrimID;
@@ -23,7 +25,7 @@ namespace Miyuki {
         VisibilityTester()
                 : shadowRay(Vec3f(), Vec3f()), targetGeomID(-1), targetPrimID(-1) {}
 
-        bool visible(RTCScene) const;
+        bool visible(const Scene &) const;
     };
 
 
@@ -50,6 +52,13 @@ namespace Miyuki {
                                   Float *pdf,
                                   VisibilityTester *) const = 0;
 
+        virtual Spectrum sampleLe(const Point2f &u1,
+                                  const Point2f &u2,
+                                  Ray *ray,
+                                  Vec3f *normal,
+                                  Float *pdfPos,
+                                  Float *pdfDir) const = 0;
+
         Spectrum power() const { return ka; }
 
         bool isDeltaLight() const {
@@ -62,13 +71,16 @@ namespace Miyuki {
         Ref<const Mesh::MeshInstance::Primitive> primitive;
         Float area;
     public:
-        AreaLight(const Mesh::MeshInstance::Primitive&, const Spectrum&ka);
+        AreaLight(const Mesh::MeshInstance::Primitive &, const Spectrum &ka);
 
         Spectrum sampleLi(const Point2f &u,
                           const Interaction &interaction,
                           Vec3f *wi,
                           Float *pdf,
                           VisibilityTester *) const override;
+
+        Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
+                          Float *pdfDir) const override;
     };
 }
 #endif //MIYUKI_LIGHT_H

@@ -12,6 +12,7 @@ Miyuki::Vec3f Miyuki::cosineWeightedHemisphereSampling(const Miyuki::Vec3f &norm
     auto u = Vec3f::cross((abs(w.x()) > 0.1) ? Vec3f{0, 1, 0} : Vec3f{1, 0, 0}, w);
     auto v = Vec3f::cross(w, u);
     auto r = Vec3f(u * cos(r1) * r2s + v * sin(r1) * r2s + w * sqrt(1 - r2));
+    r.normalize();
     return r;
 }
 
@@ -34,6 +35,7 @@ Miyuki::GGXImportanceSampling(Float roughness, const Miyuki::Vec3f &norm, Miyuki
                            : Vec3f(1, 0, 0), norm);
     Vec3f v = Vec3f::cross(norm, u);
     Vec3f r = u * cos(phim) * sin(tm) + v * sin(phim) * sin(tm) + norm * cos(tm);
+    r.normalize();
     return r;
 }
 

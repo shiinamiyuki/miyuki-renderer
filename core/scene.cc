@@ -34,7 +34,26 @@ void Scene::commit() {
     }
 }
 
+class NullLight : public Light {
+public:
+    Spectrum sampleLi(const Point2f &u, const Interaction &interaction, Vec3f *wi, Float *pdf,
+                      VisibilityTester *tester) const override {
+        *pdf = 0;
+        return {};
+    }
+
+    Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
+                      Float *pdfDir) const override {
+        *pdfPos = 0;
+        return Miyuki::Spectrum();
+    }
+};
+
+static NullLight nullLight;
+
 Light *Scene::chooseOneLight(Sampler &sampler) const {
+    if (lights.empty())
+        return &nullLight;
     int idx = sampler.nextInt() % (int) lights.size();
     return lights[idx].get();
 }
@@ -43,10 +62,10 @@ const std::vector<std::shared_ptr<Light>> &Scene::getAllLights() const {
     return lights;
 }
 
-void Scene::loadObjTrigMesh(const char *filename, const Transform& transform) {
+void Scene::loadObjTrigMesh(const char *filename, const Transform &transform) {
     auto mesh = Mesh::LoadFromObj(&materialList, filename);
     if (!mesh)return;
-    addMesh(mesh);
+    addMesh(mesh, transform);
     checkError();
 }
 
@@ -54,7 +73,7 @@ void Scene::instantiateMesh(std::shared_ptr<Mesh::TriangularMesh> mesh) {
     instances.emplace_back(Mesh::MeshInstance(mesh));
 }
 
-void Scene::addMesh(std::shared_ptr<Mesh::TriangularMesh> mesh) {
+void Scene::addMesh(std::shared_ptr<Mesh::TriangularMesh> mesh, const Transform &transform) {
     using namespace Mesh;
     RTCGeometry rtcMesh = rtcNewGeometry(GetEmbreeDevice(), RTC_GEOMETRY_TYPE_TRIANGLE);
     auto vertices =
@@ -73,8 +92,10 @@ void Scene::addMesh(std::shared_ptr<Mesh::TriangularMesh> mesh) {
             triangles[3 * i + j] = (unsigned int) mesh->triangleArray()[i].vertex[j];
     }
     for (int i = 0; i < mesh->vertexCount(); i++) {
+        Vec3f v(mesh->vertexArray()[i][0], mesh->vertexArray()[i][1], mesh->vertexArray()[i][2]);
+        v = transform.apply(v);
         for (int j = 0; j < 3; j++)
-            vertices[3 * i + j] = mesh->vertexArray()[i][j];
+            vertices[3 * i + j] = v[j];
     }
     rtcCommitGeometry(rtcMesh);
     rtcAttachGeometryByID(rtcScene, rtcMesh, instances.size());
@@ -99,7 +120,7 @@ void Scene::renderPreview() {
             for (int y = 0; y < film.height(); y++) {
                 auto ctx = getRenderContext(Point2i({(int) x, y}));
                 Intersection intersection(ctx.primary.toRTCRay());
-                intersection.intersect(rtcScene);
+                intersection.intersect(*this);
                 if (intersection.hit()) {
                     auto p = fetchIntersectedPrimitive(intersection);
                     Float light = std::max(Float(0.2), Vec3f::dot(p.normal[0], Vec3f(0.1, 1, 0.3).normalized()));
@@ -166,10 +187,14 @@ void Scene::prepare() {
 }
 
 void Scene::foreachPixel(std::function<void(const Point2i &)> f) {
-    parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
-        for (int y = 0; y < film.height(); y++) {
-            f(Point2i(x, y));
-        }
+//    parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
+//        for (int y = 0; y < film.height(); y++) {
+//            f(Point2i(x, y));
+//        }
+//    });
+    const auto &tiles = film.getTiles();
+    parallelFor(0u, tiles.size(), [&](unsigned int i) {
+        tiles[i].foreachPixel(f);
     });
 }
 

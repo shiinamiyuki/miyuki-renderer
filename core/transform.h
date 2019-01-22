@@ -12,10 +12,11 @@ namespace Miyuki {
     struct Transform {
         Vec3f translation;
         Vec3f rotation;
+        Float scale;
         Transform();
-        Transform(const Vec3f&t,const Vec3f&r);
+        Transform(const Vec3f&t,const Vec3f&r,Float s);
         //rotation then translation
-        Vec3f apply(const Vec3f&);
+        Vec3f apply(const Vec3f&)const;
     };
 }
 #endif //MIYUKI_TRANSFORM_H

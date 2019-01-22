@@ -3,6 +3,8 @@
 //
 
 #include "Film.h"
+#include "film.h"
+
 
 using namespace Miyuki;
 
@@ -38,9 +40,11 @@ void Film::scaleImageColor(Float scale) {
     }
 }
 
-Film::Film(int w, int h) : imageBound(Point2i({0, 0}), Point2i({w, h})) {
+Film::Film(int w, int h, unsigned int _tileSize)
+        : imageBound(Point2i({0, 0}), Point2i({w, h})), tileSize(_tileSize) {
     assert(w >= 0 && h >= 0);
     image.resize(w * h);
+    initTiles();
 }
 
 void Film::writePNG(const std::string &filename) {
@@ -60,4 +64,22 @@ void Film::addSplat(const Point2i &pos, const Spectrum &c, Float weight) {
     getPixel(pos).add(c, weight);
 }
 
+void Film::initTiles() {
+    tiles.clear();
+    for (int i = 0; i < width(); i += tileSize) {
+        for (int j = 0; j < height(); j += tileSize) {
+            int x = clamp<int>(i + tileSize, 0, width());
+            int y = clamp<int>(j + tileSize, 0, height());
+            tiles.emplace_back(Tile{Bound2i(Point2i(i, j), Point2i(x, y))});
+        }
+    }
+}
 
+
+void Film::Tile::foreachPixel(std::function<void(const Point2i &)> f)const {
+    for (int i = bound.pMin.x(); i < bound.pMax.x(); i++) {
+        for (int j = bound.pMin.y(); j < bound.pMax.y(); j++) {
+            f(Point2i(i, j));
+        }
+    }
+}

@@ -17,6 +17,7 @@
 #include "material.h"
 #include "../integrator/ao.h"
 #include "../integrator/pathtracer.h"
+#include "../integrator/bdpt.h"
 #include "transform.h"
 
 namespace Miyuki {
@@ -65,9 +66,10 @@ namespace Miyuki {
 
     class Scene {
         friend class AOIntegrator;
-
+        friend class BDPT;
         friend class PathTracer;
 
+        Spectrum ambientLight;
         RTCScene rtcScene;
         Film film;
         MaterialList materialList;
@@ -82,7 +84,7 @@ namespace Miyuki {
 
         void checkError();
 
-        void addMesh(std::shared_ptr<Mesh::TriangularMesh>);
+        void addMesh(std::shared_ptr<Mesh::TriangularMesh>, const Transform &transform = Transform());
 
         void instantiateMesh(std::shared_ptr<Mesh::TriangularMesh>);
 
@@ -97,6 +99,8 @@ namespace Miyuki {
         const std::vector<std::shared_ptr<Light>> &getAllLights() const;
 
     public:
+        void setAmbientLight(const Spectrum &s) { ambientLight = s; }
+
         RTCScene sceneHandle() const { return rtcScene; }
 
         void prepare();

@@ -12,7 +12,7 @@
 namespace Miyuki {
     class Film {
         Bound2i imageBound;
-
+        unsigned int tileSize;
         struct Pixel {
             Spectrum color;
             Float filterWeightSum;
@@ -25,7 +25,12 @@ namespace Miyuki {
         };
 
         std::vector<Pixel> image;
-
+        struct Tile{
+            Bound2i bound;
+            void foreachPixel(std::function<void(const Point2i &)> )const;
+        };
+        std::vector<Tile> tiles;
+        void initTiles();
     public:
         int height() const { return imageBound.pMax.y(); }
 
@@ -41,9 +46,10 @@ namespace Miyuki {
 
         void scaleImageColor(Float scale);
 
-        Film(int w = 0, int h = 0);
+        Film(int w = 0, int h = 0,unsigned int _tileSize=16);
 
         void writePNG(const std::string &filename);
+        const std::vector<Tile>& getTiles()const{return tiles;}
     };
 }
 #endif //MIYUKI_FILM_H

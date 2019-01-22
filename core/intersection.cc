@@ -21,8 +21,8 @@ Intersection::Intersection(const Ray &ray) {
     rtcInitIntersectContext(&context);
 }
 
-void Intersection::intersect(RTCScene scene) {
-    rtcIntersect1(scene, &context, &rayHit);
+void Intersection::intersect(const Scene& scene) {
+    rtcIntersect1(scene.sceneHandle(), &context, &rayHit);
 }
 
 void Intersection::occlude(RTCScene scene) {
