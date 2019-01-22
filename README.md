@@ -1,6 +1,7 @@
 # Miyuki Renderer(WIP)
 
 Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-primitive intersection.
+Let me take time to decide whether CPU is a good option.
 
 ## Current Progress
 
