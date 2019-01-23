@@ -6,16 +6,19 @@ Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-p
 
 We have ambient occlusion and path tracing with next event estimation and multiple importance sampling.
 
+A PSSMLT running on path tracer is also implemented.
+
 ##  TODO List
 
 1. Volumetric Path tracing with NEE
 2. ~~Ambient Occlusion~~
 3. Stochastic Progressive Photon Mapping
-4. Primary Sample Space Metropolis Light Transport
-5. Multiplex Metropolis Light Transport
-6. Bidirectional Path Tracing with MIS
-7. Multiple Importance Sampling
-8. Vertex Connection and Merging
+4. ~~Primary Sample Space Metropolis Light Transport (Unidirectional)~~
+5. Primary Sample Space Metropolis Light Transport (Bidirectional)
+6. Multiplex Metropolis Light Transport
+7. Bidirectional Path Tracing with MIS
+8. Multiple Importance Sampling
+9. Vertex Connection and Merging
 
 # About the Miyuki_old
 
