@@ -23,8 +23,11 @@ public:
        // scene.setAmbientLight(Spectrum(1,1,1));
 //        scene.getCamera().moveTo(Vec3f(10,3,0));
 //        scene.getCamera().rotateTo(Vec3f(-M_PI/2,0,0));
+        scene.option.maxDepth = 1;
+        scene.option.samplesPerPixel = 16;
         scene.prepare();
         PathTracer pathTracer;
+        AOIntegrator aoIntegrator;
         pathTracer.render(&scene);
         scene.writeImage("test.png");
         return 0;

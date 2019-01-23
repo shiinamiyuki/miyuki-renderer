@@ -38,4 +38,12 @@ add_executable(Miyuki
         integrator/pathtracer.h
         integrator/pathtracer.cc
         core/material.h
-        core/material.cc core/transform.h core/transform.cc)
+        core/material.cc
+        core/transform.h
+        core/transform.cc
+        integrator/bdpt.h
+        integrator/bdpt.cc
+        integrator/pssmlt.h
+        integrator/pssmlt.cc
+        core/distribution.h
+        core/distribution.cc)

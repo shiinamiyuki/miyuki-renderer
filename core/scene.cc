@@ -12,7 +12,7 @@ using namespace Mesh;
 
 Scene::Scene() : film(1000, 1000) {
     rtcScene = rtcNewScene(GetEmbreeDevice());
-    seeds.resize(film.width() * film.height());
+    postResize();
 
 }
 
@@ -107,9 +107,18 @@ void Scene::writeImage(const std::string &filename) {
     film.writePNG(filename);
 }
 
+void Scene::postResize() {
+    seeds.resize(film.width() * film.height());
+    samplers.clear();
+    for (int i = 0; i < seeds.size(); i++) {
+        samplers.emplace_back(RandomSampler(&seeds[i]));
+    }
+
+}
+
 void Scene::setFilmDimension(const Point2i &dim) {
     film = Film(dim.x(), dim.y());
-    seeds.resize(dim.x() * dim.y());
+    postResize();
 }
 
 void Scene::renderPreview() {
@@ -148,7 +157,7 @@ RenderContext Scene::getRenderContext(const Point2i &raster) {
     rd = rotate(rd, Vec3f(1, 0, 0), camera.direction.y());
     rd = rotate(rd, Vec3f(0, 1, 0), camera.direction.x());
     rd = rotate(rd, Vec3f(0, 0, 1), camera.direction.z());
-    return RenderContext(Ray(ro, rd));
+    return RenderContext(Ray(ro, rd), &samplers[x0 + film.width() * y0]);
 }
 
 void Scene::checkError() {
@@ -208,3 +217,8 @@ Vec3f Intersection::intersectionPoint() const {
     return Vec3f();
 }
 
+Option::Option() {
+    rrStartDepth = 0;
+    maxDepth = 5;
+    samplesPerPixel = 16;
+}

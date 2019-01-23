@@ -15,7 +15,7 @@ void PathTracer::render(Scene *scene) {
     fmt::print("Rendering\n");
     auto &film = scene->film;
     auto &seeds = scene->seeds;
-    constexpr int N = 16;
+    int N = scene->option.samplesPerPixel;
     for (int i = 0; i < N; i++) {
         auto t = runtime([&]() {
             iteration(scene);
@@ -29,19 +29,20 @@ void PathTracer::iteration(Scene *scene) {
     auto &film = scene->film;
     auto &seeds = scene->seeds;
     scene->foreachPixel([&](const Point2i &pos) {
-        int x = pos.x();
-        int y = pos.y();
-        RandomSampler randomSampler(&seeds[x + film.width() * y]);
         auto ctx = scene->getRenderContext(pos);
+        Sampler &randomSampler = *ctx.sampler;
         Ray ray = ctx.primary;
         Spectrum radiance;
         Vec3f throughput(1, 1, 1);
         Float weightLight = 1;
-        for (int depth = 0; depth < 5; depth++) {
+        int maxDepth = scene->option.maxDepth;
+        for (int depth = 0; depth < maxDepth; depth++) {
             Intersection intersection(ray);
-            intersection.intersect(scene->sceneHandle());
-            if (!intersection.hit())
+            intersection.intersect(*scene);
+            if (!intersection.hit()) {
+                radiance += throughput * scene->ambientLight;
                 break;
+            }
             ray.o += ray.d * intersection.hitDistance();
             Interaction interaction;
             scene->fetchInteraction(intersection, makeRef(&interaction));
@@ -51,7 +52,7 @@ void PathTracer::iteration(Scene *scene) {
             Float pdf;
             BxDFType sampledType;
             auto sample = material.sampleF(randomSampler, interaction, ray.d, &wi, &pdf, BxDFType::all, &sampledType);
-            if (sampledType == BxDFType::none)break;
+            if (sampledType == BxDFType::none) { break; }
             if (sampledType == BxDFType::emission) {
                 radiance += throughput * sample / pdf * clamp<Float>(weightLight, 0, 1);
                 break;
@@ -71,7 +72,7 @@ void PathTracer::iteration(Scene *scene) {
                 // balanced heuristics
                 auto misPdf = pdf + lightPdf;
                 weightLight = 1 / misPdf;
-                if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(scene->sceneHandle())) {
+                if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(*scene)) {
                     radiance += throughput * ka / misPdf * cosWi;
                     // suppress fireflies
                     radiance = clampRadiance(radiance, 4);
@@ -92,7 +93,7 @@ void PathTracer::iteration(Scene *scene) {
                     Float brdf = material.f(sampledType, interaction, ray.d, -1 * L);
                     auto misPdf = brdf + lightPdf;
                     weightLight = 1 / misPdf;
-                    if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(scene->sceneHandle())) {
+                    if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(*scene)) {
                         radiance += brdf * throughput * ka / misPdf;
                         radiance = clampRadiance(radiance, 4);
                     }

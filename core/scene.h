@@ -15,10 +15,11 @@
 #include "interaction.h"
 #include "integrator.h"
 #include "material.h"
+#include "transform.h"
 #include "../integrator/ao.h"
 #include "../integrator/pathtracer.h"
 #include "../integrator/bdpt.h"
-#include "transform.h"
+#include "../sampler/random.h"
 
 namespace Miyuki {
 
@@ -58,15 +59,26 @@ namespace Miyuki {
 
     struct RenderContext {
         Ray primary;
-
-        RenderContext(const Ray &r) : primary(r) {}
+        Sampler *sampler;
+        RenderContext(const Ray &r, Sampler *s)
+        :  primary(r), sampler(s) {}
     };
 
     class Light;
 
+    struct Option {
+        int maxDepth;
+        int rrStartDepth;
+        int samplesPerPixel;
+
+        Option();
+    };
+
     class Scene {
         friend class AOIntegrator;
+
         friend class BDPT;
+
         friend class PathTracer;
 
         Spectrum ambientLight;
@@ -76,6 +88,7 @@ namespace Miyuki {
         Camera camera;
         std::vector<Mesh::MeshInstance> instances;
         std::vector<Seed> seeds;
+        std::vector<RandomSampler> samplers;
         std::vector<std::shared_ptr<Light>> lightList; // contains all user defined lights
         std::vector<std::shared_ptr<Light>> lights;    // contains all lights after commit() is called
 
@@ -98,7 +111,11 @@ namespace Miyuki {
 
         const std::vector<std::shared_ptr<Light>> &getAllLights() const;
 
+        void postResize();
+
     public:
+        Option option;
+
         void setAmbientLight(const Spectrum &s) { ambientLight = s; }
 
         RTCScene sceneHandle() const { return rtcScene; }

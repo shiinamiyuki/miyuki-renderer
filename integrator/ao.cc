@@ -14,7 +14,7 @@ void AOIntegrator::render(Scene *scene) {
     fmt::print("Rendering AO\n");
     auto& film = scene->film;
     auto& seeds = scene->seeds;
-    constexpr int N = 64;
+    int N = scene->option.samplesPerPixel;
     auto t = runtime([&]() {
         parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
             for (int y = 0; y < film.height(); y++) {
@@ -24,7 +24,7 @@ void AOIntegrator::render(Scene *scene) {
                 for (int i = 0; i < N; i++) {
                     auto ctx = scene->getRenderContext(Point2i({(int) x, y}));
                     Intersection intersection(ctx.primary.toRTCRay());
-                    intersection.intersect(scene->sceneHandle());
+                    intersection.intersect(*scene);
                     if (intersection.hit()) {
                         auto hit = ctx.primary.o + intersection.rayHit.ray.tfar * ctx.primary.d;
                         auto p = scene->fetchIntersectedPrimitive(intersection);
@@ -33,7 +33,7 @@ void AOIntegrator::render(Scene *scene) {
                                                                    randomSampler.nextFloat());
                         Ray ray(hit, rd);
                         Intersection second(ray.toRTCRay());
-                        second.intersect(scene->sceneHandle());
+                        second.intersect(*scene);
                         if (!second.hit()) {
                             cnt++;
                         }

@@ -28,7 +28,7 @@ namespace Miyuki {
         Seed *seed;
     public:
         explicit Sampler(Seed *s) : seed(s) {}
-
+        Seed * getSeed()const{return seed;}
         virtual Float nextFloat() = 0;
 
         virtual int nextInt() = 0;
