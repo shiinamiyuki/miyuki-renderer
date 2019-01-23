@@ -110,7 +110,12 @@ void Scene::writeImage(const std::string &filename) {
 void Scene::postResize() {
     seeds.resize(film.width() * film.height());
     samplers.clear();
+    std::random_device rd;
+    std::uniform_int_distribution<int> dist;
     for (int i = 0; i < seeds.size(); i++) {
+        seeds[i][0] = dist(rd);
+        seeds[i][1] = dist(rd);
+        seeds[i][2] = dist(rd);
         samplers.emplace_back(RandomSampler(&seeds[i]));
     }
 
@@ -221,4 +226,5 @@ Option::Option() {
     rrStartDepth = 0;
     maxDepth = 5;
     samplesPerPixel = 16;
+    mltLuminanceSample = 100000;
 }

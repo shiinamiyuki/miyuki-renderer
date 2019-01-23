@@ -10,7 +10,7 @@
 namespace Miyuki {
     class AOIntegrator : public Integrator {
     public:
-        void render(Scene *) override;
+        void render(Scene &) override;
     };
 }
 #endif //MIYUKI_AO_H

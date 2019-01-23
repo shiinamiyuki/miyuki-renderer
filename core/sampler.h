@@ -13,7 +13,7 @@ namespace Miyuki {
     public:
         using Type = unsigned short;
 
-        Seed() {Xi[2] = rand();}
+        Seed() { Xi[2] = rand(); }
 
         unsigned short &operator[](unsigned int i) {
             assert(i < 3);
@@ -28,7 +28,11 @@ namespace Miyuki {
         Seed *seed;
     public:
         explicit Sampler(Seed *s) : seed(s) {}
-        Seed * getSeed()const{return seed;}
+
+        Seed *getSeed() const { return seed; }
+
+        void setSeed(Seed *s) { seed = s; }
+
         virtual Float nextFloat() = 0;
 
         virtual int nextInt() = 0;

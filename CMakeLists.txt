@@ -46,4 +46,4 @@ add_executable(Miyuki
         integrator/pssmlt.h
         integrator/pssmlt.cc
         core/distribution.h
-        core/distribution.cc)
+        core/distribution.cc core/stats.hpp)

@@ -17,6 +17,7 @@ namespace Miyuki {
         int binarySearch(Float x) const;
 
     public:
+        Float funcInt;
         Distribution1D(const Float *data, unsigned int N);
 
         int sampleInt(Float x) const;

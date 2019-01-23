@@ -5,13 +5,13 @@
 #include "bdpt.h"
 #include "../core/scene.h"
 
-void Miyuki::BDPT::render(Scene *) {
+void Miyuki::BDPT::render(Scene &) {
 
 }
 
-void Miyuki::BDPT::generateLightPath(Sampler &sampler, Scene *scene, Miyuki::BDPT::Path &path, unsigned int maxS) {
+void Miyuki::BDPT::generateLightPath(Sampler &sampler, Scene &scene, Miyuki::BDPT::Path &path, unsigned int maxS) {
     {
-        auto light = scene->chooseOneLight(sampler);
+        auto light = scene.chooseOneLight(sampler);
         Ray ray(Vec3f(0, 0, 0), Vec3f(0, 0, 0));
         Float pdfPos, pdfDir;
         Vec3f normal;
@@ -27,7 +27,7 @@ void Miyuki::BDPT::generateLightPath(Sampler &sampler, Scene *scene, Miyuki::BDP
     }
 }
 
-void Miyuki::BDPT::generateEyePath(Sampler &sampler, Scene *scene, Miyuki::BDPT::Path &path, unsigned int maxT) {
+void Miyuki::BDPT::generateEyePath(Sampler &sampler, Scene &scene, Miyuki::BDPT::Path &path, unsigned int maxT) {
 
 }
 

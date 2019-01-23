@@ -22,12 +22,12 @@ namespace Miyuki {
         };
 
     protected:
-        void generateLightPath(Sampler &, Scene *, Path &, unsigned int maxS);
+        void generateLightPath(Sampler &, Scene &, Path &, unsigned int maxS);
 
-        void generateEyePath(Sampler &, Scene *, Path &, unsigned int maxT);
+        void generateEyePath(Sampler &, Scene &, Path &, unsigned int maxT);
 
     public:
-        void render(Scene *) override;
+        void render(Scene &) override;
     };
 }
 

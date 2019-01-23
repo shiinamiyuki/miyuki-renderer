@@ -19,6 +19,7 @@
 #include "../integrator/ao.h"
 #include "../integrator/pathtracer.h"
 #include "../integrator/bdpt.h"
+#include "../integrator/pssmlt.h"
 #include "../sampler/random.h"
 
 namespace Miyuki {
@@ -70,7 +71,7 @@ namespace Miyuki {
         int maxDepth;
         int rrStartDepth;
         int samplesPerPixel;
-
+        int mltLuminanceSample;
         Option();
     };
 
@@ -80,7 +81,7 @@ namespace Miyuki {
         friend class BDPT;
 
         friend class PathTracer;
-
+        friend class PSSMLTUnidirectional;
         Spectrum ambientLight;
         RTCScene rtcScene;
         Film film;

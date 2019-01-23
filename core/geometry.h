@@ -596,7 +596,11 @@ namespace Miyuki {
 
         const T &b() const { static_assert(N >= 3, "no b component");return v[2]; }
 
-        Vec() { for (auto i = 0; i < 3; i++) { v[i] = 0; }}
+        Vec() {
+            for (int i = 0; i < N; i++) {
+                v[i] = 0;
+            }
+        }
 
         Vec(T x) {
             static_assert(N >= 1, "no x component");

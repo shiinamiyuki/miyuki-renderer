@@ -10,11 +10,11 @@
 #include "../sampler/random.h"
 using namespace Miyuki;
 
-void AOIntegrator::render(Scene *scene) {
+void AOIntegrator::render(Scene &scene) {
     fmt::print("Rendering AO\n");
-    auto& film = scene->film;
-    auto& seeds = scene->seeds;
-    int N = scene->option.samplesPerPixel;
+    auto& film = scene.film;
+    auto& seeds = scene.seeds;
+    int N = scene.option.samplesPerPixel;
     auto t = runtime([&]() {
         parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
             for (int y = 0; y < film.height(); y++) {
@@ -22,18 +22,18 @@ void AOIntegrator::render(Scene *scene) {
                 RandomSampler randomSampler(&seeds[x + film.width() * y]);
 
                 for (int i = 0; i < N; i++) {
-                    auto ctx = scene->getRenderContext(Point2i({(int) x, y}));
+                    auto ctx = scene.getRenderContext(Point2i({(int) x, y}));
                     Intersection intersection(ctx.primary.toRTCRay());
-                    intersection.intersect(*scene);
+                    intersection.intersect(scene);
                     if (intersection.hit()) {
                         auto hit = ctx.primary.o + intersection.rayHit.ray.tfar * ctx.primary.d;
-                        auto p = scene->fetchIntersectedPrimitive(intersection);
+                        auto p = scene.fetchIntersectedPrimitive(intersection);
                         auto rd = cosineWeightedHemisphereSampling(p.normal[0],
                                                                    randomSampler.nextFloat(),
                                                                    randomSampler.nextFloat());
                         Ray ray(hit, rd);
                         Intersection second(ray.toRTCRay());
-                        second.intersect(*scene);
+                        second.intersect(scene);
                         if (!second.hit()) {
                             cnt++;
                         }

@@ -14,7 +14,7 @@ namespace Miyuki {
     public:
         virtual ~Integrator() = default;
 
-        virtual void render(Scene *) = 0;
+        virtual void render(Scene &) = 0;
     };
 
     template<typename T>
