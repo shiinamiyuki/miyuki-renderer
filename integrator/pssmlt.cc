@@ -72,12 +72,10 @@ MLTSampler::MLTSampler(Seed *s) : RandomSampler(s) {
     largeStepTime = 0;
 }
 
-static DECLARE_STATS(long long, modifyCounter);
 static DECLARE_STATS(int, acceptCounter);
 
 Float MLTSampler::primarySample(int i) {
     if (u[i].modify < time) {
-        UPDATE_STATS(modifyCounter, 1);
         if (largeStep) {
             push(i, u[i]);
             u[i].modify = time;
@@ -102,8 +100,10 @@ Float MLTSampler::primarySample(int i) {
 void MLTSampler::update(const Point2i &pos, Spectrum &L) {
     auto I = luminance(L);
     Float a = std::min(Float(1), I / oldI);
-    if (a < 0)a = 0;
-    if(oldI ==0)a = 1;
+    if (std::isnan(a))
+        a = 1;
+    if (a < 0)a = 1;
+    if (oldI == 0)a = 1;
     newSample.radiance = L;
     newSample.pos = pos;
     newSample.weight = std::max<Float>(0, (a + largeStep) / (I / b + largeStepProb));
@@ -148,8 +148,8 @@ void PSSMLTUnidirectional::render(Scene &scene) {
         auto t = runtime([&]() {
             mutation(scene);
         });
-        PRINT_STATS(modifyCounter);
-        fmt::print("Acceptance rate: {}\n", (double) acceptCounter / ((i + 1) * samples.size()));
+        fmt::print("Acceptance rate: {}\n", (double) acceptCounter / (samples.size()));
+        acceptCounter = 0;
         fmt::print("{}th iteration in {} secs, {} M Rays/sec\n", 1 + i, t, samples.size() / t / 1e6);
     }
     scene.film.scaleImageColor(1.0f / N);
@@ -195,7 +195,6 @@ void PSSMLTUnidirectional::bootstrap(Scene &scene) {
     std::uniform_real_distribution<double> dist;
     for (auto &i:samples) {
         int idx = distribution1D.sampleInt(dist(rd));
-        //   count[idx]++;
         i.assignSeed(pathSeeds[idx]);
         i.oldI = I[idx];
         i.oldSample.radiance = L[idx];
@@ -204,6 +203,7 @@ void PSSMLTUnidirectional::bootstrap(Scene &scene) {
         i.newSample.weight = 0;
         i.b = b;
         i.oldSample.pos = pos[idx];
+        i.largeStepProb = scene.option.largeStepProb;
     }
 }
 
@@ -223,7 +223,7 @@ void PSSMLTUnidirectional::mutation(Scene &scene) {
         auto &sampler = samples[i];
         auto radiance = sampler.contributionSample.radiance;
         radiance *= sampler.contributionSample.weight;
-       film.addSplat(sampler.contributionSample.pos, radiance, 0);
+        film.addSplat(sampler.contributionSample.pos, radiance, 0);
     }
 }
 

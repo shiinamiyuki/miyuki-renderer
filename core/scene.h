@@ -72,6 +72,7 @@ namespace Miyuki {
         int rrStartDepth;
         int samplesPerPixel;
         int mltLuminanceSample;
+        Float largeStepProb;
         Option();
     };
 
@@ -116,7 +117,6 @@ namespace Miyuki {
 
     public:
         Option option;
-
         void setAmbientLight(const Spectrum &s) { ambientLight = s; }
 
         RTCScene sceneHandle() const { return rtcScene; }

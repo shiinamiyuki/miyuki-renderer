@@ -84,6 +84,7 @@ namespace Miyuki {
         std::vector<MLTSampler> samples;
 
         Spectrum trace(int, Scene &, Sampler &, Point2i &);
+
         void bootstrap(Scene &);
 
         void mutation(Scene &);

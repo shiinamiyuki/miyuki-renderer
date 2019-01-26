@@ -5,6 +5,8 @@
 #include "bdpt.h"
 #include "../core/scene.h"
 
+using namespace Miyuki;
+
 void Miyuki::BDPT::render(Scene &) {
 
 }

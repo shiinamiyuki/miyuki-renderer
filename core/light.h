@@ -82,5 +82,6 @@ namespace Miyuki {
         Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
                           Float *pdfDir) const override;
     };
+
 }
 #endif //MIYUKI_LIGHT_H

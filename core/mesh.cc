@@ -4,9 +4,22 @@
 
 #include "mesh.h"
 #include "scene.h"
+#include "texture.h"
 
 using namespace Miyuki;
 using Mesh::TriangularMesh;
+
+std::unique_ptr<TextureMapping2D> loadFromPNG(const std::string &filename) {
+    std::vector<unsigned char> pixelData;
+    unsigned int w, h;
+    lodepng::decode(pixelData, w, h, filename);
+    if(pixelData.empty()){
+        fmt::print(stderr,"Error loading texture {}\n", filename);
+        return std::unique_ptr<TextureMapping2D>(nullptr);
+    }
+    fmt::print("Loaded texture {}\n", filename);
+    return std::make_unique<TextureMapping2D>(TextureMapping2D(pixelData, Point2i(w, h)));
+}
 
 std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *materialList, const char *filename) {
     std::shared_ptr<TriangularMesh> mesh(new TriangularMesh());
@@ -26,7 +39,7 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
     std::string err;
     fmt::print("Loading OBJ file {}\n", filename);
     bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, file.c_str());
-    cxx::filesystem::current_path(currentPath);
+
     if (!err.empty()) { // `err` may contain warning message.
         fmt::print(stderr, "{}\n", err);
     }
@@ -40,11 +53,20 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
             material.ka[i] = m.emission[i];
             material.kd[i] = m.diffuse[i];
             material.ks[i] = m.specular[i];
-            material.glossiness = pow(m.roughness, 2);
+            material.glossiness = (Float) pow(m.roughness, 2);
             material.ior = m.ior;
             material.tr = 1 - m.dissolve;
         }
-        materialList->emplace_back(material);
+        if (!m.diffuse_texname.empty()) {
+            material.kdMap = loadFromPNG(m.diffuse_texname);
+        }
+        if (!m.specular_texname.empty()) {
+            material.ksMap = loadFromPNG(m.specular_texname);
+        }
+        if (!m.emissive_texname.empty()) {
+            material.kaMap = loadFromPNG(m.emissive_texname);
+        }
+        materialList->emplace_back(std::move(material));
     }
     for (auto i = 0; i < attrib.vertices.size(); i += 3) {
         mesh->vertex.emplace_back(Vec3f(attrib.vertices[i],
@@ -108,6 +130,7 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
     }
     fmt::print("{} vertices, {} normals, {} triangles\n", mesh->vertex.size(), mesh->norm.size(), mesh->trigs.size());
     fmt::print("Done loading {}\n", filename);
+    cxx::filesystem::current_path(currentPath);
     return mesh;
 }
 
@@ -118,7 +141,7 @@ Mesh::MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh) {
         primitives[i].materialId = trig.materialId;
         for (int k = 0; k < 3; k++) {
             primitives[i].normal[k] = mesh->norm[trig.norm[k]];
-            primitives[i].vertices[k] =mesh->vertex[trig.vertex[k]];
+            primitives[i].vertices[k] = mesh->vertex[trig.vertex[k]];
         }
     }
 }

@@ -27,11 +27,12 @@ void Scene::commit() {
     for (const auto &instance : instances) {
         for (const auto &primitive : instance.primitives) {
             auto &material = materialList[primitive.materialId];
-            if (material.ka.max() > 0.1) {
+            if (material.ka.max() > 10) {
                 lights.emplace_back(std::shared_ptr<Light>(new AreaLight(primitive, material.ka)));
             }
         }
     }
+    fmt::print("Important lights: {}\n", lights.size());
 }
 
 class NullLight : public Light {
@@ -54,7 +55,7 @@ static NullLight nullLight;
 Light *Scene::chooseOneLight(Sampler &sampler) const {
     if (lights.empty())
         return &nullLight;
-    int idx = sampler.nextInt() % (int) lights.size();
+    int idx = sampler.randInt() % (int) lights.size();
     return lights[idx].get();
 }
 
@@ -227,4 +228,5 @@ Option::Option() {
     maxDepth = 5;
     samplesPerPixel = 16;
     mltLuminanceSample = 100000;
+    largeStepProb = 0.3;
 }

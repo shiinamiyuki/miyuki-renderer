@@ -40,6 +40,13 @@ namespace Miyuki {
         virtual Float nextFloat(Seed *) = 0;
 
         virtual int nextInt(Seed *) = 0;
+
+        int randInt(){
+            return nrand48(seed->getPtr());
+        }
+        Float randFloat(){
+            return erand48(seed->getPtr());
+        }
     };
 }
 #endif //MIYUKI_SAMPLER_H

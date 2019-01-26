@@ -10,6 +10,7 @@
 #include "spectrum.h"
 #include "sampler.h"
 #include "interaction.h"
+#include "texture.h"
 
 namespace Miyuki {
     enum class BxDFType {
@@ -37,8 +38,11 @@ namespace Miyuki {
         // TODO: make these private
         Spectrum ka, kd, ks;
         Float glossiness, ior, tr;
+        std::unique_ptr<TextureMapping2D> kaMap, kdMap, ksMap;
     private:
-
+        Spectrum kaAt(const Point2f & uv)const;
+        Spectrum kdAt(const Point2f & uv)const;
+        Spectrum ksAt(const Point2f & uv)const;
     public:
 
 
@@ -54,7 +58,7 @@ namespace Miyuki {
                          BxDFType *_sampled = nullptr) const;
 
         // BRDF, given world space wo and wi
-        Float f(BxDFType type, const Interaction &, const Vec3f &wo, const Vec3f &wi)const;
+        Float f(BxDFType type, const Interaction &, const Vec3f &wo, const Vec3f &wi) const;
 
     };
 

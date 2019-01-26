@@ -15,9 +15,12 @@ Spectrum Material::sampleF(Sampler &sampler,
                            BxDFType *_sampled) const {
     // TODO: now we only handle `sampleType` = BxDFType::all, fix this
     // TODO: consider pre-compute max reflectivity
-    auto p1 = ka.max();
-    auto p2 = kd.max();
-    auto p3 = ks.max();
+    auto Ka = kaAt(interaction.uv);
+    auto Kd = kdAt(interaction.uv);
+    auto Ks = ksAt(interaction.uv);
+    auto p1 = Ka.max();
+    auto p2 = Kd.max();
+    auto p3 = Ks.max();
     auto total = p1 + p2 + p3;
     auto x = sampler.nextFloat() * total;
     BxDFType sampled = BxDFType::none;
@@ -31,15 +34,15 @@ Spectrum Material::sampleF(Sampler &sampler,
     }
     if (x < p1) {
         sampled = BxDFType::emission;
-        color = ka * total / p1;
+        color = Ka * total / p1;
         pdf = 1;
     } else if (x < p1 + p2) {
         sampled = BxDFType::diffuse;
-        color = kd * INVPI * total / p2;
+        color = Kd * INVPI * total / p2;
         wi = cosineWeightedHemisphereSampling(interaction.norm, sampler.nextFloat(), sampler.nextFloat());
         pdf = Vec3f::dot(interaction.norm, wi) / PI;
     } else {
-        color = ks * total / p3;
+        color = Ks * total / p3;
         Vec3f norm = interaction.norm;
         sampled = static_cast<BxDFType >((int) sampled | (int) BxDFType::specular);
         if (glossiness > 0.01) {
@@ -80,7 +83,7 @@ Spectrum Material::sampleF(Sampler &sampler,
         } else {
             color /= 1 - tr;
         }
-        wi = reflect(norm,wo);
+        wi = reflect(norm, wo);
         pdf = 1;
     }
     if (_sampled) {
@@ -91,7 +94,7 @@ Spectrum Material::sampleF(Sampler &sampler,
     return color;
 }
 
-Float Material::f(BxDFType type, const Interaction &interaction, const Vec3f &wo, const Vec3f &wi)const {
+Float Material::f(BxDFType type, const Interaction &interaction, const Vec3f &wo, const Vec3f &wi) const {
     if (type == BxDFType::diffuse) {
         return INVPI;
     } else if (type == BxDFType::specular) {
@@ -106,4 +109,31 @@ Float Material::f(BxDFType type, const Interaction &interaction, const Vec3f &wo
         }
     }
     return 0;
+}
+
+Spectrum Material::kaAt(const Point2f &uv) const {
+    if (!kaMap) {
+        return ka;
+    }
+    auto color = kaMap->sample(uv);
+    color *= ka;
+    return color;
+}
+
+Spectrum Material::kdAt(const Point2f &uv) const {
+    if (!kdMap) {
+        return kd;
+    }
+    auto color = kdMap->sample(uv);
+    color *= kd;
+    return color;
+}
+
+Spectrum Material::ksAt(const Point2f &uv) const {
+    if (!ksMap) {
+        return ks;
+    }
+    auto color = ksMap->sample(uv);
+    color *= ks;
+    return color;
 }
