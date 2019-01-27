@@ -28,85 +28,80 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
+    bool succ = true;
+    readUnderPath(filename, [&](const std::string &file)->void {
+        std::string err;
+        fmt::print("Loading OBJ file {}\n", filename);
+        bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, file.c_str());
 
-    cxx::filesystem::path currentPath = cxx::filesystem::current_path();
-
-    cxx::filesystem::path inputFile(filename);
-    auto file = inputFile.filename().string();
-    auto parent = inputFile.parent_path();
-    cxx::filesystem::current_path(parent);
-
-    std::string err;
-    fmt::print("Loading OBJ file {}\n", filename);
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, file.c_str());
-
-    if (!err.empty()) { // `err` may contain warning message.
-        fmt::print(stderr, "{}\n", err);
-    }
-    if (!ret) {
-        fmt::print(stderr, "error loading OBJ file {}\n", file);
-        return nullptr;
-    }
-    for (const auto &m :materials) {
-        Material material;
-        for (int i = 0; i < 3; i++) {
-            material.ka[i] = m.emission[i];
-            material.kd[i] = m.diffuse[i];
-            material.ks[i] = m.specular[i];
-            material.glossiness = (Float) pow(m.roughness, 2);
-            material.ior = m.ior;
-            material.tr = 1 - m.dissolve;
+        if (!err.empty()) { // `err` may contain warning message.
+            fmt::print(stderr, "{}\n", err);
         }
-        if (!m.diffuse_texname.empty()) {
-            material.kdMap = loadFromPNG(m.diffuse_texname);
+        if (!ret) {
+            fmt::print(stderr, "error loading OBJ file {}\n", file);
+            succ = false;
+            return;
         }
-        if (!m.specular_texname.empty()) {
-            material.ksMap = loadFromPNG(m.specular_texname);
+        for (const auto &m :materials) {
+            Material material;
+            for (int i = 0; i < 3; i++) {
+                material.ka[i] = m.emission[i];
+                material.kd[i] = m.diffuse[i];
+                material.ks[i] = m.specular[i];
+                material.glossiness = (Float) pow(m.roughness, 2);
+                material.ior = m.ior;
+                material.tr = 1 - m.dissolve;
+            }
+            if (!m.diffuse_texname.empty()) {
+                material.kdMap = loadFromPNG(m.diffuse_texname);
+            }
+            if (!m.specular_texname.empty()) {
+                material.ksMap = loadFromPNG(m.specular_texname);
+            }
+            if (!m.emissive_texname.empty()) {
+                material.kaMap = loadFromPNG(m.emissive_texname);
+            }
+            materialList->emplace_back(std::move(material));
         }
-        if (!m.emissive_texname.empty()) {
-            material.kaMap = loadFromPNG(m.emissive_texname);
+        for (auto i = 0; i < attrib.vertices.size(); i += 3) {
+            mesh->vertex.emplace_back(Vec3f(attrib.vertices[i],
+                                            attrib.vertices[i + 1],
+                                            attrib.vertices[i + 2]));
         }
-        materialList->emplace_back(std::move(material));
-    }
-    for (auto i = 0; i < attrib.vertices.size(); i += 3) {
-        mesh->vertex.emplace_back(Vec3f(attrib.vertices[i],
-                                        attrib.vertices[i + 1],
-                                        attrib.vertices[i + 2]));
-    }
-    for (auto i = 0; i < attrib.normals.size(); i += 3) {
-        mesh->norm.emplace_back(Vec3f(attrib.normals[i],
-                                      attrib.normals[i + 1],
-                                      attrib.normals[i + 2]));
-    }
+        for (auto i = 0; i < attrib.normals.size(); i += 3) {
+            mesh->norm.emplace_back(Vec3f(attrib.normals[i],
+                                          attrib.normals[i + 1],
+                                          attrib.normals[i + 2]));
+        }
 // Loop over shapes
-    for (size_t s = 0; s < shapes.size(); s++) {
-        // Loop over faces(polygon)
-        size_t index_offset = 0;
-        for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
-            int fv = shapes[s].mesh.num_face_vertices[f];
-            assert(fv == 3); // we are using trig mesh
-            // Loop over vertices in the face.
-            Triangle triangle;
-            triangle.useTexture = true;
-            for (size_t v = 0; v < fv; v++) {
-                // access to vertex
-                tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-                assert(idx.vertex_index < mesh->vertexCount());
-                triangle.vertex[v] = idx.vertex_index;
+        for (size_t s = 0; s < shapes.size(); s++) {
+            // Loop over faces(polygon)
+            size_t index_offset = 0;
+            for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+                int fv = shapes[s].mesh.num_face_vertices[f];
+                assert(fv == 3); // we are using trig mesh
+                // Loop over vertices in the face.
+                Triangle triangle;
+                triangle.useTexture = true;
+                for (size_t v = 0; v < fv; v++) {
+                    // access to vertex
+                    tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+                    assert(idx.vertex_index < mesh->vertexCount());
+                    triangle.vertex[v] = idx.vertex_index;
 
-                if (idx.normal_index < mesh->norm.size())
-                    triangle.norm[v] = idx.normal_index;
-                else {
-                    triangle.useNorm = false;
+                    if (idx.normal_index < mesh->norm.size())
+                        triangle.norm[v] = idx.normal_index;
+                    else {
+                        triangle.useNorm = false;
 
-                }
-                if (2 * idx.texcoord_index < attrib.texcoords.size()) {
-                    tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
-                    tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
-                    triangle.textCoord[v] = Point2f(tx, ty);
-                }else{
-                    triangle.useTexture = false;
-                }
+                    }
+                    if (2 * idx.texcoord_index < attrib.texcoords.size()) {
+                        tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
+                        tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
+                        triangle.textCoord[v] = Point2f(tx, ty);
+                    } else {
+                        triangle.useTexture = false;
+                    }
 //                tinyobj::real_t vx = attrib.vertices[3 * idx.vertex_index + 0];
 //                tinyobj::real_t vy = attrib.vertices[3 * idx.vertex_index + 1];
 //                tinyobj::real_t vz = attrib.vertices[3 * idx.vertex_index + 2];
@@ -115,31 +110,34 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
 //                tinyobj::real_t nz = attrib.normals[3 * idx.normal_index + 2];
 //                tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
 //                tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
-                // Optional: vertex colors
-                // tinyobj::real_t red = attrib.colors[3*idx.vertex_index+0];
-                // tinyobj::real_t green = attrib.colors[3*idx.vertex_index+1];
-                // tinyobj::real_t blue = attrib.colors[3*idx.vertex_index+2];
-            }
-            triangle.trigNorm = Vec3f::cross(mesh->vertex[triangle.vertex[1]] - mesh->vertex[triangle.vertex[0]],
-                                             mesh->vertex[triangle.vertex[2]] - mesh->vertex[triangle.vertex[0]]);
-            triangle.area = triangle.trigNorm.length() / 2;
-            triangle.trigNorm.normalize();
-            if (!triangle.useNorm) {
-                mesh->norm.emplace_back(triangle.trigNorm);
-                for (int i = 0; i < 3; i++) {
-                    triangle.norm[i] = mesh->norm.size() - 1;
+                    // Optional: vertex colors
+                    // tinyobj::real_t red = attrib.colors[3*idx.vertex_index+0];
+                    // tinyobj::real_t green = attrib.colors[3*idx.vertex_index+1];
+                    // tinyobj::real_t blue = attrib.colors[3*idx.vertex_index+2];
                 }
-            }
+                triangle.trigNorm = Vec3f::cross(mesh->vertex[triangle.vertex[1]] - mesh->vertex[triangle.vertex[0]],
+                                                 mesh->vertex[triangle.vertex[2]] - mesh->vertex[triangle.vertex[0]]);
+                triangle.area = triangle.trigNorm.length() / 2;
+                triangle.trigNorm.normalize();
+                if (!triangle.useNorm) {
+                    mesh->norm.emplace_back(triangle.trigNorm);
+                    for (int i = 0; i < 3; i++) {
+                        triangle.norm[i] = mesh->norm.size() - 1;
+                    }
+                }
 
-            triangle.materialId = shapes[s].mesh.material_ids[f] + mOffset;
-            mesh->trigs.emplace_back(triangle);
-            index_offset += fv;
+                triangle.materialId = shapes[s].mesh.material_ids[f] + mOffset;
+                mesh->trigs.emplace_back(triangle);
+                index_offset += fv;
+            }
         }
-    }
-    fmt::print("{} vertices, {} normals, {} triangles\n", mesh->vertex.size(), mesh->norm.size(), mesh->trigs.size());
-    fmt::print("Done loading {}\n", filename);
-    cxx::filesystem::current_path(currentPath);
-    return mesh;
+        fmt::print("{} vertices, {} normals, {} triangles\n", mesh->vertex.size(), mesh->norm.size(),
+                   mesh->trigs.size());
+        fmt::print("Done loading {}\n", filename);
+    });
+    if(succ)
+        return mesh;
+    return nullptr;
 }
 
 Mesh::MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh) {

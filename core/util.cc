@@ -3,9 +3,11 @@
 //
 
 #include "util.h"
+
 static RTCDevice rtcDevice = nullptr;
+
 RTCDevice Miyuki::GetEmbreeDevice() {
-    if(!rtcDevice) {
+    if (!rtcDevice) {
         rtcDevice = rtcNewDevice(nullptr);
         assert(rtcGetDeviceError(rtcDevice) == RTC_ERROR_NONE);
     }
@@ -13,7 +15,7 @@ RTCDevice Miyuki::GetEmbreeDevice() {
 }
 
 void Miyuki::Init() {
-    if(!GetEmbreeDevice()){
+    if (!GetEmbreeDevice()) {
         fmt::print(stderr, "Error creating embree device. Exiting...\n");
         exit(-1);
     }
@@ -22,5 +24,18 @@ void Miyuki::Init() {
 
 void Miyuki::Exit() {
     rtcReleaseDevice(rtcDevice);
+}
+
+void Miyuki::readUnderPath(const std::string &filename, std::function<void(const std::string&)> f) {
+    cxx::filesystem::path currentPath = cxx::filesystem::current_path();
+
+    cxx::filesystem::path inputFile(filename);
+    auto file = inputFile.filename().string();
+    auto parent = inputFile.parent_path();
+    if (!parent.empty())
+        cxx::filesystem::current_path(parent);
+
+    f(file);
+    cxx::filesystem::current_path(currentPath);
 }
 

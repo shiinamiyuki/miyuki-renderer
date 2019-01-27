@@ -13,10 +13,13 @@ namespace Miyuki {
         Vec3f translation;
         Vec3f rotation;
         Float scale;
+
         Transform();
-        Transform(const Vec3f&t,const Vec3f&r,Float s);
+
+        Transform(const Vec3f &t, const Vec3f &r, Float s);
+
         //rotation then translation
-        Vec3f apply(const Vec3f&)const;
+        Vec3f apply(const Vec3f &) const;
     };
 }
 #endif //MIYUKI_TRANSFORM_H

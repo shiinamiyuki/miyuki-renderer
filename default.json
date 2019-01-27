@@ -1,0 +1,19 @@
+{
+    "meshes": [
+        {
+            "file" : "models/cornell_box.obj"
+        }
+    ],
+    "camera" : {
+        "transform": {
+            "translate" : [280, 260, -520]
+        }
+    },
+    "render": {
+        "output-file" : "cornell_box.png",
+        "spp": 4
+    },
+    "integrator": {
+        "type" : "path-tracer"
+    }
+}

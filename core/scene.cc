@@ -169,14 +169,14 @@ RenderContext Scene::getRenderContext(const Point2i &raster) {
     Float x = (2 * (Float) x0 / film.width() - 1) * static_cast<Float>(film.width()) / film.height();
     Float y = 2 * (1 - (Float) y0 / film.height()) - 1;
     Vec3f ro = camera.viewpoint;
-    auto z = (Float) (2.0 / tan(camera.aov / 2));
+    auto z = (Float) (2.0 / tan(camera.fov / 2));
     Float dx = 2.0 / film.height(), dy = 2.0 / film.height();
     Seed *_Xi = &seeds[(x0 + y0 * film.width())];
     Vec3f jitter = Vec3f(dx * erand48(_Xi->getPtr()), dy * erand48(_Xi->getPtr()), 0);
     Vec3f rd = Vec3f(x, y, 0) + jitter - Vec3f(0, 0, -z);
     rd.normalize();
-    rd = rotate(rd, Vec3f(1, 0, 0), camera.direction.y());
-    rd = rotate(rd, Vec3f(0, 1, 0), camera.direction.x());
+    rd = rotate(rd, Vec3f(1, 0, 0), camera.direction.x());
+    rd = rotate(rd, Vec3f(0, 1, 0), camera.direction.y());
     rd = rotate(rd, Vec3f(0, 0, 1), camera.direction.z());
     return RenderContext(Ray(ro, rd), &samplers[x0 + film.width() * y0]);
 }
@@ -244,7 +244,7 @@ Vec3f Intersection::intersectionPoint() const {
 }
 
 Option::Option() {
-    rrStartDepth = 0;
+    minDepth = 0;
     maxDepth = 5;
     samplesPerPixel = 16;
     mltLuminanceSample = 100000;

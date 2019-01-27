@@ -37,7 +37,7 @@ namespace Miyuki {
     struct Camera {
         Vec3f viewpoint;
         Vec3f direction;
-        double aov;
+        double fov;
 
         void moveTo(const Vec3f &pos) { viewpoint = pos; }
 
@@ -52,7 +52,7 @@ namespace Miyuki {
         void lookAt(const Vec3f &pos);
 
         Camera(const Vec3f &v = Vec3f(0, 0, 0), const Vec3f &d = Vec3f(0, 0, 0))
-                : viewpoint(v), direction(d), aov(M_PI / 2) {}
+                : viewpoint(v), direction(d), fov(M_PI / 2) {}
     };
 
     struct Ray;
@@ -71,7 +71,7 @@ namespace Miyuki {
 
     struct Option {
         int maxDepth;
-        int rrStartDepth;
+        int minDepth;
         int samplesPerPixel;
         int mltLuminanceSample;
         Float largeStepProb;
@@ -149,6 +149,8 @@ namespace Miyuki {
         ~Scene();
 
         RTCScene getRTCSceneHandle() const { return rtcScene; }
+
+        Point2i getResolution() const { return Point2i(film.width(), film.height()); };
     };
 }
 

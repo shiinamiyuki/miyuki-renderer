@@ -46,4 +46,9 @@ add_executable(Miyuki
         integrator/pssmlt.h
         integrator/pssmlt.cc
         core/distribution.h
-        core/distribution.cc core/stats.hpp core/texture.h core/texture.cc)
+        core/distribution.cc
+        core/stats.hpp
+        core/texture.h
+        core/texture.cc
+        lib/rapidjson/document.h
+        lib/rapidjson/rapidjson.h)
