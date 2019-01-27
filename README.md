@@ -19,7 +19,7 @@ A PSSMLT running on path tracer is also implemented.
 7. Bidirectional Path Tracing with MIS
 8. Multiple Importance Sampling
 9. Vertex Connection and Merging
-10. Importance sampling for light source
+10. ~~Importance sampling for light source~~
 
 # Gallery (Random test images)
 
