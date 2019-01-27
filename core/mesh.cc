@@ -13,8 +13,8 @@ std::unique_ptr<TextureMapping2D> loadFromPNG(const std::string &filename) {
     std::vector<unsigned char> pixelData;
     unsigned int w, h;
     lodepng::decode(pixelData, w, h, filename);
-    if(pixelData.empty()){
-        fmt::print(stderr,"Error loading texture {}\n", filename);
+    if (pixelData.empty()) {
+        fmt::print(stderr, "Error loading texture {}\n", filename);
         return std::unique_ptr<TextureMapping2D>(nullptr);
     }
     fmt::print("Loaded texture {}\n", filename);
@@ -87,6 +87,7 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
             assert(fv == 3); // we are using trig mesh
             // Loop over vertices in the face.
             Triangle triangle;
+            triangle.useTexture = true;
             for (size_t v = 0; v < fv; v++) {
                 // access to vertex
                 tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
@@ -98,6 +99,13 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
                 else {
                     triangle.useNorm = false;
 
+                }
+                if (2 * idx.texcoord_index < attrib.texcoords.size()) {
+                    tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
+                    tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
+                    triangle.textCoord[v] = Point2f(tx, ty);
+                }else{
+                    triangle.useTexture = false;
                 }
 //                tinyobj::real_t vx = attrib.vertices[3 * idx.vertex_index + 0];
 //                tinyobj::real_t vy = attrib.vertices[3 * idx.vertex_index + 1];
@@ -142,6 +150,7 @@ Mesh::MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh) {
         for (int k = 0; k < 3; k++) {
             primitives[i].normal[k] = mesh->norm[trig.norm[k]];
             primitives[i].vertices[k] = mesh->vertex[trig.vertex[k]];
+            primitives[i].textCoord[k] = trig.textCoord[k];
         }
     }
 }

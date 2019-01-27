@@ -62,3 +62,7 @@ AreaLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *norma
     *pdfDir = Vec3f::dot(dir, *normal) * INVPI;
     return ka;
 }
+
+Float AreaLight::power() const{
+    return ka.max() * area;
+}

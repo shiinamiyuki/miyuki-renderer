@@ -92,6 +92,8 @@ namespace Miyuki {
     public:
         void render(Scene &) override;
     };
+
+
 }
 
 #endif //MIYUKI_PSSMLT_H

@@ -39,9 +39,6 @@ Miyuki::GGXImportanceSampling(Float roughness, const Miyuki::Vec3f &norm, Miyuki
     return r;
 }
 
-Vec3f Miyuki::pointOnTriangle(const Vec3f &v1, const Vec3f &v2, const Vec3f &v3, Float u1, Float u2) {
-    return (1 - u1 - u2) * v1 + u1 * v2 + u2 * v3;//v1 + u1*(v2 - v1) + u2 * (v3 - v1);
-}
 
 // https://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
 Float Miyuki::GGXDistribution(const Vec3f &m, const Vec3f &n, float alpha_g) {

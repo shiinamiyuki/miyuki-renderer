@@ -59,12 +59,14 @@ namespace Miyuki {
                                   Float *pdfPos,
                                   Float *pdfDir) const = 0;
 
-        Spectrum power() const { return ka; }
+        virtual Float power() const { return ka.max(); }
 
         bool isDeltaLight() const {
             return ((int) type & (int) Type::deltaDirection)
                    || ((int) type & (int) Type::deltaPosition);
         }
+
+        void scalePower(Float k) { ka *= k; }
     };
 
     class AreaLight : public Light {
@@ -78,6 +80,8 @@ namespace Miyuki {
                           Vec3f *wi,
                           Float *pdf,
                           VisibilityTester *) const override;
+
+        Float power()const override;
 
         Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
                           Float *pdfDir) const override;

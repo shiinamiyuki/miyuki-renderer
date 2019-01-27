@@ -10,12 +10,12 @@ Miyuki::Distribution1D::Distribution1D(const Float *data, unsigned int N) {
     cdfArray.resize(N + 1);
     cdfArray[0] = 0;
     for (int i = 0; i < N; i++) {
-        cdfArray[i + 1] = cdfArray[i] + data[i] / N;
+        cdfArray[i + 1] = cdfArray[i] + data[i];
     }
     funcInt = cdfArray[N];
     if (funcInt > 0) {
         for (int i = 0; i < N + 1; i++) {
-            cdfArray[i] /= funcInt;
+            cdfArray[i] /= funcInt / N;
         }
     } else {
         for (int i = 1; i < N + 1; i++) {

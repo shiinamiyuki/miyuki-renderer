@@ -40,9 +40,9 @@ namespace Miyuki {
         Float glossiness, ior, tr;
         std::unique_ptr<TextureMapping2D> kaMap, kdMap, ksMap;
     private:
-        Spectrum kaAt(const Point2f & uv)const;
-        Spectrum kdAt(const Point2f & uv)const;
-        Spectrum ksAt(const Point2f & uv)const;
+        Spectrum kaAt(const Interaction &)const;
+        Spectrum kdAt(const Interaction &)const;
+        Spectrum ksAt(const Interaction &)const;
     public:
 
 
@@ -59,6 +59,7 @@ namespace Miyuki {
 
         // BRDF, given world space wo and wi
         Float f(BxDFType type, const Interaction &, const Vec3f &wo, const Vec3f &wi) const;
+        const Point2f textCoord(const Interaction &)const;
 
     };
 

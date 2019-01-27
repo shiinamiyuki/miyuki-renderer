@@ -16,6 +16,7 @@
 #include "integrator.h"
 #include "material.h"
 #include "transform.h"
+#include "distribution.h"
 #include "../integrator/ao.h"
 #include "../integrator/pathtracer.h"
 #include "../integrator/bdpt.h"
@@ -61,8 +62,9 @@ namespace Miyuki {
     struct RenderContext {
         Ray primary;
         Sampler *sampler;
+
         RenderContext(const Ray &r, Sampler *s)
-        :  primary(r), sampler(s) {}
+                : primary(r), sampler(s) {}
     };
 
     class Light;
@@ -73,6 +75,7 @@ namespace Miyuki {
         int samplesPerPixel;
         int mltLuminanceSample;
         Float largeStepProb;
+
         Option();
     };
 
@@ -82,7 +85,9 @@ namespace Miyuki {
         friend class BDPT;
 
         friend class PathTracer;
+
         friend class PSSMLTUnidirectional;
+
         Spectrum ambientLight;
         RTCScene rtcScene;
         Film film;
@@ -93,9 +98,12 @@ namespace Miyuki {
         std::vector<RandomSampler> samplers;
         std::vector<std::shared_ptr<Light>> lightList; // contains all user defined lights
         std::vector<std::shared_ptr<Light>> lights;    // contains all lights after commit() is called
+        std::unique_ptr<Distribution1D> lightDistribution;
 
         // commit and preprocess scene
         void commit();
+
+        void computeLightDistribution();
 
         void checkError();
 
@@ -117,6 +125,7 @@ namespace Miyuki {
 
     public:
         Option option;
+
         void setAmbientLight(const Spectrum &s) { ambientLight = s; }
 
         RTCScene sceneHandle() const { return rtcScene; }

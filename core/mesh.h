@@ -17,8 +17,9 @@ namespace Miyuki {
             int materialId;
             bool useNorm;
             Vec3f trigNorm;
+            Point2f textCoord[3];
             Float area;
-
+            bool useTexture;
             Triangle() = default;
         };
 
@@ -62,9 +63,7 @@ namespace Miyuki {
 
             struct Primitive {
                 Vec3f normal[3], vertices[3];
-                Point2i kaTextCoord[3];
-                Point2i kdTextCoord[3];
-                Point2i ksTextCoord[3];
+                Point2f textCoord[3];
                 int materialId;
                 TextureFlag textureFlag;
                 Primitive() :textureFlag(none){}

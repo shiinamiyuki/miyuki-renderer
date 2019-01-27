@@ -3,6 +3,7 @@
 //
 
 #include "material.h"
+#include "interaction.h"
 
 using namespace Miyuki;
 
@@ -15,9 +16,9 @@ Spectrum Material::sampleF(Sampler &sampler,
                            BxDFType *_sampled) const {
     // TODO: now we only handle `sampleType` = BxDFType::all, fix this
     // TODO: consider pre-compute max reflectivity
-    auto Ka = kaAt(interaction.uv);
-    auto Kd = kdAt(interaction.uv);
-    auto Ks = ksAt(interaction.uv);
+    auto Ka = kaAt(interaction);
+    auto Kd = kdAt(interaction);
+    auto Ks = ksAt(interaction);
     auto p1 = Ka.max();
     auto p2 = Kd.max();
     auto p3 = Ks.max();
@@ -111,29 +112,35 @@ Float Material::f(BxDFType type, const Interaction &interaction, const Vec3f &wo
     return 0;
 }
 
-Spectrum Material::kaAt(const Point2f &uv) const {
+Spectrum Material::kaAt(const Interaction &i) const {
     if (!kaMap) {
         return ka;
     }
-    auto color = kaMap->sample(uv);
+    auto color = kaMap->sample(textCoord(i));
     color *= ka;
     return color;
 }
 
-Spectrum Material::kdAt(const Point2f &uv) const {
+Spectrum Material::kdAt(const Interaction &i) const {
     if (!kdMap) {
         return kd;
     }
-    auto color = kdMap->sample(uv);
+    auto color = kdMap->sample(textCoord(i));;
     color *= kd;
     return color;
 }
 
-Spectrum Material::ksAt(const Point2f &uv) const {
+Spectrum Material::ksAt(const Interaction &i) const {
     if (!ksMap) {
         return ks;
     }
-    auto color = ksMap->sample(uv);
+    auto color = ksMap->sample(textCoord(i));
     color *= ks;
     return color;
+}
+
+const Point2f Material::textCoord(const Interaction &interaction) const {
+    const auto &primitive = *interaction.primitive;
+    const auto &uv = interaction.uv;
+    return pointOnTriangle(primitive.textCoord[0], primitive.textCoord[1], primitive.textCoord[2], uv.x(), uv.y());
 }

@@ -75,7 +75,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
             VisibilityTester visibilityTester;
             auto ka = light->sampleLi(Point2f(randomSampler.randFloat(),
                                               randomSampler.randFloat()),
-                                      interaction, &L, &lightPdf, &visibilityTester) * scene.lights.size();
+                                      interaction, &L, &lightPdf, &visibilityTester);
             Float cosWi = -Vec3f::dot(L, interaction.norm);
             Float brdf = material.f(sampledType, interaction, ray.d, -1 * L);
             // balanced heuristics
@@ -98,7 +98,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
                 VisibilityTester visibilityTester;
                 auto ka = light->sampleLi(Point2f(randomSampler.randFloat(),
                                                   randomSampler.randFloat()),
-                                          interaction, &L, &lightPdf, &visibilityTester) * scene.lights.size();
+                                          interaction, &L, &lightPdf, &visibilityTester);
                 Float cosWi = -Vec3f::dot(L, interaction.norm);
                 Float brdf = material.f(sampledType, interaction, ray.d, -1 * L);
                 auto misPdf = brdf + lightPdf;

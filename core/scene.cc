@@ -20,6 +20,14 @@ Scene::~Scene() {
     rtcReleaseScene(rtcScene);
 }
 
+void Scene::computeLightDistribution() {
+    std::vector<Float> power;
+    for (const auto &i:lights) {
+        power.emplace_back(i->power());
+    }
+    lightDistribution = std::make_unique<Distribution1D>(Distribution1D(power.data(), power.size()));
+}
+
 void Scene::commit() {
     rtcCommitScene(rtcScene);
     checkError();
@@ -27,12 +35,19 @@ void Scene::commit() {
     for (const auto &instance : instances) {
         for (const auto &primitive : instance.primitives) {
             auto &material = materialList[primitive.materialId];
-            if (material.ka.max() > 10) {
+            if (material.ka.max() > 1) {
                 lights.emplace_back(std::shared_ptr<Light>(new AreaLight(primitive, material.ka)));
             }
         }
     }
-    fmt::print("Important lights: {}\n", lights.size());
+    //  prob(L) = power(L) / total_power
+    computeLightDistribution();
+    if (lightDistribution) {
+        for (const auto &i: lights) {
+            i->scalePower(lightDistribution->funcInt / i->power()); // scales by 1 / prob
+        }
+    }
+    fmt::print("Important lights: {}, total power: {}\n", lights.size(), lightDistribution->funcInt);
 }
 
 class NullLight : public Light {
@@ -46,7 +61,7 @@ public:
     Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
                       Float *pdfDir) const override {
         *pdfPos = 0;
-        return Miyuki::Spectrum();
+        return {};
     }
 };
 
@@ -55,7 +70,7 @@ static NullLight nullLight;
 Light *Scene::chooseOneLight(Sampler &sampler) const {
     if (lights.empty())
         return &nullLight;
-    int idx = sampler.randInt() % (int) lights.size();
+    int idx = lightDistribution->sampleInt(sampler.randFloat());
     return lights[idx].get();
 }
 
@@ -181,7 +196,7 @@ const Mesh::MeshInstance::Primitive &Scene::fetchIntersectedPrimitive(const Inte
 // TODO: coord on triangle, see Embree's documentation
 void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> interaction) {
     interaction->primitive = makeRef<const Mesh::MeshInstance::Primitive>(&fetchIntersectedPrimitive(intersection));
-    interaction->norm = interaction->primitive->normal[0];
+
     interaction->wi = Vec3f(intersection.rayHit.ray.dir_x,
                             intersection.rayHit.ray.dir_y,
                             intersection.rayHit.ray.dir_z);
@@ -189,6 +204,11 @@ void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> 
                                   intersection.rayHit.ray.org_y,
                                   intersection.rayHit.ray.org_z) + interaction->wi * intersection.hitDistance();
     interaction->uv = Point2f(intersection.rayHit.hit.u, intersection.rayHit.hit.v);
+    interaction->norm = pointOnTriangle(interaction->primitive->normal[0],
+                                        interaction->primitive->normal[1],
+                                        interaction->primitive->normal[2],
+                                        interaction->uv.x(),
+                                        interaction->uv.y());
     interaction->geomID = intersection.geomID();
     interaction->primID = intersection.primID();
     interaction->material = &materialList[interaction->primitive->materialId];
