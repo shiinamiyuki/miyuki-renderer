@@ -38,7 +38,7 @@ namespace Miyuki {
         // TODO: make these private
         Spectrum ka, kd, ks;
         Float glossiness, ior, tr;
-        std::unique_ptr<TextureMapping2D> kaMap, kdMap, ksMap;
+        std::shared_ptr<TextureMapping2D> kaMap, kdMap, ksMap;
     private:
         Spectrum kaAt(const Interaction &)const;
         Spectrum kdAt(const Interaction &)const;

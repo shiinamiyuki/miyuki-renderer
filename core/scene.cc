@@ -175,8 +175,8 @@ RenderContext Scene::getRenderContext(const Point2i &raster) {
     Vec3f jitter = Vec3f(dx * erand48(_Xi->getPtr()), dy * erand48(_Xi->getPtr()), 0);
     Vec3f rd = Vec3f(x, y, 0) + jitter - Vec3f(0, 0, -z);
     rd.normalize();
-    rd = rotate(rd, Vec3f(1, 0, 0), camera.direction.x());
-    rd = rotate(rd, Vec3f(0, 1, 0), camera.direction.y());
+    rd = rotate(rd, Vec3f(1, 0, 0), -camera.direction.y());
+    rd = rotate(rd, Vec3f(0, 1, 0), camera.direction.x());
     rd = rotate(rd, Vec3f(0, 0, 1), camera.direction.z());
     return RenderContext(Ray(ro, rd), &samplers[x0 + film.width() * y0]);
 }
@@ -209,6 +209,7 @@ void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> 
                                         interaction->primitive->normal[2],
                                         interaction->uv.x(),
                                         interaction->uv.y());
+    interaction->norm.normalize();
     interaction->geomID = intersection.geomID();
     interaction->primID = intersection.primID();
     interaction->material = &materialList[interaction->primitive->materialId];
@@ -249,4 +250,11 @@ Option::Option() {
     samplesPerPixel = 16;
     mltLuminanceSample = 100000;
     largeStepProb = 0.3;
+    showAmbientLight = true;
+    aoDistance = 50;
+    saveEverySecond = 10;
+    sleepTime = 0;
+}
+void Scene::addPointLight(const Spectrum &ka, const Vec3f &pos) {
+    lightList.emplace_back(std::make_shared<PointLight>(ka, pos));
 }

@@ -9,7 +9,7 @@
 using namespace Miyuki;
 using Mesh::TriangularMesh;
 
-std::unique_ptr<TextureMapping2D> loadFromPNG(const std::string &filename) {
+std::shared_ptr<TextureMapping2D> loadFromPNG(const std::string &filename) {
     std::vector<unsigned char> pixelData;
     unsigned int w, h;
     lodepng::decode(pixelData, w, h, filename);
@@ -18,7 +18,7 @@ std::unique_ptr<TextureMapping2D> loadFromPNG(const std::string &filename) {
         return std::unique_ptr<TextureMapping2D>(nullptr);
     }
     fmt::print("Loaded texture {}\n", filename);
-    return std::make_unique<TextureMapping2D>(TextureMapping2D(pixelData, Point2i(w, h)));
+    return std::make_shared<TextureMapping2D>(TextureMapping2D(pixelData, Point2i(w, h)));
 }
 
 std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *materialList, const char *filename) {
@@ -29,7 +29,8 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     bool succ = true;
-    readUnderPath(filename, [&](const std::string &file)->void {
+    std::map<std::string, std::shared_ptr<TextureMapping2D>> textures;
+    readUnderPath(filename, [&](const std::string &file) -> void {
         std::string err;
         fmt::print("Loading OBJ file {}\n", filename);
         bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, file.c_str());
@@ -53,13 +54,25 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
                 material.tr = 1 - m.dissolve;
             }
             if (!m.diffuse_texname.empty()) {
-                material.kdMap = loadFromPNG(m.diffuse_texname);
+                if (textures.find(m.diffuse_texname) == textures.end()) {
+                    material.kdMap = loadFromPNG(m.diffuse_texname);
+                    textures[m.diffuse_texname] = material.kdMap;
+                } else
+                    material.kdMap = textures[m.diffuse_texname];
             }
             if (!m.specular_texname.empty()) {
-                material.ksMap = loadFromPNG(m.specular_texname);
+                if (textures.find(m.specular_texname) == textures.end()) {
+                    material.ksMap = loadFromPNG(m.specular_texname);
+                    textures[m.specular_texname] = material.ksMap;
+                } else
+                    material.ksMap = textures[m.specular_texname];
             }
             if (!m.emissive_texname.empty()) {
-                material.kaMap = loadFromPNG(m.emissive_texname);
+                if (textures.find(m.emissive_texname) == textures.end()) {
+                    material.kaMap = loadFromPNG(m.emissive_texname);
+                    textures[m.emissive_texname] = material.kaMap;
+                } else
+                    material.kaMap = textures[m.emissive_texname];
             }
             materialList->emplace_back(std::move(material));
         }
@@ -135,7 +148,7 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
                    mesh->trigs.size());
         fmt::print("Done loading {}\n", filename);
     });
-    if(succ)
+    if (succ)
         return mesh;
     return nullptr;
 }
@@ -153,6 +166,6 @@ Mesh::MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh) {
     }
 }
 
-Vec3f Mesh::MeshInstance::Primitive::normalAt(const Point2f &) const {
-    return normal[0];
+Vec3f Mesh::MeshInstance::Primitive::normalAt(const Point2f &p) const {
+    return pointOnTriangle(normal[0], normal[1], normal[2], p.x(), p.y());
 }

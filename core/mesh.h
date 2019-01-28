@@ -53,20 +53,12 @@ namespace Miyuki {
         };
 
         struct MeshInstance {
-            enum TextureFlag {
-                none = 0,
-                ka = 1,
-                kd = 2,
-                ks = 4,
-                all = ka | kd | ks
-            };
 
             struct Primitive {
                 Vec3f normal[3], vertices[3];
                 Point2f textCoord[3];
                 int materialId;
-                TextureFlag textureFlag;
-                Primitive() :textureFlag(none){}
+                Primitive(){}
 
                 Vec3f normalAt(const Point2f &) const;
             };

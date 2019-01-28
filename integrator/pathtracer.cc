@@ -16,11 +16,18 @@ void PathTracer::render(Scene &scene) {
     auto &film = scene.film;
     auto &seeds = scene.seeds;
     int N = scene.option.samplesPerPixel;
+    int sleepTime = scene.option.sleepTime;
+    double elapsed = 0;
     for (int i = 0; i < N; i++) {
         auto t = runtime([&]() {
             iteration(scene);
+            if(sleepTime > 0){
+                std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+            }
         });
-        fmt::print("{}th iteration in {} secs, {} M Rays/sec\n", 1 + i, t, film.width() * film.height() / t / 1e6);
+        elapsed += t;
+        fmt::print("iteration {} in {} secs, elapsed {}s, remaining {}s\n",
+                   1 + i, t, elapsed, (double) (elapsed * N) / (i + 1) - elapsed);
     }
 }
 
@@ -41,12 +48,14 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
     Vec3f throughput(1, 1, 1);
     Float weightLight = 1;
     int maxDepth = scene.option.maxDepth;
+    bool showAL = scene.option.showAmbientLight;
     bool specular = false;
     for (int depth = 0; depth < maxDepth; depth++) {
         Intersection intersection(ray);
         intersection.intersect(scene);
         if (!intersection.hit()) {
-            radiance += throughput * scene.ambientLight;
+            if (showAL || depth != 0)
+                radiance += throughput * scene.ambientLight;
             break;
         }
         ray.o += ray.d * intersection.hitDistance();
@@ -84,7 +93,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
             if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(scene)) {
                 radiance += throughput * ka / misPdf * cosWi;
                 // suppress fireflies
-             //   radiance = clampRadiance(radiance, 4);
+                //   radiance = clampRadiance(radiance, 4);
             }
             throughput *= Vec3f::dot(interaction.norm, wi) / pdf;
         } else {
@@ -105,7 +114,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
                 weightLight = 1 / misPdf;
                 if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(scene)) {
                     radiance += brdf * throughput * ka / misPdf;
-                  //  radiance = clampRadiance(radiance, 4);
+                    //  radiance = clampRadiance(radiance, 4);
                 }
                 throughput /= pdf;
             } else {

@@ -75,7 +75,10 @@ namespace Miyuki {
         int samplesPerPixel;
         int mltLuminanceSample;
         Float largeStepProb;
-
+        Float aoDistance;
+        bool showAmbientLight;
+        int saveEverySecond;
+        int sleepTime;
         Option();
     };
 
@@ -125,6 +128,7 @@ namespace Miyuki {
 
     public:
         Option option;
+        void addPointLight(const Spectrum& ka, const Vec3f& pos);
 
         void setAmbientLight(const Spectrum &s) { ambientLight = s; }
 

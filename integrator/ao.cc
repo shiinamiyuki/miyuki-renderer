@@ -34,7 +34,7 @@ void AOIntegrator::render(Scene &scene) {
                         Ray ray(hit, rd);
                         Intersection second(ray.toRTCRay());
                         second.intersect(scene);
-                        if (!second.hit()) {
+                        if (!second.hit() || second.hitDistance() > scene.option.aoDistance) {
                             cnt++;
                         }
                     }

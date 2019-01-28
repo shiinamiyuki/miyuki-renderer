@@ -15,7 +15,7 @@ Miyuki::Distribution1D::Distribution1D(const Float *data, unsigned int N) {
     funcInt = cdfArray[N];
     if (funcInt > 0) {
         for (int i = 0; i < N + 1; i++) {
-            cdfArray[i] /= funcInt / N;
+            cdfArray[i] /= funcInt;
         }
     } else {
         for (int i = 1; i < N + 1; i++) {

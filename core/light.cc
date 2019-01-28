@@ -16,6 +16,7 @@ bool VisibilityTester::visible(const Scene &scene) const {
 
 AreaLight::AreaLight(const Mesh::MeshInstance::Primitive &_primitive, const Spectrum &ka)
         : Light(ka), primitive(&_primitive) {
+    type = Type::area;
     area = Vec3f::cross(primitive->vertices[1] - primitive->vertices[0],
                         primitive->vertices[2] - primitive->vertices[0]).length() / 2;
 }
@@ -65,4 +66,23 @@ AreaLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *norma
 
 Float AreaLight::power() const{
     return ka.max() * area;
+}
+
+Spectrum PointLight::sampleLi(const Point2f &u, const Interaction &interaction, Vec3f *wi, Float *pdf,
+                              VisibilityTester *tester) const {
+
+    auto Wi = (interaction.hitpoint - position);
+    auto dist = Wi.lengthSquared();
+    Wi.normalize();
+    *pdf = dist;
+    *wi = Wi;
+    tester->shadowRay = Ray(position, *wi);
+    tester->targetPrimID = interaction.primID;
+    tester->targetGeomID = interaction.geomID;
+    return ka;
+}
+
+Spectrum PointLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
+                              Float *pdfDir) const {
+    return {};
 }
