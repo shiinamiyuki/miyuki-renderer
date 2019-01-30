@@ -7,7 +7,7 @@
 
 #include "geometry.h"
 #include "spectrum.h"
-
+#include "transform.h"
 namespace Miyuki {
     class MaterialList;
     namespace Mesh {
@@ -69,7 +69,7 @@ namespace Miyuki {
 
             MeshInstance() = default;
 
-            MeshInstance(std::shared_ptr<TriangularMesh>);
+            MeshInstance(std::shared_ptr<TriangularMesh>, const Transform&t = Transform());
         };
     }
 }

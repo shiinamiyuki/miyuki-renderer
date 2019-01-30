@@ -42,8 +42,8 @@ namespace Miyuki {
 
         Pixel &getPixel(int x, int y);
 
-        void addSplat(const Point2i &, const Spectrum &c, Float weight = 1);
-
+        void addSample(const Point2i &, const Spectrum &c, Float weight = 1);
+        void addSplat(const Point2i &, const Spectrum &c);
         void scaleImageColor(Float scale);
 
         Film(int w = 0, int h = 0,unsigned int _tileSize=16);

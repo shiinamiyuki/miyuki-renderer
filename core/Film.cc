@@ -59,9 +59,13 @@ void Film::writePNG(const std::string &filename) {
     lodepng::encode(filename, pixelBuffer, (unsigned int) width(), (unsigned int) height());
 }
 
-void Film::addSplat(const Point2i &pos, const Spectrum &c, Float weight) {
+void Film::addSample(const Point2i &pos, const Spectrum &c, Float weight) {
     //assert(!c.hasNaNs());
-    getPixel(pos).add(c, weight);
+    getPixel(pos).add(Spectrum(c * weight), weight);
+}
+
+void Film::addSplat(const Point2i &pos, const Spectrum &c) {
+    getPixel(pos).add(c, 0);
 }
 
 void Film::initTiles() {
@@ -76,7 +80,7 @@ void Film::initTiles() {
 }
 
 
-void Film::Tile::foreachPixel(std::function<void(const Point2i &)> f)const {
+void Film::Tile::foreachPixel(std::function<void(const Point2i &)> f) const {
     for (int i = bound.pMin.x(); i < bound.pMax.x(); i++) {
         for (int j = bound.pMin.y(); j < bound.pMax.y(); j++) {
             f(Point2i(i, j));

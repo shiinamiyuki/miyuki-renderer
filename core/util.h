@@ -107,5 +107,5 @@ namespace Miyuki {
     Ref<T> makeRef(T *p) { return Ref<T>(p); }
     void readUnderPath(const std::string &filename, std::function<void(const std::string&)>);
 }
-#define let const auto
+
 #endif //MIYUKI_UTIL_HPP

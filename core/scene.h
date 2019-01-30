@@ -112,7 +112,7 @@ namespace Miyuki {
 
         void addMesh(std::shared_ptr<Mesh::TriangularMesh>, const Transform &transform = Transform());
 
-        void instantiateMesh(std::shared_ptr<Mesh::TriangularMesh>);
+        void instantiateMesh(std::shared_ptr<Mesh::TriangularMesh>, const Transform &transform);
 
         const Mesh::MeshInstance::Primitive &fetchIntersectedPrimitive(const Intersection &);
 

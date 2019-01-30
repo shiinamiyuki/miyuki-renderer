@@ -331,6 +331,8 @@ namespace Miyuki {
 
         Float &z() { return v[2]; }
 
+        Float &w() { return v[3]; }
+
         Float &r() { return v[0]; }
 
         Float &g() { return v[1]; }
@@ -349,6 +351,8 @@ namespace Miyuki {
 
         const Float &b() const { return v[2]; }
 
+        const Float &w()const { return v[3]; }
+
         void setX(Float x) {
             v[0] = x;
         }
@@ -364,7 +368,7 @@ namespace Miyuki {
         int dimension() const { return 3; }
 
         Float &axis(unsigned int n) {
-            assert(n < 3);
+            assert(n < 4);
             return v[n];
         }
 
@@ -377,7 +381,7 @@ namespace Miyuki {
         }
 
         const Float &axis(unsigned int n) const {
-            assert(n < 3);
+            assert(n < 4);
             return v[n];
         }
 
@@ -483,7 +487,9 @@ namespace Miyuki {
         static Float dot(const Vec3f &a, const Vec3f &b) {
             return a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
         }
-
+        static Float matDot(const Vec3f &a, const Vec3f &b) {
+            return a.x() * b.x() + a.y() * b.y() + a.z() * b.z() + a.w() * b.w();
+        }
         static Vec3f cross(const Vec3f &v1, const Vec3f &v2) {
             return Vec3f{v1.y() * v2.z() - v1.z() * v2.y(),
                          v1.z() * v2.x() - v1.x() * v2.z(),

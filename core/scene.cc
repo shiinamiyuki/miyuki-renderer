@@ -85,8 +85,8 @@ void Scene::loadObjTrigMesh(const char *filename, const Transform &transform) {
     checkError();
 }
 
-void Scene::instantiateMesh(std::shared_ptr<Mesh::TriangularMesh> mesh) {
-    instances.emplace_back(Mesh::MeshInstance(mesh));
+void Scene::instantiateMesh(std::shared_ptr<Mesh::TriangularMesh> mesh, const Transform &transform) {
+    instances.emplace_back(Mesh::MeshInstance(mesh,transform));
 }
 
 void Scene::addMesh(std::shared_ptr<Mesh::TriangularMesh> mesh, const Transform &transform) {
@@ -116,7 +116,7 @@ void Scene::addMesh(std::shared_ptr<Mesh::TriangularMesh> mesh, const Transform 
     rtcCommitGeometry(rtcMesh);
     rtcAttachGeometryByID(rtcScene, rtcMesh, instances.size());
     rtcReleaseGeometry(rtcMesh);
-    instantiateMesh(mesh);
+    instantiateMesh(mesh, transform);
 }
 
 void Scene::writeImage(const std::string &filename) {

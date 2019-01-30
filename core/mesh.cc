@@ -153,14 +153,14 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(MaterialList *material
     return nullptr;
 }
 
-Mesh::MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh) {
+Mesh::MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Transform &t) {
     primitives.resize(mesh->triangleCount());
     for (int i = 0; i < mesh->triangleCount(); i++) {
         auto &trig = mesh->triangleArray()[i];
         primitives[i].materialId = trig.materialId;
         for (int k = 0; k < 3; k++) {
-            primitives[i].normal[k] = mesh->norm[trig.norm[k]];
-            primitives[i].vertices[k] = mesh->vertex[trig.vertex[k]];
+            primitives[i].normal[k] = t.applyRotation(mesh->norm[trig.norm[k]]).normalized();
+            primitives[i].vertices[k] = t.apply(mesh->vertex[trig.vertex[k]]);
             primitives[i].textCoord[k] = trig.textCoord[k];
         }
     }
