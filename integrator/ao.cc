@@ -39,7 +39,7 @@ void AOIntegrator::render(Scene &scene) {
                         }
                     }
                 }
-                film.addSplat(Point2i({(int) x, y}), Spectrum(Vec3f(1, 1, 1) * (Float(cnt) / N)));
+                film.addSample(Point2i({(int) x, y}), Spectrum(Vec3f(1, 1, 1) * (Float(cnt) / N)));
             }
         });
     });

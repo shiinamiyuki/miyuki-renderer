@@ -218,12 +218,14 @@ void PSSMLTUnidirectional::mutation(Scene &scene) {
         radiance = trace(idx, scene, sampler, newPos);
         sampler.update(newPos, radiance);
     });
-
+    Float b = 0;
     for (int i = 0; i < samples.size(); i++) {
         auto &sampler = samples[i];
         auto radiance = sampler.contributionSample.radiance;
         radiance *= sampler.contributionSample.weight;
-        film.addSplat(sampler.contributionSample.pos, radiance, 0);
+        b += luminance(sampler.newSample.radiance);
+        film.addSplat(sampler.contributionSample.pos, radiance);
     }
+    fmt::print("b = {}\n", b / samples.size());
 }
 

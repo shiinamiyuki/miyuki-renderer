@@ -21,7 +21,7 @@ void PathTracer::render(Scene &scene) {
     for (int i = 0; i < N; i++) {
         auto t = runtime([&]() {
             iteration(scene);
-            if(sleepTime > 0){
+            if (sleepTime > 0) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
             }
         });
@@ -37,7 +37,7 @@ void PathTracer::iteration(Scene &scene) {
     auto &seeds = scene.seeds;
     scene.foreachPixel([&](const Point2i &pos) {
         auto ctx = scene.getRenderContext(pos);
-        film.addSplat(pos, render(pos, ctx, scene));
+        film.addSample(pos, render(pos, ctx, scene));
     });
 }
 
