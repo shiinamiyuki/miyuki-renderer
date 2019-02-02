@@ -32,6 +32,8 @@ A PSSMLT running on path tracer is also implemented.
 
 # Gallery (Random test images)
 
+![](gallery/vokselia_spawn.png)
+
 ![](gallery/conference.png)![](gallery/sportcar.png)
 
 ![](gallery/lots-of-thing-together.png)
