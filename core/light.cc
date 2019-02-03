@@ -14,7 +14,7 @@ bool VisibilityTester::visible(const Scene &scene) const {
            && intersection.primID() == targetPrimID;
 }
 
-AreaLight::AreaLight(const Mesh::MeshInstance::Primitive &_primitive, const Spectrum &ka)
+AreaLight::AreaLight(const Primitive &_primitive, const Spectrum &ka)
         : Light(ka), primitive(&_primitive) {
     type = Type::area;
     area = Vec3f::cross(primitive->vertices[1] - primitive->vertices[0],

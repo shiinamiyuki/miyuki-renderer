@@ -64,62 +64,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
         auto &primitive = *interaction.primitive;
         auto &material = *interaction.material;
         Vec3f wi;
-        Float pdf;
-        BxDFType sampledType;
-        auto sample = material.sampleF(randomSampler, interaction, ray.d, &wi, &pdf, BxDFType::all, &sampledType);
-        if (sampledType == BxDFType::none) { break; }
-        if (sampledType == BxDFType::emission) {
-            radiance += throughput * sample / pdf * clamp<Float>(weightLight, 0, 1);
-            if (!specular) {
-                radiance = clampRadiance(radiance, 5);
-            }
-            break;
-        } else if (sampledType == BxDFType::diffuse) {
-            // TODO: should we optimize the code to cancel the cosine term?
-            //throughput *= sample * Vec3f::dot(interaction.normal, wi) / pdf;
-            throughput *= sample;
-            auto light = scene.chooseOneLight(randomSampler);
-            Vec3f L;
-            Float lightPdf;
-            VisibilityTester visibilityTester;
-            auto ka = light->sampleLi(randomSampler.nextFloat2D(),
-                                      interaction, &L, &lightPdf, &visibilityTester);
-            Float cosWi = -Vec3f::dot(L, interaction.normal);
-            Float brdf = material.f(sampledType, interaction, ray.d, -1 * L);
-            // balanced heuristics
-            auto misPdf = pdf + lightPdf;
-            weightLight = 1 / misPdf;
-            if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(scene)) {
-                radiance += throughput * ka / misPdf * cosWi;
-                // suppress fireflies
-                //   radiance = clampRadiance(radiance, 4);
-            }
-            throughput *= Vec3f::dot(interaction.normal, wi) / pdf;
-        } else {
-            assert(hasBxDFType(sampledType, BxDFType::specular));
-            specular = true;
-            if (hasBxDFType(sampledType, BxDFType::glossy)) {
-                throughput *= sample;
-                auto light = scene.chooseOneLight(randomSampler);
-                Vec3f L;
-                Float lightPdf;
-                VisibilityTester visibilityTester;
-                auto ka = light->sampleLi(randomSampler.nextFloat2D(),
-                                          interaction, &L, &lightPdf, &visibilityTester);
-                Float cosWi = -Vec3f::dot(L, interaction.normal);
-                Float brdf = material.f(sampledType, interaction, ray.d, -1 * L);
-                auto misPdf = brdf + lightPdf;
-                weightLight = 1 / misPdf;
-                if (brdf > EPS && lightPdf > 0 && cosWi > 0 && visibilityTester.visible(scene)) {
-                    radiance += brdf * throughput * ka / misPdf;
-                    //  radiance = clampRadiance(radiance, 4);
-                }
-                throughput /= pdf;
-            } else {
-                weightLight = 1;
-                throughput *= sample / pdf;
-            }
-        }
+
         ray.d = wi;
         if(depth > scene.option.minDepth) {
             if (randomSampler.nextFloat() < throughput.max()) {

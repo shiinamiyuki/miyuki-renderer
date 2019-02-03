@@ -6,7 +6,7 @@
 #include "interaction.h"
 
 using namespace Miyuki;
-
+#if 0
 Spectrum Material::sampleF(Sampler &sampler,
                            const Interaction &interaction,
                            const Vec3f &wo,
@@ -116,37 +116,4 @@ Float Material::f(BxDFType type, const Interaction &interaction, const Vec3f &wo
     }
     return 0;
 }
-
-Spectrum Material::kaAt(const Interaction &i) const {
-    if (!kaMap) {
-        return ka;
-    }
-    auto color = kaMap->sample(textCoord(i));
-    color *= ka;
-    return color;
-}
-
-Spectrum Material::kdAt(const Interaction &i) const {
-    if (!kdMap) {
-        return kd;
-    }
-    auto color = kdMap->sample(textCoord(i));;
-    color *= kd;
-    return color;
-}
-
-Spectrum Material::ksAt(const Interaction &i) const {
-    if (!ksMap) {
-        return ks;
-    }
-    auto color = ksMap->sample(textCoord(i));
-    color *= ks;
-    return color;
-}
-
-const Point2f Material::textCoord(const Interaction &interaction) const {
-    const auto &primitive = *interaction.primitive;
-    const auto &uv = interaction.uv;
-    return pointOnTriangle(primitive.textCoord[0], primitive.textCoord[1], primitive.textCoord[2], uv.x(), uv.y());
-}
-
+#endif

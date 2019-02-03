@@ -17,43 +17,58 @@ namespace Miyuki {
 
 
     struct Interaction;
+    enum class TransportMode {
+        radiance, importance
+    };
+
+    struct ColorMap {
+        Spectrum color;
+        Float maxReflectance;
+
+        std::shared_ptr<TextureMapping2D> mapping;
+
+        ColorMap(Float x, Float y, Float z, std::shared_ptr<TextureMapping2D> m = nullptr) : color(x, y, z),
+                                                                                             mapping(m) {
+            maxReflectance = color.max();
+        }
+
+        ColorMap(const Spectrum &s, std::shared_ptr<TextureMapping2D> m = nullptr)
+                : color(s), mapping(m) {
+            maxReflectance = s.max();
+        }
+    };
+
+    struct MaterialInfo {
+        ColorMap ka, kd, ks;
+        Float Ns;
+        Float Ni;
+        Float Tr;
+        Float glossiness;
+
+        MaterialInfo(const ColorMap &ka, const ColorMap &kd, const ColorMap &ks) : ka(ka), kd(kd), ks(ks) {}
+    };
+
+    class Material;
 
     class Material {
+        MaterialInfo materialInfo;
     public:
-        // TODO: make these private
-        Spectrum ka, kd, ks;
-        Float glossiness, ior, tr;
-        std::shared_ptr<TextureMapping2D> kaMap, kdMap, ksMap;
-    private:
-        Spectrum kaAt(const Interaction &) const;
+        Material() = default;
 
-        Spectrum kdAt(const Interaction &) const;
+        ColorMap Ka() const { return materialInfo.ka; }
 
-        Spectrum ksAt(const Interaction &) const;
-
-    public:
-
-
-        Material() {}
-
-        // samples BRDF, returns color, pdf w.r.t direction and wi
-        Spectrum sampleF(Sampler &sampler,
-                         const Interaction &,
-                         const Vec3f &wo,
-                         Vec3f *wi,
-                         Float *_pdf,
-                         BxDFType sampleType = BxDFType::all,
-                         BxDFType *_sampled = nullptr) const;
-
-        // BRDF, given world space wo and wi
-        Float f(BxDFType type, const Interaction &, const Vec3f &wo, const Vec3f &wi) const;
-
-        const Point2f textCoord(const Interaction &) const;
-
+        virtual void computeScatteringFunctions(Interaction &) = 0;
     };
 
     inline Vec3f reflect(const Vec3f &normal, const Vec3f &i) {
         return i - 2 * Vec3f::dot(normal, i) * normal;
     }
+
+    using MaterialPtr = std::shared_ptr<Material>;
+
+    class MaterialFactory {
+    public:
+        virtual MaterialPtr operator()(const MaterialInfo &) = 0;
+    };
 }
 #endif //MIYUKI_MATERIAL_H

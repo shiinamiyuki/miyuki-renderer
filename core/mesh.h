@@ -8,77 +8,80 @@
 #include "geometry.h"
 #include "spectrum.h"
 #include "transform.h"
+#include "material.h"
+
 namespace Miyuki {
     class MaterialList;
-    enum class TextureOption{
-        discard = 0,
-        use = 1,
-        raw = 2,
+
+
+    struct Triangle {
+        int vertex[3];
+        int normal[3];
+        int materialId;
+        bool useNorm;
+        Vec3f trigNorm;
+        Point2f textCoord[3];
+        Float area;
+        bool useTexture;
+
+        Triangle() = default;
     };
-    namespace Mesh {
-        struct Triangle {
-            int vertex[3];
-            int normal[3];
-            int materialId;
-            bool useNorm;
-            Vec3f trigNorm;
-            Point2f textCoord[3];
-            Float area;
-            bool useTexture;
-            Triangle() = default;
-        };
 
-        class TriangularMesh;
+    class TriangularMesh;
 
-        struct MeshInstance;
+    struct MeshInstance;
+    enum class TextureOption;
+    class MaterialFactory;
+    std::shared_ptr<TriangularMesh>
+    LoadFromObj(MaterialFactory &, MaterialList *materialList, const char *filename, TextureOption opt);
 
-        std::shared_ptr<TriangularMesh> LoadFromObj(MaterialList *materialList, const char *filename, TextureOption opt);
+    class TriangularMesh {
+        std::vector<Vec3f> vertex, normal;
+        std::vector<Triangle> trigs;
+    public:
+        friend struct MeshInstance;
 
-        class TriangularMesh {
-            std::vector<Vec3f> vertex, normal;
-            std::vector<Triangle> trigs;
-        public:
-            friend struct MeshInstance;
+        TriangularMesh() {}
 
-            TriangularMesh() {}
+        friend std::shared_ptr<TriangularMesh> LoadFromObj(
+                MaterialFactory&,
+                MaterialList *materialList,
+                const char *filename, TextureOption opt);
 
-            friend std::shared_ptr<TriangularMesh> LoadFromObj(
-                    MaterialList *materialList,
-                    const char *filename,TextureOption opt);
+        const Triangle *triangleArray() const { return trigs.data(); }
 
-            const Triangle *triangleArray() const { return trigs.data(); }
+        const Vec3f *vertexArray() const { return vertex.data(); }
 
-            const Vec3f *vertexArray() const { return vertex.data(); }
+        const Vec3f *normArray() const { return normal.data(); }
 
-            const Vec3f *normArray() const { return normal.data(); }
+        size_t triangleCount() const { return trigs.size(); }
 
-            size_t triangleCount() const { return trigs.size(); }
+        size_t vertexCount() const { return vertex.size(); }
 
-            size_t vertexCount() const { return vertex.size(); }
+        size_t normCount() const { return normal.size(); }
+    };
 
-            size_t normCount() const { return normal.size(); }
-        };
+    struct Primitive {
+        Vec3f normal[3], vertices[3];
+        Point2f textCoord[3];
+        Vec3f Ng;
+        int materialId;
 
-        struct MeshInstance {
+        Primitive() {}
 
-            struct Primitive {
-                Vec3f normal[3], vertices[3];
-                Point2f textCoord[3];
-                Vec3f Ng;
-                int materialId;
-                Primitive(){}
+        Vec3f normalAt(const Point2f &) const;
+    };
 
-                Vec3f normalAt(const Point2f &) const;
-            };
+    struct MeshInstance {
 
-            std::vector<Primitive> primitives;
 
-            const Primitive &getPrimitive(unsigned int primID) const { return primitives[primID]; }
+        std::vector<Primitive> primitives;
 
-            MeshInstance() = default;
+        const Primitive &getPrimitive(unsigned int primID) const { return primitives[primID]; }
 
-            MeshInstance(std::shared_ptr<TriangularMesh>, const Transform&t = Transform());
-        };
-    }
+        MeshInstance() = default;
+
+        MeshInstance(std::shared_ptr<TriangularMesh>, const Transform &t = Transform());
+    };
 }
 #endif //MIYUKI_MESH_H

@@ -5,8 +5,8 @@
 #include "mesh.h"
 #include "scene.h"
 #include "texture.h"
+#include "material.h"
 using namespace Miyuki;
-using Mesh::TriangularMesh;
 
 std::shared_ptr<TextureMapping2D> loadFromPNG(const std::string &filename) {
     std::vector<unsigned char> pixelData;
@@ -20,7 +20,8 @@ std::shared_ptr<TextureMapping2D> loadFromPNG(const std::string &filename) {
     return std::make_shared<TextureMapping2D>(TextureMapping2D(pixelData, Point2i(w, h)));
 }
 
-std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(
+std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
+        MaterialFactory& materialFactory,
         MaterialList *materialList,
         const char *filename,
         TextureOption opt) {
@@ -32,8 +33,8 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(
     std::vector<tinyobj::material_t> materials;
     bool succ = true;
     std::map<std::string, std::shared_ptr<TextureMapping2D>> textures;
-    bool use = (int)opt ;
-    fmt::print("Use texture = {}\n",use);
+    bool use = (int) opt;
+    fmt::print("Use texture = {}\n", use);
     readUnderPath(filename, [&](const std::string &file) -> void {
         std::string err;
         fmt::print("Loading OBJ file {}\n", filename);
@@ -48,37 +49,36 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(
             return;
         }
         for (const auto &m :materials) {
-            Material material;
-            for (int i = 0; i < 3; i++) {
-                material.ka[i] = m.emission[i];
-                material.kd[i] = m.diffuse[i];
-                material.ks[i] = m.specular[i];
-                material.glossiness = (Float) pow(m.roughness, 2);
-                material.ior = m.ior;
-                material.tr = 1 - m.dissolve;
-            }
+            std::shared_ptr<TextureMapping2D> kaMap, kdMap, ksMap;
             if (use && !m.diffuse_texname.empty()) {
                 if (textures.find(m.diffuse_texname) == textures.end()) {
-                    material.kdMap = loadFromPNG(m.diffuse_texname);
-                    textures[m.diffuse_texname] = material.kdMap;
+                    kdMap = loadFromPNG(m.diffuse_texname);
+                    textures[m.diffuse_texname] = kdMap;
                 } else
-                    material.kdMap = textures[m.diffuse_texname];
+                    kdMap = textures[m.diffuse_texname];
             }
             if (use && !m.specular_texname.empty()) {
                 if (textures.find(m.specular_texname) == textures.end()) {
-                    material.ksMap = loadFromPNG(m.specular_texname);
-                    textures[m.specular_texname] = material.ksMap;
+                    ksMap = loadFromPNG(m.specular_texname);
+                    textures[m.specular_texname] = ksMap;
                 } else
-                    material.ksMap = textures[m.specular_texname];
+                    ksMap = textures[m.specular_texname];
             }
-            if ( use &&!m.emissive_texname.empty()) {
+            if (use && !m.emissive_texname.empty()) {
                 if (textures.find(m.emissive_texname) == textures.end()) {
-                    material.kaMap = loadFromPNG(m.emissive_texname);
-                    textures[m.emissive_texname] = material.kaMap;
+                    kaMap = loadFromPNG(m.emissive_texname);
+                    textures[m.emissive_texname] = kaMap;
                 } else
-                    material.kaMap = textures[m.emissive_texname];
+                    kaMap = textures[m.emissive_texname];
             }
-            materialList->emplace_back(std::move(material));
+            ColorMap ka(m.emission[0], m.emission[1], m.emission[2], kaMap);
+            ColorMap kd(m.diffuse[0], m.diffuse[1], m.diffuse[2], kdMap);
+            ColorMap ks(m.specular[0], m.specular[1], m.specular[2], ksMap);
+            MaterialInfo materialInfo(ka, kd, ks);
+            materialInfo.Ni = m.ior;
+            materialInfo.Tr = 1 - m.dissolve;
+            materialInfo.glossiness = (Float) pow(m.roughness, 2);
+            materialList->emplace_back(materialFactory(materialInfo));
         }
         for (auto i = 0; i < attrib.vertices.size(); i += 3) {
             mesh->vertex.emplace_back(Vec3f(attrib.vertices[i],
@@ -87,8 +87,8 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(
         }
         for (auto i = 0; i < attrib.normals.size(); i += 3) {
             mesh->normal.emplace_back(Vec3f(attrib.normals[i],
-                                          attrib.normals[i + 1],
-                                          attrib.normals[i + 2]));
+                                            attrib.normals[i + 1],
+                                            attrib.normals[i + 2]));
         }
 // Loop over shapes
         for (size_t s = 0; s < shapes.size(); s++) {
@@ -157,7 +157,7 @@ std::shared_ptr<TriangularMesh> Miyuki::Mesh::LoadFromObj(
     return nullptr;
 }
 
-Mesh::MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Transform &t) {
+MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Transform &t) {
     primitives.resize(mesh->triangleCount());
     for (int i = 0; i < mesh->triangleCount(); i++) {
         auto &trig = mesh->triangleArray()[i];
@@ -171,6 +171,6 @@ Mesh::MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Tra
     }
 }
 
-Vec3f Mesh::MeshInstance::Primitive::normalAt(const Point2f &p) const {
+Vec3f Primitive::normalAt(const Point2f &p) const {
     return pointOnTriangle(normal[0], normal[1], normal[2], p.x(), p.y());
 }

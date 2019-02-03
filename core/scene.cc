@@ -8,7 +8,6 @@
 #include "../sampler/random.h"
 
 using namespace Miyuki;
-using namespace Mesh;
 
 Scene::Scene() : film(1000, 1000) {
     rtcScene = rtcNewScene(GetEmbreeDevice());
@@ -35,9 +34,9 @@ void Scene::commit() {
     lights = lightList;
     for (const auto &instance : instances) {
         for (const auto &primitive : instance.primitives) {
-            auto &material = materialList[primitive.materialId];
-            if (material.ka.max() > 0.1) {
-                lights.emplace_back(std::shared_ptr<Light>(new AreaLight(primitive, material.ka)));
+            auto &material = *materialList[primitive.materialId];
+            if (material.Ka().maxReflectance > 0.1) {
+                lights.emplace_back(std::shared_ptr<Light>(new AreaLight(primitive, material.Ka().color)));
             }
         }
     }
@@ -79,18 +78,26 @@ const std::vector<std::shared_ptr<Light>> &Scene::getAllLights() const {
     return lights;
 }
 
+class EmptyFactory : public MaterialFactory {
+public:
+    MaterialPtr operator()(const MaterialInfo &info) override {
+        return nullptr;
+    }
+};
+
 void Scene::loadObjTrigMesh(const char *filename, const Transform &transform, TextureOption opt) {
-    auto mesh = Mesh::LoadFromObj(&materialList, filename, opt);
+    auto factory = EmptyFactory();
+    auto mesh = LoadFromObj(factory, &materialList, filename, opt);
     if (!mesh)return;
     addMesh(mesh, transform);
     checkError();
 }
 
-void Scene::instantiateMesh(std::shared_ptr<Mesh::TriangularMesh> mesh, const Transform &transform) {
-    instances.emplace_back(Mesh::MeshInstance(mesh, transform));
+void Scene::instantiateMesh(std::shared_ptr<TriangularMesh> mesh, const Transform &transform) {
+    instances.emplace_back(MeshInstance(mesh, transform));
 }
 
-void Scene::addMesh(std::shared_ptr<Mesh::TriangularMesh> mesh, const Transform &transform) {
+void Scene::addMesh(std::shared_ptr<TriangularMesh> mesh, const Transform &transform) {
     using namespace Mesh;
     RTCGeometry rtcMesh = rtcNewGeometry(GetEmbreeDevice(), RTC_GEOMETRY_TYPE_TRIANGLE);
     auto vertices =
@@ -139,27 +146,6 @@ void Scene::postResize() {
 void Scene::setFilmDimension(const Point2i &dim) {
     film = Film(dim.x(), dim.y());
     postResize();
-}
-
-void Scene::renderPreview() {
-    commit();
-    fmt::print("Rendering preview\n");
-    auto t = runtime([&]() {
-        parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
-            for (int y = 0; y < film.height(); y++) {
-                auto ctx = getRenderContext(Point2i({(int) x, y}));
-                Intersection intersection(ctx.primary.toRTCRay());
-                intersection.intersect(*this);
-                if (intersection.hit()) {
-                    auto p = fetchIntersectedPrimitive(intersection);
-                    Float light = std::max(Float(0.2), Vec3f::dot(p.normal[0], Vec3f(0.1, 1, 0.3).normalized()));
-                    Spectrum c = Spectrum(materialList[p.materialId].kd * light);
-                    film.addSplat(Point2i({(int) x, y}), c);
-                }
-            }
-        });
-    });
-    fmt::print("Rendering end in {} secs, {} M Rays/sec\n", t, film.width() * film.height() / t / 1e6);
 }
 
 void Scene::useSampler(Option::SamplerType samplerType) {
@@ -214,14 +200,14 @@ void Scene::checkError() {
     }
 }
 
-const Mesh::MeshInstance::Primitive &Scene::fetchIntersectedPrimitive(const Intersection &intersection) {
+const Primitive &Scene::fetchIntersectedPrimitive(const Intersection &intersection) {
     return instances[intersection.geomID()].primitives[intersection.primID()];
 }
 
 
 // TODO: coord on triangle, see Embree's documentation
 void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> interaction) {
-    interaction->primitive = makeRef<const Mesh::MeshInstance::Primitive>(&fetchIntersectedPrimitive(intersection));
+    interaction->primitive = makeRef<const Primitive>(&fetchIntersectedPrimitive(intersection));
 
     interaction->wi = Vec3f(intersection.rayHit.ray.dir_x,
                             intersection.rayHit.ray.dir_y,
@@ -239,7 +225,9 @@ void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> 
     interaction->normal.normalize();
     interaction->geomID = intersection.geomID();
     interaction->primID = intersection.primID();
-    interaction->material = &materialList[interaction->primitive->materialId];
+    interaction->material = materialList[interaction->primitive->materialId].get();
+    // TODO: init bsdf
+    interaction->computeLocalCoordinate();
 }
 
 void Scene::prepare() {

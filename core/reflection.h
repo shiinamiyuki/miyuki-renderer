@@ -12,15 +12,23 @@
 #include "interaction.h"
 #include "texture.h"
 
+/* Reflection is implemented in a different way from pbrt
+ * A material has a BSDF binding. BSDF is not created by material.
+ * A BSDF consists of several BxDFs
+ * To sample the BSDF, an Interaction instance shall be passed
+ * The Interaction class handles world-local transformation.
+ * */
+
 namespace Miyuki {
+    struct Interaction;
     enum class BxDFType {
-        none = 0,
-        diffuse = 1,
-        specular = 2, // this field is for all specular transmissions, including specular/glossy reflection/refraction
-        refraction = 4, //this field indicates we are sampling refraction not reflection
-        emission = 8,
-        glossy = 16,
-        all = diffuse | specular | emission | glossy,
+        reflection = 1 << 0,
+        transmission = 1 << 1,
+        diffuse = 1 << 2,
+        glossy = 1 << 3,
+        specular = 1 << 4,
+        all = diffuse | glossy | specular |
+              reflection | transmission,
     };
 
     inline bool hasBxDFType(BxDFType query, BxDFType ty) {
@@ -32,8 +40,12 @@ namespace Miyuki {
     }
 
     class BxDF {
-        const BxDFType type;
+
     public:
+        const BxDFType type;
+
+        BxDF(BxDFType t) : type(t) {}
+
         bool matchFlags(BxDFType) const;
 
         virtual Spectrum sampleF(const Vec3f &wo, Vec3f *wi,
@@ -49,23 +61,28 @@ namespace Miyuki {
 //
 //        virtual Spectrum rho(int nSamples, const Vec3f *samples1,
 //                             const Point2f *samples2) const;
+        virtual ~BxDF() {}
     };
 
     class BSDF {
     private:
         static constexpr int maxBxDFs = 8;
+        int nBxDFs;
         BxDF *bxdfs[maxBxDFs];
     public:
         const Float eta;
 
-        Spectrum f(const Vec3f &woW, const Vec3f &wiW, BxDFType flags = BSDF_ALL) const;
+        void add(BxDF *);
+
+        Spectrum f(const Interaction &, BxDFType flags = BxDFType::all) const;
 
         Spectrum sampleF(const Vec3f &wo, Vec3f *wi, const Point2f &u,
-                         Float *pdf, BxDFType type = BSDF_ALL,
+                         Float *pdf, BxDFType type = BxDFType::all,
                          BxDFType *sampledType = nullptr) const;
 
-        Float Pdf(const Vec3f &wo, const Vec3f &wi,
-                  BxDFType flags = BSDF_ALL) const;
+        Float Pdf(const Vec3f &woW, const Vec3f &wiW,
+                  const Vec3f &wo, const Vec3f &wi,
+                  BxDFType flags = BxDFType::all) const;
     };
 }
 #endif //MIYUKI_REFLECTION_H

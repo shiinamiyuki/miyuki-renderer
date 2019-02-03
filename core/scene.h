@@ -26,10 +26,13 @@
 
 namespace Miyuki {
 
+
     class Material;
 
+    using MaterialPtr = std::shared_ptr<Material>;
+
     class MaterialList :
-            public std::vector<Material> {
+            public std::vector<MaterialPtr> {
         std::unordered_map<std::string, int> map;
     public:
 
@@ -88,6 +91,13 @@ namespace Miyuki {
         Option();
     };
 
+    struct MeshInstance;
+    enum class TextureOption {
+        discard = 0,
+        use = 1,
+        raw = 2,
+    };
+
     class Scene {
         friend class AOIntegrator;
 
@@ -102,7 +112,7 @@ namespace Miyuki {
         Film film;
         MaterialList materialList;
         Camera camera;
-        std::vector<Mesh::MeshInstance> instances;
+        std::vector<MeshInstance> instances;
         std::vector<Seed> seeds;
         std::vector<RandomSampler> uniformSamplers;
         std::vector<StratifiedSampler> stratSamplers;
@@ -117,11 +127,11 @@ namespace Miyuki {
 
         void checkError();
 
-        void addMesh(std::shared_ptr<Mesh::TriangularMesh>, const Transform &transform = Transform());
+        void addMesh(std::shared_ptr<TriangularMesh>, const Transform &transform = Transform());
 
-        void instantiateMesh(std::shared_ptr<Mesh::TriangularMesh>, const Transform &transform);
+        void instantiateMesh(std::shared_ptr<TriangularMesh>, const Transform &transform);
 
-        const Mesh::MeshInstance::Primitive &fetchIntersectedPrimitive(const Intersection &);
+        const Primitive &fetchIntersectedPrimitive(const Intersection &);
 
         void fetchInteraction(const Intersection &, Ref<Interaction> interaction);
 
@@ -153,8 +163,6 @@ namespace Miyuki {
         void writeImage(const std::string &filename);
 
         void setFilmDimension(const Point2i &);
-
-        void renderPreview();
 
         Camera &getCamera() { return camera; }
 

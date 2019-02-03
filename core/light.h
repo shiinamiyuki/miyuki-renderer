@@ -9,9 +9,16 @@
 #include "spectrum.h"
 #include "interaction.h"
 #include "ray.h"
+#include "mesh.h"
 
 namespace Miyuki {
     struct Interaction;
+
+    class TriangularMesh;
+
+    class MeshInstance;
+
+    struct Primitive;
 
     class Light;
 
@@ -68,12 +75,12 @@ namespace Miyuki {
 
         void scalePower(Float k) { ka *= k; }
     };
-
+    namespace Mesh { struct Primitive; }
     class AreaLight : public Light {
-        Ref<const Mesh::MeshInstance::Primitive> primitive;
+        Ref<const Primitive> primitive;
         Float area;
     public:
-        AreaLight(const Mesh::MeshInstance::Primitive &, const Spectrum &ka);
+        AreaLight(const Primitive &, const Spectrum &ka);
 
         Spectrum sampleLi(const Point2f &u,
                           const Interaction &interaction,
@@ -81,18 +88,20 @@ namespace Miyuki {
                           Float *pdf,
                           VisibilityTester *) const override;
 
-        Float power()const override;
+        Float power() const override;
 
         Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
                           Float *pdfDir) const override;
     };
-    class PointLight : public Light{
+
+    class PointLight : public Light {
     protected:
         Vec3f position;
     public:
-        PointLight(const Spectrum& _ka, const Vec3f& pos):Light(_ka),position(pos){
+        PointLight(const Spectrum &_ka, const Vec3f &pos) : Light(_ka), position(pos) {
             type = Type::deltaPosition;
         }
+
         Spectrum sampleLi(const Point2f &u, const Interaction &interaction, Vec3f *wi, Float *pdf,
                           VisibilityTester *tester) const override;
 

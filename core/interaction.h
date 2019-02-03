@@ -7,23 +7,37 @@
 
 #include "scene.h"
 #include "mesh.h"
-#include "material.h"
+#include "reflection.h"
 
 namespace Miyuki {
     struct Material;
+
+    class BSDF;
+
+    class TriangularMesh;
+
+    class MeshInstance;
+
+    struct Primitive;
+
     struct Interaction {
-        using Primitive = Mesh::MeshInstance::Primitive;
+    private:
+        Vec3f localX, localZ;
+    public:
+        void computeLocalCoordinate();
+
         Ref<const Primitive> primitive;
         Ref<const Material> material;
-        Vec3f wi, normal, Ng, hitpoint;
+        BSDF *bsdf;
+        Vec3f wi, normal, Ng, hitpoint, wo; // world
         Point2f uv;
         int geomID, primID;
-    };
+        Vec3f localWi, localWo;// local
+        Vec3f worldToLocal(const Vec3f &v) const; // transform according to shading normal
 
-    class SurfaceInteraction : public Interaction {
-        BSDF *bsdf;
-    public:
-        SurfaceInteraction();
+        Vec3f localToWorld(const Vec3f &v) const;
+
+        Point2f textureCoord() const;
     };
 
 }

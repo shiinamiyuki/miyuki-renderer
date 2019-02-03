@@ -4,7 +4,11 @@ project(Miyuki)
 set(CMAKE_CXX_STANDARD 14)
 link_libraries(embree3 boost_system boost_filesystem glfw3 opengl32 boost_unit_test_framework)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-add_executable(transform_test core/transform.cc unittest/transform_test.cc unittest/unittest.cc)
+add_executable(unittest
+        core/transform.cc
+        core/interaction.cc
+        unittest/unittest.cc
+        unittest/test_transform.cc )
 add_executable(Miyuki
         lib/fmt/format.cc
         lib/lodepng/lodepng.cpp
