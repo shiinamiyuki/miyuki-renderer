@@ -68,8 +68,21 @@ void RenderSystem::readDescription(const std::string &filename) {
                 if (meshes.IsArray()) {
                     for (SizeType i = 0; i < meshes.Size(); i++) {
                         const Value &mesh = meshes[i];
+                        TextureOption opt = TextureOption::use;
                         if (!mesh.IsObject()) {
                             fmt::print(stderr, "mesh is required to be a object");
+                        }
+                        if (mesh.HasMember("texture")) {
+                            std::string s = mesh["texture"].GetString();
+                            if (s == "use") {
+                                opt = TextureOption::use;
+                            }
+                            if (s == "discard") {
+                                opt = TextureOption::discard;
+                            }
+                            if (s == "raw") {
+                                opt = TextureOption((int) opt | (int) TextureOption::raw);
+                            }
                         }
                         if (mesh.HasMember("file")) {
                             auto meshFilename = mesh["file"].GetString();
@@ -77,7 +90,7 @@ void RenderSystem::readDescription(const std::string &filename) {
                             if (mesh.HasMember("transform")) {
                                 transform = readTransform(mesh["transform"]);
                             }
-                            scene.loadObjTrigMesh(meshFilename, transform);
+                            scene.loadObjTrigMesh(meshFilename, transform, opt);
                         }
                     }
                 }
@@ -127,9 +140,9 @@ void RenderSystem::readDescription(const std::string &filename) {
                     integrator = std::make_unique<PathTracer>();
                 } else if (integratorName == "ambient-occlusion") {
                     integrator = std::make_unique<AOIntegrator>();
-                }else if (integratorName == "bdpt") {
+                } else if (integratorName == "bdpt") {
                     integrator = std::make_unique<BDPT>();
-                }else if (integratorName == "pssmlt") {
+                } else if (integratorName == "pssmlt") {
                     integrator = std::make_unique<PSSMLTUnidirectional>();
                 } else {
                     fmt::print(stderr, "Unrecognized integrator: {}\n", integratorName);
@@ -151,6 +164,16 @@ void RenderSystem::readDescription(const std::string &filename) {
                 if (integratorInfo.HasMember("occlude-distance")) {
                     auto d = integratorInfo["occlude-distance"].GetFloat();
                     scene.option.aoDistance = d;
+                }
+                if (integratorInfo.HasMember("sampler")) {
+                    std::string s = integratorInfo["sampler"].GetString();
+                    if(s == "independent"){
+                        scene.useSampler(Option::independent);
+                    }else if(s == "stratified")
+                        scene.useSampler(Option::stratified);
+                    else{
+                        fmt::print(stderr, "Unrecognized sampler type: {}\n", s);
+                    }
                 }
             }
         };

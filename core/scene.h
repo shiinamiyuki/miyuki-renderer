@@ -22,6 +22,7 @@
 #include "../integrator/bdpt.h"
 #include "../integrator/pssmlt.h"
 #include "../sampler/random.h"
+#include "../sampler/stratified.h"
 
 namespace Miyuki {
 
@@ -79,6 +80,11 @@ namespace Miyuki {
         bool showAmbientLight;
         int saveEverySecond;
         int sleepTime;
+        enum SamplerType {
+            independent,
+            stratified,
+        } samplerType;
+
         Option();
     };
 
@@ -98,7 +104,8 @@ namespace Miyuki {
         Camera camera;
         std::vector<Mesh::MeshInstance> instances;
         std::vector<Seed> seeds;
-        std::vector<RandomSampler> samplers;
+        std::vector<RandomSampler> uniformSamplers;
+        std::vector<StratifiedSampler> stratSamplers;
         std::vector<std::shared_ptr<Light>> lightList; // contains all user defined lights
         std::vector<std::shared_ptr<Light>> lights;    // contains all lights after commit() is called
         std::unique_ptr<Distribution1D> lightDistribution;
@@ -128,7 +135,10 @@ namespace Miyuki {
 
     public:
         Option option;
-        void addPointLight(const Spectrum& ka, const Vec3f& pos);
+
+        void useSampler(Option::SamplerType);
+
+        void addPointLight(const Spectrum &ka, const Vec3f &pos);
 
         void setAmbientLight(const Spectrum &s) { ambientLight = s; }
 
@@ -136,7 +146,9 @@ namespace Miyuki {
 
         void prepare();
 
-        void loadObjTrigMesh(const char *filename, const Transform &transform = Transform());
+        void loadObjTrigMesh(const char *filename,
+                             const Transform &transform = Transform(),
+                             TextureOption opt = TextureOption::use);
 
         void writeImage(const std::string &filename);
 

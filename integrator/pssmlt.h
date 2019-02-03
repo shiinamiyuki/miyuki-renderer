@@ -75,6 +75,8 @@ namespace Miyuki {
 
         Float nextFloat(Seed *seed) override;
 
+        Point2f nextFloat2D() override;
+
         int nextInt(Seed *seed) override;
 
         void update(const Point2i &pos, Spectrum &L);
@@ -92,6 +94,9 @@ namespace Miyuki {
     public:
         void render(Scene &) override;
     };
+
+
+
 }
 
 #endif //MIYUKI_PSSMLT_H

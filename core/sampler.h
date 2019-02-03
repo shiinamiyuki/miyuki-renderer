@@ -6,7 +6,7 @@
 #define MIYUKI_SAMPLER_H
 
 #include "util.h"
-
+#include "geometry.h"
 namespace Miyuki {
     class Seed {
         unsigned short Xi[3];
@@ -41,10 +41,15 @@ namespace Miyuki {
 
         virtual int nextInt(Seed *) = 0;
 
-        int randInt(){
+        virtual Point2f nextFloat2D() = 0;
+
+        virtual void start() {}
+
+        int randInt() {
             return nrand48(seed->getPtr());
         }
-        Float randFloat(){
+
+        Float randFloat() {
             return erand48(seed->getPtr());
         }
     };

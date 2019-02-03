@@ -10,10 +10,15 @@
 #include "transform.h"
 namespace Miyuki {
     class MaterialList;
+    enum class TextureOption{
+        discard = 0,
+        use = 1,
+        raw = 2,
+    };
     namespace Mesh {
         struct Triangle {
             int vertex[3];
-            int norm[3];
+            int normal[3];
             int materialId;
             bool useNorm;
             Vec3f trigNorm;
@@ -27,29 +32,31 @@ namespace Miyuki {
 
         struct MeshInstance;
 
-        std::shared_ptr<TriangularMesh> LoadFromObj(MaterialList *materialList, const char *filename);
+        std::shared_ptr<TriangularMesh> LoadFromObj(MaterialList *materialList, const char *filename, TextureOption opt);
 
         class TriangularMesh {
-            std::vector<Vec3f> vertex, norm;
+            std::vector<Vec3f> vertex, normal;
             std::vector<Triangle> trigs;
         public:
             friend struct MeshInstance;
 
             TriangularMesh() {}
 
-            friend std::shared_ptr<TriangularMesh> LoadFromObj(MaterialList *materialList, const char *filename);
+            friend std::shared_ptr<TriangularMesh> LoadFromObj(
+                    MaterialList *materialList,
+                    const char *filename,TextureOption opt);
 
             const Triangle *triangleArray() const { return trigs.data(); }
 
             const Vec3f *vertexArray() const { return vertex.data(); }
 
-            const Vec3f *normArray() const { return norm.data(); }
+            const Vec3f *normArray() const { return normal.data(); }
 
             size_t triangleCount() const { return trigs.size(); }
 
             size_t vertexCount() const { return vertex.size(); }
 
-            size_t normCount() const { return norm.size(); }
+            size_t normCount() const { return normal.size(); }
         };
 
         struct MeshInstance {
@@ -57,6 +64,7 @@ namespace Miyuki {
             struct Primitive {
                 Vec3f normal[3], vertices[3];
                 Point2f textCoord[3];
+                Vec3f Ng;
                 int materialId;
                 Primitive(){}
 

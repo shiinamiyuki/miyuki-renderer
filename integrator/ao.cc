@@ -28,7 +28,7 @@ void AOIntegrator::render(Scene &scene) {
                     if (intersection.hit()) {
                         auto hit = ctx.primary.o + intersection.rayHit.ray.tfar * ctx.primary.d;
                         auto p = scene.fetchIntersectedPrimitive(intersection);
-                        auto rd = cosineWeightedHemisphereSampling(p.normal[0],
+                        auto rd = cosineWeightedHemisphereSampling(p.Ng,
                                                                    randomSampler.nextFloat(),
                                                                    randomSampler.nextFloat());
                         Ray ray(hit, rd);
@@ -39,7 +39,7 @@ void AOIntegrator::render(Scene &scene) {
                         }
                     }
                 }
-                film.addSample(Point2i({(int) x, y}), Spectrum(Vec3f(1, 1, 1) * (Float(cnt) / N)));
+                film.addSample(Point2i(x, y), Spectrum(Vec3f(1, 1, 1) * (Float(cnt) / N)));
             }
         });
     });

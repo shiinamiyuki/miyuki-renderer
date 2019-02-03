@@ -14,6 +14,7 @@ Scene::Scene() : film(1000, 1000) {
     rtcScene = rtcNewScene(GetEmbreeDevice());
     postResize();
 
+
 }
 
 Scene::~Scene() {
@@ -35,7 +36,7 @@ void Scene::commit() {
     for (const auto &instance : instances) {
         for (const auto &primitive : instance.primitives) {
             auto &material = materialList[primitive.materialId];
-            if (material.ka.max() > 1) {
+            if (material.ka.max() > 0.1) {
                 lights.emplace_back(std::shared_ptr<Light>(new AreaLight(primitive, material.ka)));
             }
         }
@@ -70,7 +71,7 @@ static NullLight nullLight;
 Light *Scene::chooseOneLight(Sampler &sampler) const {
     if (lights.empty())
         return &nullLight;
-    int idx = lightDistribution->sampleInt(sampler.randFloat());
+    int idx = lightDistribution->sampleInt(sampler.nextFloat());
     return lights[idx].get();
 }
 
@@ -78,15 +79,15 @@ const std::vector<std::shared_ptr<Light>> &Scene::getAllLights() const {
     return lights;
 }
 
-void Scene::loadObjTrigMesh(const char *filename, const Transform &transform) {
-    auto mesh = Mesh::LoadFromObj(&materialList, filename);
+void Scene::loadObjTrigMesh(const char *filename, const Transform &transform, TextureOption opt) {
+    auto mesh = Mesh::LoadFromObj(&materialList, filename, opt);
     if (!mesh)return;
     addMesh(mesh, transform);
     checkError();
 }
 
 void Scene::instantiateMesh(std::shared_ptr<Mesh::TriangularMesh> mesh, const Transform &transform) {
-    instances.emplace_back(Mesh::MeshInstance(mesh,transform));
+    instances.emplace_back(Mesh::MeshInstance(mesh, transform));
 }
 
 void Scene::addMesh(std::shared_ptr<Mesh::TriangularMesh> mesh, const Transform &transform) {
@@ -125,16 +126,14 @@ void Scene::writeImage(const std::string &filename) {
 
 void Scene::postResize() {
     seeds.resize(film.width() * film.height());
-    samplers.clear();
     std::random_device rd;
     std::uniform_int_distribution<int> dist;
     for (int i = 0; i < seeds.size(); i++) {
         seeds[i][0] = dist(rd);
         seeds[i][1] = dist(rd);
         seeds[i][2] = dist(rd);
-        samplers.emplace_back(RandomSampler(&seeds[i]));
     }
-
+    useSampler(option.samplerType);
 }
 
 void Scene::setFilmDimension(const Point2i &dim) {
@@ -163,10 +162,24 @@ void Scene::renderPreview() {
     fmt::print("Rendering end in {} secs, {} M Rays/sec\n", t, film.width() * film.height() / t / 1e6);
 }
 
+void Scene::useSampler(Option::SamplerType samplerType) {
+    option.samplerType = samplerType;
+    if (samplerType == Option::independent) {
+        uniformSamplers.clear();
+        for (int i = 0; i < seeds.size(); i++)
+            uniformSamplers.emplace_back(RandomSampler(&seeds[i]));
+    } else {
+        stratSamplers.clear();
+        for (int i = 0; i < seeds.size(); i++)
+            stratSamplers.emplace_back(StratifiedSampler(&seeds[i]));
+    }
+
+}
+
 RenderContext Scene::getRenderContext(const Point2i &raster) {
     int x0 = raster.x();
     int y0 = raster.y();
-    Float x = (2 * (Float) x0 / film.width() - 1) * static_cast<Float>(film.width()) / film.height();
+    Float x = -(2 * (Float) x0 / film.width() - 1) * static_cast<Float>(film.width()) / film.height();
     Float y = 2 * (1 - (Float) y0 / film.height()) - 1;
     Vec3f ro = camera.viewpoint;
     auto z = (Float) (2.0 / tan(camera.fov / 2));
@@ -178,7 +191,20 @@ RenderContext Scene::getRenderContext(const Point2i &raster) {
     rd = rotate(rd, Vec3f(1, 0, 0), -camera.direction.y());
     rd = rotate(rd, Vec3f(0, 1, 0), camera.direction.x());
     rd = rotate(rd, Vec3f(0, 0, 1), camera.direction.z());
-    return RenderContext(Ray(ro, rd), &samplers[x0 + film.width() * y0]);
+    Sampler *sampler;
+    size_t idx = x0 + film.width() * y0;
+    switch (option.samplerType) {
+        case Option::independent:
+            sampler = &uniformSamplers[idx];
+            break;
+        case Option::stratified:
+            sampler = &stratSamplers[idx];
+            break;
+        default:
+            exit(-1);
+    }
+    sampler->start();
+    return RenderContext(Ray(ro, rd), sampler);
 }
 
 void Scene::checkError() {
@@ -204,12 +230,13 @@ void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> 
                                   intersection.rayHit.ray.org_y,
                                   intersection.rayHit.ray.org_z) + interaction->wi * intersection.hitDistance();
     interaction->uv = Point2f(intersection.rayHit.hit.u, intersection.rayHit.hit.v);
-    interaction->norm = pointOnTriangle(interaction->primitive->normal[0],
-                                        interaction->primitive->normal[1],
-                                        interaction->primitive->normal[2],
-                                        interaction->uv.x(),
-                                        interaction->uv.y());
-    interaction->norm.normalize();
+    interaction->Ng = interaction->primitive->Ng;
+    interaction->normal = pointOnTriangle(interaction->primitive->normal[0],
+                                          interaction->primitive->normal[1],
+                                          interaction->primitive->normal[2],
+                                          interaction->uv.x(),
+                                          interaction->uv.y());
+    interaction->normal.normalize();
     interaction->geomID = intersection.geomID();
     interaction->primID = intersection.primID();
     interaction->material = &materialList[interaction->primitive->materialId];
@@ -254,7 +281,9 @@ Option::Option() {
     aoDistance = 50;
     saveEverySecond = 10;
     sleepTime = 0;
+    samplerType = SamplerType::independent;
 }
+
 void Scene::addPointLight(const Spectrum &ka, const Vec3f &pos) {
     lightList.emplace_back(std::make_shared<PointLight>(ka, pos));
 }

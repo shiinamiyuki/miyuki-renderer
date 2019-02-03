@@ -139,18 +139,25 @@ void MLTSampler::assignSeed(const MLT::PathSeedGenerator &pathSeedGenerator) {
     }
 }
 
+Point2f MLTSampler::nextFloat2D() {
+    return {nextFloat(), nextFloat()};
+}
+
 
 void PSSMLTUnidirectional::render(Scene &scene) {
     bootstrap(scene);
     fmt::print("Running MC chains\n");
-    int N = scene.option.samplesPerPixel;
+    int N = double(scene.option.samplesPerPixel) * scene.film.width() * scene.film.height() / double(samples.size());
+    double elapsed = 0;
     for (int i = 0; i < N; i++) {
         auto t = runtime([&]() {
             mutation(scene);
         });
+        elapsed += t;
         fmt::print("Acceptance rate: {}\n", (double) acceptCounter / (samples.size()));
         acceptCounter = 0;
-        fmt::print("{}th iteration in {} secs, {} M Rays/sec\n", 1 + i, t, samples.size() / t / 1e6);
+        fmt::print("iteration {} in {} secs, elapsed {}s, remaining {}s\n",
+                   1 + i, t, elapsed, (double) (elapsed * N) / (i + 1) - elapsed);
     }
     scene.film.scaleImageColor(1.0f / N);
 }
@@ -166,7 +173,7 @@ Spectrum PSSMLTUnidirectional::trace(int id, Scene &scene, Sampler &sampler, Poi
 
 void PSSMLTUnidirectional::bootstrap(Scene &scene) {
     samples.clear();
-    for (int i = 0; i < scene.film.height() * scene.film.width(); i++) {
+    for (int i = 0; i < scene.option.mltLuminanceSample; i++) {
         samples.emplace_back(MLTSampler(&scene.seeds[i]));
     }
     std::vector<PathSeedGenerator> pathSeeds;
@@ -223,6 +230,7 @@ void PSSMLTUnidirectional::mutation(Scene &scene) {
         auto &sampler = samples[i];
         auto radiance = sampler.contributionSample.radiance;
         radiance *= sampler.contributionSample.weight;
+        radiance *= Float(scene.film.width() * scene.film.height()) / samples.size();
         b += luminance(sampler.newSample.radiance);
         film.addSplat(sampler.contributionSample.pos, radiance);
     }

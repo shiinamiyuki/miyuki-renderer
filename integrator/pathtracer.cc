@@ -76,16 +76,15 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
             break;
         } else if (sampledType == BxDFType::diffuse) {
             // TODO: should we optimize the code to cancel the cosine term?
-            //throughput *= sample * Vec3f::dot(interaction.norm, wi) / pdf;
+            //throughput *= sample * Vec3f::dot(interaction.normal, wi) / pdf;
             throughput *= sample;
             auto light = scene.chooseOneLight(randomSampler);
             Vec3f L;
             Float lightPdf;
             VisibilityTester visibilityTester;
-            auto ka = light->sampleLi(Point2f(randomSampler.randFloat(),
-                                              randomSampler.randFloat()),
+            auto ka = light->sampleLi(randomSampler.nextFloat2D(),
                                       interaction, &L, &lightPdf, &visibilityTester);
-            Float cosWi = -Vec3f::dot(L, interaction.norm);
+            Float cosWi = -Vec3f::dot(L, interaction.normal);
             Float brdf = material.f(sampledType, interaction, ray.d, -1 * L);
             // balanced heuristics
             auto misPdf = pdf + lightPdf;
@@ -95,7 +94,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
                 // suppress fireflies
                 //   radiance = clampRadiance(radiance, 4);
             }
-            throughput *= Vec3f::dot(interaction.norm, wi) / pdf;
+            throughput *= Vec3f::dot(interaction.normal, wi) / pdf;
         } else {
             assert(hasBxDFType(sampledType, BxDFType::specular));
             specular = true;
@@ -105,10 +104,9 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
                 Vec3f L;
                 Float lightPdf;
                 VisibilityTester visibilityTester;
-                auto ka = light->sampleLi(Point2f(randomSampler.randFloat(),
-                                                  randomSampler.randFloat()),
+                auto ka = light->sampleLi(randomSampler.nextFloat2D(),
                                           interaction, &L, &lightPdf, &visibilityTester);
-                Float cosWi = -Vec3f::dot(L, interaction.norm);
+                Float cosWi = -Vec3f::dot(L, interaction.normal);
                 Float brdf = material.f(sampledType, interaction, ray.d, -1 * L);
                 auto misPdf = brdf + lightPdf;
                 weightLight = 1 / misPdf;
@@ -123,10 +121,12 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
             }
         }
         ray.d = wi;
-        if (randomSampler.nextFloat() < throughput.max()) {
-            throughput /= throughput.max();
-        } else {
-            break;
+        if(depth > scene.option.minDepth) {
+            if (randomSampler.nextFloat() < throughput.max()) {
+                throughput /= throughput.max();
+            } else {
+                break;
+            }
         }
     }
     return radiance;

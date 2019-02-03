@@ -4,6 +4,9 @@
 
 #include "util.h"
 
+#include "../lib/stb/stb_image.h"
+#include <boost/algorithm/string/predicate.hpp>
+
 static RTCDevice rtcDevice = nullptr;
 
 RTCDevice Miyuki::GetEmbreeDevice() {
@@ -26,7 +29,7 @@ void Miyuki::Exit() {
     rtcReleaseDevice(rtcDevice);
 }
 
-void Miyuki::readUnderPath(const std::string &filename, std::function<void(const std::string&)> f) {
+void Miyuki::readUnderPath(const std::string &filename, std::function<void(const std::string &)> f) {
     cxx::filesystem::path currentPath = cxx::filesystem::current_path();
 
     cxx::filesystem::path inputFile(filename);
@@ -37,5 +40,17 @@ void Miyuki::readUnderPath(const std::string &filename, std::function<void(const
 
     f(file);
     cxx::filesystem::current_path(currentPath);
+}
+
+
+void
+Miyuki::loadImage(const std::string &filename, std::vector<unsigned char> &data, unsigned int *w, unsigned int *h) {
+    if (boost::algorithm::ends_with(filename, ".png")) {
+        lodepng::decode(data, *w, *h, filename);
+    } else if (boost::algorithm::ends_with(filename, ".jpg") || boost::algorithm::ends_with(filename, ".jpeg")) {
+
+    } else {
+        fmt::print(stderr, "Unrecognize image format {}\n", filename);
+    }
 }
 

@@ -7,6 +7,7 @@
 
 #include "scene.h"
 #include "mesh.h"
+#include "material.h"
 
 namespace Miyuki {
     struct Material;
@@ -14,9 +15,15 @@ namespace Miyuki {
         using Primitive = Mesh::MeshInstance::Primitive;
         Ref<const Primitive> primitive;
         Ref<const Material> material;
-        Vec3f wi, norm, hitpoint;
+        Vec3f wi, normal, Ng, hitpoint;
         Point2f uv;
         int geomID, primID;
+    };
+
+    class SurfaceInteraction : public Interaction {
+        BSDF *bsdf;
+    public:
+        SurfaceInteraction();
     };
 
 }

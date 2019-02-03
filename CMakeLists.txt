@@ -54,7 +54,7 @@ add_executable(Miyuki
         lib/rapidjson/document.h
         lib/rapidjson/rapidjson.h
         core/rendersystem.hpp
-        core/rendersystem.cc)
+        core/rendersystem.cc sampler/stratified.h sampler/stratified.cc core/memory.h core/memory.cc core/microfacet.h core/microfacet.cc core/reflection.cc core/reflection.h)
 #add_executable(Miyuki-GUI
 #        lib/fmt/format.cc
 #        lib/lodepng/lodepng.cpp

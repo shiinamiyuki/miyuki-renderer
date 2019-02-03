@@ -1653,7 +1653,7 @@ symbol.
 *) 24 jan 2007: gave encoder an error interface. Added reflectance conversion from any
     greyscale type to 8-bit greyscale with or without alpha.
 *) 21 jan 2007: (!) Totally changed the interface. It allows more reflectance types
-    to convert to and is more uniform. See the manual for how it works now.
+    to convert to and is more independent. See the manual for how it works now.
 *) 07 jan 2007: Some cleanup & fixes, and a few changes over the last days:
     encode/decode custom tEXt chunks, separate classes for zlib & deflate, and
     at last made the decoder give errors for incorrect Adler32 or Crc.

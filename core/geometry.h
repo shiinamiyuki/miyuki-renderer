@@ -351,7 +351,7 @@ namespace Miyuki {
 
         const Float &b() const { return v[2]; }
 
-        const Float &w()const { return v[3]; }
+        const Float &w() const { return v[3]; }
 
         void setX(Float x) {
             v[0] = x;
@@ -487,9 +487,11 @@ namespace Miyuki {
         static Float dot(const Vec3f &a, const Vec3f &b) {
             return a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
         }
+
         static Float matDot(const Vec3f &a, const Vec3f &b) {
             return a.x() * b.x() + a.y() * b.y() + a.z() * b.z() + a.w() * b.w();
         }
+
         static Vec3f cross(const Vec3f &v1, const Vec3f &v2) {
             return Vec3f{v1.y() * v2.z() - v1.z() * v2.y(),
                          v1.z() * v2.x() - v1.x() * v2.z(),
@@ -758,17 +760,19 @@ namespace Miyuki {
     using Bound3i = Bound<Point3i>;
     using Bound2i = Bound<Point2i>;
 
-    Vec3f cosineWeightedHemisphereSampling(const Vec3f &norm, Float u1, Float u2);
+    Vec3f cosineWeightedHemisphereSampling(const Vec3f &normal, Float u1, Float u2);
+
+    Vec3f cosineWeightedHemisphereSampling(const Point2f &u);
 
     Vec3f sphereSampling(Float u1, Float u2);
 
-    Vec3f GGXImportanceSampling(Float roughness, const Vec3f &norm, Float u1, Float u2);
+    Vec3f GGXImportanceSampling(Float roughness, const Vec3f &normal, Float u1, Float u2);
 
     Float GGXDistribution(const Vec3f &m, const Vec3f &n, float alpha_g);
 
     template<typename T>
-    T pointOnTriangle(const T &v1, const T &v2, const T &v3, Float u1, Float u2){
-        return v1 * (1 - u1 - u2)  + v2 * u1 + v3 * u2;//v1 + u1*(v2 - v1) + u2 * (v3 - v1);
+    T pointOnTriangle(const T &v1, const T &v2, const T &v3, Float u1, Float u2) {
+        return v1 * (1 - u1 - u2) + v2 * u1 + v3 * u2;//v1 + u1*(v2 - v1) + u2 * (v3 - v1);
     }
 
     const Float PI = 3.1415926535f;

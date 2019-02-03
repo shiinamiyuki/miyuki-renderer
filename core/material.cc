@@ -40,19 +40,21 @@ Spectrum Material::sampleF(Sampler &sampler,
     } else if (x < p1 + p2) {
         sampled = BxDFType::diffuse;
         color = Kd * INVPI * total / p2;
-        wi = cosineWeightedHemisphereSampling(interaction.norm, sampler.nextFloat(), sampler.nextFloat());
-        pdf = Vec3f::dot(interaction.norm, wi) / PI;
+        auto p = sampler.nextFloat2D();
+        wi = cosineWeightedHemisphereSampling(interaction.normal, p.x(), p.y());
+        pdf = Vec3f::dot(interaction.normal, wi) / PI;
     } else {
         color = Ks * total / p3;
-        Vec3f norm = interaction.norm;
+        Vec3f normal = interaction.normal;
         sampled = static_cast<BxDFType >((int) sampled | (int) BxDFType::specular);
         if (glossiness > 0.01) {
-            norm = GGXImportanceSampling(glossiness, norm, sampler.nextFloat(), sampler.nextFloat());
+            auto p = sampler.nextFloat2D();
+            normal = GGXImportanceSampling(glossiness, normal, p.x(), p.y());
             sampled = static_cast<BxDFType >((int) sampled | (int) BxDFType::glossy);
         }
         if (sampler.nextFloat() < tr) {
             Float n1, n2;
-            Float cosI = Vec3f::dot(wo, norm);
+            Float cosI = Vec3f::dot(wo, normal);
             if (cosI < 0) {
                 n1 = 1;
                 n2 = ior;
@@ -77,14 +79,17 @@ Spectrum Material::sampleF(Sampler &sampler,
             T = 1 - R;
             if (sampler.nextFloat() < R) {
                 color /= R;
+                wi = reflect(normal, wo);
+
             } else {
                 color /= T;
                 sampled = static_cast<BxDFType >((int) sampled | (int) BxDFType::refraction);
+                wi = n12 * wo + (n12 * cosI - sqrt(root)) * normal;
             }
         } else {
             color /= 1 - tr;
+            wi = reflect(normal, wo);
         }
-        wi = reflect(norm, wo);
         pdf = 1;
     }
     if (_sampled) {
@@ -103,7 +108,7 @@ Float Material::f(BxDFType type, const Interaction &interaction, const Vec3f &wo
     } else if (hasBxDFType(type, BxDFType::glossy)) {
         if (!hasBxDFType(type, BxDFType::refraction)) {
             Vec3f microfacet = (wi - wo).normalized();
-            Float distribution = GGXDistribution(interaction.norm, microfacet, glossiness);
+            Float distribution = GGXDistribution(interaction.normal, microfacet, glossiness);
             return distribution;
         } else {
             return 0; // TODO: glossy refraction
@@ -144,3 +149,4 @@ const Point2f Material::textCoord(const Interaction &interaction) const {
     const auto &uv = interaction.uv;
     return pointOnTriangle(primitive.textCoord[0], primitive.textCoord[1], primitive.textCoord[2], uv.x(), uv.y());
 }
+

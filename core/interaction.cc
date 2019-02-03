@@ -4,3 +4,7 @@
 
 #include "interaction.h"
 using namespace Miyuki;
+
+SurfaceInteraction::SurfaceInteraction() {
+    bsdf = nullptr;
+}

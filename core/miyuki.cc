@@ -6,7 +6,7 @@
 //#include "../lib/cxxopts.hpp"
 
 #include "rendersystem.hpp"
-
+#include "scene.h"
 
 
 
@@ -14,4 +14,5 @@ int main(int argc, char **argv) {
     renderSystem.processOptions(argc, argv);
 
     return renderSystem.exec();
+
 }

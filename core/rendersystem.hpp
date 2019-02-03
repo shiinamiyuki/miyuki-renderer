@@ -29,6 +29,7 @@ namespace Miyuki {
         }
 
         void processOptions(int argc, char **argv) {
+            std::atexit(saveAtExit);
             printWelcome();
             if (argc <= 1) {
                 exit(0);

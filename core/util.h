@@ -33,6 +33,7 @@
 #include "../lib/tiny_obj_loader/tiny_obj_loader.h"
 #include "../lib/rand48/erand48.h"
 #include "../lib/lodepng/lodepng.h"
+#include "../lib/tiny_jpeg.h"
 
 namespace Miyuki {
     using Float = float;
@@ -95,17 +96,24 @@ namespace Miyuki {
         Ty &operator*() { return *ptr; }
 
         Ty *operator->() { return ptr; }
-        operator bool()const{return ptr;}
 
-        const Ty &operator*()const { return *ptr; }
+        operator bool() const { return ptr; }
 
-        const Ty *operator->()const { return ptr; }
-        Ref& operator = (Ty *p){ptr = p;return *this;}
+        const Ty &operator*() const { return *ptr; }
+
+        const Ty *operator->() const { return ptr; }
+
+        Ref &operator=(Ty *p) {
+            ptr = p;
+            return *this;
+        }
     };
 
     template<typename T>
     Ref<T> makeRef(T *p) { return Ref<T>(p); }
-    void readUnderPath(const std::string &filename, std::function<void(const std::string&)>);
+
+    void readUnderPath(const std::string &filename, std::function<void(const std::string &)>);
+    void loadImage(const std::string &filename,std::vector<unsigned char>&data, unsigned int *w, unsigned int *h);
 }
 
 #endif //MIYUKI_UTIL_HPP

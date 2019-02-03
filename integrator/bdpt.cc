@@ -6,7 +6,8 @@
 #include "../core/scene.h"
 
 using namespace Miyuki;
-
+void Miyuki::BDPT::render(Scene &scene){}
+#if 0
 void Miyuki::BDPT::render(Scene &scene) {
     fmt::print("Rendering\n");
     auto &film = scene.film;
@@ -67,7 +68,7 @@ void Miyuki::BDPT::generateLightPath(Sampler &sampler, Scene &scene, Path &path,
         else {
             path.emplace_back(Vertex(Vertex::surfaceVertex));
             path.back().hitPoint = ray.o;
-            path.back().normal = interaction.norm;
+            path.back().normal = interaction.normal;
             path.back().radiance = radiance * throughput;
             path.back().sampledType = sampledType;
             path.back().primID = interaction.primID;
@@ -107,14 +108,14 @@ void Miyuki::BDPT::generateEyePath(RenderContext &ctx, Scene &scene, Path &path,
         if (sampledType == BxDFType::emission) {
             path.emplace_back(Vertex(Vertex::lightVertex));
             path.back().hitPoint = ray.o;
-            path.back().normal = interaction.norm;
+            path.back().normal = interaction.normal;
             path.back().sampledType = sampledType;
             path.back().radiance = throughput;
             break;
         } else {
             path.emplace_back(Vertex(Vertex::surfaceVertex));
             path.back().hitPoint = ray.o;
-            path.back().normal = interaction.norm;
+            path.back().normal = interaction.normal;
             path.back().sampledType = sampledType;
             path.back().radiance = throughput;
             path.back().primID = interaction.primID;
@@ -207,3 +208,4 @@ Float Vertex::convertDensity(Float pdf, const Vertex &next) const {
 Float Vertex::pdf(const Scene &, const Vertex *, const Vertex &next) const {
     return 0;
 }
+#endif

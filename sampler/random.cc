@@ -3,9 +3,11 @@
 //
 
 #include "random.h"
+
 using namespace Miyuki;
+
 Float Miyuki::RandomSampler::nextFloat() {
-    return (Float)erand48(seed->getPtr());
+    return (Float) erand48(seed->getPtr());
 }
 
 int Miyuki::RandomSampler::nextInt() {
@@ -13,9 +15,13 @@ int Miyuki::RandomSampler::nextInt() {
 }
 
 Float Miyuki::RandomSampler::nextFloat(Seed *Xi) {
-    return (Float)erand48(Xi->getPtr());
+    return (Float) erand48(Xi->getPtr());
 }
 
 int Miyuki::RandomSampler::nextInt(Seed *Xi) {
     return nrand48(Xi->getPtr());
+}
+
+Point2f RandomSampler::nextFloat2D() {
+    return Miyuki::Point2f(nextFloat(), nextFloat());
 }
