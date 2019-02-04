@@ -12,13 +12,6 @@
 #include "interaction.h"
 #include "texture.h"
 
-/* Reflection is implemented in a different way from pbrt
- * A material has a BSDF binding. BSDF is not created by material.
- * A BSDF consists of several BxDFs
- * To sample the BSDF, an Interaction instance shall be passed
- * The Interaction class handles world-local transformation.
- * */
-
 namespace Miyuki {
     struct Interaction;
     struct ColorMap;
@@ -80,10 +73,11 @@ namespace Miyuki {
     };
 
     class LambertianReflection : public BxDF {
-        const ColorMap & R;
+        const Spectrum &R;
     public:
-        LambertianReflection(const ColorMap &R) : R(R),
-        BxDF(BxDFType((int)BxDFType::reflection | (int)BxDFType::diffuse)) {}
+        LambertianReflection(const Spectrum &R) : R(R),
+                                                  BxDF(BxDFType(
+                                                          (int) BxDFType::reflection | (int) BxDFType::diffuse)) {}
 
         Spectrum f(const Vec3f &wo, const Vec3f &wi) const override;
     };

@@ -34,6 +34,7 @@ void Scene::commit() {
     lights = lightList;
     for (const auto &instance : instances) {
         for (const auto &primitive : instance.primitives) {
+            if (!materialList[primitive.materialId])continue;
             auto &material = *materialList[primitive.materialId];
             if (material.Ka().maxReflectance > 0.1) {
                 lights.emplace_back(std::shared_ptr<Light>(new AreaLight(primitive, material.Ka().color)));
@@ -162,7 +163,7 @@ void Scene::useSampler(Option::SamplerType samplerType) {
 
 }
 
-RenderContext Scene::getRenderContext(const Point2i &raster) {
+RenderContext Scene::getRenderContext(MemoryArena &arena, const Point2i &raster) {
     int x0 = raster.x();
     int y0 = raster.y();
     Float x = -(2 * (Float) x0 / film.width() - 1) * static_cast<Float>(film.width()) / film.height();
@@ -190,7 +191,7 @@ RenderContext Scene::getRenderContext(const Point2i &raster) {
             exit(-1);
     }
     sampler->start();
-    return RenderContext(Ray(ro, rd), sampler);
+    return RenderContext(Ray(ro, rd), sampler, arena, raster);
 }
 
 void Scene::checkError() {
@@ -206,7 +207,7 @@ const Primitive &Scene::fetchIntersectedPrimitive(const Intersection &intersecti
 
 
 // TODO: coord on triangle, see Embree's documentation
-void Scene::fetchInteraction(const Intersection &intersection, Ref<Interaction> interaction) {
+void Scene::fetchInteraction(const Intersection &intersection, Interaction* interaction) {
     interaction->primitive = makeRef<const Primitive>(&fetchIntersectedPrimitive(intersection));
 
     interaction->wi = Vec3f(intersection.rayHit.ray.dir_x,
@@ -237,15 +238,19 @@ void Scene::prepare() {
     }
 }
 
-void Scene::foreachPixel(std::function<void(const Point2i &)> f) {
+void Scene::foreachPixel(std::function<void(RenderContext &)> f) {
 //    parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
 //        for (int y = 0; y < film.height(); y++) {
 //            f(Point2i(x, y));
 //        }
 //    });
-    const auto &tiles = film.getTiles();
+    auto &tiles = film.getTiles();
     parallelFor(0u, tiles.size(), [&](unsigned int i) {
-        tiles[i].foreachPixel(f);
+        tiles[i].arena.reset();
+        tiles[i].foreachPixel([&](const Point2i &pos) {
+            auto ctx = getRenderContext(tiles[i].arena, pos);
+            f(ctx);
+        });
     });
 }
 

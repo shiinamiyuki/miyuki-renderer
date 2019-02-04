@@ -54,8 +54,10 @@ namespace Miyuki {
     private:
         std::mutex mutex;
     public:
-        ConcurrentMemoryArena(size_t blockSize = 262144) :MemoryArena(blockSize){}
+        ConcurrentMemoryArena(size_t blockSize = 262144) : MemoryArena(blockSize) {}
+
         void *alloc(size_t bytes);
+
         void reset();
     };
 }

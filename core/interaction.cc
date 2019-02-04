@@ -18,11 +18,15 @@ Vec3f Interaction::localToWorld(const Vec3f &v) const {
 void Interaction::computeLocalCoordinate() {
     const auto &w = normal;
     localX = Vec3f::cross((abs(w.x()) > 0.1) ? Vec3f{0, 1, 0} : Vec3f{1, 0, 0}, w);
-    localZ = Vec3f::cross(w, localX);
     localX.normalize();
+    localZ = Vec3f::cross(w, localX);
     localZ.normalize();
 }
 
 Point2f Interaction::textureCoord() const {
     return pointOnTriangle(primitive->textCoord[0], primitive->textCoord[1], primitive->textCoord[2], uv.x(), uv.y());
+}
+
+Ray Interaction::spawnWi() const {
+    return {hitpoint, localToWorld(localWi)};
 }

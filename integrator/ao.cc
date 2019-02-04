@@ -8,40 +8,41 @@
 #include "../core/film.h"
 #include "../core/geometry.h"
 #include "../sampler/random.h"
+
 using namespace Miyuki;
 
 void AOIntegrator::render(Scene &scene) {
     fmt::print("Rendering AO\n");
-    auto& film = scene.film;
-    auto& seeds = scene.seeds;
+    auto &film = scene.film;
+    auto &seeds = scene.seeds;
     int N = scene.option.samplesPerPixel;
-    auto t = runtime([&]() {
-        parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
-            for (int y = 0; y < film.height(); y++) {
-                int cnt = 0;
-                RandomSampler randomSampler(&seeds[x + film.width() * y]);
-
-                for (int i = 0; i < N; i++) {
-                    auto ctx = scene.getRenderContext(Point2i({(int) x, y}));
-                    Intersection intersection(ctx.primary.toRTCRay());
-                    intersection.intersect(scene);
-                    if (intersection.hit()) {
-                        auto hit = ctx.primary.o + intersection.rayHit.ray.tfar * ctx.primary.d;
-                        auto p = scene.fetchIntersectedPrimitive(intersection);
-                        auto rd = cosineWeightedHemisphereSampling(p.Ng,
-                                                                   randomSampler.nextFloat(),
-                                                                   randomSampler.nextFloat());
-                        Ray ray(hit, rd);
-                        Intersection second(ray.toRTCRay());
-                        second.intersect(scene);
-                        if (!second.hit() || second.hitDistance() > scene.option.aoDistance) {
-                            cnt++;
-                        }
-                    }
+    double elapsed = 0;
+    for (int i = 0; i < N; i++) {
+        auto t = runtime([&]() {
+            scene.foreachPixel([&](RenderContext &ctx) {
+                Ray ray = ctx.primary;
+                Intersection intersection(ray);
+                intersection.intersect(scene);
+                if (!intersection.hit()) {
+                    film.addSample(ctx.raster, Spectrum(0, 0, 0));
+                    return;
                 }
-                film.addSample(Point2i(x, y), Spectrum(Vec3f(1, 1, 1) * (Float(cnt) / N)));
-            }
+                ray.o += ray.d * intersection.hitDistance();
+                Interaction* interaction = ctx.arena.alloc<Interaction>();
+                scene.fetchInteraction(intersection, interaction);
+                interaction->localWi = cosineWeightedHemisphereSampling(
+                        {ctx.sampler->nextFloat(), ctx.sampler->nextFloat()});
+                ray = interaction->spawnWi();
+                intersection = Intersection(ray);
+                intersection.intersect(scene);
+                if (!intersection.hit() || intersection.hitDistance() >= scene.option.aoDistance)
+                    film.addSample(ctx.raster, Spectrum(1, 1, 1));
+                else
+                    film.addSample(ctx.raster, Spectrum(0, 0, 0));
+            });
         });
-    });
-    fmt::print("Rendering end in {} secs, {} M Rays/sec\n", t, N * film.width() * film.height() / t / 1e6);
+        elapsed += t;
+        fmt::print("iteration {} in {} secs, elapsed {}s, remaining {}s\n",
+                   1 + i, t, elapsed, (double) (elapsed * N) / (i + 1) - elapsed);
+    }
 }

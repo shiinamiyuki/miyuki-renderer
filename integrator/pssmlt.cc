@@ -147,7 +147,7 @@ Point2f MLTSampler::nextFloat2D() {
 void PSSMLTUnidirectional::render(Scene &scene) {
     bootstrap(scene);
     fmt::print("Running MC chains\n");
-    int N = double(scene.option.samplesPerPixel) * scene.film.width() * scene.film.height() / double(samples.size());
+    int N = scene.option.samplesPerPixel;
     double elapsed = 0;
     for (int i = 0; i < N; i++) {
         auto t = runtime([&]() {
@@ -162,18 +162,18 @@ void PSSMLTUnidirectional::render(Scene &scene) {
     scene.film.scaleImageColor(1.0f / N);
 }
 
-Spectrum PSSMLTUnidirectional::trace(int id, Scene &scene, Sampler &sampler, Point2i &pos) {
+Spectrum PSSMLTUnidirectional::trace(MemoryArena &arena, int id, Scene &scene, Sampler &sampler, Point2i &pos) {
     int x = (int) clamp(sampler.nextFloat() * scene.film.width(), 0, scene.film.width() - 1);
     int y = (int) clamp(sampler.nextFloat() * scene.film.height(), 0, scene.film.height() - 1);
     pos = Point2i(x, y);
-    auto ctx = scene.getRenderContext(Point2i(x, y));
+    auto ctx = scene.getRenderContext(arena, Point2i(x, y));
     ctx.sampler = &sampler;
     return PathTracer::render(Point2i(x, y), ctx, scene);
 }
 
 void PSSMLTUnidirectional::bootstrap(Scene &scene) {
     samples.clear();
-    for (int i = 0; i < scene.option.mltLuminanceSample; i++) {
+    for (int i = 0; i < scene.film.width() * scene.film.height(); i++) {
         samples.emplace_back(MLTSampler(&scene.seeds[i]));
     }
     std::vector<PathSeedGenerator> pathSeeds;
@@ -189,11 +189,14 @@ void PSSMLTUnidirectional::bootstrap(Scene &scene) {
     pos.resize(pathSeeds.size());
     Float b = 0;
     fmt::print("Generating bootstrap samples\n");
-    for (int i = 0; i < pathSeeds.size(); i++) {
-        auto rad = trace(i, scene, pathSeeds[i], pos[i]);
-        L[i] = rad;
-        I[i] = luminance(rad);
-        b += luminance(rad);
+    {
+        MemoryArena arena;
+        for (int i = 0; i < pathSeeds.size(); i++) {
+            auto rad = trace(arena, i, scene, pathSeeds[i], pos[i]);
+            L[i] = rad;
+            I[i] = luminance(rad);
+            b += luminance(rad);
+        }
     }
     b /= pathSeeds.size();
     fmt::print("b = {}\n", b);
@@ -217,12 +220,13 @@ void PSSMLTUnidirectional::bootstrap(Scene &scene) {
 void PSSMLTUnidirectional::mutation(Scene &scene) {
     auto &film = scene.film;
     auto &seeds = scene.seeds;
-    parallelFor(0u, samples.size(), [&](unsigned int idx) {
+    scene.foreachPixel([&](RenderContext &ctx) {
+        auto idx = ctx.raster.x() + ctx.raster.y() * scene.film.width();
         auto &sampler = samples[idx];
         sampler.start();
         Point2i newPos;
         Spectrum radiance;
-        radiance = trace(idx, scene, sampler, newPos);
+        radiance = trace(ctx.arena, idx, scene, sampler, newPos);
         sampler.update(newPos, radiance);
     });
     Float b = 0;
@@ -230,7 +234,6 @@ void PSSMLTUnidirectional::mutation(Scene &scene) {
         auto &sampler = samples[i];
         auto radiance = sampler.contributionSample.radiance;
         radiance *= sampler.contributionSample.weight;
-        radiance *= Float(scene.film.width() * scene.film.height()) / samples.size();
         b += luminance(sampler.newSample.radiance);
         film.addSplat(sampler.contributionSample.pos, radiance);
     }

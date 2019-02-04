@@ -14,7 +14,7 @@ namespace Miyuki {
     public:
 //        MatteMaterial(const MaterialInfo &info);
 
-        void computeScatteringFunctions(Interaction &interaction) override;
+        void computeScatteringFunctions(MemoryArena &arena,Interaction &interaction) override;
     };
 }
 #endif //MIYUKI_MATTE_H

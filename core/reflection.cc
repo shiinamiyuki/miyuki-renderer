@@ -55,5 +55,5 @@ Float ScaledBxDF::Pdf(const Vec3f &wi, const Vec3f &wo) const {
 }
 
 Spectrum LambertianReflection::f(const Vec3f &wo, const Vec3f &wi) const {
-    return Spectrum(R.color * INVPI);
+    return Spectrum(R * INVPI);
 }

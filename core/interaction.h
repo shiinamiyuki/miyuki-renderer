@@ -8,7 +8,7 @@
 #include "scene.h"
 #include "mesh.h"
 #include "reflection.h"
-
+#include "ray.h"
 namespace Miyuki {
     struct Material;
 
@@ -38,6 +38,7 @@ namespace Miyuki {
         Vec3f localToWorld(const Vec3f &v) const;
 
         Point2f textureCoord() const;
+        Ray spawnWi()const;
     };
 
 }

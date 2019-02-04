@@ -21,7 +21,9 @@ Miyuki::cosineWeightedHemisphereSampling(const Miyuki::Vec3f &normal, Miyuki::Fl
 
 Vec3f Miyuki::cosineWeightedHemisphereSampling(const Point2f &u) {
     double r1 = 2 * M_PI * u.x(), r2 = u.y(), r2s = sqrt(r2);
-    return Vec3f(cos(r1) * r2s, sin(r1) * r2s, sqrt(1 - r2));
+    auto r = Vec3f(cos(r1) * r2s, sqrt(1 - r2), sin(r1) * r2s);
+    r.normalize();
+    return r;
 }
 
 Miyuki::Vec3f Miyuki::sphereSampling(Miyuki::Float u1, Miyuki::Float u2) {

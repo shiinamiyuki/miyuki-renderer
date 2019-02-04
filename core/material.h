@@ -12,10 +12,12 @@
 #include "interaction.h"
 #include "texture.h"
 #include "reflection.h"
+#include "memory.h"
 
 namespace Miyuki {
 
     class BSDF;
+
     struct Interaction;
     enum class TransportMode {
         radiance, importance
@@ -59,7 +61,7 @@ namespace Miyuki {
 
         ColorMap Ka() const { return materialInfo.ka; }
 
-        virtual void computeScatteringFunctions(Interaction &) = 0;
+        virtual void computeScatteringFunctions(MemoryArena &arena, Interaction &) = 0;
     };
 
     inline Vec3f reflect(const Vec3f &normal, const Vec3f &i) {
@@ -70,7 +72,7 @@ namespace Miyuki {
 
     class MaterialFactory {
     public:
-        virtual MaterialPtr operator()(const MaterialInfo &) = 0;
+        virtual MaterialPtr operator() (const MaterialInfo &) = 0;
     };
 }
 #endif //MIYUKI_MATERIAL_H

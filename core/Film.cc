@@ -2,9 +2,8 @@
 // Created by Shiina Miyuki on 2019/1/12.
 //
 
-#include "Film.h"
 #include "film.h"
-
+#include "scene.h"
 
 using namespace Miyuki;
 
@@ -80,7 +79,7 @@ void Film::initTiles() {
 }
 
 
-void Film::Tile::foreachPixel(std::function<void(const Point2i &)> f) const {
+void Film::Tile::foreachPixel(std::function<void(const Point2i &)> f) {
     for (int i = bound.pMin.x(); i < bound.pMax.x(); i++) {
         for (int j = bound.pMin.y(); j < bound.pMax.y(); j++) {
             f(Point2i(i, j));

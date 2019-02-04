@@ -8,6 +8,7 @@
 #include "../core/integrator.h"
 #include "../core/spectrum.h"
 #include "../sampler/random.h"
+#include "../core/memory.h"
 #include "pathtracer.h"
 
 
@@ -85,7 +86,7 @@ namespace Miyuki {
     class PSSMLTUnidirectional : public PathTracer {
         std::vector<MLTSampler> samples;
 
-        Spectrum trace(int, Scene &, Sampler &, Point2i &);
+        Spectrum trace(MemoryArena&,int, Scene &, Sampler &, Point2i &);
 
         void bootstrap(Scene &);
 

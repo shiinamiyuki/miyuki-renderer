@@ -6,7 +6,7 @@
 
 using namespace Miyuki;
 
-void MatteMaterial::computeScatteringFunctions(Interaction &interaction) {
+void MatteMaterial::computeScatteringFunctions(MemoryArena &arena,Interaction &interaction) {
 
 }
 //

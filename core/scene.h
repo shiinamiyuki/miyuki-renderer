@@ -17,6 +17,7 @@
 #include "material.h"
 #include "transform.h"
 #include "distribution.h"
+#include "memory.h"
 #include "../integrator/ao.h"
 #include "../integrator/pathtracer.h"
 #include "../integrator/bdpt.h"
@@ -66,9 +67,10 @@ namespace Miyuki {
     struct RenderContext {
         Ray primary;
         Sampler *sampler;
-
-        RenderContext(const Ray &r, Sampler *s)
-                : primary(r), sampler(s) {}
+        MemoryArena &arena;
+        Point2i raster;
+        RenderContext(const Ray &r, Sampler *s, MemoryArena &a, const Point2i&pos)
+        : arena(a), primary(r), sampler(s),raster(pos) {}
     };
 
     class Light;
@@ -133,9 +135,9 @@ namespace Miyuki {
 
         const Primitive &fetchIntersectedPrimitive(const Intersection &);
 
-        void fetchInteraction(const Intersection &, Ref<Interaction> interaction);
+        void fetchInteraction(const Intersection &, Interaction* interaction);
 
-        void foreachPixel(std::function<void(const Point2i &)>);
+        void foreachPixel(std::function<void(RenderContext &)>);
 
         Light *chooseOneLight(Sampler &) const;
 
@@ -166,7 +168,7 @@ namespace Miyuki {
 
         Camera &getCamera() { return camera; }
 
-        RenderContext getRenderContext(const Point2i &);
+        RenderContext getRenderContext(MemoryArena&,const Point2i &);
 
         Scene();
 

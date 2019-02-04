@@ -35,9 +35,8 @@ void PathTracer::iteration(Scene &scene) {
     //TODO: refactoring, handle sampling based on BxDF tags ?
     auto &film = scene.film;
     auto &seeds = scene.seeds;
-    scene.foreachPixel([&](const Point2i &pos) {
-        auto ctx = scene.getRenderContext(pos);
-        film.addSample(pos, render(pos, ctx, scene));
+    scene.foreachPixel([&](RenderContext & ctx) {
+        film.addSample(ctx.raster, render(ctx.raster, ctx, scene));
     });
 }
 
@@ -60,7 +59,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
         }
         ray.o += ray.d * intersection.hitDistance();
         Interaction interaction;
-        scene.fetchInteraction(intersection, makeRef(&interaction));
+        scene.fetchInteraction(intersection, &interaction);
         auto &primitive = *interaction.primitive;
         auto &material = *interaction.material;
         Vec3f wi;
