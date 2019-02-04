@@ -21,6 +21,7 @@
 
 namespace Miyuki {
     struct Interaction;
+    struct ColorMap;
     enum class BxDFType {
         reflection = 1 << 0,
         transmission = 1 << 1,
@@ -62,6 +63,29 @@ namespace Miyuki {
 //        virtual Spectrum rho(int nSamples, const Vec3f *samples1,
 //                             const Point2f *samples2) const;
         virtual ~BxDF() {}
+    };
+
+    class ScaledBxDF : public BxDF {
+        Spectrum scale;
+        BxDF *bxdf;
+    public:
+        ScaledBxDF(BxDF *bxdf, const Spectrum &scale) : BxDF(bxdf->type), bxdf(bxdf), scale(scale) {}
+
+        Spectrum f(const Vec3f &wo, const Vec3f &wi) const override;
+
+        Spectrum
+        sampleF(const Vec3f &wo, Vec3f *wi, const Point2f &sample, Float *pdf, BxDFType *sampledType) const override;
+
+        Float Pdf(const Vec3f &wi, const Vec3f &wo) const override;
+    };
+
+    class LambertianReflection : public BxDF {
+        const ColorMap & R;
+    public:
+        LambertianReflection(const ColorMap &R) : R(R),
+        BxDF(BxDFType((int)BxDFType::reflection | (int)BxDFType::diffuse)) {}
+
+        Spectrum f(const Vec3f &wo, const Vec3f &wi) const override;
     };
 
     class BSDF {

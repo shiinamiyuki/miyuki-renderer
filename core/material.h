@@ -15,7 +15,7 @@
 
 namespace Miyuki {
 
-
+    class BSDF;
     struct Interaction;
     enum class TransportMode {
         radiance, importance
@@ -51,9 +51,11 @@ namespace Miyuki {
     class Material;
 
     class Material {
+    protected:
         MaterialInfo materialInfo;
+        std::unique_ptr<BSDF> bsdf;
     public:
-        Material() = default;
+        Material(const MaterialInfo &info) : materialInfo(info) {}
 
         ColorMap Ka() const { return materialInfo.ka; }
 

@@ -4,11 +4,16 @@ project(Miyuki)
 set(CMAKE_CXX_STANDARD 14)
 link_libraries(embree3 boost_system boost_filesystem glfw3 opengl32 boost_unit_test_framework)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-add_executable(unittest
+add_executable(test_transform
         core/transform.cc
         core/interaction.cc
         unittest/unittest.cc
         unittest/test_transform.cc )
+add_executable(test_memory
+        core/memory.cc
+        lib/fmt/format.cc
+        unittest/unittest.cc
+        unittest/test_memory.cc)
 add_executable(Miyuki
         lib/fmt/format.cc
         lib/lodepng/lodepng.cpp
@@ -58,7 +63,7 @@ add_executable(Miyuki
         lib/rapidjson/document.h
         lib/rapidjson/rapidjson.h
         core/rendersystem.hpp
-        core/rendersystem.cc sampler/stratified.h sampler/stratified.cc core/memory.h core/memory.cc core/microfacet.h core/microfacet.cc core/reflection.cc core/reflection.h)
+        core/rendersystem.cc sampler/stratified.h sampler/stratified.cc core/memory.h core/memory.cc core/microfacet.h core/microfacet.cc core/reflection.cc core/reflection.h material/matte.cc material/matte.h)
 #add_executable(Miyuki-GUI
 #        lib/fmt/format.cc
 #        lib/lodepng/lodepng.cpp

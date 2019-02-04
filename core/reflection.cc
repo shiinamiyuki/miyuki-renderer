@@ -40,3 +40,20 @@ void BSDF::add(BxDF *bxDF) {
     assert(nBxDFs < maxBxDFs);
     bxdfs[nBxDFs++] = bxDF;
 }
+
+Spectrum ScaledBxDF::f(const Vec3f &wo, const Vec3f &wi) const {
+    return Spectrum(scale * bxdf->f(wo, wi));
+}
+
+Spectrum
+ScaledBxDF::sampleF(const Vec3f &wo, Vec3f *wi, const Point2f &sample, Float *pdf, BxDFType *sampledType) const {
+    return bxdf->sampleF(wo, wi, sample, pdf, sampledType);
+}
+
+Float ScaledBxDF::Pdf(const Vec3f &wi, const Vec3f &wo) const {
+    return bxdf->Pdf(wi, wo);
+}
+
+Spectrum LambertianReflection::f(const Vec3f &wo, const Vec3f &wi) const {
+    return Spectrum(R.color * INVPI);
+}

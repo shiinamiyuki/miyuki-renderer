@@ -31,7 +31,9 @@ namespace Miyuki {
 
     struct MeshInstance;
     enum class TextureOption;
+
     class MaterialFactory;
+
     std::shared_ptr<TriangularMesh>
     LoadFromObj(MaterialFactory &, MaterialList *materialList, const char *filename, TextureOption opt);
 
@@ -44,7 +46,7 @@ namespace Miyuki {
         TriangularMesh() {}
 
         friend std::shared_ptr<TriangularMesh> LoadFromObj(
-                MaterialFactory&,
+                MaterialFactory &,
                 MaterialList *materialList,
                 const char *filename, TextureOption opt);
 
