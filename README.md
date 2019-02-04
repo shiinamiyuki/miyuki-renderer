@@ -13,6 +13,8 @@ Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-p
 
 ## Current Progress
 
+We are more and more pbrt-like! Added memory arena so that we can implement `Material` and `BSDF` as pbrt does.
+
 We have ambient occlusion and path tracing with next event estimation and multiple importance sampling.
 
 A PSSMLT running on path tracer is also implemented.
