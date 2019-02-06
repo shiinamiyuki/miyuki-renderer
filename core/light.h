@@ -73,6 +73,10 @@ namespace Miyuki {
                    || ((int32_t) type & (int32_t) Type::deltaPosition);
         }
 
+        virtual Float pdfLi(const Interaction &, const Vec3f &wi) const = 0;
+
+        virtual const Primitive *getPrimitive() const { return nullptr; }
+
         void scalePower(Float k) { ka *= k; }
     };
     namespace Mesh { struct Primitive; }
@@ -92,6 +96,12 @@ namespace Miyuki {
 
         Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
                           Float *pdfDir) const override;
+
+        Float pdfLi(const Interaction &interaction, const Vec3f &wi) const override;
+
+        const Primitive *getPrimitive() const override {
+            return primitive.raw();
+        }
     };
 
     class PointLight : public Light {
@@ -107,6 +117,8 @@ namespace Miyuki {
 
         Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
                           Float *pdfDir) const override;
+
+        Float pdfLi(const Interaction &interaction, const Vec3f &wi) const override;
     };
 }
 #endif //MIYUKI_LIGHT_H

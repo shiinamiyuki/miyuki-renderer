@@ -10,6 +10,7 @@
 #include "../integrator/pathtracer.h"
 #include "../integrator/bdpt.h"
 #include "../integrator/pssmlt.h"
+
 using namespace rapidjson;
 using namespace Miyuki;
 RenderSystem renderSystem;
@@ -21,6 +22,10 @@ void saveAtExit() {
 void RenderSystem::readDescription(const std::string &filename) {
     readUnderPath(filename, [&](const std::string &file) {
         std::ifstream in(file);
+        if (!in) {
+            fmt::print(stderr, "Cannot open scene description {}\n", filename);
+            exit(-1);
+        }
         std::string content((std::istreambuf_iterator<char>(in)),
                             (std::istreambuf_iterator<char>()));
         Document document;
@@ -170,11 +175,11 @@ void RenderSystem::readDescription(const std::string &filename) {
                 }
                 if (integratorInfo.HasMember("sampler")) {
                     std::string s = integratorInfo["sampler"].GetString();
-                    if(s == "independent"){
+                    if (s == "independent") {
                         scene.useSampler(Option::independent);
-                    }else if(s == "stratified")
+                    } else if (s == "stratified")
                         scene.useSampler(Option::stratified);
-                    else{
+                    else {
                         fmt::print(stderr, "Unrecognized sampler type: {}\n", s);
                     }
                 }

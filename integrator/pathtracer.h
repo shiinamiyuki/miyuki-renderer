@@ -23,9 +23,9 @@ namespace Miyuki {
         Spectrum render(const Point2i &, RenderContext &, Scene &);
 
         Spectrum importanceSampleOneLight(const Interaction &,
-                const Scene &,
+                Scene &,
                 RenderContext &ctx,
-                Float * pdf);
+                bool specular=false);
 
     public:
         void render(Scene &) override;

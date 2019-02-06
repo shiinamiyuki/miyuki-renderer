@@ -119,6 +119,20 @@ void BSDF::computeLocalCoordinates() {
     localZ.normalize();
 }
 
+Float BSDF::Pdf(const Vec3f &woW, const Vec3f &wiW, BxDFType flags) const {
+    if (nBxDFs == 0)return 0.0f;
+    Vec3f wo = worldToLocal(woW), wi = worldToLocal(wiW);
+    Float pdf = 0.0f;
+    int cnt = 0;
+    for (int i = 0; i < nBxDFs; i++) {
+        if (bxdfs[i]->matchFlags(flags)) {
+            cnt++;
+            pdf += bxdfs[i]->Pdf(wo, wi);
+        }
+    }
+    return cnt == 0 ? 0.0f : pdf / cnt;
+}
+
 Spectrum ScaledBxDF::f(const Vec3f &wo, const Vec3f &wi) const {
     return Spectrum(scale * bxdf->f(wo, wi));
 }

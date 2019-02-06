@@ -107,6 +107,7 @@ namespace Miyuki {
             ptr = p;
             return *this;
         }
+        Ty* raw()const{return ptr;}
     };
 
     template<typename T>

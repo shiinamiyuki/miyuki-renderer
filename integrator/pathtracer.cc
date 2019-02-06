@@ -56,10 +56,11 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
                 L += beta * scene.ambientLight;
             break;
         }
-        L += beta * interaction.Le(-1 * ray.d) * misWeight;
+        if (specular || depth == 0) {
+            L += beta * interaction.Le(-1 * ray.d) * misWeight;
+        }
         interaction.computeScatteringFunctions(ctx.arena);
-        Float lightPdf;
-        auto direct = importanceSampleOneLight(interaction, scene, ctx, &lightPdf);
+        auto direct = importanceSampleOneLight(interaction, scene, ctx);
         Vec3f wi;
         Float brdfPdf = 0;
         BxDFType flags;
@@ -68,12 +69,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
         specular = ((int) flags & (int) BxDFType::specular) != 0;
         if (brdfPdf == 0)
             break;
-        if (lightPdf != 0 && !specular) {
-            misWeight = 1 / (lightPdf + brdfPdf);
-            L += beta * direct * misWeight;
-        } else {
-            misWeight = 1;
-        }
+        L += beta * direct;
 
         beta *= f * Vec3f::absDot(wi, interaction.normal) / brdfPdf;
 
@@ -90,21 +86,62 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
     return L;
 }
 
-Spectrum PathTracer::importanceSampleOneLight(const Interaction &interaction, const Scene &scene, RenderContext &ctx,
-                                              Float *pdf) {
+Spectrum PathTracer::importanceSampleOneLight(const Interaction &interaction, Scene &scene, RenderContext &ctx,
+                                              bool specular) {
+    Spectrum Ld;
+    BxDFType flags = specular ? BxDFType::all : BxDFType((int) BxDFType::all & ~(int) BxDFType::specular);
     auto light = scene.chooseOneLight(*ctx.sampler);
     Vec3f wi;
     VisibilityTester visibilityTester;
-    auto Li = light->sampleLi(ctx.sampler->nextFloat2D(), interaction, &wi, pdf, &visibilityTester);
+    Float lightPdf = 0, scatteringPdf = 0;
+    // sample light source
+    auto Li = light->sampleLi(ctx.sampler->nextFloat2D(), interaction, &wi, &lightPdf, &visibilityTester);
     bool occlude = Vec3f::dot(wi, interaction.Ng) < 0;
-    auto brdf = interaction.bsdf->f(interaction.wo, wi);
-    if (brdf.max() > 0.0f) {
-        if (!occlude && visibilityTester.visible(scene)) {
-            Li *= brdf * std::max(0.0f, Vec3f::dot(interaction.normal, wi));
-        } else { return {}; }
-    } else {
-        *pdf = 0;
-        return {};
+    // TODO: where should I put `if(!occlude)` ?
+    if (lightPdf > 0 && !Li.isBlack()) {
+        Spectrum f;
+        f = interaction.bsdf->f(interaction.wo, wi, flags) * Vec3f::dot(wi, interaction.normal);
+        scatteringPdf = interaction.bsdf->Pdf(interaction.wo, wi, flags);
+        if (!f.isBlack() && !occlude && visibilityTester.visible(scene)) {
+            if (light->isDeltaLight()) {
+                Ld += f * Li / lightPdf;
+            } else {
+                Float weight = powerHeuristic(1, lightPdf, 1, scatteringPdf);
+                Ld += f * Li * weight / lightPdf;
+            }
+        }
     }
-    return Li;
+    // sample brdf
+    if (!light->isDeltaLight()) {
+        Spectrum f;
+        BxDFType sampledType;
+        bool sampledSpecular = false;
+        f = interaction.bsdf->sampleF(interaction.wo, &wi, ctx.sampler->nextFloat2D(), &scatteringPdf, flags,
+                                      &sampledType);
+        f *= Vec3f::dot(wi, interaction.normal);
+        sampledSpecular = ((int) sampledType & (int) BxDFType::specular) != 0;
+        if (!f.isBlack() && scatteringPdf > 0) {
+            Float weight;
+            if (!sampledSpecular) {
+                lightPdf = light->pdfLi(interaction, wi);
+                if (lightPdf <= 0)
+                    return Ld;
+                weight = powerHeuristic(1, scatteringPdf, 1, lightPdf);
+                Ray ray = interaction.spawnRay(wi);
+                Interaction lightIntersect;
+                Li = Spectrum{};
+                if (scene.intersect(ray, &lightIntersect)) {
+                    if (lightIntersect.primitive.raw() == light->getPrimitive()) {
+                        Li = lightIntersect.Le(-1 * wi);
+                    }else{
+                        return Ld;
+                    }
+                }
+                if (!Li.isBlack()) {
+                    Ld += Li * f * weight / scatteringPdf;
+                }
+            }
+        }
+    }
+    return Ld;
 }

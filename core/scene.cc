@@ -68,6 +68,10 @@ public:
         *pdfPos = 0;
         return {};
     }
+
+    Float pdfLi(const Interaction &interaction, const Vec3f &wi) const override {
+        return 0;
+    }
 };
 
 static NullLight nullLight;

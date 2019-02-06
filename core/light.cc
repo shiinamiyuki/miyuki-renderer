@@ -17,8 +17,7 @@ bool VisibilityTester::visible(const Scene &scene) const {
 AreaLight::AreaLight(const Primitive &_primitive, const Spectrum &ka)
         : Light(ka), primitive(&_primitive) {
     type = Type::area;
-    area = Vec3f::cross(primitive->vertices[1] - primitive->vertices[0],
-                        primitive->vertices[2] - primitive->vertices[0]).length() / 2;
+    area = _primitive.area;
 }
 
 Spectrum
@@ -68,6 +67,10 @@ Float AreaLight::power() const {
     return ka.max() * area;
 }
 
+Float AreaLight::pdfLi(const Interaction &interaction, const Vec3f &wi) const {
+    return primitive->pdf(interaction, wi);
+}
+
 Spectrum PointLight::sampleLi(const Point2f &u, const Interaction &interaction, Vec3f *wi, Float *pdf,
                               VisibilityTester *tester) const {
 
@@ -85,4 +88,8 @@ Spectrum PointLight::sampleLi(const Point2f &u, const Interaction &interaction, 
 Spectrum PointLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
                               Float *pdfDir) const {
     return {};
+}
+
+Float PointLight::pdfLi(const Interaction &interaction, const Vec3f &wi) const {
+    return 0;
 }

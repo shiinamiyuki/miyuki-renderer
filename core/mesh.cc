@@ -6,6 +6,7 @@
 #include "scene.h"
 #include "texture.h"
 #include "material.h"
+
 using namespace Miyuki;
 
 std::shared_ptr<TextureMapping2D> loadFromPNG(const std::string &filename) {
@@ -21,7 +22,7 @@ std::shared_ptr<TextureMapping2D> loadFromPNG(const std::string &filename) {
 }
 
 std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
-        MaterialFactory& materialFactory,
+        MaterialFactory &materialFactory,
         MaterialList *materialList,
         const char *filename,
         TextureOption opt) {
@@ -163,6 +164,7 @@ MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Transform
         auto &trig = mesh->triangleArray()[i];
         primitives[i].materialId = trig.materialId;
         primitives[i].Ng = trig.trigNorm;
+        primitives[i].area = trig.area;
         for (int32_t k = 0; k < 3; k++) {
             primitives[i].normal[k] = t.applyRotation(mesh->normal[trig.normal[k]]).normalized();
             primitives[i].vertices[k] = t.apply(mesh->vertex[trig.vertex[k]]);
@@ -173,4 +175,43 @@ MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Transform
 
 Vec3f Primitive::normalAt(const Point2f &p) const {
     return pointOnTriangle(normal[0], normal[1], normal[2], p.x(), p.y());
+}
+
+bool Primitive::intersect(const Ray &ray, Float *tHit, Interaction *isct) const {
+    const Float eps = 0.0000001;
+    Vec3f edge1, edge2, h, s, q;
+    Float a, f, u, v;
+    edge1 = vertices[1] - vertices[0];
+    edge2 = vertices[2] - vertices[0];
+    h = Vec3f::cross(ray.d, edge2);
+    a = Vec3f::dot(edge1, h);
+    if (a > -eps && a < eps)
+        return false;    // This ray is parallel to this triangle.
+    f = 1.0f / a;
+    s = ray.o - vertices[0];
+    u = f * (Vec3f::dot(s, h));
+    if (u < 0.0f || u > 1.0f)
+        return false;
+    q = Vec3f::cross(s, edge1);
+    v = f * Vec3f::dot(ray.d, q);
+    if (v < 0.0f || u + v > 1.0f)
+        return false;
+    float t = f * Vec3f::dot(edge2, q);
+    if (t > eps) // ray intersection
+    {
+        *tHit = t;
+        isct->hitpoint = ray.o + t * ray.d;
+        isct->Ng = Ng;
+        isct->normal = pointOnTriangle(normal[0], normal[1], normal[2], u, v);
+        return true;
+    } else
+        return false;
+}
+
+Float Primitive::pdf(const Interaction &ref, const Vec3f &wi) const {
+    Ray ray = ref.spawnRay(wi);
+    Float tHit;
+    Interaction interaction;
+    if (!intersect(ray, &tHit, &interaction)) { return 0; }
+    return (ref.hitpoint - interaction.hitpoint).lengthSquared() / (Vec3f::absDot(interaction.Ng, -1 * wi) * area);
 }

@@ -107,7 +107,6 @@ namespace Miyuki {
                          BxDFType *sampledType = nullptr) const;
 
         Float Pdf(const Vec3f &woW, const Vec3f &wiW,
-                  const Vec3f &wo, const Vec3f &wi,
                   BxDFType flags = BxDFType::all) const;
 
         int32_t numComponents(BxDFType flags) const;

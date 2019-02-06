@@ -62,16 +62,20 @@ namespace Miyuki {
 
         size_t normCount() const { return normal.size(); }
     };
-
+    struct Ray;
+    struct Interaction;
     struct Primitive {
         Vec3f normal[3], vertices[3];
         Point2f textCoord[3];
         Vec3f Ng;
         int32_t materialId;
-
+        Float area;
         Primitive() {}
 
         Vec3f normalAt(const Point2f &) const;
+
+        bool intersect(const Ray &ray, Float *tHit, Interaction *) const;
+        Float pdf(const Interaction&ref, const Vec3f & wi)const;
     };
 
     struct MeshInstance {
