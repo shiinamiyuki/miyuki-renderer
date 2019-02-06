@@ -55,13 +55,12 @@ namespace Miyuki {
     class Material {
     protected:
         MaterialInfo materialInfo;
-        std::unique_ptr<BSDF> bsdf;
     public:
         Material(const MaterialInfo &info) : materialInfo(info) {}
 
         ColorMap Ka() const { return materialInfo.ka; }
 
-        virtual void computeScatteringFunctions(MemoryArena &arena, Interaction &) = 0;
+        virtual void computeScatteringFunctions(MemoryArena &arena, Interaction &) const = 0;
     };
 
     inline Vec3f reflect(const Vec3f &normal, const Vec3f &i) {

@@ -23,8 +23,8 @@ namespace Miyuki {
         Float pdfFwd, pdfRev;
         BxDFType sampledType;
         VertexType type;
-        int geomID;
-        int primID;
+        int32_t geomID;
+        int32_t primID;
 
         Vertex(VertexType _type) : geomID(-1), primID(-1), type(_type) {}
 
@@ -44,11 +44,11 @@ namespace Miyuki {
 
 
     protected:
-        void generateLightPath(Sampler &, Scene &, Path &, unsigned int maxS);
+        void generateLightPath(Sampler &, Scene &, Path &, uint32_t maxS);
 
-        void generateEyePath(RenderContext &ctx, Scene &, Path &, unsigned int maxT);
+        void generateEyePath(RenderContext &ctx, Scene &, Path &, uint32_t maxT);
 
-        Spectrum connectBDPT(Scene &, Path &L, Path &E, int s, int t);
+        Spectrum connectBDPT(Scene &, Path &L, Path &E, int32_t s, int32_t t);
 
         void iteration(Scene &scene);
 

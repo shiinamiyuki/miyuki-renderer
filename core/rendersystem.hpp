@@ -28,7 +28,7 @@ namespace Miyuki {
             std::atexit(saveAtExit);
         }
 
-        void processOptions(int argc, char **argv) {
+        void processOptions(int32_t argc, char **argv) {
             std::atexit(saveAtExit);
             printWelcome();
             if (argc <= 1) {
@@ -45,7 +45,7 @@ namespace Miyuki {
             }
         }
 
-        int render() {
+        int32_t render() {
             if (!integrator) { return -1; }
             fmt::print(R"(
 Resolution: {0}x{1}
@@ -77,7 +77,7 @@ Integrator: {4}
             fmt::print("{}\n", welcome);
         }
 
-        int exec() {
+        int32_t exec() {
             return render();
         }
 

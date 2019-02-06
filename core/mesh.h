@@ -15,9 +15,9 @@ namespace Miyuki {
 
 
     struct Triangle {
-        int vertex[3];
-        int normal[3];
-        int materialId;
+        int32_t vertex[3];
+        int32_t normal[3];
+        int32_t materialId;
         bool useNorm;
         Vec3f trigNorm;
         Point2f textCoord[3];
@@ -67,7 +67,7 @@ namespace Miyuki {
         Vec3f normal[3], vertices[3];
         Point2f textCoord[3];
         Vec3f Ng;
-        int materialId;
+        int32_t materialId;
 
         Primitive() {}
 
@@ -79,7 +79,7 @@ namespace Miyuki {
 
         std::vector<Primitive> primitives;
 
-        const Primitive &getPrimitive(unsigned int primID) const { return primitives[primID]; }
+        const Primitive &getPrimitive(uint32_t primID) const { return primitives[primID]; }
 
         MeshInstance() = default;
 

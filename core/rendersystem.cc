@@ -35,11 +35,11 @@ void RenderSystem::readDescription(const std::string &filename) {
                     fmt::print(stderr, "rgb format expected");
                     return {};
                 }
-                unsigned int x;
+                uint32_t x;
                 std::stringstream ss;
                 ss << std::hex << v.GetString();
                 ss >> x;
-                unsigned int r, g, b;
+                uint32_t r, g, b;
                 r = (x & (0xff0000)) >> 16;
                 g = (x & (0x00ff00)) >> 8;
                 b = x & (0x0000ff);
@@ -81,7 +81,7 @@ void RenderSystem::readDescription(const std::string &filename) {
                                 opt = TextureOption::discard;
                             }
                             if (s == "raw") {
-                                opt = TextureOption((int) opt | (int) TextureOption::raw);
+                                opt = TextureOption((int32_t) opt | (int32_t) TextureOption::raw);
                             }
                         }
                         if (mesh.HasMember("file")) {

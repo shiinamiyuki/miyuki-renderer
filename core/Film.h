@@ -16,7 +16,7 @@ namespace Miyuki {
     class Scene;
     class Film {
         Bound2i imageBound;
-        unsigned int tileSize;
+        uint32_t tileSize;
     public:
         struct Pixel {
             Spectrum color;
@@ -59,7 +59,7 @@ namespace Miyuki {
 
         void scaleImageColor(Float scale);
 
-        Film(int w = 0, int h = 0, unsigned int _tileSize = 16);
+        Film(int w = 0, int h = 0, uint32_t _tileSize = 16);
 
         void writePNG(const std::string &filename);
 

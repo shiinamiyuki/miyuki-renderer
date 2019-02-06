@@ -113,7 +113,9 @@ namespace Miyuki {
     Ref<T> makeRef(T *p) { return Ref<T>(p); }
 
     void readUnderPath(const std::string &filename, std::function<void(const std::string &)>);
-    void loadImage(const std::string &filename,std::vector<unsigned char>&data, unsigned int *w, unsigned int *h);
+
+    void loadImage(const std::string &filename, std::vector<unsigned char> &data, uint32_t *w, uint32_t *h);
+
 }
 #define MIYUKI_ON_WINDOWS
 #endif //MIYUKI_UTIL_HPP

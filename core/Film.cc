@@ -20,12 +20,12 @@ void Film::Pixel::add(const Spectrum &c, const Float &w) {
 }
 
 Film::Pixel &Film::getPixel(const Point2f &p) {
-    return getPixel((int) p.x(), (int) p.y());
+    return getPixel((int32_t) p.x(), (int32_t) p.y());
 }
 
-Film::Pixel &Film::getPixel(int x, int y) {
-    x = clamp<int>(x, 0, imageBound.pMax.x());
-    y = clamp<int>(y, 0, imageBound.pMax.y());
+Film::Pixel &Film::getPixel(int32_t x, int32_t y) {
+    x = clamp<int32_t>(x, 0, imageBound.pMax.x());
+    y = clamp<int32_t>(y, 0, imageBound.pMax.y());
     return image[x + width() * y];
 }
 
@@ -39,7 +39,7 @@ void Film::scaleImageColor(Float scale) {
     }
 }
 
-Film::Film(int w, int h, unsigned int _tileSize)
+Film::Film(int32_t w, int32_t h, uint32_t _tileSize)
         : imageBound(Point2i({0, 0}), Point2i({w, h})), tileSize(_tileSize) {
     assert(w >= 0 && h >= 0);
     image.resize(w * h);
@@ -55,7 +55,7 @@ void Film::writePNG(const std::string &filename) {
         pixelBuffer.emplace_back(out.b());
         pixelBuffer.emplace_back(255);
     }
-    lodepng::encode(filename, pixelBuffer, (unsigned int) width(), (unsigned int) height());
+    lodepng::encode(filename, pixelBuffer, (uint32_t) width(), (uint32_t) height());
 }
 
 void Film::addSample(const Point2i &pos, const Spectrum &c, Float weight) {
@@ -69,10 +69,10 @@ void Film::addSplat(const Point2i &pos, const Spectrum &c) {
 
 void Film::initTiles() {
     tiles.clear();
-    for (int i = 0; i < width(); i += tileSize) {
-        for (int j = 0; j < height(); j += tileSize) {
-            int x = clamp<int>(i + tileSize, 0, width());
-            int y = clamp<int>(j + tileSize, 0, height());
+    for (int32_t i = 0; i < width(); i += tileSize) {
+        for (int32_t j = 0; j < height(); j += tileSize) {
+            int32_t x = clamp<int32_t>(i + tileSize, 0, width());
+            int32_t y = clamp<int32_t>(j + tileSize, 0, height());
             tiles.emplace_back(Tile{Bound2i(Point2i(i, j), Point2i(x, y))});
         }
     }
@@ -80,8 +80,8 @@ void Film::initTiles() {
 
 
 void Film::Tile::foreachPixel(std::function<void(const Point2i &)> f) {
-    for (int i = bound.pMin.x(); i < bound.pMax.x(); i++) {
-        for (int j = bound.pMin.y(); j < bound.pMax.y(); j++) {
+    for (int32_t i = bound.pMin.x(); i < bound.pMax.x(); i++) {
+        for (int32_t j = bound.pMin.y(); j < bound.pMax.y(); j++) {
             f(Point2i(i, j));
         }
     }

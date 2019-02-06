@@ -12,10 +12,10 @@ void Miyuki::BDPT::render(Scene &scene) {
     fmt::print("Rendering\n");
     auto &film = scene.film;
     auto &seeds = scene.seeds;
-    int N = scene.option.samplesPerPixel;
-    int sleepTime = scene.option.sleepTime;
+    int32_t N = scene.option.samplesPerPixel;
+    int32_t sleepTime = scene.option.sleepTime;
     double elapsed = 0;
-    for (int i = 0; i < N; i++) {
+    for (int32_t i = 0; i < N; i++) {
         auto t = runtime([&]() {
             iteration(scene);
             if (sleepTime > 0) {
@@ -28,7 +28,7 @@ void Miyuki::BDPT::render(Scene &scene) {
     }
 }
 
-void Miyuki::BDPT::generateLightPath(Sampler &sampler, Scene &scene, Path &path, unsigned int maxS) {
+void Miyuki::BDPT::generateLightPath(Sampler &sampler, Scene &scene, Path &path, uint32_t maxS) {
     Vec3f throughput(1, 1, 1);
     Spectrum radiance(0, 0, 0);
     Ray ray(Vec3f(0, 0, 0), Vec3f(0, 0, 0));
@@ -50,7 +50,7 @@ void Miyuki::BDPT::generateLightPath(Sampler &sampler, Scene &scene, Path &path,
         radiance /= pdfDir;
     }
 
-    for (int depth = 1; depth < maxS; depth++) {
+    for (int32_t depth = 1; depth < maxS; depth++) {
         Intersection intersection(ray);
         intersection.intersect(scene);
         if (!intersection.hit())break;
@@ -84,11 +84,11 @@ void Miyuki::BDPT::generateLightPath(Sampler &sampler, Scene &scene, Path &path,
     }
 }
 
-void Miyuki::BDPT::generateEyePath(RenderContext &ctx, Scene &scene, Path &path, unsigned int maxT) {
+void Miyuki::BDPT::generateEyePath(RenderContext &ctx, Scene &scene, Path &path, uint32_t maxT) {
     Sampler &sampler = *ctx.sampler;
     Ray ray = ctx.primary;
     Vec3f throughput(1, 1, 1);
-    for (int depth = 0; depth < maxT; depth++) {
+    for (int32_t depth = 0; depth < maxT; depth++) {
         Intersection intersection(ray);
         intersection.intersect(scene);
         if (!intersection.hit()) {
@@ -132,7 +132,7 @@ void Miyuki::BDPT::generateEyePath(RenderContext &ctx, Scene &scene, Path &path,
 
 }
 
-Spectrum BDPT::connectBDPT(Scene &scene, Path &L, Path &E, int s, int t) {
+Spectrum BDPT::connectBDPT(Scene &scene, Path &L, Path &E, int32_t s, int32_t t) {
     if (!L[s - 1].connectable(E[t - 1]))
         return {};
     VisibilityTester visibilityTester;
@@ -160,16 +160,16 @@ Spectrum BDPT::connectBDPT(Scene &scene, Path &L, Path &E, int s, int t) {
 void BDPT::iteration(Scene &scene) {
     auto &film = scene.film;
     auto &seeds = scene.seeds;
-    int maxDepth = scene.option.maxDepth;
+    int32_t maxDepth = scene.option.maxDepth;
     scene.foreachPixel([&](const Point2i &pos) {
         auto ctx = scene.getRenderContext(pos);
         Path L, E;
         generateEyePath(ctx, scene, E, maxDepth);
         generateLightPath(*ctx.sampler, scene, L, maxDepth);
         Spectrum LPath;
-        int cnt = 0;
-        for (int t = 1; t <= E.size(); t++) {
-            for (int s = 0; s <= L.size(); s++) {
+        int32_t cnt = 0;
+        for (int32_t t = 1; t <= E.size(); t++) {
+            for (int32_t s = 0; s <= L.size(); s++) {
                 cnt++;
                 if (s == 0 && hasBxDFType(E[t - 1].sampledType, BxDFType::emission)) {
                     LPath += E[t - 1].radiance;

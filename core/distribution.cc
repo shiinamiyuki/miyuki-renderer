@@ -6,7 +6,7 @@
 
 using namespace Miyuki;
 
-Miyuki::Distribution1D::Distribution1D(const Float *data, unsigned int N) {
+Miyuki::Distribution1D::Distribution1D(const Float *data, uint32_t N) {
     cdfArray.resize(N + 1);
     cdfArray[0] = 0;
     for (int i = 0; i < N; i++) {

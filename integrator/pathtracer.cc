@@ -15,10 +15,10 @@ void PathTracer::render(Scene &scene) {
     fmt::print("Rendering\n");
     auto &film = scene.film;
     auto &seeds = scene.seeds;
-    int N = scene.option.samplesPerPixel;
-    int sleepTime = scene.option.sleepTime;
+    int32_t N = scene.option.samplesPerPixel;
+    int32_t sleepTime = scene.option.sleepTime;
     double elapsed = 0;
-    for (int i = 0; i < N; i++) {
+    for (int32_t i = 0; i < N; i++) {
         auto t = runtime([&]() {
             iteration(scene);
             if (sleepTime > 0) {
@@ -46,10 +46,10 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
     Spectrum radiance;
     Vec3f throughput(1, 1, 1);
     Float weightLight = 1;
-    int maxDepth = scene.option.maxDepth;
+    int32_t maxDepth = scene.option.maxDepth;
     bool showAL = scene.option.showAmbientLight;
     bool specular = false;
-    for (int depth = 0; depth < maxDepth; depth++) {
+    for (int32_t depth = 0; depth < maxDepth; depth++) {
         Intersection intersection(ray);
         intersection.intersect(scene);
         if (!intersection.hit()) {

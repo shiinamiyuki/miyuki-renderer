@@ -15,9 +15,9 @@ void AOIntegrator::render(Scene &scene) {
     fmt::print("Rendering AO\n");
     auto &film = scene.film;
     auto &seeds = scene.seeds;
-    int N = scene.option.samplesPerPixel;
+    int32_t N = scene.option.samplesPerPixel;
     double elapsed = 0;
-    for (int i = 0; i < N; i++) {
+    for (int32_t i = 0; i < N; i++) {
         auto t = runtime([&]() {
             scene.foreachPixel([&](RenderContext &ctx) {
                 Ray ray = ctx.primary;
@@ -30,9 +30,8 @@ void AOIntegrator::render(Scene &scene) {
                 ray.o += ray.d * intersection.hitDistance();
                 Interaction* interaction = ctx.arena.alloc<Interaction>();
                 scene.fetchInteraction(intersection, interaction);
-                interaction->localWi = cosineWeightedHemisphereSampling(
-                        {ctx.sampler->nextFloat(), ctx.sampler->nextFloat()});
-                ray = interaction->spawnWi();
+                ray.d = cosineWeightedHemisphereSampling(interaction->normal,
+                       ctx.sampler->nextFloat(),ctx.sampler->nextFloat());
                 intersection = Intersection(ray);
                 intersection.intersect(scene);
                 if (!intersection.hit() || intersection.hitDistance() >= scene.option.aoDistance)

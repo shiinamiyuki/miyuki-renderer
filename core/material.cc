@@ -46,11 +46,11 @@ Spectrum Material::sampleF(Sampler &sampler,
     } else {
         color = Ks * total / p3;
         Vec3f normal = interaction.normal;
-        sampled = static_cast<BxDFType >((int) sampled | (int) BxDFType::specular);
+        sampled = static_cast<BxDFType >((int32_t) sampled | (int32_t) BxDFType::specular);
         if (glossiness > 0.01) {
             auto p = sampler.nextFloat2D();
             normal = GGXImportanceSampling(glossiness, normal, p.x(), p.y());
-            sampled = static_cast<BxDFType >((int) sampled | (int) BxDFType::glossy);
+            sampled = static_cast<BxDFType >((int32_t) sampled | (int32_t) BxDFType::glossy);
         }
         if (sampler.nextFloat() < tr) {
             Float n1, n2;
@@ -83,7 +83,7 @@ Spectrum Material::sampleF(Sampler &sampler,
 
             } else {
                 color /= T;
-                sampled = static_cast<BxDFType >((int) sampled | (int) BxDFType::refraction);
+                sampled = static_cast<BxDFType >((int32_t) sampled | (int32_t) BxDFType::refraction);
                 wi = n12 * wo + (n12 * cosI - sqrt(root)) * normal;
             }
         } else {

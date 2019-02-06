@@ -34,7 +34,7 @@ namespace Miyuki {
 
     class MaterialList :
             public std::vector<MaterialPtr> {
-        std::unordered_map<std::string, int> map;
+        std::unordered_map<std::string, int32_t> map;
     public:
 
     };
@@ -69,22 +69,23 @@ namespace Miyuki {
         Sampler *sampler;
         MemoryArena &arena;
         Point2i raster;
-        RenderContext(const Ray &r, Sampler *s, MemoryArena &a, const Point2i&pos)
-        : arena(a), primary(r), sampler(s),raster(pos) {}
+
+        RenderContext(const Ray &r, Sampler *s, MemoryArena &a, const Point2i &pos)
+                : arena(a), primary(r), sampler(s), raster(pos) {}
     };
 
     class Light;
 
     struct Option {
-        int maxDepth;
-        int minDepth;
-        int samplesPerPixel;
-        int mltLuminanceSample;
+        int32_t maxDepth;
+        int32_t minDepth;
+        int32_t samplesPerPixel;
+        int32_t mltLuminanceSample;
         Float largeStepProb;
         Float aoDistance;
         bool showAmbientLight;
-        int saveEverySecond;
-        int sleepTime;
+        int32_t saveEverySecond;
+        int32_t sleepTime;
         enum SamplerType {
             independent,
             stratified,
@@ -135,7 +136,7 @@ namespace Miyuki {
 
         const Primitive &fetchIntersectedPrimitive(const Intersection &);
 
-        void fetchInteraction(const Intersection &, Interaction* interaction);
+        void fetchInteraction(const Intersection &, Interaction *interaction);
 
         void foreachPixel(std::function<void(RenderContext &)>);
 
@@ -147,6 +148,8 @@ namespace Miyuki {
 
     public:
         Option option;
+
+        bool intersect(const Ray &, Interaction *);
 
         void useSampler(Option::SamplerType);
 
@@ -168,7 +171,7 @@ namespace Miyuki {
 
         Camera &getCamera() { return camera; }
 
-        RenderContext getRenderContext(MemoryArena&,const Point2i &);
+        RenderContext getRenderContext(MemoryArena &, const Point2i &);
 
         Scene();
 

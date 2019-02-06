@@ -10,7 +10,7 @@ Float Miyuki::RandomSampler::nextFloat() {
     return (Float) erand48(seed->getPtr());
 }
 
-int Miyuki::RandomSampler::nextInt() {
+int32_t Miyuki::RandomSampler::nextInt() {
     return nrand48(seed->getPtr());
 }
 

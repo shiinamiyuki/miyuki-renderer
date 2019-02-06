@@ -18,7 +18,7 @@ Miyuki::Float Miyuki::StratifiedSampler::nextFloat() {
     return nextFloat(this->seed);
 }
 
-int Miyuki::StratifiedSampler::nextInt() {
+int32_t Miyuki::StratifiedSampler::nextInt() {
     return nrand48(seed->getPtr());
 }
 
@@ -34,7 +34,7 @@ Miyuki::Float Miyuki::StratifiedSampler::nextFloat(Miyuki::Seed *seed) {
     return erand48(seed->getPtr());
 }
 
-int Miyuki::StratifiedSampler::nextInt(Miyuki::Seed *seed) {
+int32_t Miyuki::StratifiedSampler::nextInt(Miyuki::Seed *seed) {
     return nrand48(seed->getPtr());
 }
 

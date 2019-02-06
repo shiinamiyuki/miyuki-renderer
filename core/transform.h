@@ -44,9 +44,9 @@ namespace Miyuki {
 
         static Matrix4x4 rotation(const Vec3f &axis, const Float);
 
-        Float &operator[](unsigned int i) { return m[i / 4][i % 4]; }
+        Float &operator[](uint32_t i) { return m[i / 4][i % 4]; }
 
-        const Float &operator[](unsigned int i) const { return m[i / 4][i % 4]; }
+        const Float &operator[](uint32_t i) const { return m[i / 4][i % 4]; }
 
         static bool inverse(const Matrix4x4 &in, Matrix4x4 &out);
     };

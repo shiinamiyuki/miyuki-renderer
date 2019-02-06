@@ -7,7 +7,15 @@
 
 #include "util.h"
 #include "geometry.h"
+
 namespace Miyuki {
+    template<uint32_t Dividend>
+    uint32_t divide(uint32_t x) {
+        constexpr uint64_t k = ((0x100000000LL) / Dividend);
+        uint64_t t = k * x;
+        return t >> 33;
+    }
+
     class Seed {
         unsigned short Xi[3];
     public:
@@ -15,7 +23,7 @@ namespace Miyuki {
 
         Seed() { Xi[2] = rand(); }
 
-        unsigned short &operator[](unsigned int i) {
+        unsigned short &operator[](uint32_t i) {
             assert(i < 3);
             return Xi[i];
         }
@@ -35,17 +43,17 @@ namespace Miyuki {
 
         virtual Float nextFloat() = 0;
 
-        virtual int nextInt() = 0;
+        virtual int32_t nextInt() = 0;
 
         virtual Float nextFloat(Seed *) = 0;
 
-        virtual int nextInt(Seed *) = 0;
+        virtual int32_t nextInt(Seed *) = 0;
 
         virtual Point2f nextFloat2D() = 0;
 
         virtual void start() {}
 
-        int randInt() {
+        int32_t randInt() {
             return nrand48(seed->getPtr());
         }
 

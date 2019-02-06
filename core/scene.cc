@@ -71,7 +71,7 @@ static NullLight nullLight;
 Light *Scene::chooseOneLight(Sampler &sampler) const {
     if (lights.empty())
         return &nullLight;
-    int idx = lightDistribution->sampleInt(sampler.nextFloat());
+    int32_t idx = lightDistribution->sampleInt(sampler.nextFloat());
     return lights[idx].get();
 }
 
@@ -108,18 +108,18 @@ void Scene::addMesh(std::shared_ptr<TriangularMesh> mesh, const Transform &trans
                                               RTC_FORMAT_FLOAT3,
                                               sizeof(Float) * 3,
                                               mesh->vertexCount());
-    auto triangles = (unsigned int *) rtcSetNewGeometryBuffer(rtcMesh,
-                                                              RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3,
-                                                              sizeof(unsigned int) * 3,
-                                                              mesh->triangleCount());
-    for (int i = 0; i < mesh->triangleCount(); i++) {
-        for (int j = 0; j < 3; j++)
-            triangles[3 * i + j] = (unsigned int) mesh->triangleArray()[i].vertex[j];
+    auto triangles = (uint32_t *) rtcSetNewGeometryBuffer(rtcMesh,
+                                                          RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3,
+                                                          sizeof(uint32_t) * 3,
+                                                          mesh->triangleCount());
+    for (int32_t i = 0; i < mesh->triangleCount(); i++) {
+        for (int32_t j = 0; j < 3; j++)
+            triangles[3 * i + j] = (uint32_t) mesh->triangleArray()[i].vertex[j];
     }
-    for (int i = 0; i < mesh->vertexCount(); i++) {
+    for (int32_t i = 0; i < mesh->vertexCount(); i++) {
         Vec3f v(mesh->vertexArray()[i][0], mesh->vertexArray()[i][1], mesh->vertexArray()[i][2]);
         v = transform.apply(v);
-        for (int j = 0; j < 3; j++)
+        for (int32_t j = 0; j < 3; j++)
             vertices[3 * i + j] = v[j];
     }
     rtcCommitGeometry(rtcMesh);
@@ -135,8 +135,8 @@ void Scene::writeImage(const std::string &filename) {
 void Scene::postResize() {
     seeds.resize(film.width() * film.height());
     std::random_device rd;
-    std::uniform_int_distribution<int> dist;
-    for (int i = 0; i < seeds.size(); i++) {
+    std::uniform_int_distribution<int32_t> dist;
+    for (int32_t i = 0; i < seeds.size(); i++) {
         seeds[i][0] = dist(rd);
         seeds[i][1] = dist(rd);
         seeds[i][2] = dist(rd);
@@ -153,19 +153,19 @@ void Scene::useSampler(Option::SamplerType samplerType) {
     option.samplerType = samplerType;
     if (samplerType == Option::independent) {
         uniformSamplers.clear();
-        for (int i = 0; i < seeds.size(); i++)
+        for (int32_t i = 0; i < seeds.size(); i++)
             uniformSamplers.emplace_back(RandomSampler(&seeds[i]));
     } else {
         stratSamplers.clear();
-        for (int i = 0; i < seeds.size(); i++)
+        for (int32_t i = 0; i < seeds.size(); i++)
             stratSamplers.emplace_back(StratifiedSampler(&seeds[i]));
     }
 
 }
 
 RenderContext Scene::getRenderContext(MemoryArena &arena, const Point2i &raster) {
-    int x0 = raster.x();
-    int y0 = raster.y();
+    int32_t x0 = raster.x();
+    int32_t y0 = raster.y();
     Float x = -(2 * (Float) x0 / film.width() - 1) * static_cast<Float>(film.width()) / film.height();
     Float y = 2 * (1 - (Float) y0 / film.height()) - 1;
     Vec3f ro = camera.viewpoint;
@@ -207,7 +207,7 @@ const Primitive &Scene::fetchIntersectedPrimitive(const Intersection &intersecti
 
 
 // TODO: coord on triangle, see Embree's documentation
-void Scene::fetchInteraction(const Intersection &intersection, Interaction* interaction) {
+void Scene::fetchInteraction(const Intersection &intersection, Interaction *interaction) {
     interaction->primitive = makeRef<const Primitive>(&fetchIntersectedPrimitive(intersection));
 
     interaction->wi = Vec3f(intersection.rayHit.ray.dir_x,
@@ -228,7 +228,6 @@ void Scene::fetchInteraction(const Intersection &intersection, Interaction* inte
     interaction->primID = intersection.primID();
     interaction->material = materialList[interaction->primitive->materialId].get();
     // TODO: init bsdf
-    interaction->computeLocalCoordinate();
 }
 
 void Scene::prepare() {
@@ -239,13 +238,13 @@ void Scene::prepare() {
 }
 
 void Scene::foreachPixel(std::function<void(RenderContext &)> f) {
-//    parallelFor(0u, (unsigned int) film.width(), [&](unsigned int x) {
-//        for (int y = 0; y < film.height(); y++) {
+//    parallelFor(0u, (uint32_t) film.width(), [&](uint32_t x) {
+//        for (int32_t y = 0; y < film.height(); y++) {
 //            f(Point2i(x, y));
 //        }
 //    });
     auto &tiles = film.getTiles();
-    parallelFor(0u, tiles.size(), [&](unsigned int i) {
+    parallelFor(0u, tiles.size(), [&](uint32_t i) {
         tiles[i].arena.reset();
         tiles[i].foreachPixel([&](const Point2i &pos) {
             auto ctx = getRenderContext(tiles[i].arena, pos);
@@ -279,4 +278,14 @@ Option::Option() {
 
 void Scene::addPointLight(const Spectrum &ka, const Vec3f &pos) {
     lightList.emplace_back(std::make_shared<PointLight>(ka, pos));
+}
+
+bool Scene::intersect(const Ray &ray, Interaction *interaction) {
+    Intersection intersection(ray);
+    intersection.intersect(*this);
+    if (!intersection.hit()) {
+        return false;
+    }
+    fetchInteraction(intersection, interaction);
+    return true;
 }

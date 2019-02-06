@@ -45,7 +45,7 @@ Float Miyuki::MLTSampler::nextFloat() {
     return primarySample(streamIdx++);
 }
 
-int Miyuki::MLTSampler::nextInt() {
+int32_t Miyuki::MLTSampler::nextInt() {
     return RandomSampler::nextInt();
 }
 
@@ -56,7 +56,7 @@ Float Miyuki::MLTSampler::nextFloat(Seed *seed) {
     return primarySample(streamIdx++);
 }
 
-int Miyuki::MLTSampler::nextInt(Seed *seed) {
+int32_t Miyuki::MLTSampler::nextInt(Seed *seed) {
     return RandomSampler::nextInt(seed);
 }
 
@@ -72,9 +72,9 @@ MLTSampler::MLTSampler(Seed *s) : RandomSampler(s) {
     largeStepTime = 0;
 }
 
-static DECLARE_STATS(int, acceptCounter);
+static DECLARE_STATS(int32_t, acceptCounter);
 
-Float MLTSampler::primarySample(int i) {
+Float MLTSampler::primarySample(int32_t i) {
     if (u[i].modify < time) {
         if (largeStep) {
             push(i, u[i]);
@@ -122,7 +122,7 @@ void MLTSampler::update(const Point2i &pos, Spectrum &L) {
     }
 }
 
-void MLTSampler::push(int i, const MLT::PrimarySample &s) {
+void MLTSampler::push(int32_t i, const MLT::PrimarySample &s) {
     stack.emplace_back(std::make_pair(i, s));
 }
 
@@ -147,9 +147,9 @@ Point2f MLTSampler::nextFloat2D() {
 void PSSMLTUnidirectional::render(Scene &scene) {
     bootstrap(scene);
     fmt::print("Running MC chains\n");
-    int N = scene.option.samplesPerPixel;
+    int32_t N = scene.option.samplesPerPixel;
     double elapsed = 0;
-    for (int i = 0; i < N; i++) {
+    for (int32_t i = 0; i < N; i++) {
         auto t = runtime([&]() {
             mutation(scene);
         });
@@ -162,9 +162,9 @@ void PSSMLTUnidirectional::render(Scene &scene) {
     scene.film.scaleImageColor(1.0f / N);
 }
 
-Spectrum PSSMLTUnidirectional::trace(MemoryArena &arena, int id, Scene &scene, Sampler &sampler, Point2i &pos) {
-    int x = (int) clamp(sampler.nextFloat() * scene.film.width(), 0, scene.film.width() - 1);
-    int y = (int) clamp(sampler.nextFloat() * scene.film.height(), 0, scene.film.height() - 1);
+Spectrum PSSMLTUnidirectional::trace(MemoryArena &arena, int32_t id, Scene &scene, Sampler &sampler, Point2i &pos) {
+    int32_t x = (int32_t) clamp(sampler.nextFloat() * scene.film.width(), 0, scene.film.width() - 1);
+    int32_t y = (int32_t) clamp(sampler.nextFloat() * scene.film.height(), 0, scene.film.height() - 1);
     pos = Point2i(x, y);
     auto ctx = scene.getRenderContext(arena, Point2i(x, y));
     ctx.sampler = &sampler;
@@ -173,14 +173,14 @@ Spectrum PSSMLTUnidirectional::trace(MemoryArena &arena, int id, Scene &scene, S
 
 void PSSMLTUnidirectional::bootstrap(Scene &scene) {
     samples.clear();
-    for (int i = 0; i < scene.film.width() * scene.film.height(); i++) {
+    for (int32_t i = 0; i < scene.film.width() * scene.film.height(); i++) {
         samples.emplace_back(MLTSampler(&scene.seeds[i]));
     }
     std::vector<PathSeedGenerator> pathSeeds;
     std::vector<Spectrum> L;
     std::vector<Point2i> pos;
     pathSeeds.resize(scene.option.mltLuminanceSample);
-    for (int i = 0; i < pathSeeds.size(); i++) {
+    for (int32_t i = 0; i < pathSeeds.size(); i++) {
         pathSeeds[i].setSeed(&scene.seeds[i]);
     }
     std::vector<Float> I;
@@ -191,7 +191,7 @@ void PSSMLTUnidirectional::bootstrap(Scene &scene) {
     fmt::print("Generating bootstrap samples\n");
     {
         MemoryArena arena;
-        for (int i = 0; i < pathSeeds.size(); i++) {
+        for (int32_t i = 0; i < pathSeeds.size(); i++) {
             auto rad = trace(arena, i, scene, pathSeeds[i], pos[i]);
             L[i] = rad;
             I[i] = luminance(rad);
@@ -204,7 +204,7 @@ void PSSMLTUnidirectional::bootstrap(Scene &scene) {
     std::random_device rd;
     std::uniform_real_distribution<double> dist;
     for (auto &i:samples) {
-        int idx = distribution1D.sampleInt(dist(rd));
+        int32_t idx = distribution1D.sampleInt(dist(rd));
         i.assignSeed(pathSeeds[idx]);
         i.oldI = I[idx];
         i.oldSample.radiance = L[idx];
@@ -230,7 +230,7 @@ void PSSMLTUnidirectional::mutation(Scene &scene) {
         sampler.update(newPos, radiance);
     });
     Float b = 0;
-    for (int i = 0; i < samples.size(); i++) {
+    for (int32_t i = 0; i < samples.size(); i++) {
         auto &sampler = samples[i];
         auto radiance = sampler.contributionSample.radiance;
         radiance *= sampler.contributionSample.weight;

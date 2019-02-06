@@ -15,12 +15,12 @@
 namespace Miyuki {
     namespace MLT {
         struct PrimarySample {
-            int modify;
+            int32_t modify;
             Float value;
 
             PrimarySample() = default;
 
-            PrimarySample(Float v, int m) : value(v), modify(m) {}
+            PrimarySample(Float v, int32_t m) : value(v), modify(m) {}
         };
 
         struct Sample {
@@ -51,17 +51,17 @@ namespace Miyuki {
         MLT::Sample oldSample, newSample, contributionSample;
         Float largeStepProb;
         bool largeStep;
-        int time;
-        int largeStepTime;
-        int streamIdx;
+        int32_t time;
+        int32_t largeStepTime;
+        int32_t streamIdx;
         std::vector<MLT::PrimarySample> u;
-        std::vector<std::pair<int, MLT::PrimarySample>> stack;
+        std::vector<std::pair<int32_t, MLT::PrimarySample>> stack;
 
         void start();
 
-        Float primarySample(int i);
+        Float primarySample(int32_t i);
 
-        void push(int i, const MLT::PrimarySample &);
+        void push(int32_t i, const MLT::PrimarySample &);
 
         void pop();
 
@@ -72,13 +72,13 @@ namespace Miyuki {
 
         Float nextFloat() override;
 
-        int nextInt() override;
+        int32_t nextInt() override;
 
         Float nextFloat(Seed *seed) override;
 
         Point2f nextFloat2D() override;
 
-        int nextInt(Seed *seed) override;
+        int32_t nextInt(Seed *seed) override;
 
         void update(const Point2i &pos, Spectrum &L);
     };
@@ -86,7 +86,7 @@ namespace Miyuki {
     class PSSMLTUnidirectional : public PathTracer {
         std::vector<MLTSampler> samples;
 
-        Spectrum trace(MemoryArena&,int, Scene &, Sampler &, Point2i &);
+        Spectrum trace(MemoryArena&,int32_t, Scene &, Sampler &, Point2i &);
 
         void bootstrap(Scene &);
 

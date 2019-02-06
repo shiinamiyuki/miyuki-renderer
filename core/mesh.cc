@@ -10,7 +10,7 @@ using namespace Miyuki;
 
 std::shared_ptr<TextureMapping2D> loadFromPNG(const std::string &filename) {
     std::vector<unsigned char> pixelData;
-    unsigned int w, h;
+    uint32_t w, h;
     lodepng::decode(pixelData, w, h, filename);
     if (pixelData.empty()) {
         fmt::print(stderr, "Error loading texture {}\n", filename);
@@ -26,14 +26,14 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
         const char *filename,
         TextureOption opt) {
     std::shared_ptr<TriangularMesh> mesh(new TriangularMesh());
-    int mOffset = materialList->size();
+    int32_t mOffset = materialList->size();
 
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     bool succ = true;
     std::map<std::string, std::shared_ptr<TextureMapping2D>> textures;
-    bool use = (int) opt;
+    bool use = (int32_t) opt;
     fmt::print("Use texture = {}\n", use);
     readUnderPath(filename, [&](const std::string &file) -> void {
         std::string err;
@@ -95,7 +95,7 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
             // Loop over faces(polygon)
             size_t index_offset = 0;
             for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
-                int fv = shapes[s].mesh.num_face_vertices[f];
+                int32_t fv = shapes[s].mesh.num_face_vertices[f];
                 assert(fv == 3); // we are using trig mesh
                 // Loop over vertices in the face.
                 Triangle triangle;
@@ -138,7 +138,7 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
                 triangle.trigNorm.normalize();
                 if (!triangle.useNorm) {
                     mesh->normal.emplace_back(triangle.trigNorm);
-                    for (int i = 0; i < 3; i++) {
+                    for (int32_t i = 0; i < 3; i++) {
                         triangle.normal[i] = mesh->normal.size() - 1;
                     }
                 }
@@ -159,11 +159,11 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
 
 MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Transform &t) {
     primitives.resize(mesh->triangleCount());
-    for (int i = 0; i < mesh->triangleCount(); i++) {
+    for (int32_t i = 0; i < mesh->triangleCount(); i++) {
         auto &trig = mesh->triangleArray()[i];
         primitives[i].materialId = trig.materialId;
         primitives[i].Ng = trig.trigNorm;
-        for (int k = 0; k < 3; k++) {
+        for (int32_t k = 0; k < 3; k++) {
             primitives[i].normal[k] = t.applyRotation(mesh->normal[trig.normal[k]]).normalized();
             primitives[i].vertices[k] = t.apply(mesh->vertex[trig.vertex[k]]);
             primitives[i].textCoord[k] = trig.textCoord[k];

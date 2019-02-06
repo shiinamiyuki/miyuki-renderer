@@ -18,7 +18,7 @@ namespace Miyuki {
             __m128 m;
         };
 
-        explicit Float4(Float x) { for (int i = 0; i < 4; i++)v[i] = x; }
+        explicit Float4(Float x) { for (int32_t i = 0; i < 4; i++)v[i] = x; }
 
         Float4() = default;
 
@@ -110,11 +110,11 @@ namespace Miyuki {
             v[3] = fabsf(v[3]);
         }
 
-        Float &operator[](int i) { return v[i]; }
+        Float &operator[](int32_t i) { return v[i]; }
 
-        const Float &operator[](int i) const { return v[i]; }
+        const Float &operator[](int32_t i) const { return v[i]; }
 
-        static constexpr int width() { return 4; }
+        static constexpr int32_t width() { return 4; }
     };
 
     struct Float8 {
@@ -123,7 +123,7 @@ namespace Miyuki {
             __m256 m;
         };
 
-        Float8(Float x) { for (int i = 0; i < 8; i++)v[i] = x; }
+        Float8(Float x) { for (int32_t i = 0; i < 8; i++)v[i] = x; }
 
         Float8() {}
 
@@ -275,11 +275,11 @@ namespace Miyuki {
             v[7] = fabs(v[7]);
         }
 
-        Float &operator[](int i) { return v[i]; }
+        Float &operator[](int32_t i) { return v[i]; }
 
-        const Float &operator[](int i) const { return v[i]; }
+        const Float &operator[](int32_t i) const { return v[i]; }
 
-        static constexpr int width() { return 8; }
+        static constexpr int32_t width() { return 8; }
     };
 
     template<typename T>
@@ -309,7 +309,7 @@ namespace Miyuki {
                          v1.x * v2.y - v1.y * v2.x);
         }
 
-        static constexpr int width() { return T::width(); }
+        static constexpr int32_t width() { return T::width(); }
     };
 
 
@@ -365,22 +365,22 @@ namespace Miyuki {
             v[2] = z;
         }
 
-        int dimension() const { return 3; }
+        int32_t dimension() const { return 3; }
 
-        Float &axis(unsigned int n) {
+        Float &axis(uint32_t n) {
             assert(n < 4);
             return v[n];
         }
 
-        Float &operator[](unsigned int i) {
+        Float &operator[](uint32_t i) {
             return axis(i);
         }
 
-        const Float &operator[](unsigned int i) const {
+        const Float &operator[](uint32_t i) const {
             return axis(i);
         }
 
-        const Float &axis(unsigned int n) const {
+        const Float &axis(uint32_t n) const {
             assert(n < 4);
             return v[n];
         }
@@ -407,7 +407,7 @@ namespace Miyuki {
         Vec3f(const std::initializer_list<Float> &list) {
             auto iter = list.begin();
             assert(list.size() == 3);
-            for (int i = 0; i < 3; i++) {
+            for (int32_t i = 0; i < 3; i++) {
                 v[i] = *iter;
                 iter++;
             }
@@ -557,7 +557,7 @@ namespace Miyuki {
     }
 
 
-    inline Vec3f rgb(int r, int g, int b) {
+    inline Vec3f rgb(int32_t r, int32_t g, int32_t b) {
         return Vec3f{(Float) r, (Float) g, (Float) b} / 255.0;
     }
 
@@ -605,7 +605,7 @@ namespace Miyuki {
         const T &b() const { static_assert(N >= 3, "no b component");return v[2]; }
 
         Vec() {
-            for (int i = 0; i < N; i++) {
+            for (int32_t i = 0; i < N; i++) {
                 v[i] = 0;
             }
         }
@@ -613,7 +613,7 @@ namespace Miyuki {
         Vec(T x) {
             static_assert(N >= 1, "no x component");
             v[0] = x;
-            for (int i = 1; i < N; i++)
+            for (int32_t i = 1; i < N; i++)
                 v[i] = 0;
         }
 
@@ -621,7 +621,7 @@ namespace Miyuki {
             static_assert(N >= 2, "no y component");
             v[0] = x;
             v[1] = y;
-            for (int i = 2; i < N; i++)
+            for (int32_t i = 2; i < N; i++)
                 v[i] = 0;
         }
 
@@ -630,12 +630,12 @@ namespace Miyuki {
             v[0] = x;
             v[1] = y;
             v[2] = z;
-            for (int i = 3; i < N; i++)
+            for (int32_t i = 3; i < N; i++)
                 v[i] = 0;
         }
 
         Vec(const Vec &rhs) {
-            for (int i = 0; i < N; i++)
+            for (int32_t i = 0; i < N; i++)
                 v[i] = rhs.v[i];
 
         }
@@ -643,7 +643,7 @@ namespace Miyuki {
         Vec(const std::initializer_list<T> &list) {
             auto iter = list.begin();
             assert(list.size() == N);
-            for (int i = 0; i < N; i++) {
+            for (int32_t i = 0; i < N; i++) {
                 v[i] = *iter;
                 iter++;
             }
@@ -656,37 +656,37 @@ namespace Miyuki {
         }
 
         Vec &operator+=(const Vec &rhs) {
-            for (int i = 0; i < N; i++)
+            for (int32_t i = 0; i < N; i++)
                 v[i] += rhs.v[i];
             return *this;
         }
 
         Vec &operator-=(const Vec &rhs) {
-            for (int i = 0; i < N; i++)
+            for (int32_t i = 0; i < N; i++)
                 v[i] -= rhs.v[i];
             return *this;
         }
 
         Vec &operator*=(const Vec &rhs) {
-            for (int i = 0; i < N; i++)
+            for (int32_t i = 0; i < N; i++)
                 v[i] *= rhs.v[i];
             return *this;
         }
 
         Vec &operator*=(const T &rhs) {
-            for (int i = 0; i < N; i++)
+            for (int32_t i = 0; i < N; i++)
                 v[i] *= rhs;
             return *this;
         }
 
         Vec &operator/=(const T &rhs) {
-            for (int i = 0; i < N; i++)
+            for (int32_t i = 0; i < N; i++)
                 v[i] /= rhs;
             return *this;
         }
 
         Vec &operator/=(const Vec &rhs) {
-            for (int i = 0; i < N; i++)
+            for (int32_t i = 0; i < N; i++)
                 v[i] /= rhs.v[i];
             return *this;
         }
@@ -727,17 +727,17 @@ namespace Miyuki {
             return x;
         }
 
-        T &operator[](int i) { return v[i]; }
+        T &operator[](int32_t i) { return v[i]; }
 
-        const T &operator[](int i) const { return v[i]; }
+        const T &operator[](int32_t i) const { return v[i]; }
 
-        int size() const { return N; }
+        int32_t size() const { return N; }
     };
 
     using Point3f = Vec<Float, 3>;
     using Point2f = Vec<Float, 2>;
-    using Point3i = Vec<int, 3>;
-    using Point2i = Vec<int, 2>;
+    using Point3i = Vec<int32_t, 3>;
+    using Point2i = Vec<int32_t, 2>;
     const Float EPS = Float(0.001);
     const Float INF = 1e64;
 
@@ -748,7 +748,7 @@ namespace Miyuki {
         Bound(const T &_min, const T &_max) : pMin(_min), pMax(_max) {}
 
         bool contains(const T &point) {
-            for (int i = 0; i < pMax.size(); i++) {
+            for (int32_t i = 0; i < pMax.size(); i++) {
                 if (point[i] < pMin[i] || point[i] > pMax[i])return false;
             }
             return true;

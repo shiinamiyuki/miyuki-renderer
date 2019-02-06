@@ -15,11 +15,11 @@ namespace Miyuki {
 
         Float nextFloat() override;
 
-        int nextInt() override;
+        int32_t nextInt() override;
 
         Float nextFloat(Seed *seed) override;
 
-        int nextInt(Seed *seed) override;
+        int32_t nextInt(Seed *seed) override;
 
         Point2f nextFloat2D() override;
     };

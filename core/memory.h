@@ -10,6 +10,7 @@
 
 namespace Miyuki {
 #define ALLOCA(TYPE, COUNT) (TYPE *)alloca((COUNT) * sizeof(TYPE))
+#define ARENA_ALLOC(arena, Type) new (arena.alloc(sizeof(Type))) Type
 #ifndef MIYUKI_L1_CACHE_LINE_SIZE
 #define MIYUKI_L1_CACHE_LINE_SIZE 64
 #endif

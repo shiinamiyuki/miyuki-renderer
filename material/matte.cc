@@ -6,10 +6,6 @@
 
 using namespace Miyuki;
 
-void MatteMaterial::computeScatteringFunctions(MemoryArena &arena,Interaction &interaction) {
-
+void MatteMaterial::computeScatteringFunctions(MemoryArena &arena, Interaction &interaction) const {
+    interaction.bsdf = ARENA_ALLOC(arena, BSDF)(interaction);
 }
-//
-//MatteMaterial::MatteMaterial(const MaterialInfo &info) : Material(info) {
-//    bsdf = new LambertianReflection(materialInfo.ka);
-//}

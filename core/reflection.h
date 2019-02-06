@@ -48,7 +48,7 @@ namespace Miyuki {
 
         virtual Spectrum f(const Vec3f &wo, const Vec3f &wi) const = 0;
 
-        virtual Float Pdf(const Vec3f &wi, const Vec3f &wo) const;
+        virtual Float Pdf(const Vec3f &wo, const Vec3f &wi) const;
 
 //        virtual Spectrum rho(const Vec3f &wo, int nSamples,
 //                             const Point2f *samples) const;
@@ -87,20 +87,31 @@ namespace Miyuki {
         static constexpr int maxBxDFs = 8;
         int nBxDFs;
         BxDF *bxdfs[maxBxDFs];
+        Vec3f localX, localZ;
+        Vec3f Ns, Ng;// shading normal, geometry normal
+        void computeLocalCoordinates();
     public:
         const Float eta;
 
         void add(BxDF *);
 
-        Spectrum f(const Interaction &, BxDFType flags = BxDFType::all) const;
+        Vec3f worldToLocal(const Vec3f &v) const; // transform according to shading normal
 
-        Spectrum sampleF(const Vec3f &wo, Vec3f *wi, const Point2f &u,
+        Vec3f localToWorld(const Vec3f &v) const;
+
+        Spectrum f(const Vec3f &woW, const Vec3f &wiW, BxDFType flags = BxDFType::all) const;
+
+        Spectrum sampleF(const Vec3f &woW, Vec3f *wiW, const Point2f &u,
                          Float *pdf, BxDFType type = BxDFType::all,
                          BxDFType *sampledType = nullptr) const;
 
         Float Pdf(const Vec3f &woW, const Vec3f &wiW,
                   const Vec3f &wo, const Vec3f &wi,
                   BxDFType flags = BxDFType::all) const;
+
+        int32_t numComponents(BxDFType flags) const;
+
+        BSDF(const Interaction &);
     };
 }
 #endif //MIYUKI_REFLECTION_H

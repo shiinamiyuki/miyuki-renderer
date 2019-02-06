@@ -24,9 +24,9 @@ namespace Miyuki {
 
         bool hit() const { return rayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID; }
 
-        unsigned int geomID() const { return rayHit.hit.geomID; }
+        uint32_t geomID() const { return rayHit.hit.geomID; }
 
-        unsigned int primID() const { return rayHit.hit.primID; }
+        uint32_t primID() const { return rayHit.hit.primID; }
 
         Float hitDistance() const { return rayHit.ray.tfar; }
 

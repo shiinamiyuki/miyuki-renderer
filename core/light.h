@@ -25,8 +25,8 @@ namespace Miyuki {
     class Scene;
 
     struct VisibilityTester {
-        int targetGeomID;
-        int targetPrimID;
+        int32_t targetGeomID;
+        int32_t targetPrimID;
         Ray shadowRay;
 
         VisibilityTester()
@@ -69,8 +69,8 @@ namespace Miyuki {
         virtual Float power() const { return ka.max(); }
 
         bool isDeltaLight() const {
-            return ((int) type & (int) Type::deltaDirection)
-                   || ((int) type & (int) Type::deltaPosition);
+            return ((int32_t) type & (int32_t) Type::deltaDirection)
+                   || ((int32_t) type & (int32_t) Type::deltaPosition);
         }
 
         void scalePower(Float k) { ka *= k; }

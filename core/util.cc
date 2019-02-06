@@ -44,7 +44,7 @@ void Miyuki::readUnderPath(const std::string &filename, std::function<void(const
 
 
 void
-Miyuki::loadImage(const std::string &filename, std::vector<unsigned char> &data, unsigned int *w, unsigned int *h) {
+Miyuki::loadImage(const std::string &filename, std::vector<unsigned char> &data, uint32_t *w, uint32_t *h) {
     if (boost::algorithm::ends_with(filename, ".png")) {
         lodepng::decode(data, *w, *h, filename);
     } else if (boost::algorithm::ends_with(filename, ".jpg") || boost::algorithm::ends_with(filename, ".jpeg")) {
