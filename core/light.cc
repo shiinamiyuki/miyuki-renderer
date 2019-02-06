@@ -34,11 +34,11 @@ AreaLight::sampleLi(const Point2f &u, const Interaction &interaction, Vec3f *wi,
                              primitive->vertices[2],
                              x,
                              y);
-    auto Wi = (interaction.hitpoint - p);
+    auto Wi = (p - interaction.hitpoint);
     auto dist = Wi.lengthSquared();
     *wi = Wi / sqrt(dist);
-    *pdf = dist / (Vec3f::dot(primitive->normalAt(u), *wi) * area);
-    tester->shadowRay = Ray(p, *wi);
+    *pdf = dist / (Vec3f::dot(primitive->normalAt(u), -1 * *wi) * area);
+    tester->shadowRay = Ray(p, *wi * -1);
     tester->targetPrimID = interaction.primID;
     tester->targetGeomID = interaction.geomID;
     return ka;
@@ -64,19 +64,19 @@ AreaLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *norma
     return ka;
 }
 
-Float AreaLight::power() const{
+Float AreaLight::power() const {
     return ka.max() * area;
 }
 
 Spectrum PointLight::sampleLi(const Point2f &u, const Interaction &interaction, Vec3f *wi, Float *pdf,
                               VisibilityTester *tester) const {
 
-    auto Wi = (interaction.hitpoint - position);
+    auto Wi = (position - interaction.hitpoint);
     auto dist = Wi.lengthSquared();
     Wi.normalize();
     *pdf = dist;
     *wi = Wi;
-    tester->shadowRay = Ray(position, *wi);
+    tester->shadowRay = Ray(position, *wi * -1);
     tester->targetPrimID = interaction.primID;
     tester->targetGeomID = interaction.geomID;
     return ka;

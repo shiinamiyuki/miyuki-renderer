@@ -38,6 +38,8 @@ namespace Miyuki {
                 : color(s), mapping(m) {
             maxReflectance = s.max();
         }
+
+        Spectrum sample(const Point2f &) const;
     };
 
     struct MaterialInfo {
@@ -71,7 +73,9 @@ namespace Miyuki {
 
     class MaterialFactory {
     public:
-        virtual MaterialPtr operator() (const MaterialInfo &) = 0;
+        virtual MaterialPtr operator()(const MaterialInfo &) = 0;
+
+        virtual ~MaterialFactory() {}
     };
 }
 #endif //MIYUKI_MATERIAL_H

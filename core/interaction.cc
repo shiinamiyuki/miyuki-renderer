@@ -14,3 +14,9 @@ Point2f Interaction::textureCoord() const {
 void Interaction::computeScatteringFunctions(MemoryArena &arena) {
     material->computeScatteringFunctions(arena, *this);
 }
+
+Spectrum Interaction::Le(const Vec3f&wo) const {
+    auto L =  material->Ka().sample(textureCoord());
+  //  L *= Vec3f::dot(wo, normal);
+    return L;
+}

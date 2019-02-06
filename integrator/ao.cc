@@ -27,11 +27,15 @@ void AOIntegrator::render(Scene &scene) {
                     film.addSample(ctx.raster, Spectrum(0, 0, 0));
                     return;
                 }
-                ray.o += ray.d * intersection.hitDistance();
-                Interaction* interaction = ctx.arena.alloc<Interaction>();
-                scene.fetchInteraction(intersection, interaction);
-                ray.d = cosineWeightedHemisphereSampling(interaction->normal,
-                       ctx.sampler->nextFloat(),ctx.sampler->nextFloat());
+                Interaction interaction;
+                scene.fetchInteraction(intersection, &interaction);
+                interaction.computeScatteringFunctions(ctx.arena);
+                Vec3f wi;
+                Float brdfPdf = 0;
+                BxDFType flags;
+                auto f = interaction.bsdf->sampleF(interaction.wo, &wi, ctx.sampler->nextFloat2D(),
+                                                   &brdfPdf, BxDFType::all, &flags);
+                ray = interaction.spawnRay(wi);
                 intersection = Intersection(ray);
                 intersection.intersect(scene);
                 if (!intersection.hit() || intersection.hitDistance() >= scene.option.aoDistance)

@@ -18,10 +18,7 @@
 #include "transform.h"
 #include "distribution.h"
 #include "memory.h"
-#include "../integrator/ao.h"
-#include "../integrator/pathtracer.h"
-#include "../integrator/bdpt.h"
-#include "../integrator/pssmlt.h"
+
 #include "../sampler/random.h"
 #include "../sampler/stratified.h"
 

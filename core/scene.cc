@@ -6,7 +6,11 @@
 #include "mesh.h"
 #include "spectrum.h"
 #include "../sampler/random.h"
-
+#include "../material/matte.h"
+#include "../integrator/ao.h"
+#include "../integrator/pathtracer.h"
+#include "../integrator/bdpt.h"
+#include "../integrator/pssmlt.h"
 using namespace Miyuki;
 
 Scene::Scene() : film(1000, 1000) {
@@ -82,7 +86,7 @@ const std::vector<std::shared_ptr<Light>> &Scene::getAllLights() const {
 class EmptyFactory : public MaterialFactory {
 public:
     MaterialPtr operator()(const MaterialInfo &info) override {
-        return nullptr;
+        return MaterialPtr(new MatteMaterial(info));
     }
 };
 
@@ -210,12 +214,12 @@ const Primitive &Scene::fetchIntersectedPrimitive(const Intersection &intersecti
 void Scene::fetchInteraction(const Intersection &intersection, Interaction *interaction) {
     interaction->primitive = makeRef<const Primitive>(&fetchIntersectedPrimitive(intersection));
 
-    interaction->wi = Vec3f(intersection.rayHit.ray.dir_x,
-                            intersection.rayHit.ray.dir_y,
-                            intersection.rayHit.ray.dir_z);
+    interaction->wo = Vec3f(-intersection.rayHit.ray.dir_x,
+                            -intersection.rayHit.ray.dir_y,
+                            -intersection.rayHit.ray.dir_z);
     interaction->hitpoint = Vec3f(intersection.rayHit.ray.org_x,
                                   intersection.rayHit.ray.org_y,
-                                  intersection.rayHit.ray.org_z) + interaction->wi * intersection.hitDistance();
+                                  intersection.rayHit.ray.org_z) + interaction->wo * -intersection.hitDistance();
     interaction->uv = Point2f(intersection.rayHit.hit.u, intersection.rayHit.hit.v);
     interaction->Ng = interaction->primitive->Ng;
     interaction->normal = pointOnTriangle(interaction->primitive->normal[0],

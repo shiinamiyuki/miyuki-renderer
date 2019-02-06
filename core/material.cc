@@ -117,3 +117,10 @@ Float Material::f(BxDFType type, const Interaction &interaction, const Vec3f &wo
     return 0;
 }
 #endif
+
+Spectrum ColorMap::sample(const Point2f &uv) const {
+    if(mapping){
+        return Spectrum(color * mapping->sample(uv));
+    }
+    return color;
+}

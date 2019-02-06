@@ -9,16 +9,23 @@
 #include "../core/geometry.h"
 #include "../core/sampler.h"
 #include "../core/spectrum.h"
+#include "../core/interaction.h"
 
 namespace Miyuki {
     struct RenderContext;
-
+    class PSSMLTUnidirectional;
     class PathTracer : public Integrator {
         //void renderPixel(const Point2i &, Sampler &);
     protected:
+        friend class PSSMLTUnidirectional;
         void iteration(Scene &);
 
         Spectrum render(const Point2i &, RenderContext &, Scene &);
+
+        Spectrum importanceSampleOneLight(const Interaction &,
+                const Scene &,
+                RenderContext &ctx,
+                Float * pdf);
 
     public:
         void render(Scene &) override;

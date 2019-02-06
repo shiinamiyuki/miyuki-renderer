@@ -14,7 +14,7 @@ RGBSpectrum RGBSpectrum::gammaCorrection() const {
 }
 
 bool RGBSpectrum::hasNaNs() const {
-    return !std::isnan(r()) && !std::isnan(g()) && !std::isnan(b());
+    return std::isnan(r()) || std::isnan(g()) || std::isnan(b());
 }
 
 static Float removeNaN(Float x) {
@@ -22,6 +22,6 @@ static Float removeNaN(Float x) {
     return x;
 }
 
-RGBSpectrum removeNaNs(const RGBSpectrum &spectrum) {
+RGBSpectrum Miyuki::removeNaNs(const RGBSpectrum &spectrum) {
     return RGBSpectrum(removeNaN(spectrum.r()), removeNaN(spectrum.g()), removeNaN(spectrum.b()));
 }

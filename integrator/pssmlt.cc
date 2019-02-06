@@ -168,7 +168,7 @@ Spectrum PSSMLTUnidirectional::trace(MemoryArena &arena, int32_t id, Scene &scen
     pos = Point2i(x, y);
     auto ctx = scene.getRenderContext(arena, Point2i(x, y));
     ctx.sampler = &sampler;
-    return PathTracer::render(Point2i(x, y), ctx, scene);
+    return pathTracer.render(Point2i(x, y), ctx, scene);
 }
 
 void PSSMLTUnidirectional::bootstrap(Scene &scene) {

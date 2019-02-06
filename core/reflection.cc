@@ -9,16 +9,16 @@ using namespace Miyuki;
 Spectrum
 BxDF::sampleF(const Vec3f &wo, Vec3f *wi, const Point2f &sample, Float *pdf, BxDFType *sampledType) const {
     *wi = cosineWeightedHemisphereSampling(sample);
-    if (wi->y() < 0)wi->y() *= -1;
+    //if (wi->y() < 0)wi->y() *= -1;
     *pdf = Pdf(wo, *wi);
     return f(wo, *wi);
 }
 
 Float BxDF::Pdf(const Vec3f &wo, const Vec3f &wi) const {
-    if (wi.y() * wo.y() <= 0) {
-        return 0;
-    }
-    return fabs(wi.x() + wi.y() + wi.z()) * INVPI;
+//    if (wi.y() * wo.y() <= 0) {
+//        return 0;
+//    }
+    return absCosTheta(wi) * INVPI;
 }
 
 bool BxDF::matchFlags(BxDFType flags) const {
@@ -43,7 +43,7 @@ void BSDF::add(BxDF *bxDF) {
     bxdfs[nBxDFs++] = bxDF;
 }
 
-BSDF::BSDF(const Interaction &interaction) : eta(1.0), Ns(interaction.normal) {
+BSDF::BSDF(const Interaction &interaction) : eta(1.0), Ns(interaction.normal), nBxDFs(0), Ng(interaction.Ng) {
     computeLocalCoordinates();
 }
 
@@ -69,8 +69,10 @@ BSDF::sampleF(const Vec3f &woW, Vec3f *wiW, const Point2f &u, Float *pdf, BxDFTy
     Vec3f wo = worldToLocal(woW);
     Vec3f wi;
     auto F = bxdf->sampleF(wo, &wi, uRemapped, pdf, sampledType);
+    wi.normalize();
     if (*pdf == 0)
         return {};
+    *wiW = localToWorld(wi);
     if (!((int) bxdf->type & (int) BxDFType::specular) && matchComp > 1) {
         for (int i = 0; i < nBxDFs; i++) {
             if (bxdfs[i]->matchFlags(type) && bxdfs[i] != bxdf) {
@@ -83,6 +85,7 @@ BSDF::sampleF(const Vec3f &woW, Vec3f *wiW, const Point2f &u, Float *pdf, BxDFTy
     }
     if (!((int) bxdf->type & (int) BxDFType::specular) && matchComp > 1) {
         bool reflect = Vec3f::dot(*wiW, Ng) * Vec3f::dot(woW, Ng) > 0;
+        F = Spectrum{};
         for (int i = 0; i < nBxDFs; ++i)
             if (bxdfs[i]->matchFlags(type) &&
                 ((reflect && ((int) bxdfs[i]->type & (int) BxDFType::reflection)) ||
@@ -101,11 +104,11 @@ int32_t BSDF::numComponents(BxDFType flags) const {
 }
 
 Vec3f BSDF::worldToLocal(const Vec3f &v) const {
-    return Vec3f(Vec3f::dot(localX, v), Vec3f::dot(Ns, v), Vec3f::dot(localZ, v));
+    return Vec3f(Vec3f::dot(localX, v), Vec3f::dot(Ns, v), Vec3f::dot(localZ, v)).normalized();
 }
 
 Vec3f BSDF::localToWorld(const Vec3f &v) const {
-    return v.x() * localX + v.y() * Ns + v.z() * localZ;
+    return (v.x() * localX + v.y() * Ns + v.z() * localZ).normalized();
 }
 
 void BSDF::computeLocalCoordinates() {

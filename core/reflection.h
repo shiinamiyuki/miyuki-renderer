@@ -73,7 +73,7 @@ namespace Miyuki {
     };
 
     class LambertianReflection : public BxDF {
-        const Spectrum &R;
+        const Spectrum R;
     public:
         LambertianReflection(const Spectrum &R) : R(R),
                                                   BxDF(BxDFType(
@@ -90,6 +90,7 @@ namespace Miyuki {
         Vec3f localX, localZ;
         Vec3f Ns, Ng;// shading normal, geometry normal
         void computeLocalCoordinates();
+
     public:
         const Float eta;
 
@@ -113,5 +114,11 @@ namespace Miyuki {
 
         BSDF(const Interaction &);
     };
+    inline Float cosTheta(const Vec3f&v){
+        return v.y();
+    }
+    inline Float absCosTheta(const Vec3f&v){
+        return fabs(v.y());
+    }
 }
 #endif //MIYUKI_REFLECTION_H

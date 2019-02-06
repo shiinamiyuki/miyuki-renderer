@@ -10,10 +10,8 @@
 
 namespace Miyuki {
     class MatteMaterial : public Material {
-        LambertianReflection reflection;
     public:
-//        MatteMaterial(const MaterialInfo &info);
-
+        MatteMaterial(const MaterialInfo&info):Material(info){}
         void computeScatteringFunctions(MemoryArena &arena, Interaction &interaction) const override;
     };
 }

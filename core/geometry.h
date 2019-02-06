@@ -488,6 +488,10 @@ namespace Miyuki {
             return a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
         }
 
+        static Float absDot(const Vec3f &a, const Vec3f &b) {
+            return fabs(dot(a, b));
+        }
+
         static Float matDot(const Vec3f &a, const Vec3f &b) {
             return a.x() * b.x() + a.y() * b.y() + a.z() * b.z() + a.w() * b.w();
         }

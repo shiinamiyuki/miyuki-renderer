@@ -34,6 +34,12 @@ namespace Miyuki {
         Point2f textureCoord() const;
 
         void computeScatteringFunctions(MemoryArena &arena);
+
+        Spectrum Le(const Vec3f &wo) const;
+
+        Ray spawnRay(const Vec3f &w) const {
+            return {hitpoint, w};
+        }
     };
 
 }

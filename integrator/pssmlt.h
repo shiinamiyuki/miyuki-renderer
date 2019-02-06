@@ -44,6 +44,8 @@ namespace Miyuki {
     }
     class PSSMLTUnidirectional;
 
+    class PathTracer;
+
     class MLTSampler : public RandomSampler {
         friend class PSSMLTUnidirectional;
 
@@ -83,10 +85,11 @@ namespace Miyuki {
         void update(const Point2i &pos, Spectrum &L);
     };
 
-    class PSSMLTUnidirectional : public PathTracer {
+    class PSSMLTUnidirectional : public Integrator {
         std::vector<MLTSampler> samples;
+        PathTracer pathTracer;
 
-        Spectrum trace(MemoryArena&,int32_t, Scene &, Sampler &, Point2i &);
+        Spectrum trace(MemoryArena &, int32_t, Scene &, Sampler &, Point2i &);
 
         void bootstrap(Scene &);
 
@@ -95,7 +98,6 @@ namespace Miyuki {
     public:
         void render(Scene &) override;
     };
-
 
 
 }
