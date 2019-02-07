@@ -3,9 +3,9 @@
 //
 
 #include "rendersystem.hpp"
-#include "../lib/imgui/imgui.h"
-#include "../lib/imgui/imgui_impl_glfw.h"
-#include "../lib/imgui/imgui_impl_opengl2.h"
+#include "../thirdparty/imgui/imgui.h"
+#include "../thirdparty/imgui/imgui_impl_glfw.h"
+#include "../thirdparty/imgui/imgui_impl_opengl2.h"
 #include <stdio.h>
 #include <GLFW/glfw3.h>
 

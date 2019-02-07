@@ -4,7 +4,7 @@
 
 #include "util.h"
 
-#include "../lib/stb/stb_image.h"
+#include "../thirdparty/stb/stb_image.h"
 #include <boost/algorithm/string/predicate.hpp>
 
 static RTCDevice rtcDevice = nullptr;

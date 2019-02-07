@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.1)
 project(Miyuki)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -11,14 +11,14 @@ add_executable(test_transform
         unittest/test_transform.cc )
 add_executable(test_memory
         core/memory.cc
-        lib/fmt/format.cc
+        thirdparty/fmt/format.cc
         unittest/unittest.cc
         unittest/test_memory.cc)
 add_executable(Miyuki
-        lib/fmt/format.cc
-        lib/lodepng/lodepng.cpp
-        lib/tiny_obj_loader/tiny_obj_loader.cc
-        lib/rand48/rand48.c core/util.h
+        thirdparty/fmt/format.cc
+        thirdparty/lodepng/lodepng.cpp
+        thirdparty/tiny_obj_loader/tiny_obj_loader.cc
+        thirdparty/rand48/rand48.c core/util.h
         core/miyuki.cc
         core/geometry.h
         core/geometry.cc
@@ -60,15 +60,15 @@ add_executable(Miyuki
         core/stats.hpp
         core/texture.h
         core/texture.cc
-        lib/rapidjson/document.h
-        lib/rapidjson/rapidjson.h
+        thirdparty/rapidjson/document.h
+        thirdparty/rapidjson/rapidjson.h
         core/rendersystem.hpp
         core/rendersystem.cc sampler/stratified.h sampler/stratified.cc core/memory.h core/memory.cc core/microfacet.h core/microfacet.cc core/reflection.cc core/reflection.h material/matte.cc material/matte.h core/materialfactory.cc core/materialfactory.h)
 #add_executable(Miyuki-GUI
-#        lib/fmt/format.cc
-#        lib/lodepng/lodepng.cpp
-#        lib/tiny_obj_loader/tiny_obj_loader.cc
-#        lib/rand48/rand48.c core/util.h
+#        thirdparty/fmt/format.cc
+#        thirdparty/lodepng/lodepng.cpp
+#        thirdparty/tiny_obj_loader/tiny_obj_loader.cc
+#        thirdparty/rand48/rand48.c core/util.h
 #        core/geometry.h
 #        core/geometry.cc
 #        core/util.cc
@@ -109,14 +109,14 @@ add_executable(Miyuki
 #        core/stats.hpp
 #        core/texture.h
 #        core/texture.cc
-#        lib/rapidjson/document.h
-#        lib/rapidjson/rapidjson
-#        lib/imgui/imgui.cpp
-#        lib/imgui/imgui_impl_glfw.cpp
-#        lib/imgui/imgui_impl_opengl2.cpp
-#        lib/imgui/imgui_draw.cpp
-#        lib/imgui/imgui_widgets.cpp
-#        lib/imgui/imgui_demo.cpp
+#        thirdparty/rapidjson/document.h
+#        thirdparty/rapidjson/rapidjson
+#        thirdparty/imgui/imgui.cpp
+#        thirdparty/imgui/imgui_impl_glfw.cpp
+#        thirdparty/imgui/imgui_impl_opengl2.cpp
+#        thirdparty/imgui/imgui_draw.cpp
+#        thirdparty/imgui/imgui_widgets.cpp
+#        thirdparty/imgui/imgui_demo.cpp
 #        core/miyuki-gui.cc
 #        core/rendersystem.hpp
 #        core/rendersystem.cc)

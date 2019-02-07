@@ -97,7 +97,6 @@ Spectrum PathTracer::importanceSampleOneLight(const Interaction &interaction, Sc
     // sample light source
     auto Li = light->sampleLi(ctx.sampler->nextFloat2D(), interaction, &wi, &lightPdf, &visibilityTester);
     bool occlude = Vec3f::dot(wi, interaction.Ng) < 0;
-    bool discardBRDF = false;
     // TODO: where should I put `if(!occlude)` ?
     if (lightPdf > 0 && !Li.isBlack()) {
         Spectrum f;
@@ -108,16 +107,12 @@ Spectrum PathTracer::importanceSampleOneLight(const Interaction &interaction, Sc
                 Ld += f * Li / lightPdf;
             } else {
                 Float weight = powerHeuristic(1, lightPdf, 1, scatteringPdf);
-                if(weight > 0.8){
-                    discardBRDF = true;
-                    weight = 1;
-                }
                 Ld += f * Li * weight / lightPdf;
             }
         }
     }
     // sample brdf
-    if (!discardBRDF && !light->isDeltaLight()) {
+    if (!light->isDeltaLight()) {
         Spectrum f;
         BxDFType sampledType;
         bool sampledSpecular = false;

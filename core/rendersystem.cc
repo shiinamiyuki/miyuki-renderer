@@ -3,9 +3,9 @@
 //
 #include "rendersystem.hpp"
 
-#include "../lib/rapidjson/document.h"
-#include "../lib/rapidjson/writer.h"
-#include "../lib/rapidjson/stringbuffer.h"
+#include "../thirdparty/rapidjson/document.h"
+#include "../thirdparty/rapidjson/writer.h"
+#include "../thirdparty/rapidjson/stringbuffer.h"
 #include "../integrator/ao.h"
 #include "../integrator/pathtracer.h"
 #include "../integrator/bdpt.h"

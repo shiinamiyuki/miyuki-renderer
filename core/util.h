@@ -29,11 +29,11 @@
 
 #include <embree3/rtcore.h>
 
-#include "../lib/fmt/format.h"
-#include "../lib/tiny_obj_loader/tiny_obj_loader.h"
-#include "../lib/rand48/erand48.h"
-#include "../lib/lodepng/lodepng.h"
-#include "../lib/tiny_jpeg.h"
+#include "../thirdparty/fmt/format.h"
+#include "../thirdparty/tiny_obj_loader/tiny_obj_loader.h"
+#include "../thirdparty/rand48/erand48.h"
+#include "../thirdparty/lodepng/lodepng.h"
+#include "../thirdparty/tiny_jpeg.h"
 
 namespace Miyuki {
     using Float = float;
