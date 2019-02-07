@@ -149,3 +149,24 @@ Float ScaledBxDF::Pdf(const Vec3f &wi, const Vec3f &wo) const {
 Spectrum LambertianReflection::f(const Vec3f &wo, const Vec3f &wi) const {
     return Spectrum(R * INVPI);
 }
+
+Spectrum OrenNayar::f(const Vec3f &wo, const Vec3f &wi) const {
+    Float sinThetaI = sinTheta(wi);
+    Float sinThetaO = sinTheta(wo);
+    Float maxCos = 0.0f;
+    if (sinThetaI > 1e-4f && sinThetaO > 1e-4f) {
+        Float sinPhiI = sinPhi(wi), cosPhiI = cosPhi(wi);
+        Float sinPhiO = sinPhi(wo), cosPhiO = cosPhi(wo);
+        Float dCos = cosPhiI * cosPhiO + sinPhiI * sinPhiO;
+        maxCos = std::max(0.0f, dCos);
+    }
+    Float sinAlpha, tanBeta;
+    if (absCosTheta(wi) > absCosTheta(wo)) {
+        sinAlpha = sinThetaO;
+        tanBeta = sinThetaI / absCosTheta(wi);
+    } else {
+        sinAlpha = sinThetaI;
+        tanBeta = sinThetaO / absCosTheta(wo);
+    }
+    return Spectrum(R * INVPI * (A + B * maxCos * sinAlpha * tanBeta));
+}

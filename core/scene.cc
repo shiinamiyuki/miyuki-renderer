@@ -11,12 +11,13 @@
 #include "../integrator/pathtracer.h"
 #include "../integrator/bdpt.h"
 #include "../integrator/pssmlt.h"
+
 using namespace Miyuki;
 
 Scene::Scene() : film(1000, 1000) {
     rtcScene = rtcNewScene(GetEmbreeDevice());
     postResize();
-
+    camera.fov = 80 / 180.0f * M_PI;
 
 }
 
@@ -134,6 +135,10 @@ void Scene::addMesh(std::shared_ptr<TriangularMesh> mesh, const Transform &trans
     rtcAttachGeometryByID(rtcScene, rtcMesh, instances.size());
     rtcReleaseGeometry(rtcMesh);
     instantiateMesh(mesh, transform);
+}
+
+void Scene::addSphere(const Vec3f &pos, Float r, int materialId) {
+
 }
 
 void Scene::writeImage(const std::string &filename) {
@@ -297,3 +302,4 @@ bool Scene::intersect(const Ray &ray, Interaction *interaction) {
     fetchInteraction(intersection, interaction);
     return true;
 }
+

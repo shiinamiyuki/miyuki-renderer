@@ -97,6 +97,7 @@ Spectrum PathTracer::importanceSampleOneLight(const Interaction &interaction, Sc
     // sample light source
     auto Li = light->sampleLi(ctx.sampler->nextFloat2D(), interaction, &wi, &lightPdf, &visibilityTester);
     bool occlude = Vec3f::dot(wi, interaction.Ng) < 0;
+    bool discardBRDF = false;
     // TODO: where should I put `if(!occlude)` ?
     if (lightPdf > 0 && !Li.isBlack()) {
         Spectrum f;
@@ -107,17 +108,23 @@ Spectrum PathTracer::importanceSampleOneLight(const Interaction &interaction, Sc
                 Ld += f * Li / lightPdf;
             } else {
                 Float weight = powerHeuristic(1, lightPdf, 1, scatteringPdf);
+                if(weight > 0.8){
+                    discardBRDF = true;
+                    weight = 1;
+                }
                 Ld += f * Li * weight / lightPdf;
             }
         }
     }
     // sample brdf
-    if (!light->isDeltaLight()) {
+    if (!discardBRDF && !light->isDeltaLight()) {
         Spectrum f;
         BxDFType sampledType;
         bool sampledSpecular = false;
+
         f = interaction.bsdf->sampleF(interaction.wo, &wi, ctx.sampler->nextFloat2D(), &scatteringPdf, flags,
                                       &sampledType);
+
         f *= Vec3f::dot(wi, interaction.normal);
         sampledSpecular = ((int) sampledType & (int) BxDFType::specular) != 0;
         if (!f.isBlack() && scatteringPdf > 0) {
@@ -133,7 +140,7 @@ Spectrum PathTracer::importanceSampleOneLight(const Interaction &interaction, Sc
                 if (scene.intersect(ray, &lightIntersect)) {
                     if (lightIntersect.primitive.raw() == light->getPrimitive()) {
                         Li = lightIntersect.Le(-1 * wi);
-                    }else{
+                    } else {
                         return Ld;
                     }
                 }

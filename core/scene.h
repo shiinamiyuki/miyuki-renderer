@@ -33,7 +33,9 @@ namespace Miyuki {
             public std::vector<MaterialPtr> {
         std::unordered_map<std::string, int32_t> map;
     public:
+        void addMaterial(const std::string &name, int32_t id) { map[name] = id; }
 
+        MaterialPtr getMaterial(const std::string &name) { return at(map[name]); }
     };
 
     struct Camera {
@@ -147,6 +149,8 @@ namespace Miyuki {
         Option option;
 
         bool intersect(const Ray &, Interaction *);
+
+        void addSphere(const Vec3f &pos, Float r, int materialId);
 
         void useSampler(Option::SamplerType);
 

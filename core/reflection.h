@@ -82,6 +82,21 @@ namespace Miyuki {
         Spectrum f(const Vec3f &wo, const Vec3f &wi) const override;
     };
 
+    class OrenNayar : public BxDF {
+        const Spectrum R;
+        Float A, B;
+    public:
+        OrenNayar(const Spectrum &R, Float sigma) : R(R),
+                                                    BxDF(BxDFType(
+                                                            (int) BxDFType::reflection | (int) BxDFType::diffuse)) {
+            Float sigma2 = sigma * sigma;
+            A = 1 - sigma2 / ((sigma2 + 0.33f) * 2.0f);
+            B = 0.45f * sigma2 / (sigma2 + 0.09f);
+        }
+
+        Spectrum f(const Vec3f &wo, const Vec3f &wi) const override;
+    };
+
     class BSDF {
     private:
         static constexpr int maxBxDFs = 8;
@@ -113,11 +128,59 @@ namespace Miyuki {
 
         BSDF(const Interaction &);
     };
-    inline Float cosTheta(const Vec3f&v){
-        return v.y();
+
+    inline Float cosTheta(const Vec3f &w) {
+        return w.y();
     }
-    inline Float absCosTheta(const Vec3f&v){
-        return fabs(v.y());
+
+    inline Float absCosTheta(const Vec3f &w) {
+        return fabs(w.y());
+    }
+
+    inline Float cos2Theta(const Vec3f &w) {
+        return w.y() * w.y();
+    }
+
+    inline Float sin2Theta(const Vec3f &w) {
+        return std::max(Float(0), 1 - cos2Theta(w));
+    }
+
+    inline Float sinTheta(const Vec3f &w) {
+        return std::sqrt(sin2Theta(w));
+    }
+
+    inline Float tanTheta(const Vec3f &w) {
+        return sinTheta(w) / cosTheta(w);
+    }
+
+    inline Float tan2Theta(const Vec3f &w) {
+        return sin2Theta(w) / cos2Theta(w);
+    }
+
+    inline Float cosPhi(const Vec3f &w) {
+        auto s = sinTheta(w);
+        return s == 0 ? 1.0f : clamp(w.x() / s, -1.0f, -1.0f);
+    }
+
+    inline Float sinPhi(const Vec3f &w) {
+        auto s = sinTheta(w);
+        return s == 0 ? 1.0f : clamp(w.z() / s, -1.0f, -1.0f);
+    }
+
+    inline Float cos2Phi(const Vec3f &w) {
+        auto c = cosPhi(w);
+        return c * c;
+    }
+
+    inline Float sin2Phi(const Vec3f &w) {
+        auto s = sinPhi(w);
+        return s * s;
+    }
+
+    inline Float cosDPhi(const Vec3f &wa, const Vec3f &wb) {
+        return clamp<Float>((wa.x() * wb.x() + wa.z() * wb.z()) /
+                            std::sqrt((wa.x() * wa.x() + wa.z() * wa.z()) *
+                                      (wb.x() * wb.x() + wb.z() * wb.z())), -1.0f, 1.0f);
     }
 }
 #endif //MIYUKI_REFLECTION_H

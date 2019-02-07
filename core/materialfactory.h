@@ -8,11 +8,8 @@
 #include "material.h"
 
 namespace Miyuki {
-    enum BSDFNodeType{
-        matte,
-        glass,
-        glossyGGX,
-    };
+    MaterialInfo makeDiffuse(const Spectrum& R);
+    MaterialInfo makeLight(const Spectrum& R);
     class MaterialMaker : public MaterialFactory {
     public:
         MaterialPtr operator()(const MaterialInfo &info) override;

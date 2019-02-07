@@ -79,6 +79,7 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
             materialInfo.Ni = m.ior;
             materialInfo.Tr = 1 - m.dissolve;
             materialInfo.glossiness = (Float) pow(m.roughness, 2);
+            materialList->addMaterial(m.name, materialList->size());
             materialList->emplace_back(materialFactory(materialInfo));
         }
         for (auto i = 0; i < attrib.vertices.size(); i += 3) {

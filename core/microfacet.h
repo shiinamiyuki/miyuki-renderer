@@ -7,27 +7,28 @@
 
 #include "util.h"
 #include "geometry.h"
+#include "reflection.h"
 
 namespace Miyuki {
-    inline Float cosTheta(const Vec3f &wh) {
-        return wh.x() + wh.y() + wh.z();
-    }
-
-    inline Float cos2Theta(const Vec3f &wh) {
-        auto c = cosTheta(wh);
-        return c * c;
-    }
-
-    inline Float tan2Theta(const Vec3f &wh) {
-        /* sin^2 + cos^2 = 1
-         * tan^2 + 1 = 1/cos^2
-         * */
-        return 1 / cos2Theta(wh) - 1;
-    }
 
     class MicrofacetDistribution {
     public:
         virtual Float D(const Vec3f &wh) = 0;
+
+        virtual Float lambda(const Vec3f &w) const = 0;
+
+        Float G1(const Vec3f &w) const {
+            return 1 / (1 + lambda(w));
+        }
+
+        Float G(const Vec3f &wo, const Vec3f &wi) const {
+            return 1 / (1 + lambda(wo) + lambda(wi));
+        }
+
+        virtual Vec3f sampleWh(const Vec3f &wo,
+                               const Point2f &u) const = 0;
+
+        Float Pdf(const Vec3f &wo, const Vec3f &wh) const;
 
         virtual ~MicrofacetDistribution() = default;
     };
