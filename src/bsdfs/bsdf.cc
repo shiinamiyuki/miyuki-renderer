@@ -35,8 +35,3 @@ Spectrum BSDF::eval(const ScatteringEvent &event) const {
     return {};
 }
 
-Spectrum LambertianBSDF::brdf(const ScatteringEvent &event) const {
-
-    return Spectrum(evalAlbedo(event) * INVPI);
-
-}

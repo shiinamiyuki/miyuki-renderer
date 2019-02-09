@@ -123,12 +123,6 @@ namespace Miyuki {
         }
     };
 
-    class LambertianBSDF : public BSDF {
-    public:
-        LambertianBSDF(const ColorMap &albedo, const ColorMap &bump = ColorMap())
-                : BSDF(BSDFType((int) BSDFType::diffuse | (int) BSDFType::reflection), albedo, bump) {}
 
-        Spectrum brdf(const ScatteringEvent &event) const override;
-    };
 }
 #endif //MIYUKI_REFLECTION_H
