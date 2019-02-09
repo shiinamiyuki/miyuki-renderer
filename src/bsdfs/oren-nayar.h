@@ -7,10 +7,10 @@
 
 #include "bsdf.h"
 namespace Miyuki{
-    class OrenNayerBSDF : public BSDF {
+    class OrenNayarBSDF : public BSDF {
         Float A, B;
     public:
-        OrenNayerBSDF(Float sigma, const ColorMap &albedo, const ColorMap &bump = ColorMap())
+        OrenNayarBSDF(Float sigma, const ColorMap &albedo, const ColorMap &bump = ColorMap())
                 : BSDF(BSDFType((int) BSDFType::diffuse | (int) BSDFType::reflection), albedo, bump) {
             Float sigma2 = sigma * sigma;
             A = 1 - sigma2 / ((sigma2 + 0.33f) * 2.0f);

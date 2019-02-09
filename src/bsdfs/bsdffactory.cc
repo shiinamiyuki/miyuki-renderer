@@ -8,7 +8,7 @@
 using namespace Miyuki;
 
 std::shared_ptr<BSDF> BSDFFactory::operator()(const MaterialInfo &materialInfo) {
-    auto bsdf = std::make_shared<OrenNayerBSDF>(0.3, materialInfo.kd);
+    auto bsdf = std::make_shared<OrenNayarBSDF>(0.3, materialInfo.kd);
     if(materialInfo.ka.maxReflectance > 0.01){
         bsdf->ka = materialInfo.ka;
     }

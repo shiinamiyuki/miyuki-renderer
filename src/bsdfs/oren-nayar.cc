@@ -6,7 +6,7 @@
 
 using namespace Miyuki;
 
-Spectrum Miyuki::OrenNayerBSDF::brdf(const ScatteringEvent &event) const {
+Spectrum Miyuki::OrenNayarBSDF::brdf(const ScatteringEvent &event) const {
     const auto &wi = event.wi;
     const auto &wo = event.wo;
     Float sinThetaI = sinTheta(wi);
