@@ -12,6 +12,8 @@
 Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-primitive intersection.
 
 ## Current Progress (In inverse chronolocial order)
+Refactoring is done. It is believed that memeory arena does have performance impact on the application. Now we can handle `BSDF`s easier and faster.
+
 I'm planning of another structual refactoring. I'm not quite satisfied with the way pbrt implements materials and bsdfs because I dislike dynamic memory allocation, even if the memory arena is super fast.
 
 We are more and more pbrt-like! Added memory arena so that we can implement `Material` and `BSDF` as pbrt does.
