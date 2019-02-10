@@ -7,7 +7,8 @@
 
 #include "../utils/util.h"
 #include "../math/geometry.h"
-namespace  Miyuki{
+
+namespace Miyuki {
     struct Ray {
         Vec3f o, d;
 
@@ -16,6 +17,12 @@ namespace  Miyuki{
         Ray(const RTCRay &ray);
 
         RTCRay toRTCRay() const;
+    };
+
+    struct RayDifferential : public Ray {
+        RayDifferential(const Vec3f &_o, const Vec3f &_d) : Ray(_o, _d) {}
+
+        RayDifferential(const RTCRay &ray) : Ray(ray) {}
     };
 }
 #endif //MIYUKI_RAY_H

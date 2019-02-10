@@ -103,7 +103,7 @@ namespace Miyuki {
     protected:
         BSDFType type;
         ColorMap albedo, bump;
-        virtual Spectrum brdf(const ScatteringEvent&)const = 0;
+        virtual Spectrum f(const ScatteringEvent&)const = 0;
     public:
         ColorMap ka;
 

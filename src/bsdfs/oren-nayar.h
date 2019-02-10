@@ -17,7 +17,7 @@ namespace Miyuki{
             B = 0.45f * sigma2 / (sigma2 + 0.09f);
         }
 
-        Spectrum brdf(const ScatteringEvent &event) const override;
+        Spectrum f(const ScatteringEvent &event) const override;
     };
 }
 #endif //MIYUKI_OREN_NAYAR_H

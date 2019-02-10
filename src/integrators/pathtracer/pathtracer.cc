@@ -46,7 +46,6 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
     Ray ray = ctx.primary;
     Spectrum L;
     Vec3f beta(1, 1, 1);
-    Float misWeight = 1;
     int32_t maxDepth = scene.option.maxDepth;
     bool showAL = scene.option.showAmbientLight;
     bool specular = false;
@@ -84,6 +83,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
     L = clampRadiance(removeNaNs(L), 10);
     return L;
 }
+
 
 Spectrum PathTracer::importanceSampleOneLight(Scene &scene,
                                               RenderContext &ctx,
@@ -140,7 +140,6 @@ Spectrum PathTracer::importanceSampleOneLight(Scene &scene,
                 if (scene.intersect(ray, &lightIntersect)) {
                     if (lightIntersect.primitive.raw() == light->getPrimitive()) {
                         Li = lightIntersect.Le(-1 * wi);
-
                     } else {
                         return Ld;
                     }

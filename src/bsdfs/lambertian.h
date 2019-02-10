@@ -12,7 +12,7 @@ namespace Miyuki{
         LambertianBSDF(const ColorMap &albedo, const ColorMap &bump = ColorMap())
                 : BSDF(BSDFType((int) BSDFType::diffuse | (int) BSDFType::reflection), albedo, bump) {}
 
-        Spectrum brdf(const ScatteringEvent &event) const override;
+        Spectrum f(const ScatteringEvent &event) const override;
     };
 }
 #endif //MIYUKI_LAMBERTIAN_H

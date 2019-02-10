@@ -3,16 +3,14 @@
 //
 #include "rendersystem.hpp"
 
-#include "../../thirdparty/rapidjson/document.h"
-#include "../../thirdparty/rapidjson/writer.h"
-#include "../../thirdparty/rapidjson/stringbuffer.h"
+#include "../tools/jsonparser.hpp"
 #include "../integrators/ao/ao.h"
 #include "../integrators/pathtracer/pathtracer.h"
 #include "../integrators/bdpt/bdpt.h"
 #include "../integrators/pssmlt/pssmlt.h"
 
-using namespace rapidjson;
 using namespace Miyuki;
+using namespace Miyuki::Json;
 RenderSystem renderSystem;
 
 void saveAtExit() {
@@ -28,24 +26,24 @@ void RenderSystem::readDescription(const std::string &filename) {
         }
         std::string content((std::istreambuf_iterator<char>(in)),
                             (std::istreambuf_iterator<char>()));
-        Document document;
-        document.Parse(content.c_str());
+        JsonObject document = parse(content);
+        using Value = JsonObject;
 
         auto readVec3f = [&](const Value &v) -> Vec3f {
-            if (v.IsArray()) {
-                if (v.Size() != 3) {
+            if (v.isArray()) {
+                if (v.getArray().size() != 3) {
                     fmt::print(stderr, "three elements expected in vec3f\n");
                     return {};
                 }
-                return Vec3f(v[0].GetFloat(), v[1].GetFloat(), v[2].GetFloat());
-            } else if (v.IsString()) { // rgb
-                if (v.GetStringLength() != 6) {
+                return Vec3f(v[0].getFloat(), v[1].getFloat(), v[2].getFloat());
+            } else if (v.isString()) { // rgb
+                if (v.getString().length() != 6) {
                     fmt::print(stderr, "rgb format expected");
                     return {};
                 }
                 uint32_t x;
                 std::stringstream ss;
-                ss << std::hex << v.GetString();
+                ss << std::hex << v.getString();
                 ss >> x;
                 uint32_t r, g, b;
                 r = (x & (0xff0000)) >> 16;
@@ -59,29 +57,29 @@ void RenderSystem::readDescription(const std::string &filename) {
             // given that v is {"translate":.., "rotate":..}
             Vec3f translate, rotate;
             Float scale = 1;
-            if (v.HasMember("translate")) {
+            if (v.hasKey("translate")) {
                 translate = readVec3f(v["translate"]);
             }
-            if (v.HasMember("rotate")) {
+            if (v.hasKey("rotate")) {
                 rotate = readVec3f(v["rotate"]) / 180.0f * M_PI;
             }
-            if (v.HasMember("scale")) {
-                scale = v["scale"].GetFloat();
+            if (v.hasKey("scale")) {
+                scale = v["scale"].getFloat();
             }
             return Transform(translate, rotate, scale);
         };
         auto readMeshes = [&]() -> void {
-            if (document.HasMember("meshes")) {
+            if (document.hasKey("meshes")) {
                 const Value &meshes = document["meshes"];
-                if (meshes.IsArray()) {
-                    for (SizeType i = 0; i < meshes.Size(); i++) {
+                if (meshes.isArray()) {
+                    for (auto i = 0; i < meshes.getArray().size(); i++) {
                         const Value &mesh = meshes[i];
                         TextureOption opt = TextureOption::use;
-                        if (!mesh.IsObject()) {
+                        if (!mesh.isObject()) {
                             fmt::print(stderr, "mesh is required to be a object");
                         }
-                        if (mesh.HasMember("texture")) {
-                            std::string s = mesh["texture"].GetString();
+                        if (mesh.hasKey("texture")) {
+                            std::string s = mesh["texture"].getString();
                             if (s == "use") {
                                 opt = TextureOption::use;
                             }
@@ -92,35 +90,35 @@ void RenderSystem::readDescription(const std::string &filename) {
                                 opt = TextureOption((int32_t) opt | (int32_t) TextureOption::raw);
                             }
                         }
-                        if (mesh.HasMember("file")) {
-                            auto meshFilename = mesh["file"].GetString();
+                        if (mesh.hasKey("file")) {
+                            auto meshFilename = mesh["file"].getString();
                             Transform transform;
-                            if (mesh.HasMember("transform")) {
+                            if (mesh.hasKey("transform")) {
                                 transform = readTransform(mesh["transform"]);
                             }
-                            scene.loadObjTrigMesh(meshFilename, transform, opt);
+                            scene.loadObjTrigMesh(meshFilename.c_str(), transform, opt);
                         }
                     }
                 }
             }
         };
         auto readCamera = [&]() -> void {
-            if (document.HasMember("camera")) {
+            if (document.hasKey("camera")) {
                 const Value &camera = document["camera"];
-                if (camera.HasMember("transform")) {
+                if (camera.hasKey("transform")) {
                     auto transform = readTransform(camera["transform"]);
                     scene.getCamera().moveTo(transform.translation);
                     scene.getCamera().rotateTo(transform.rotation);
                 }
-                if (camera.HasMember("fov")) {
-                    scene.getCamera().fov = camera["fov"].GetFloat() / 180.0 * M_PI;
+                if (camera.hasKey("fov")) {
+                    scene.getCamera().fov = camera["fov"].getFloat() / 180.0 * M_PI;
                 }
-                if (camera.HasMember("resolution")) {
+                if (camera.hasKey("resolution")) {
                     const Value &resolution = camera["resolution"];
-                    if (resolution.IsArray())
-                        scene.setFilmDimension(Point2i(resolution[0].GetInt(), resolution[1].GetInt()));
-                    else if (resolution.IsString()) {
-                        const std::string r = resolution.GetString();
+                    if (resolution.isArray())
+                        scene.setFilmDimension(Point2i(resolution[0].getInt(), resolution[1].getInt()));
+                    else if (resolution.isString()) {
+                        const std::string r = resolution.getString();
                         if (r == "1080p") {
                             scene.setFilmDimension(Point2i(1920, 1080));
                         } else if (r == "4k") {
@@ -141,9 +139,9 @@ void RenderSystem::readDescription(const std::string &filename) {
             }
         };
         auto readIntegrator = [&]() -> void {
-            if (document.HasMember("integrator")) {
+            if (document.hasKey("integrator")) {
                 const Value &integratorInfo = document["integrator"];
-                integratorName = integratorInfo["type"].GetString();
+                integratorName = integratorInfo["type"].getString();
                 if (integratorName == "path-tracer") {
                     integrator = std::make_unique<PathTracer>();
                 } else if (integratorName == "ambient-occlusion") {
@@ -155,26 +153,26 @@ void RenderSystem::readDescription(const std::string &filename) {
                 } else {
                     fmt::print(stderr, "Unrecognized integrator: {}\n", integratorName);
                 }
-                if (integratorInfo.HasMember("max-depth")) {
-                    scene.option.maxDepth = integratorInfo["max-depth"].GetInt();
+                if (integratorInfo.hasKey("max-depth")) {
+                    scene.option.maxDepth = integratorInfo["max-depth"].getInt();
                 }
-                if (integratorInfo.HasMember("min-depth")) {
-                    scene.option.minDepth = integratorInfo["min-depth"].GetInt();
+                if (integratorInfo.hasKey("min-depth")) {
+                    scene.option.minDepth = integratorInfo["min-depth"].getInt();
                 }
-                if (integratorInfo.HasMember("ambient-light")) {
+                if (integratorInfo.hasKey("ambient-light")) {
                     auto ambient = readVec3f(integratorInfo["ambient-light"]);
                     scene.setAmbientLight(Spectrum(ambient.x(), ambient.y(), ambient.z()));
                 }
-                if (integratorInfo.HasMember("show-ambient-light")) {
-                    auto ambient = integratorInfo["show-ambient-light"].GetBool();
+                if (integratorInfo.hasKey("show-ambient-light")) {
+                    auto ambient = integratorInfo["show-ambient-light"].getBool();
                     scene.option.showAmbientLight = ambient;
                 }
-                if (integratorInfo.HasMember("occlude-distance")) {
-                    auto d = integratorInfo["occlude-distance"].GetFloat();
+                if (integratorInfo.hasKey("occlude-distance")) {
+                    auto d = integratorInfo["occlude-distance"].getFloat();
                     scene.option.aoDistance = d;
                 }
-                if (integratorInfo.HasMember("sampler")) {
-                    std::string s = integratorInfo["sampler"].GetString();
+                if (integratorInfo.hasKey("sampler")) {
+                    std::string s = integratorInfo["sampler"].getString();
                     if (s == "independent") {
                         scene.useSampler(Option::independent);
                     } else if (s == "stratified")
@@ -186,38 +184,38 @@ void RenderSystem::readDescription(const std::string &filename) {
             }
         };
         auto readRender = [&]() -> void {
-            if (document.HasMember("render")) {
+            if (document.hasKey("render")) {
                 const Value &render = document["render"];
-                if (render.HasMember("output-file")) {
-                    outputFile = render["output-file"].GetString();
+                if (render.hasKey("output-file")) {
+                    outputFile = render["output-file"].getString();
                 }
-                if (render.HasMember("spp")) {
-                    scene.option.samplesPerPixel = render["spp"].GetInt();
+                if (render.hasKey("spp")) {
+                    scene.option.samplesPerPixel = render["spp"].getInt();
                 }
-                if (render.HasMember("sleep-time")) {
-                    scene.option.sleepTime = render["sleep-time"].GetInt();
+                if (render.hasKey("sleep-time")) {
+                    scene.option.sleepTime = render["sleep-time"].getInt();
                 }
             }
         };
         auto readLights = [&]() -> void {
-            if (document.HasMember("lights")) {
+            if (document.hasKey("lights")) {
                 const Value &lights = document["lights"];
-                if (!lights.IsArray()) {
+                if (!lights.isArray()) {
                     fmt::print(stderr, "Expect lights to be a list\n");
                 } else {
-                    for (SizeType i = 0; i < lights.Size(); i++) {
+                    for (auto i = 0; i < lights.getArray().size(); i++) {
                         const Value &light = lights[i];
-                        if (!light.IsObject()) {
+                        if (!light.isObject()) {
                             fmt::print(stderr, "Each light should be an object\n");
                         } else {
-                            if (light.HasMember("type")) {
-                                std::string type = light["type"].GetString();
+                            if (light.hasKey("type")) {
+                                std::string type = light["type"].getString();
                                 if (type == "point") {
                                     auto ka = readVec3f(light["ka"]);
                                     auto pos = readVec3f(light["position"]);
                                     Float strength = 1;
-                                    if (light.HasMember("strength"))
-                                        strength = light["strength"].GetFloat();
+                                    if (light.hasKey("strength"))
+                                        strength = light["strength"].getFloat();
                                     ka *= strength;
                                     scene.addPointLight(Spectrum(ka.x(), ka.y(), ka.z()), pos);
                                 } else {

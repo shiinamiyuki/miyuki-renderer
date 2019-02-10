@@ -31,7 +31,7 @@ Spectrum BSDF::eval(const ScatteringEvent &event) const {
                    Vec3f::dot(event.woW, event.getIntersectionInfo()->Ng) > 0;
     if (((reflect && ((int) type & (int) BSDFType::reflection)) ||
          (!reflect && ((int) type & (int) BSDFType::transmission))))
-        return brdf(event);
+        return f(event);
     return {};
 }
 

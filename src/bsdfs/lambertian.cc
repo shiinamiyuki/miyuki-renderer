@@ -4,7 +4,7 @@
 
 #include "lambertian.h"
 using namespace Miyuki;
-Spectrum LambertianBSDF::brdf(const ScatteringEvent &event) const {
+Spectrum LambertianBSDF::f(const ScatteringEvent &event) const {
 
     return Spectrum(evalAlbedo(event) * INVPI);
 

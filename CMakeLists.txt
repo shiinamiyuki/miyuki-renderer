@@ -44,3 +44,7 @@ add_executable(Miyuki
         ${samplerSRC}
         src/renderer/miyuki.cc
         src/renderer/rendersystem.cc)
+add_executable(obj2json
+        ${thirdpartySRC}
+        ${utilSRC}
+        src/tools/obj2json.cc)

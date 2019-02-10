@@ -36,7 +36,7 @@ AreaLight::sampleLi(const Point2f &u, const IntersectionInfo &info, Vec3f *wi, F
     auto Wi = (p - info.hitpoint);
     auto dist = Wi.lengthSquared();
     *wi = Wi / sqrt(dist);
-    *pdf = dist / (Vec3f::dot(primitive->normalAt(u), -1 * *wi) * area);
+    *pdf = dist / (Vec3f::absDot(primitive->normalAt(u), -1 * *wi) * area);
     tester->shadowRay = Ray(p, *wi * -1);
     tester->targetPrimID = info.primID;
     tester->targetGeomID = info.geomID;
