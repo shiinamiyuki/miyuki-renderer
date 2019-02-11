@@ -120,7 +120,7 @@ Spectrum PathTracer::importanceSampleOneLight(Scene &scene,
     // sample brdf
     if (!light->isDeltaLight()) {
         Spectrum f;
-        bool sampledSpecular = false;
+        bool sampledSpecular;
         f = bsdf->sample(scatteringEvent);
         Float scatteringPdf = scatteringEvent.pdf;
         Vec3f wi = scatteringEvent.wiW;

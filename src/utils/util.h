@@ -118,6 +118,8 @@ namespace Miyuki {
     void loadImage(const std::string &filename, std::vector<unsigned char> &data, uint32_t *w, uint32_t *h);
 
     int32_t editDistance(const std::string& a, const std::string& b, bool matchCase = false);
+
+#define CHECK(expr) do{if(!expr){fmt::print(stderr, "{}:{} {} failed\n",__FILE__, __LINE__, #expr);}}while(0)
 }
 #define MIYUKI_ON_WINDOWS
 #endif //MIYUKI_UTIL_HPP

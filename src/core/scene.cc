@@ -85,7 +85,7 @@ const std::vector<std::shared_ptr<Light>> &Scene::getAllLights() const {
     return lights;
 }
 void Scene::loadObjTrigMesh(const char *filename, const Transform &transform, TextureOption opt) {
-    auto factory = BSDFFactory();
+    auto factory = BSDFFactory(this);
     auto mesh = LoadFromObj(factory, &materialList, filename, opt);
     if (!mesh)return;
     addMesh(mesh, transform);

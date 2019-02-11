@@ -9,14 +9,11 @@
 #include "fresnel.h"
 
 namespace Miyuki {
-    template<typename T>
     class SpecularBSDF : public BSDF {
     public:
-        static_assert(std::is_base_of<Fresnel, T>::value,
-                      "U is not derived from Fresnel");
-        T fresnel;
+        Fresnel *fresnel;
 
-        SpecularBSDF(const T &fresnel, const ColorMap &albedo, const ColorMap &bump = ColorMap())
+        SpecularBSDF(Fresnel *fresnel, const ColorMap &albedo, const ColorMap &bump = ColorMap())
                 : BSDF(BSDFType((int) BSDFType::specular | (int) BSDFType::reflection),
                        albedo, bump),
                   fresnel(fresnel) {}
@@ -30,7 +27,7 @@ namespace Miyuki {
         Spectrum sample(ScatteringEvent &event) const override {
             event.setWi(Vec3f(-event.wo.x(), event.wo.y(), -event.wo.z()));
             event.pdf = 1;
-            return Spectrum(fresnel.eval(cosTheta(event.wi)) * evalAlbedo(event) / absCosTheta(event.wi));
+            return Spectrum(fresnel->eval(cosTheta(event.wi)) * evalAlbedo(event) / absCosTheta(event.wi));
         }
 
         Float pdf(const Vec3f &wo, const Vec3f &wi) const override {

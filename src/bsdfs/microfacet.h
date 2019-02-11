@@ -9,6 +9,7 @@
 #include "../math/geometry.h"
 #include "bsdf.h"
 #include "fresnel.h"
+
 namespace Miyuki {
 
     class MicrofacetDistribution {
@@ -17,7 +18,7 @@ namespace Miyuki {
     public:
         MicrofacetDistribution(bool sampleVis = true) : sampleVisible(sampleVis) {}
 
-        virtual Float D(const Vec3f &wh) = 0;
+        virtual Float D(const Vec3f &wh) const = 0;
 
         virtual Float lambda(const Vec3f &w) const = 0;
 
@@ -40,9 +41,9 @@ namespace Miyuki {
     class BeckmannDistribution : public MicrofacetDistribution {
         const Float alphaX, alphaY;
     public:
-        Float D(const Vec3f &wh) override;
+        Float D(const Vec3f &wh) const override;
 
-        static Float roughnessToAlpha(Float roughness) {
+        inline static Float roughnessToAlpha(Float roughness) {
             roughness = std::max(roughness, (Float) 1e-3);
             Float x = std::log(roughness);
             return 1.62142f + 0.819955f * x + 0.1734f * x * x +
@@ -60,10 +61,17 @@ namespace Miyuki {
     class TrowbridgeReitzDistribution : public MicrofacetDistribution {
         const Float alphaX, alphaY;
     public:
+        inline static Float roughnessToAlpha(Float roughness) {
+            roughness = std::max(roughness, (Float) 1e-3);
+            Float x = std::log(roughness);
+            return 1.62142f + 0.819955f * x + 0.1734f * x * x + 0.0171201f * x * x * x +
+                   0.000640711f * x * x * x * x;
+        }
+
         TrowbridgeReitzDistribution(Float alphaX, Float alphaY, bool sampleVis = true)
                 : MicrofacetDistribution(sampleVis), alphaX(alphaX), alphaY(alphaY) {}
 
-        Float D(const Vec3f &wh) override;
+        Float D(const Vec3f &wh) const override;
 
         Float lambda(const Vec3f &w) const override;
 
@@ -71,16 +79,16 @@ namespace Miyuki {
     };
 
 
-    template<typename T, typename U>
+    template<typename T>
     class MicrofacetBSDF : public BSDF {
         static_assert(std::is_base_of<MicrofacetDistribution, T>::value,
                       "T is not derived from MicrofacetDistribution");
-        static_assert(std::is_base_of<Fresnel, U>::value,
-                      "U is not derived from Fresnel");
         T distribution;
-        U fresnel;
+        Fresnel *fresnel;
     public:
-        MicrofacetBSDF(const T &d, const U &f) : distribution(d), fresnel(f) {}
+        MicrofacetBSDF(const T &d, Fresnel *f, const ColorMap &albedo, const ColorMap &bump = ColorMap())
+                : BSDF(BSDFType((int) BSDFType::glossy | (int) BSDFType::reflection),
+                       albedo, bump), distribution(d), fresnel(f) {}
 
     protected:
         Spectrum f(const ScatteringEvent &event) const override {
@@ -91,10 +99,28 @@ namespace Miyuki {
             if (wh.x() == 0 && wh.y() == 0 && wh.z() == 0) return {};
             wh.normalize();
             auto F = fresnel->eval(Vec3f::dot(wi, wh));
-            return evalAlbedo(event) * distribution.D(wh) * distribution.G(wo, wi) * F /
-                   (4 * cosThetaI * cosThetaO);
+            return Spectrum(evalAlbedo(event) * distribution.D(wh) * distribution.G(wo, wi) * F /
+                            (4 * cosThetaI * cosThetaO));
         }
 
+    public:
+        Spectrum sample(ScatteringEvent &event) const override {
+            const auto &wo = event.wo;
+            if (wo.y() == 0) return 0.;
+            Vec3f wh = distribution.sampleWh(wo, event.getSampler()->nextFloat2D());
+            event.setWi((wo - 2 * Vec3f::dot(wo, wh) * wh).normalized());
+            if (!sameHemisphere(wo, event.wi)) return {};
+
+            // Compute PDF of _wi_ for microfacet reflection
+            event.pdf = distribution.Pdf(wo, wh) / (4 * Vec3f::dot(wo, wh));
+            return eval(event);
+        }
+
+        Float pdf(const Vec3f &wo, const Vec3f &wi) const override {
+            if (!sameHemisphere(wo, wi)) return 0;
+            Vec3f wh = (wo + wi).normalized();
+            return distribution.Pdf(wo, wh) / (4 * Vec3f::dot(wo, wh));
+        }
 
     };
 }

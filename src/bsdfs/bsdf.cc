@@ -14,9 +14,7 @@ Spectrum BSDF::sample(ScatteringEvent &event) const {
     return eval(event);
 }
 
-inline bool sameHemisphere(const Vec3f &wo, const Vec3f &wi) {
-    return wo.y() * wi.y() >= 0;
-}
+
 
 Float BSDF::pdf(const Vec3f &wo, const Vec3f &wi) const {
     return sameHemisphere(wo, wi) ? absCosTheta(wi) * INVPI : 0;

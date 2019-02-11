@@ -87,7 +87,6 @@ namespace Miyuki {
                             std::sqrt((wa.x() * wa.x() + wa.z() * wa.z()) *
                                       (wb.x() * wb.x() + wb.z() * wb.z())), -1.0f, 1.0f);
     }
-
     inline Float FrDielectric(Float cosThetaI, Float etaI, Float etaT) {
         cosThetaI = clamp(cosThetaI, -1, 1);
         bool entering = cosThetaI > 0.f;
@@ -109,12 +108,14 @@ namespace Miyuki {
                       ((etaI * cosThetaI) + (etaT * cosThetaT));
         return (Rparl * Rparl + Rperp * Rperp) / 2;
     }
-
+    inline bool sameHemisphere(const Vec3f &wo, const Vec3f &wi) {
+        return wo.y() * wi.y() >= 0;
+    }
     struct MaterialInfo {
         ColorMap ka, kd, ks, bump;
         Float Ni, Ns, Tr;
         Float glossiness;
-        std::string bsdfType;
+        std::string bsdfType, fresnelType, microfacetType;
         std::map<std::string, std::string> parameters;
 
         MaterialInfo(const ColorMap &ka, const ColorMap &kd, const ColorMap &ks, const ColorMap &bump = ColorMap()) :

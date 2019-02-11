@@ -150,6 +150,7 @@ namespace Miyuki {
         void postResize();
 
     public:
+        MemoryArena miscArena;
         Option option;
 
         bool intersect(const Ray &, IntersectionInfo *);

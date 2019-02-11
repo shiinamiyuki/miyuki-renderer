@@ -11,9 +11,11 @@ namespace Miyuki {
     class BSDF;
 
     struct MaterialInfo;
-
+    class Scene;
     class BSDFFactory {
+        Scene *scene;
     public:
+        BSDFFactory(Scene*s):scene(s){}
         virtual std::shared_ptr<BSDF> operator()(const MaterialInfo &);
     };
 }

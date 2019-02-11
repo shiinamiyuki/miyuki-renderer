@@ -782,5 +782,16 @@ namespace Miyuki {
     const Float PI = 3.1415926535f;
     const Float INVPI = 1.0 / PI;
     const Float PI2 = PI / 2;
+
+    inline Vec3f sphericalDirection(Float sinTheta, Float cosTheta, Float phi) {
+        return Vec3f(sinTheta * std::cos(phi), cosTheta, sinTheta * std::sin(phi));
+    }
+
+    inline Vec3f sphericalDirection(Float sinTheta, Float cosTheta, Float phi,
+                                    const Vec3f &x, const Vec3f &y,
+                                    const Vec3f &z) {
+        return sinTheta * std::cos(phi) * x + sinTheta * std::sin(phi) * z +
+               cosTheta * y;
+    }
 }
 #endif //MIYUKI_VEC_HPP
