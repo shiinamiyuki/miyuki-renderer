@@ -8,6 +8,23 @@
 #include "bsdf.h"
 
 namespace Miyuki {
+    inline Vec3f reflect(const Vec3f &wo, const Vec3f &n) {
+        return -1 * wo + 2 * Vec3f::dot(wo, n) * n;
+    }
+
+    inline bool refract(const Vec3f &wi, const Vec3f &n, Float eta,
+                        Vec3f *wt) {
+        Float cosThetaI = Vec3f::dot(n, wi);
+        Float sin2ThetaI = std::max(0.f, 1.f - cosThetaI * cosThetaI);
+        Float sin2ThetaT = eta * eta * sin2ThetaI;
+        if (sin2ThetaT >= 1) return false;
+
+        Float cosThetaT = std::sqrt(1 - sin2ThetaT);
+
+        *wt = -eta * wi + (eta * cosThetaI - cosThetaT) * Vec3f(n);
+        return true;
+    }
+
     class Fresnel {
     public:
         virtual ~Fresnel() = default;

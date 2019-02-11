@@ -94,7 +94,7 @@ static Vec3f BeckmannSample(const Vec3f &wi, Float alpha_x, Float alpha_y,
                             Float U1, Float U2) {
     // 1. stretch wi
     Vec3f wiStretched =
-            Vec3f(alpha_x * wi.x(), alpha_y * wi.z(), wi.y()).normalized();
+            Vec3f(alpha_x * wi.x(), wi.y(),  alpha_y *wi.z()).normalized();
 
     // 2. simulate P22_{wi}(x_slope, y_slope, 1, 1)
     Float slope_x, slope_y;
@@ -222,7 +222,7 @@ static void TrowbridgeReitzSample11(Float cosTheta, Float U1, Float U2,
 static Vec3f TrowbridgeReitzSample(const Vec3f &wi, Float alpha_x,
                                    Float alpha_y, Float U1, Float U2) {
     // 1. stretch wi
-    Vec3f wiStretched = (Vec3f(alpha_x * wi.x(), alpha_y * wi.z(), wi.y())).normalized();
+    Vec3f wiStretched = (Vec3f(alpha_x * wi.x(), wi.y(), alpha_y * wi.z())).normalized();
 
     // 2. simulate P22_{wi}(x_slope, y_slope, 1, 1)
     Float slope_x, slope_y;

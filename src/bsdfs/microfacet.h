@@ -44,10 +44,11 @@ namespace Miyuki {
         Float D(const Vec3f &wh) const override;
 
         inline static Float roughnessToAlpha(Float roughness) {
-            roughness = std::max(roughness, (Float) 1e-3);
-            Float x = std::log(roughness);
-            return 1.62142f + 0.819955f * x + 0.1734f * x * x +
-                   0.0171201f * x * x * x + 0.000640711f * x * x * x * x;
+//            roughness = std::max(roughness, (Float) 1e-3);
+//            Float x = std::log(roughness);
+//            return std::max(1.62142f + 0.819955f * x + 0.1734f * x * x +
+//                   0.0171201f * x * x * x + 0.000640711f * x * x * x * x, 1e-5f);
+            return std::max(roughness *roughness,1e-5f);
         }
 
         BeckmannDistribution(Float alphaX, Float alphaY, bool sampleVis = true)
@@ -62,10 +63,11 @@ namespace Miyuki {
         const Float alphaX, alphaY;
     public:
         inline static Float roughnessToAlpha(Float roughness) {
-            roughness = std::max(roughness, (Float) 1e-3);
-            Float x = std::log(roughness);
-            return 1.62142f + 0.819955f * x + 0.1734f * x * x + 0.0171201f * x * x * x +
-                   0.000640711f * x * x * x * x;
+//            roughness = std::max(roughness, (Float) 1e-3);
+//            Float x = std::log(roughness);
+//            return 1.62142f + 0.819955f * x + 0.1734f * x * x + 0.0171201f * x * x * x +
+//                   0.000640711f * x * x * x * x;
+            return std::max(roughness *roughness,1e-5f);
         }
 
         TrowbridgeReitzDistribution(Float alphaX, Float alphaY, bool sampleVis = true)
@@ -108,7 +110,7 @@ namespace Miyuki {
             const auto &wo = event.wo;
             if (wo.y() == 0) return 0.;
             Vec3f wh = distribution.sampleWh(wo, event.getSampler()->nextFloat2D());
-            event.setWi((wo - 2 * Vec3f::dot(wo, wh) * wh).normalized());
+            event.setWi(reflect(wo, wh).normalized());
             if (!sameHemisphere(wo, event.wi)) return {};
 
             // Compute PDF of _wi_ for microfacet reflection

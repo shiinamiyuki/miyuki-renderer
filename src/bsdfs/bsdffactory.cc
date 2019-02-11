@@ -37,7 +37,7 @@ std::shared_ptr<BSDF> BSDFFactory::operator()(const MaterialInfo &materialInfo) 
     if (fresnelType.empty() || fresnelType == "default") {
         fresnel = ARENA_ALLOC(scene->miscArena, FresnelPerfectSpecular)();
     }
-    if(!fresnel){
+    if (!fresnel) {
         fresnel = ARENA_ALLOC(scene->miscArena, FresnelPerfectSpecular)();
     }
     try {
@@ -46,7 +46,11 @@ std::shared_ptr<BSDF> BSDFFactory::operator()(const MaterialInfo &materialInfo) 
         } else if (bsdfType == "lambertian") {
             bsdf = std::make_shared<LambertianBSDF>(kd);
         } else if (bsdfType == "OrenNayar") {
-            bsdf = std::make_shared<OrenNayarBSDF>(std::stof(materialInfo.parameters.at("sigma")), kd);
+            auto sigma = std::stof(materialInfo.parameters.at("sigma"));
+            if (sigma > 1e-4f)
+                bsdf = std::make_shared<OrenNayarBSDF>(sigma, kd);
+            else
+                bsdf = std::make_shared<LambertianBSDF>(kd);
         } else if (bsdfType == "microfacet") {
             Float alphaX, alphaY;
 
@@ -62,7 +66,7 @@ std::shared_ptr<BSDF> BSDFFactory::operator()(const MaterialInfo &materialInfo) 
                         TrowbridgeReitzDistribution(alphaX, alphaY),
                         fresnel,
                         ks);
-            } else{
+            } else {
                 fmt::print(stderr, "Unrecognized microfacet model: {}\n", microfacetType);
             }
         } else if (bsdfType == "specular" || bsdfType == "reflection") {

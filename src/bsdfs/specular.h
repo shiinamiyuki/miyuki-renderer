@@ -34,5 +34,28 @@ namespace Miyuki {
             return 0.0f;
         }
     };
+
+    class SpecularTransmissionBSDF : public BSDF {
+        FresnelDielectric fresnel;
+        Float etaA, etaB;
+    public:
+        SpecularTransmissionBSDF(Float etaA, Float etaB, const ColorMap &albedo, const ColorMap &bump = ColorMap())
+                : BSDF(BSDFType((int) BSDFType::specular | (int) BSDFType::transmission),
+                       albedo, bump),etaA(etaA),etaB(etaB),
+                  fresnel(fresnel) {}
+
+    protected:
+        Spectrum f(const ScatteringEvent &event) const override {
+            return {0, 0, 0};
+        }
+
+    public:
+        Spectrum sample(ScatteringEvent &event) const override;
+
+        Float pdf(const Vec3f &wo, const Vec3f &wi) const override {
+            return 0.0f;
+        }
+    };
 }
+
 #endif //MIYUKI_SPECULAR_H
