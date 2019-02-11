@@ -52,8 +52,8 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
     ScatteringEvent event;
     for (int32_t depth = 0; depth < maxDepth; depth++) {
         if (!scene.intersect(ray, &info)) {
-            if (!showAL || depth == 0) {
-                L += scene.ambientLight;
+            if (showAL || depth == 0) {
+                L += beta * scene.ambientLight;
             }
             break;
         }
@@ -91,6 +91,8 @@ Spectrum PathTracer::importanceSampleOneLight(Scene &scene,
     Spectrum Ld;
     auto light = scene.chooseOneLight(*ctx.sampler);
     ScatteringEvent scatteringEvent = event;
+    BSDFType bsdfFlags = specular ? BSDFType ::all:
+                         BSDFType ::allButSpecular;
     auto bsdf = event.getIntersectionInfo()->bsdf;
     {
         Vec3f wi;
@@ -104,7 +106,7 @@ Spectrum PathTracer::importanceSampleOneLight(Scene &scene,
         if (lightPdf > 0 && !Li.isBlack()) {
             Spectrum f;
             f = bsdf->eval(scatteringEvent) * Vec3f::dot(wi, event.getIntersectionInfo()->normal);
-            scatteringPdf = bsdf->pdf(event.wo, scatteringEvent.wi);
+            scatteringPdf = bsdf->pdf(event.wo, scatteringEvent.wi, bsdfFlags);
             if (!f.isBlack() && !occlude && tester.visible(scene)) {
                 if (light->isDeltaLight()) {
                     Ld += f * Li / lightPdf;

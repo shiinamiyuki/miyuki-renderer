@@ -30,7 +30,7 @@ namespace Miyuki {
             return Spectrum(fresnel->eval(cosTheta(event.wi)) * evalAlbedo(event) / absCosTheta(event.wi));
         }
 
-        Float pdf(const Vec3f &wo, const Vec3f &wi) const override {
+        Float pdf(const Vec3f &wo, const Vec3f &wi, BSDFType) const override {
             return 0.0f;
         }
     };
@@ -41,7 +41,7 @@ namespace Miyuki {
     public:
         SpecularTransmissionBSDF(Float etaA, Float etaB, const ColorMap &albedo, const ColorMap &bump = ColorMap())
                 : BSDF(BSDFType((int) BSDFType::specular | (int) BSDFType::transmission),
-                       albedo, bump),etaA(etaA),etaB(etaB),
+                       albedo, bump), etaA(etaA), etaB(etaB),
                   fresnel(fresnel) {}
 
     protected:
@@ -52,7 +52,7 @@ namespace Miyuki {
     public:
         Spectrum sample(ScatteringEvent &event) const override;
 
-        Float pdf(const Vec3f &wo, const Vec3f &wi) const override {
+        Float pdf(const Vec3f &wo, const Vec3f &wi, BSDFType) const override {
             return 0.0f;
         }
     };

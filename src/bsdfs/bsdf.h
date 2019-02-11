@@ -23,6 +23,7 @@ namespace Miyuki {
         specular = 1 << 4,
         all = diffuse | glossy | specular |
               reflection | transmission,
+        allButSpecular = all & ~specular,
     };
 
     inline bool hasBxDFType(BSDFType query, BSDFType ty) {
@@ -87,6 +88,7 @@ namespace Miyuki {
                             std::sqrt((wa.x() * wa.x() + wa.z() * wa.z()) *
                                       (wb.x() * wb.x() + wb.z() * wb.z())), -1.0f, 1.0f);
     }
+
     inline Float FrDielectric(Float cosThetaI, Float etaI, Float etaT) {
         cosThetaI = clamp(cosThetaI, -1, 1);
         bool entering = cosThetaI > 0.f;
@@ -108,9 +110,11 @@ namespace Miyuki {
                       ((etaI * cosThetaI) + (etaT * cosThetaT));
         return (Rparl * Rparl + Rperp * Rperp) / 2;
     }
+
     inline bool sameHemisphere(const Vec3f &wo, const Vec3f &wi) {
         return wo.y() * wi.y() >= 0;
     }
+
     struct MaterialInfo {
         ColorMap ka, kd, ks, bump;
         Float Ni, Ns, Tr;
@@ -123,14 +127,18 @@ namespace Miyuki {
     };
 
     class ScatteringEvent;
+
     class MixedBSDF;
+
     class BSDF {
     protected:
         BSDFType type;
         ColorMap albedo, bump;
 
         virtual Spectrum f(const ScatteringEvent &) const = 0;
+
         friend class MixedBSDF;
+
     public:
         ColorMap ka;
 
@@ -141,16 +149,20 @@ namespace Miyuki {
 
         Spectrum eval(const ScatteringEvent &) const;
 
-        virtual Float pdf(const Vec3f &wo, const Vec3f &wi) const;
+        virtual Float pdf(const Vec3f &wo, const Vec3f &wi, BSDFType flags) const;
 
         Spectrum evalAlbedo(const ScatteringEvent &) const;
 
         const ColorMap &Ka() const {
             return ka;
         }
-        BSDFType getType()const{return type;}
-    };
 
+        BSDFType getType() const { return type; }
+
+        bool matchFlags(BSDFType flags) const {
+            return (int) type & (int) flags;
+        }
+    };
 
 
 }

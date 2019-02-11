@@ -16,7 +16,7 @@ namespace Miyuki {
 
         Spectrum sample(ScatteringEvent &event) const override;
 
-        Float pdf(const Vec3f &wo, const Vec3f &wi) const override;
+        Float pdf(const Vec3f &wo, const Vec3f &wi, BSDFType flags) const override;
 
     protected:
         Spectrum f(const ScatteringEvent &event) const override;

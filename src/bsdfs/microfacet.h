@@ -118,7 +118,7 @@ namespace Miyuki {
             return eval(event);
         }
 
-        Float pdf(const Vec3f &wo, const Vec3f &wi) const override {
+        Float pdf(const Vec3f &wo, const Vec3f &wi, BSDFType) const override {
             if (!sameHemisphere(wo, wi)) return 0;
             Vec3f wh = (wo + wi).normalized();
             return distribution.Pdf(wo, wh) / (4 * Vec3f::dot(wo, wh));
