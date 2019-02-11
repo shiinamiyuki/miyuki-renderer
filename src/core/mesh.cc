@@ -79,6 +79,8 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
             materialInfo.Ni = m.ior;
             materialInfo.Tr = 1 - m.dissolve;
             materialInfo.glossiness = (Float) pow(m.roughness, 2);
+            materialInfo.parameters = m.unknown_parameter;
+            materialInfo.bsdfType = m.bsdfType;
             materialList->addMaterial(m.name, materialList->size());
             materialList->emplace_back(materialFactory(materialInfo));
         }
@@ -209,7 +211,7 @@ bool Primitive::intersect(const Ray &ray, Float *tHit, IntersectionInfo *isct) c
         return false;
 }
 
-Float Primitive::pdf(const IntersectionInfo  &ref, const Vec3f &wi) const {
+Float Primitive::pdf(const IntersectionInfo &ref, const Vec3f &wi) const {
     Ray ray = ref.spawnRay(wi);
     Float tHit;
     IntersectionInfo info;

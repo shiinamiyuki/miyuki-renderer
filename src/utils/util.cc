@@ -54,21 +54,23 @@ Miyuki::loadImage(const std::string &filename, std::vector<unsigned char> &data,
     }
 }
 
-int32_t Miyuki::editDistance(const std::string &a, const std::string &b) {
-    auto w = (b.size() + 1);
+int32_t Miyuki::editDistance(const std::string &a, const std::string &b, bool matchCase) {
+    auto w = (a.size() + 1);
     int32_t dp[(a.size() + 1) * (b.size() + 1)];
     for (int32_t i = 0; i <= a.size(); i++) {
         for (int32_t j = 0; j <= b.size(); j++) {
-            if (i == 0) {
+            if(i==0 && j==0){
+                dp[i + w *j ]=0;
+            }else if (i == 0) {
                 dp[i + w * j] = 1;
             } else if (j == 0) {
                 dp[i + w * j] = 1;
-            } else if (a[i - 1] == b[j - 1]) {
+            } else if ((matchCase && a[i - 1] == b[j - 1]) || (!matchCase && toupper(a[i - 1]) == toupper(b[j - 1]))) {
                 dp[i + w * j] = dp[(i - 1) + w * (j - 1)];
             } else {
-                dp[i + w * j] = std::min({dp[(i - 1) + w * (j)] + 1,
-                                         dp[(i) + w * (j - 1)] + 1,
-                                         dp[(i - 1) + w * (j - 1)] + 1});
+                dp[i + w * j] = std::min(std::min(dp[(i - 1) + w * (j)] + 1,
+                                                  dp[(i) + w * (j - 1)] + 1),
+                                         dp[(i - 1) + w * (j - 1)] + 1);
             }
         }
     }

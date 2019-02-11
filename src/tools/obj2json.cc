@@ -4,7 +4,7 @@
 
 #include "obj2json.h"
 
-#include "jsonparser.hpp"
+#include "../utils/jsonparser.hpp"
 
 using namespace Miyuki;
 

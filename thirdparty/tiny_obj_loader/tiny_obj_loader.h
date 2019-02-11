@@ -134,7 +134,7 @@ typedef struct {
 
 typedef struct {
   std::string name;
-
+  std::string bsdfType;
   real_t ambient[3];
   real_t diffuse[3];
   real_t specular[3];

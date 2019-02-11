@@ -88,10 +88,34 @@ namespace Miyuki {
                                       (wb.x() * wb.x() + wb.z() * wb.z())), -1.0f, 1.0f);
     }
 
+    inline Float FrDielectric(Float cosThetaI, Float etaI, Float etaT) {
+        cosThetaI = clamp(cosThetaI, -1, 1);
+        bool entering = cosThetaI > 0.f;
+        if (!entering) {
+            std::swap(etaI, etaT);
+            cosThetaI = std::abs(cosThetaI);
+        }
+        Float sinThetaI = std::sqrt(std::max((Float) 0,
+                                             1 - cosThetaI * cosThetaI));
+        Float sinThetaT = etaI / etaT * sinThetaI;
+        if (sinThetaT >= 1)
+            return 1;
+        Float cosThetaT = std::sqrt(std::max((Float) 0,
+                                             1 - sinThetaT * sinThetaT));
+
+        Float Rparl = ((etaT * cosThetaI) - (etaI * cosThetaT)) /
+                      ((etaT * cosThetaI) + (etaI * cosThetaT));
+        Float Rperp = ((etaI * cosThetaI) - (etaT * cosThetaT)) /
+                      ((etaI * cosThetaI) + (etaT * cosThetaT));
+        return (Rparl * Rparl + Rperp * Rperp) / 2;
+    }
+
     struct MaterialInfo {
         ColorMap ka, kd, ks, bump;
         Float Ni, Ns, Tr;
         Float glossiness;
+        std::string bsdfType;
+        std::map<std::string, std::string> parameters;
 
         MaterialInfo(const ColorMap &ka, const ColorMap &kd, const ColorMap &ks, const ColorMap &bump = ColorMap()) :
                 ka(ka), kd(kd), ks(ks), bump(bump), Ni(1), Ns(0), Tr(0) {}
@@ -103,7 +127,9 @@ namespace Miyuki {
     protected:
         BSDFType type;
         ColorMap albedo, bump;
-        virtual Spectrum f(const ScatteringEvent&)const = 0;
+
+        virtual Spectrum f(const ScatteringEvent &) const = 0;
+
     public:
         ColorMap ka;
 
@@ -112,7 +138,7 @@ namespace Miyuki {
 
         virtual Spectrum sample(ScatteringEvent &) const;
 
-        Spectrum eval(const ScatteringEvent &)const;
+        Spectrum eval(const ScatteringEvent &) const;
 
         virtual Float pdf(const Vec3f &wo, const Vec3f &wi) const;
 
@@ -122,6 +148,7 @@ namespace Miyuki {
             return ka;
         }
     };
+
 
 
 }

@@ -3,7 +3,7 @@
 //
 #include "rendersystem.hpp"
 
-#include "../tools/jsonparser.hpp"
+#include "../utils/jsonparser.hpp"
 #include "../integrators/ao/ao.h"
 #include "../integrators/pathtracer/pathtracer.h"
 #include "../integrators/bdpt/bdpt.h"

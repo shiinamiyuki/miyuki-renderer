@@ -6,7 +6,6 @@
 #include "../../core/spectrum.h"
 #include "../../samplers/random.h"
 #include "../../core/memory.h"
-#include "../pathtracer/pathtracer.h"
 #include "../../core/scene.h"
 #include "../../math/distribution.h"
 #include "../../utils/stats.hpp"

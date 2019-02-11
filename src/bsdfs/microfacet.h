@@ -8,7 +8,7 @@
 #include "../utils/util.h"
 #include "../math/geometry.h"
 #include "bsdf.h"
-
+#include "fresnel.h"
 namespace Miyuki {
 
     class MicrofacetDistribution {
@@ -58,16 +58,42 @@ namespace Miyuki {
     };
 
     class TrowbridgeReitzDistribution : public MicrofacetDistribution {
+        const Float alphaX, alphaY;
     public:
+        TrowbridgeReitzDistribution(Float alphaX, Float alphaY, bool sampleVis = true)
+                : MicrofacetDistribution(sampleVis), alphaX(alphaX), alphaY(alphaY) {}
 
+        Float D(const Vec3f &wh) override;
+
+        Float lambda(const Vec3f &w) const override;
+
+        Vec3f sampleWh(const Vec3f &wo, const Point2f &u) const override;
     };
 
-    template<typename T>
+
+    template<typename T, typename U>
     class MicrofacetBSDF : public BSDF {
         static_assert(std::is_base_of<MicrofacetDistribution, T>::value,
                       "T is not derived from MicrofacetDistribution");
-
+        static_assert(std::is_base_of<Fresnel, U>::value,
+                      "U is not derived from Fresnel");
+        T distribution;
+        U fresnel;
     public:
+        MicrofacetBSDF(const T &d, const U &f) : distribution(d), fresnel(f) {}
+
+    protected:
+        Spectrum f(const ScatteringEvent &event) const override {
+            const auto &wo = event.wo, wi = event.wi;
+            auto wh = wi + wo;
+            Float cosThetaO = absCosTheta(wo), cosThetaI = absCosTheta(wi);
+            if (cosThetaI == 0 || cosThetaO == 0) return {};
+            if (wh.x() == 0 && wh.y() == 0 && wh.z() == 0) return {};
+            wh.normalize();
+            auto F = fresnel->eval(Vec3f::dot(wi, wh));
+            return evalAlbedo(event) * distribution.D(wh) * distribution.G(wo, wi) * F /
+                   (4 * cosThetaI * cosThetaO);
+        }
 
 
     };

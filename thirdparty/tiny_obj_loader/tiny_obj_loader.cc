@@ -505,6 +505,7 @@ static bool ParseTextureNameAndOption(std::string *texname,
 
 static void InitMaterial(material_t *material) {
   material->name = "";
+  material->bsdfType = "default";
   material->ambient_texname = "";
   material->diffuse_texname = "";
   material->specular_texname = "";
@@ -971,8 +972,12 @@ void LoadMtl(std::map<std::string, int> *material_map,
       std::ptrdiff_t len = _space - token;
       std::string key(token, static_cast<size_t>(len));
       std::string value = _space + 1;
-      material.unknown_parameter.insert(
-          std::pair<std::string, std::string>(key, value));
+      if(key == "bsdf"){
+        material.bsdfType = value;
+      }else {
+        material.unknown_parameter.insert(
+                std::pair<std::string, std::string>(key, value));
+      }
     }
   }
   // flush last material.
