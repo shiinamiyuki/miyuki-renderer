@@ -34,8 +34,13 @@ A PSSMLT running on path tracer is also implemented.
 8. Multiple Importance Sampling
 9. Vertex Connection and Merging
 10. ~~Importance sampling for light source~~
+11. Mixed BSDF (partially)
+12. Material system
+13. Fourier BSDF
 
 # Gallery (Random test images)
+
+![](gallery/vokselia_spawn_glossy_water.png)
 
 ![](gallery/vokselia_spawn.png)
 
