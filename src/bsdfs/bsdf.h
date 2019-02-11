@@ -123,14 +123,14 @@ namespace Miyuki {
     };
 
     class ScatteringEvent;
-
+    class MixedBSDF;
     class BSDF {
     protected:
         BSDFType type;
         ColorMap albedo, bump;
 
         virtual Spectrum f(const ScatteringEvent &) const = 0;
-
+        friend class MixedBSDF;
     public:
         ColorMap ka;
 
@@ -148,6 +148,7 @@ namespace Miyuki {
         const ColorMap &Ka() const {
             return ka;
         }
+        BSDFType getType()const{return type;}
     };
 
 

@@ -33,7 +33,6 @@ void PathTracer::render(Scene &scene) {
 }
 
 void PathTracer::iteration(Scene &scene) {
-    //TODO: refactoring, handle sampling based on BxDF tags ?
     auto &film = scene.film;
     auto &seeds = scene.seeds;
     scene.foreachPixel([&](RenderContext &ctx) {
