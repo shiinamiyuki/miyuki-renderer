@@ -22,6 +22,8 @@
 #include "../samplers/random.h"
 #include "../samplers/stratified.h"
 
+#include "../cameras/camera.h"
+
 namespace Miyuki {
 
 
@@ -40,26 +42,7 @@ namespace Miyuki {
         MaterialPtr getMaterial(const std::string &name) { return at(map[name]); }
     };
 
-    struct Camera {
-        Vec3f viewpoint;
-        Vec3f direction;
-        double fov;
-
-        void moveTo(const Vec3f &pos) { viewpoint = pos; }
-
-        void rotateTo(const Vec3f &dir) {
-            direction = dir;
-        }
-
-        void rotate(const Vec3f &dir) {
-            direction += dir;
-        }
-
-        void lookAt(const Vec3f &pos);
-
-        Camera(const Vec3f &v = Vec3f(0, 0, 0), const Vec3f &d = Vec3f(0, 0, 0))
-                : viewpoint(v), direction(d), fov(M_PI / 2) {}
-    };
+    class Camera;
 
     struct Ray;
 
@@ -72,9 +55,10 @@ namespace Miyuki {
         Sampler *sampler;
         MemoryArena &arena;
         Point2i raster;
+        Camera *camera;
 
-        RenderContext(const Ray &r, Sampler *s, MemoryArena &a, const Point2i &pos)
-                : arena(a), primary(r), sampler(s), raster(pos) {}
+        RenderContext(Camera *camera, const Ray &r, Sampler *s, MemoryArena &a, const Point2i &pos)
+                : camera(camera), arena(a), primary(r), sampler(s), raster(pos) {}
     };
 
     class Light;
@@ -92,6 +76,7 @@ namespace Miyuki {
         enum SamplerType {
             independent,
             stratified,
+            sobol,
         } samplerType;
 
         Option();
@@ -113,6 +98,7 @@ namespace Miyuki {
 
         friend class PSSMLTUnidirectional;
 
+        MemoryArena samplerArena;
         Spectrum ambientLight;
         RTCScene rtcScene;
         Film film;
@@ -120,8 +106,7 @@ namespace Miyuki {
         Camera camera;
         std::vector<MeshInstance> instances;
         std::vector<Seed> seeds;
-        std::vector<RandomSampler> uniformSamplers;
-        std::vector<StratifiedSampler> stratSamplers;
+        std::vector<Sampler * > samplers;
         std::vector<std::shared_ptr<Light>> lightList; // contains all user defined lights
         std::vector<std::shared_ptr<Light>> lights;    // contains all lights after commit() is called
         std::unique_ptr<Distribution1D> lightDistribution;

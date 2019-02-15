@@ -45,7 +45,7 @@ namespace Miyuki {
         const Point2f &uv() const;
 
         const Vec3f &hitPoint() const;
-
+        const Vec3f &Ng()const;
         const IntersectionInfo *getIntersectionInfo() const;
 
         Ray spawnRay(const Vec3f &wi) const {

@@ -40,7 +40,7 @@ A PSSMLT running on path tracer is also implemented.
 
 # Gallery (Random test images)
 
-![](gallery/vokselia_spawn_glossy_water.png)
+![](gallery/vokselia_spawn_pr0.1.png)
 
 ![](gallery/vokselia_spawn.png)
 

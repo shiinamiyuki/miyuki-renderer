@@ -36,7 +36,7 @@ AreaLight::sampleLi(const Point2f &u, const IntersectionInfo &info, Vec3f *wi, F
     auto Wi = (p - info.hitpoint);
     auto dist = Wi.lengthSquared();
     *wi = Wi / sqrt(dist);
-    *pdf = dist / (Vec3f::absDot(primitive->normalAt(u), -1 * *wi) * area);
+    *pdf = dist / (Vec3f::dot(primitive->normalAt(u), -1 * *wi) * area);
     tester->shadowRay = Ray(p, *wi * -1);
     tester->targetPrimID = info.primID;
     tester->targetGeomID = info.geomID;
@@ -71,6 +71,11 @@ Float AreaLight::pdfLi(const IntersectionInfo &info, const Vec3f &wi) const {
     return primitive->pdf(info, wi);
 }
 
+void AreaLight::pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const {
+    *pdfPos = 1 / area;
+    *pdfDir = Vec3f::dot(ray.d, normal) * INVPI;
+}
+
 Spectrum PointLight::sampleLi(const Point2f &u, const IntersectionInfo &info, Vec3f *wi, Float *pdf,
                               VisibilityTester *tester) const {
 
@@ -92,4 +97,8 @@ Spectrum PointLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Ve
 
 Float PointLight::pdfLi(const IntersectionInfo &info, const Vec3f &wi) const {
     return 0;
+}
+
+void PointLight::pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const {
+    *pdfPos = 0;
 }

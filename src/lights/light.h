@@ -11,6 +11,7 @@
 #include "../core/ray.h"
 #include "../core/mesh.h"
 #include "../core/intersection.h"
+
 namespace Miyuki {
     struct IntersectionInfo;
 
@@ -52,9 +53,7 @@ namespace Miyuki {
         Light() : ka() {}
 
         explicit Light(const Spectrum &_ka) : ka(_ka) {}
-        // virtual Spectrum sampleLe(Float *pdfPos, Float *pdfDir) const = 0;
 
-        // u used for sampling a point on light, wi is the sampled direction, from L to x
         virtual Spectrum sampleLi(const Point2f &u,
                                   const IntersectionInfo &info,
                                   Vec3f *wi,
@@ -76,6 +75,8 @@ namespace Miyuki {
         }
 
         virtual Float pdfLi(const IntersectionInfo &, const Vec3f &wi) const = 0;
+
+        virtual void pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const = 0;
 
         virtual const Primitive *getPrimitive() const { return nullptr; }
 
@@ -104,6 +105,9 @@ namespace Miyuki {
         const Primitive *getPrimitive() const override {
             return primitive.raw();
         }
+
+        void pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const override;
+
     };
 
     class PointLight : public Light {
@@ -121,6 +125,8 @@ namespace Miyuki {
                           Float *pdfDir) const override;
 
         Float pdfLi(const IntersectionInfo &info, const Vec3f &wi) const override;
+
+        void pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const override;
     };
 }
 #endif //MIYUKI_LIGHT_H

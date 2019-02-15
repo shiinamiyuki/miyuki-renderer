@@ -47,3 +47,7 @@ Spectrum ScatteringEvent::Le(const Vec3f &wo) const {
     return info->Le(wo);
 }
 
+const Vec3f &ScatteringEvent::Ng() const {
+    return info->Ng;
+}
+

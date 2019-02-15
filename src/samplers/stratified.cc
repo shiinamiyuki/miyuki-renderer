@@ -10,8 +10,7 @@ Miyuki::StratifiedSampler::StratifiedSampler(Miyuki::Seed *s) : Sampler(s) {
     N = 8;
     delta = 1.0f / N;
     flag = true;
-    x = randInt() % N;
-    y = randInt() % N;
+    streamIdx = 0;
 }
 
 Miyuki::Float Miyuki::StratifiedSampler::nextFloat() {
@@ -23,9 +22,15 @@ int32_t Miyuki::StratifiedSampler::nextInt() {
 }
 
 Point2f StratifiedSampler::nextFloat2D() {
+    while (streamIdx >= coord.size()) {
+        coord.emplace_back(randInt() % N, randInt() % N);
+    }
+    auto x = coord[streamIdx].x();
+    auto y = coord[streamIdx].y();
     Float a = x * delta + nextFloat() * delta;
     Float b = y * delta + nextFloat() * delta;
     updateXY();
+    streamIdx++;
     return {a, b};
 }
 
@@ -39,12 +44,18 @@ int32_t Miyuki::StratifiedSampler::nextInt(Miyuki::Seed *seed) {
 }
 
 void StratifiedSampler::updateXY() {
+    auto &x = coord[streamIdx].x();
+    auto &y = coord[streamIdx].y();
     x++;
     if (x >= N) {
         x = 0;
         y++;
     }
     if (y >= N)y = 0;
+}
+
+void StratifiedSampler::start() {
+    streamIdx = 0;
 }
 
 

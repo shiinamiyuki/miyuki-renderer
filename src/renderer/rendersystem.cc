@@ -177,6 +177,8 @@ void RenderSystem::readDescription(const std::string &filename) {
                         scene.useSampler(Option::independent);
                     } else if (s == "stratified")
                         scene.useSampler(Option::stratified);
+                    else if (s == "sobol")
+                        scene.useSampler(Option::sobol);
                     else {
                         fmt::print(stderr, "Unrecognized sampler type: {}\n", s);
                     }

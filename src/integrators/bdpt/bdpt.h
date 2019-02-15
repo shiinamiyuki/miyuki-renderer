@@ -11,8 +11,11 @@
 #include "../../core/spectrum.h"
 #include "../../core/intersection.h"
 #include "../../core/scene.h"
+
 namespace Miyuki {
     enum class BSDFType;
+
+    class Light;
 
     struct Vertex {
         enum VertexType {
@@ -20,36 +23,37 @@ namespace Miyuki {
             cameraVertex,
             surfaceVertex,
         };
-        Vec3f hitPoint, normal, radiance;
+        ScatteringEvent event;
+        Spectrum beta;
         Float pdfFwd, pdfRev;
-        BSDFType sampledType;
         VertexType type;
-        int32_t geomID;
-        int32_t primID;
-
-        Vertex(VertexType _type) : geomID(-1), primID(-1), type(_type) {}
+        bool isDelta;
+        Light *light;
+        Camera * camera;
+        Vertex() {}
 
         bool connectable(const Vertex &rhs) const;
 
         Float convertDensity(Float pdf, const Vertex &) const;
 
-        Float pdf(const Scene &, const Vertex *, const Vertex &next)const;
-    };
+        Float pdf(const Scene &, const Vertex *, const Vertex &next) const;
 
-    class Path : public std::vector<Vertex> {
+        static Vertex
+        createCameraVertex();
 
+        static Vertex
+        createSurfaceVertex(const ScatteringEvent &event, const Spectrum &beta, Float pdfFwd, const Vertex &prev);
     };
 
     class BDPT : public Integrator {
     public:
 
-
     protected:
-        void generateLightPath(Sampler &, Scene &, Path &, uint32_t maxS);
+        int generateCameraSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path);
 
-        void generateEyePath(RenderContext &ctx, Scene &, Path &, uint32_t maxT);
+        int generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path);
 
-        Spectrum connectBDPT(Scene &, Path &L, Path &E, int32_t s, int32_t t);
+        int randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, Float pdf, int maxDepth, Vertex *path);
 
         void iteration(Scene &scene);
 

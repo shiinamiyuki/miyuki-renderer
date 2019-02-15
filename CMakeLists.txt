@@ -30,7 +30,8 @@ file(GLOB thirdpartySRC
         "thirdparty/rand48/rand48.c"
         "thirdparty/rapidjson/rapidjson.h"
         "thirdparty/fmt/format.cc"
-        "thirdparty/fmt/posix/cc")
+        "thirdparty/fmt/posix/cc"
+        "thirdparty/sobol/sobol.cpp")
 add_executable(Miyuki
         ${rendererSRC}
         ${lightSRC}

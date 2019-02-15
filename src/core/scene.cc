@@ -7,7 +7,10 @@
 #include "spectrum.h"
 #include "../samplers/random.h"
 #include "../samplers/stratified.h"
+#include "../samplers/sobol.h"
 #include "../math/distribution.h"
+#include "../cameras/camera.h"
+
 
 using namespace Miyuki;
 
@@ -70,6 +73,10 @@ public:
     Float pdfLi(const IntersectionInfo &, const Vec3f &wi) const override {
         return 0;
     }
+
+    void pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const override {
+        *pdfPos = *pdfDir = 0;
+    }
 };
 
 static NullLight nullLight;
@@ -84,6 +91,7 @@ Light *Scene::chooseOneLight(Sampler &sampler) const {
 const std::vector<std::shared_ptr<Light>> &Scene::getAllLights() const {
     return lights;
 }
+
 void Scene::loadObjTrigMesh(const char *filename, const Transform &transform, TextureOption opt) {
     auto factory = BSDFFactory(this);
     auto mesh = LoadFromObj(factory, &materialList, filename, opt);
@@ -143,6 +151,7 @@ void Scene::postResize() {
         seeds[i][2] = dist(rd);
     }
     useSampler(option.samplerType);
+    camera.filmDimension = {film.width(), film.height()};
 }
 
 void Scene::setFilmDimension(const Point2i &dim) {
@@ -152,14 +161,20 @@ void Scene::setFilmDimension(const Point2i &dim) {
 
 void Scene::useSampler(Option::SamplerType samplerType) {
     option.samplerType = samplerType;
-    if (samplerType == Option::independent) {
-        uniformSamplers.clear();
-        for (int32_t i = 0; i < seeds.size(); i++)
-            uniformSamplers.emplace_back(RandomSampler(&seeds[i]));
-    } else {
-        stratSamplers.clear();
-        for (int32_t i = 0; i < seeds.size(); i++)
-            stratSamplers.emplace_back(StratifiedSampler(&seeds[i]));
+    samplerArena.reset();
+    samplers.clear();
+    // Trust compiler optimizations
+    for (int32_t i = 0; i < seeds.size(); i++) {
+        Sampler *s;
+        if (samplerType == Option::independent) {
+            s = ARENA_ALLOC(samplerArena, RandomSampler)(&seeds[i]);
+        } else if (samplerType == Option::sobol) {
+            s = ARENA_ALLOC(samplerArena, SobolSampler)(&seeds[i]);
+        } else {
+            CHECK(samplerType == Option::stratified);
+            s = ARENA_ALLOC(samplerArena, StratifiedSampler)(&seeds[i]);
+        }
+        samplers.emplace_back(s);
     }
 
 }
@@ -181,18 +196,12 @@ RenderContext Scene::getRenderContext(MemoryArena &arena, const Point2i &raster)
     rd = rotate(rd, Vec3f(0, 0, 1), camera.direction.z());
     Sampler *sampler;
     size_t idx = x0 + film.width() * y0;
-    switch (option.samplerType) {
-        case Option::independent:
-            sampler = &uniformSamplers[idx];
-            break;
-        case Option::stratified:
-            sampler = &stratSamplers[idx];
-            break;
-        default:
-            exit(-1);
-    }
+    sampler = samplers[idx];
     sampler->start();
-    return RenderContext(Ray(ro, rd), sampler, arena, raster);
+    Ray primary{{},
+                {}};
+    camera.generatePrimaryRay(*sampler, raster, &primary);
+    return RenderContext(&camera, primary, sampler, arena, raster);
 }
 
 void Scene::checkError() {
@@ -235,6 +244,7 @@ void Scene::prepare() {
     if (lights.empty()) {
         fmt::print(stderr, "No lights!\n");
     }
+    camera.initTransformMatrix();
 }
 
 void Scene::foreachPixel(std::function<void(RenderContext &)> f) {
@@ -251,11 +261,6 @@ void Scene::foreachPixel(std::function<void(RenderContext &)> f) {
             f(ctx);
         });
     });
-}
-
-
-void Camera::lookAt(const Vec3f &pos) {
-    assert(false);
 }
 
 

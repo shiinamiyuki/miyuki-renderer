@@ -36,5 +36,7 @@ Point2f IntersectionInfo::textureCoord() const {
 }
 
 Spectrum IntersectionInfo::Le(const Vec3f &w) const {
-    return bsdf->Ka().color;
+    if(Vec3f::dot(w, Ng) > 0)
+        return bsdf->Ka().color;
+    return {};
 }

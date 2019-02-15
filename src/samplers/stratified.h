@@ -10,11 +10,12 @@
 
 namespace Miyuki {
     class StratifiedSampler : public Sampler {
-        int32_t x,y;
+        //int32_t x,y;
+        std::vector<Point2i> coord;
         int32_t N;
         Float delta;
         bool flag;
-
+        int streamIdx;
         void updateXY();
     public:
         explicit StratifiedSampler(Seed *s);
@@ -26,6 +27,8 @@ namespace Miyuki {
         Point2f nextFloat2D() override;
 
         Float nextFloat(Seed *seed) override;
+
+        void start() override;
 
         int32_t nextInt(Seed *seed) override;
     };
