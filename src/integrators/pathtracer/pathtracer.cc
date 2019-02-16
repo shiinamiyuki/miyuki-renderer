@@ -79,7 +79,8 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
             }
         }
     }
-    L = clampRadiance(removeNaNs(L), 10);
+    L = removeNaNs(L);
+    //L = clampRadiance(removeNaNs(L), 10);
     return L;
 }
 

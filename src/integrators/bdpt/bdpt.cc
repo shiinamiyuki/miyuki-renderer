@@ -48,12 +48,16 @@ void BDPT::iteration(Scene &scene) {
                 int depth = t + s - 2;
                 if ((s == 1 && t == 1) || depth < 0 || depth > maxDepth)
                     continue;
-                Spectrum LPath;
+//                if (!(s == 1 && t == 2))continue;
                 Point2i rasterNew;
+                Point2f raster;
+                Spectrum LPath = connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, &raster, nullptr);
+                LPath /= maxDepth - 1;
                 if (t != 1)
                     L += LPath;
-                else
+                else {
                     film.addSplat(rasterNew, LPath);
+                }
             }
         }
         film.addSample(ctx.raster, L);
@@ -87,7 +91,7 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
             vertex.isDelta = true;
             pdfFwd = pdfRev = 0;
         }
-        // correct shading normal
+        // TODO: correct shading normal
         ray = event.spawnRay(event.wiW);
         prev.pdfRev = vertex.convertDensity(pdfRev, prev);
     }
@@ -96,17 +100,87 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
 
 
 int BDPT::generateCameraSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path) {
-
-    return 0;
+    auto &vertex = path[0];
+    vertex = Vertex::createCameraVertex(ctx.primary, ctx.camera, {1, 1, 1});
+    Float pdf, _;
+    ctx.camera->pdfWe(ctx.primary, &_, &pdf);
+    return randomWalk(ctx.primary, scene, ctx, {1, 1, 1}, pdf, maxDepth - 1, path + 1) + 1;
 }
 
 int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path) {
-    return 0;
+    auto &vertex = path[0];
+    auto light = scene.chooseOneLight(*ctx.sampler);
+    Float pdfDir, pdfPos;
+    Ray ray({}, {});
+    Vec3f normal;
+    auto Le = light->sampleLe(ctx.sampler->nextFloat2D(), ctx.sampler->nextFloat2D(), &ray, &normal, &pdfPos, &pdfDir);
+    auto beta = Spectrum(Le * Vec3f::dot(ray.d, normal) / (pdfDir * pdfPos));
+    if (pdfDir == 0 || Le.isBlack())return 0;
+    // TODO: infinite light
+    vertex = Vertex::createLightVertex(light, ray, normal, Le);
+    vertex.L = Le;
+    vertex.pdfPos = pdfPos;
+    return randomWalk(ray, scene, ctx, beta, pdfDir, maxDepth - 1, path + 1) + 1;
+}
+
+Spectrum
+BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Vertex *cameraVertices, int s, int t,
+                  Point2f *raster, Float *misWeight) {
+    // TODO: infinite lights
+    Float weight = 1.0f / (s + t - 1);
+    Vertex &E = cameraVertices[t - 1];
+    Spectrum Li;
+    if (s == 0) {
+        Vertex &prev = cameraVertices[t - 2];
+        Li = prev.beta * E.Le(prev);
+    } else {
+        Vertex &L = lightVertices[s - 1];
+        if (t == 1) {
+            return {};
+        } else if (s == 1) {
+            Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
+            Li = L.L * E.beta * E.f(L);
+            Li /= L.pdfPos;
+            if (Li.isBlack()) return {};
+            Li *= G(scene, ctx, L, E);
+            VisibilityTester tester;
+            tester.targetGeomID = E.event.getIntersectionInfo()->geomID;
+            tester.targetPrimID = E.event.getIntersectionInfo()->primID;
+            tester.shadowRay = Ray(L.hitPoint(), -1 * wi);
+            if (!tester.visible(scene))return {};
+        } else {
+            if (!L.connectable() || !E.connectable())return {};
+            Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
+            Li = L.beta * E.beta * L.f(E) * E.f(L);
+            if (Li.isBlack()) return {};
+            Li *= G(scene, ctx, L, E);
+            VisibilityTester tester;
+            tester.targetGeomID = E.event.getIntersectionInfo()->geomID;
+            tester.targetPrimID = E.event.getIntersectionInfo()->primID;
+            tester.shadowRay = Ray(L.hitPoint(), -1 * wi);
+            if (!tester.visible(scene))return {};
+
+        }
+    }
+    Li *= weight;
+    return Li;
+}
+
+Spectrum BDPT::G(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E) {
+    Vec3f wi = (L.hitPoint() - E.hitPoint());
+    Float dist = wi.lengthSquared();
+    Float g = 1 / dist;
+    wi /= sqrt(dist);
+    g *= Vec3f::absDot(wi, L.Ns());
+    g *= Vec3f::absDot(wi, E.Ns());
+    Spectrum beta(1,1,1);
+    beta *= g;
+    return beta ;
 }
 
 
-bool Vertex::connectable(const Vertex &rhs) const {
-    switch (rhs.type) {
+bool Vertex::connectable() const {
+    switch (type) {
         case Vertex::lightVertex:
             return ((int) light->type & (int) Light::Type::deltaDirection) == 0;
         case Vertex::surfaceVertex:
@@ -126,17 +200,17 @@ Float Vertex::convertDensity(Float pdf, const Vertex &next) const {
     // pdf = pdfA * dist^2 / cos(theta)
     // pdfA = pdf / dist^2 * cos(theta)
     // TODO: justify the math
-    Vec3f w = next.event.hitPoint() - next.event.hitPoint();
+    Vec3f w = next.hitPoint() - next.hitPoint();
     Float invDist = 1.0f / w.lengthSquared();
-    pdf *= Vec3f::absDot(next.event.Ng(), w * sqrt(invDist));
+    pdf *= Vec3f::absDot(next.Ng(), w * sqrt(invDist));
     return pdf * invDist;
 }
 
 Float Vertex::pdf(const Scene &scene, const Vertex *prev, const Vertex &next) const {
     Vec3f wp, wn;
-    wn = (next.event.hitPoint() - event.hitPoint()).normalized();
+    wn = (next.hitPoint() - event.hitPoint()).normalized();
     if (prev) {
-        wp = (prev->event.hitPoint() - event.hitPoint()).normalized();
+        wp = (prev->hitPoint() - event.hitPoint()).normalized();
     }
     Float pdf;
     if (type == Vertex::surfaceVertex) {
@@ -159,5 +233,27 @@ Vertex::createSurfaceVertex(const ScatteringEvent &event, const Spectrum &beta, 
     vertex.beta = beta;
     vertex.pdfFwd = pdfFwd;
     vertex.pdfFwd = prev.convertDensity(pdfFwd, vertex);
+    vertex.type = surfaceVertex;
+    return vertex;
+}
+
+Vertex
+Vertex::createCameraVertex(const Ray &primary, Camera *camera, const Spectrum &beta) {
+    Vertex vertex;
+    vertex.beta = beta;
+    vertex.camera = camera;
+    vertex.primary = primary;
+    vertex.type = cameraVertex;
+    return vertex;
+
+}
+
+Vertex Vertex::createLightVertex(Light *light, const Ray &ray, const Vec3f &normal, const Spectrum &beta) {
+    Vertex vertex;
+    vertex.beta = beta;
+    vertex.light = light;
+    vertex.type = lightVertex;
+    vertex.primary = ray;
+    vertex.lightNormal = normal;
     return vertex;
 }
