@@ -255,12 +255,12 @@ void Scene::foreachPixel(std::function<void(RenderContext &)> f) {
 //    });
     auto &tiles = film.getTiles();
     parallelFor(0u, tiles.size(), [&](uint32_t i) {
-        auto arena = arenaAllocator.getAvailableArena();
+        auto arenaInfo = arenaAllocator.getAvailableArena();
         tiles[i].foreachPixel([&](const Point2i &pos) {
-            auto ctx = getRenderContext(arena, pos);
+            auto ctx = getRenderContext(arenaInfo.arena, pos);
             f(ctx);
         });
-        arena.reset();
+        arenaInfo.arena.reset();
     });
 }
 

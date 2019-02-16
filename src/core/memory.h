@@ -63,12 +63,23 @@ namespace Miyuki {
     };
 
     class ConcurrentMemoryArenaAllocator {
-        std::vector<std::pair<MemoryArena, bool>> arenas;
+    public:
+        struct ArenaInfo {
+            MemoryArena &arena;
+            bool &availability;
+
+            ArenaInfo(MemoryArena &arena, bool &availability) : arena(arena), availability(availability) {}
+
+            ~ArenaInfo() { availability = true; }
+        };
+
+    private:
+        std::list<std::pair<MemoryArena, bool>> arenas;
         std::mutex mutex;
     public:
         ConcurrentMemoryArenaAllocator();
 
-        MemoryArena &getAvailableArena();
+        ArenaInfo getAvailableArena();
     };
 }
 #endif //MIYUKI_MEMORY_H
