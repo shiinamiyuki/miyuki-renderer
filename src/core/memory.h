@@ -61,5 +61,14 @@ namespace Miyuki {
 
         void reset();
     };
+
+    class ConcurrentMemoryArenaAllocator {
+        std::vector<std::pair<MemoryArena, bool>> arenas;
+        std::mutex mutex;
+    public:
+        ConcurrentMemoryArenaAllocator();
+
+        MemoryArena &getAvailableArena();
+    };
 }
 #endif //MIYUKI_MEMORY_H

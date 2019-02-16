@@ -48,11 +48,10 @@ void BDPT::iteration(Scene &scene) {
                 int depth = t + s - 2;
                 if ((s == 1 && t == 1) || depth < 0 || depth > maxDepth)
                     continue;
-//                if (!(s == 1 && t == 2))continue;
+              //  if (!(s == 1))continue;
                 Point2i rasterNew;
                 Point2f raster;
                 Spectrum LPath = connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, &raster, nullptr);
-                LPath /= maxDepth - 1;
                 if (t != 1)
                     L += LPath;
                 else {
@@ -123,9 +122,15 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
     return randomWalk(ray, scene, ctx, beta, pdfDir, maxDepth - 1, path + 1) + 1;
 }
 
+/*
+ The naive strategy uses weight = 1 / path length
+ The estimator is unbiased since the sum of weights of a particular path length is 1
+ Though it doesn't give good result
+ */
 Spectrum
 BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Vertex *cameraVertices, int s, int t,
                   Point2f *raster, Float *misWeight) {
+    auto maxDepth = scene.option.maxDepth;
     // TODO: infinite lights
     Float weight = 1.0f / (s + t - 1);
     Vertex &E = cameraVertices[t - 1];
@@ -142,13 +147,15 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             Li = L.L * E.beta * E.f(L);
             Li /= L.pdfPos;
             if (Li.isBlack()) return {};
-            Li *= G(scene, ctx, L, E);
+            Li *= GWithoutAbs(scene, ctx, L, E);
+            if(Li.isBlack())return {};
             VisibilityTester tester;
             tester.targetGeomID = E.event.getIntersectionInfo()->geomID;
             tester.targetPrimID = E.event.getIntersectionInfo()->primID;
             tester.shadowRay = Ray(L.hitPoint(), -1 * wi);
             if (!tester.visible(scene))return {};
         } else {
+            if(Li.isBlack())return {};
             if (!L.connectable() || !E.connectable())return {};
             Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
             Li = L.beta * E.beta * L.f(E) * E.f(L);
@@ -173,6 +180,18 @@ Spectrum BDPT::G(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E) {
     wi /= sqrt(dist);
     g *= Vec3f::absDot(wi, L.Ns());
     g *= Vec3f::absDot(wi, E.Ns());
+    Spectrum beta(1,1,1);
+    beta *= g;
+    return beta ;
+}
+
+Spectrum BDPT::GWithoutAbs(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E) {
+    Vec3f wi = (L.hitPoint() - E.hitPoint());
+    Float dist = wi.lengthSquared();
+    Float g = 1 / dist;
+    wi /= sqrt(dist);
+    g *= -Vec3f::dot(wi, L.Ns());
+    g *= Vec3f::dot(wi, E.Ns());
     Spectrum beta(1,1,1);
     beta *= g;
     return beta ;

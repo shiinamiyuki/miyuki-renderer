@@ -68,6 +68,7 @@ namespace Miyuki {
             } else
                 return event.Ng();
         }
+
         Vec3f Ns() const {
             if (type == lightVertex)
                 return lightNormal;
@@ -76,18 +77,20 @@ namespace Miyuki {
             } else
                 return event.Ns;
         }
-        Spectrum f(const Vertex& next)const{
+
+        Spectrum f(const Vertex &next) const {
             auto wi = (next.hitPoint() - hitPoint()).normalized();
             auto e = event;
             e.wiW = wi;
             e.wi = e.worldToLocal(e.wiW);
-            switch(type){
+            switch (type) {
                 case surfaceVertex:
                     return event.getIntersectionInfo()->bsdf->eval(e);
             }
             return {};
         }
-        Spectrum Le(const Vertex& prev)const{
+
+        Spectrum Le(const Vertex &prev) const {
             auto wo = (prev.hitPoint() - hitPoint()).normalized();
             return event.Le(wo);
         }
@@ -113,7 +116,10 @@ namespace Miyuki {
                              int t,
                              Point2f *raster,
                              Float *misWeight = nullptr);
-        Spectrum G(Scene & scene, RenderContext &ctx, Vertex & L, Vertex& E);
+
+        Spectrum G(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E);
+
+        Spectrum GWithoutAbs(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E);
 
     public:
         void render(Scene &) override;

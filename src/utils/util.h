@@ -119,6 +119,8 @@ namespace Miyuki {
 
     int32_t editDistance(const std::string& a, const std::string& b, bool matchCase = false);
 
+    int32_t getNumThreads();
+
 #define CHECK(expr) do{if(!(expr)){fmt::print(stderr, "{}:{} {} failed\n",__FILE__, __LINE__, #expr);}}while(0)
 }
 #define MIYUKI_ON_WINDOWS

@@ -6,7 +6,7 @@
 
 #include "../../thirdparty/stb/stb_image.h"
 #include <boost/algorithm/string/predicate.hpp>
-
+#include <omp.h>
 static RTCDevice rtcDevice = nullptr;
 
 RTCDevice Miyuki::GetEmbreeDevice() {
@@ -75,5 +75,9 @@ int32_t Miyuki::editDistance(const std::string &a, const std::string &b, bool ma
         }
     }
     return dp[a.size() + w * b.size()];
+}
+
+int32_t Miyuki::getNumThreads() {
+    return omp_get_num_threads();
 }
 

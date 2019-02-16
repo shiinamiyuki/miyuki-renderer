@@ -33,7 +33,6 @@ namespace Miyuki {
 
         struct Tile {
             Bound2i bound;
-            MemoryArena arena;
 
             void foreachPixel(std::function<void(const Point2i &)>);
         };

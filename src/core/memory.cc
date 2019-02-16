@@ -79,3 +79,21 @@ void ConcurrentMemoryArena::reset() {
     std::lock_guard<std::mutex> guard(mutex);
     MemoryArena::reset();
 }
+
+MemoryArena &ConcurrentMemoryArenaAllocator::getAvailableArena() {
+    std::lock_guard<std::mutex> lockGuard(mutex);
+    for (auto &i : arenas) {
+        if (i.second) {
+            i.second = false;
+            return i.first;
+        }
+    }
+    arenas.emplace_back(std::make_pair(MemoryArena(), false));
+    return arenas.back().first;
+}
+
+ConcurrentMemoryArenaAllocator::ConcurrentMemoryArenaAllocator() : arenas((size_t) getNumThreads()) {
+    for (auto &i:arenas) {
+        i.second = true;
+    }
+}

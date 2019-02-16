@@ -98,6 +98,7 @@ namespace Miyuki {
 
         friend class PSSMLTUnidirectional;
 
+        ConcurrentMemoryArenaAllocator arenaAllocator;
         MemoryArena samplerArena;
         Spectrum ambientLight;
         RTCScene rtcScene;
