@@ -14,6 +14,13 @@ bool VisibilityTester::visible(const Scene &scene) const {
            && intersection.primID() == targetPrimID;
 }
 
+bool OccludeTester::visible(const Scene &scene) const {
+    Intersection intersection(shadowRay);
+    intersection.rayHit.ray.tfar = far + 0.01f;
+    intersection.intersect(scene);
+    return intersection.hitDistance() >= far - 0.01f;
+}
+
 AreaLight::AreaLight(const Primitive &_primitive, const Spectrum &ka)
         : Light(ka), primitive(&_primitive) {
     type = Type::area;
@@ -102,3 +109,4 @@ Float PointLight::pdfLi(const IntersectionInfo &info, const Vec3f &wi) const {
 void PointLight::pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const {
     *pdfPos = 0;
 }
+

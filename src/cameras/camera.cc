@@ -25,6 +25,8 @@ Float Camera::generatePrimaryRay(Sampler &sampler, const Point2i &raster, Ray *r
 //    Float p1, p2;
 //    pdfWe(*ray,&p1,&p2);
 //    CHECK(p1 > 0 && p2 > 0);
+//    Point2i  dummy;
+//    CHECK(rasterize(ro + 1.0 * rd, & dummy));
     return 1;
 }
 
@@ -68,10 +70,35 @@ void Camera::pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const {
     }
     auto z0 = (Float) (2.0 / tan(fov / 2));
     Point2f raster(rd.x() / rd.z() * z0, rd.y() / rd.z() * z0);
+    // check if out of bound
+    if (fabs(raster.x()) > (float) filmDimension.x() / filmDimension.y() || fabs(raster.y()) > 1.0f) {
+        *pdfPos = *pdfDir = 0;
+        return;
+    }
     Float lensArea = 1;
     Float A = 2 * (2.0f * filmDimension.x() / filmDimension.y());
     *pdfPos = 1 / lensArea;
     auto cosT2 = cosT * cosT;
-    *pdfDir = 1 / (A *lensArea * cosT2 * cosT2);
+    *pdfDir = 1 / (A * lensArea * cosT2 * cosT2);
 
+}
+
+bool Camera::rasterize(const Vec3f &p, Point2i *rasterPos) const {
+    auto dir = (p - viewpoint).normalized();
+    dir.w() = 1;
+    dir = invMatrix.mult(dir);
+    auto cosT = Vec3f::dot(dir, Vec3f(0, 0, 1));
+    if (cosT < 0) {
+        return false;
+    }
+    auto z0 = (Float) (2.0 / tan(fov / 2));
+    Point2f raster(dir.x() / dir.z() * z0, dir.y() / dir.z() * z0);
+    auto w = (float) filmDimension.x() / filmDimension.y();
+    if (fabs(raster.x()) > w + 0.01f || fabs(raster.y()) > 1.01f) {
+        return false;
+    }
+    int x = lroundf(((-raster.x() + w) / (2 * w)) * filmDimension.x());
+    int y = lroundf((1 - (raster.y() + 1.0f) / 2.0f) * filmDimension.y());
+    *rasterPos = {x, y};
+    return true;
 }

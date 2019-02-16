@@ -141,6 +141,12 @@ void Scene::addSphere(const Vec3f &pos, Float r, int materialId) {
 }
 
 void Scene::writeImage(const std::string &filename) {
+    double avg = 0;
+    for(auto &i:film.image){
+        avg += i.toInt().length();
+    }
+    avg /= film.width() * film.height() * 255.0f;
+    fmt::print("Avg brightness: {}\n", avg);
     film.writePNG(filename);
 }
 

@@ -41,7 +41,9 @@ namespace Miyuki {
 
         Float generatePrimaryRay(Sampler &sampler, const Point2i &raster, Ray *ray);
 
-        void pdfWe(const Ray& ray,  Float * pdfPos, Float * pdfDir)const;
+        void pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const;
+
+        bool rasterize(const Vec3f &p, Point2i *raster) const;
 
     };
 }

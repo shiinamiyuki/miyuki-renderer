@@ -16,7 +16,7 @@ namespace Miyuki {
     enum class BSDFType;
 
     class Light;
-
+    class Film;
     struct Vertex {
         enum VertexType {
             lightVertex,
@@ -36,7 +36,7 @@ namespace Miyuki {
         Ray primary;
 
 
-        Vertex() : light(nullptr), primary({}, {}) {}
+        Vertex() : light(nullptr), camera(nullptr), primary({}, {}) {}
 
         bool connectable() const;
 
@@ -45,7 +45,7 @@ namespace Miyuki {
         Float pdf(const Scene &, const Vertex *, const Vertex &next) const;
 
         static Vertex
-        createLightVertex(Light *light, const Ray &ray, const Vec3f &normal,Float pdf,  const Spectrum &beta);
+        createLightVertex(Light *light, const Ray &ray, const Vec3f &normal, Float pdf, const Spectrum &beta);
 
         static Vertex
         createCameraVertex(const Ray &primary, Camera *, const Spectrum &beta);
@@ -98,7 +98,7 @@ namespace Miyuki {
 
     class BDPT : public Integrator {
     public:
-
+        std::map<std::pair<int, int>, Film> debugFilms;
     protected:
         int generateCameraSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path);
 
@@ -114,8 +114,16 @@ namespace Miyuki {
                              Vertex *cameraVertices,
                              int s,
                              int t,
-                             Point2f *raster,
+                             Point2i *raster,
                              Float *misWeight = nullptr);
+
+        Float MISWeight(Scene &scene,
+                        RenderContext &ctx,
+                        Vertex *lightVertices,
+                        Vertex *cameraVertices,
+                        int s,
+                        int t,
+                        Vertex & sampled);
 
         Spectrum G(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E);
 
@@ -126,13 +134,20 @@ namespace Miyuki {
     };
 
     template<typename T>
-    struct ScopedAssignment {
+    class ScopedAssignment {
         T *target;
         T backup;
-
-        ScopedAssignment(T *target = nullptr) : target(target) { backup = *target; }
+    public:
+        ScopedAssignment(T *target = nullptr, T value = T()) : target(target) {
+            if (target) {
+                backup = *target;
+                *target = value;
+            }
+        }
 
         ScopedAssignment(const ScopedAssignment &) = delete;
+
+        ScopedAssignment &operator=(const ScopedAssignment &) = delete;
 
         ScopedAssignment &operator=(ScopedAssignment &&rhs) noexcept {
             if (target) {
@@ -140,7 +155,8 @@ namespace Miyuki {
             }
             target = rhs.target;
             backup = rhs.backup;
-            rhs.backup = nullptr;
+            rhs.target = nullptr;
+            return *this;
         }
 
         ~ScopedAssignment() {

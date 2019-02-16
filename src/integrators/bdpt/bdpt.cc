@@ -8,7 +8,9 @@
 #include "../../math/geometry.h"
 #include "../../samplers/random.h"
 #include "../../lights/light.h"
+#include "../../core/film.h"
 
+#define BDPT_DEBUG
 using namespace Miyuki;
 
 void Miyuki::BDPT::render(Scene &scene) {
@@ -17,6 +19,12 @@ void Miyuki::BDPT::render(Scene &scene) {
     auto &seeds = scene.seeds;
     int32_t N = scene.option.samplesPerPixel;
     int32_t sleepTime = scene.option.sleepTime;
+    auto maxDepth = scene.option.maxDepth;
+    for (int t = 1; t <= maxDepth + 2; ++t) {
+        for (int s = 0; s <= maxDepth + 12; ++s) {
+            debugFilms[std::make_pair(s, t)] = Film(scene.film.width(), scene.film.height());
+        }
+    }
     double elapsed = 0;
     for (int32_t i = 0; i < N; i++) {
         auto t = runtime([&]() {
@@ -29,7 +37,20 @@ void Miyuki::BDPT::render(Scene &scene) {
         fmt::print("iteration {} in {} secs, elapsed {}s, remaining {}s\n",
                    1 + i, t, elapsed, (double) (elapsed * N) / (i + 1) - elapsed);
     }
+#ifdef BDPT_DEBUG
+    {
+        for (int t = 1; t <= maxDepth + 2; ++t) {
+            for (int s = 0; s <= maxDepth + 1; ++s) {
+                int depth = t + s - 2;
+                if ((s == 1 && t == 1) || depth < 0 || depth > maxDepth)
+                    continue;
+                debugFilms[std::make_pair(s, t)].writePNG(fmt::format("data/debug/bdpt_s{}_t{}.png", s, t));
+            }
+        }
+    }
+#endif
 }
+
 
 // IMPORTANT! What we are doing here is based on the assumption that during each pass the memory allocated
 // is never freed
@@ -37,6 +58,7 @@ void BDPT::iteration(Scene &scene) {
     auto &film = scene.film;
     auto &seeds = scene.seeds;
     int maxDepth = (int) scene.option.maxDepth;
+    std::mutex filmMutex;
     scene.foreachPixel([&](RenderContext &ctx) {
         Spectrum L;
         auto cameraVertices = ctx.arena.alloc<Vertex>(maxDepth + 2u);
@@ -52,15 +74,24 @@ void BDPT::iteration(Scene &scene) {
                 int depth = t + s - 2;
                 if ((s == 1 && t == 1) || depth < 0 || depth > maxDepth)
                     continue;
-                //  if (!(s == 1))continue;
-                Point2i rasterNew;
-                Point2f raster;
-                Spectrum LPath = connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, &raster, nullptr);
+                Point2i raster;
+                Float weight;
+                Spectrum LPath = connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, &raster, &weight);
                 if (t != 1)
                     L += LPath;
                 else {
-                    film.addSplat(rasterNew, LPath);
+                    // :D. Though I believe atomic operation might be a better choice
+                    if (!LPath.isBlack()) {
+                        std::lock_guard<std::mutex> lockGuard(filmMutex);
+                        film.addSplat(raster, LPath);
+                    }
                 }
+#ifdef BDPT_DEBUG
+                {
+                    std::lock_guard<std::mutex> lockGuard(filmMutex);
+                    debugFilms[std::make_pair(s, t)].addSample(ctx.raster, Spectrum(LPath));
+                }
+#endif
             }
         }
         film.addSample(ctx.raster, L);
@@ -97,6 +128,7 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
         // TODO: correct shading normal
         ray = event.spawnRay(event.wiW);
         prev.pdfRev = vertex.convertDensity(pdfRev, prev);
+
     }
     return depth;
 }
@@ -119,12 +151,62 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
     Vec3f normal;
     auto Le = light->sampleLe(ctx.sampler->nextFloat2D(), ctx.sampler->nextFloat2D(), &ray, &normal, &pdfPos, &pdfDir);
     auto beta = Spectrum(Le * Vec3f::dot(ray.d, normal) / (pdfDir * pdfPos));
-    if (pdfDir == 0 || Le.isBlack())return 0;
+    if (Le.isBlack())return 0;
     // TODO: infinite light
     vertex = Vertex::createLightVertex(light, ray, normal, lightPdf * pdfDir, Le);
     vertex.L = Le;
     vertex.pdfPos = pdfPos;
     return randomWalk(ray, scene, ctx, beta, pdfDir, maxDepth - 1, path + 1) + 1;
+}
+
+/*
+ Multiple importance sampling using balanced heuristics
+ Loop over all possible paths of a specific length to compute the weight
+
+ \begin{align*}
+  p_s(\overline{x}) &= p^{\rightarrow}(x_0) ... p^{\rightarrow}(x_{s-1})p^{\leftarrow}(x_{t-1}) ... p^{\leftarrow}(x_{n-1})\\
+  p_i(\overline{x}) &= p^{\rightarrow}(x_0) ... p^{\rightarrow}(x_{i-1})p^{\leftarrow}(x_{i}) ... p^{\leftarrow}(x_{n-1})\\
+  w(s) &= \dfrac{p_s(\overline{x})}{\sum\limits_ip_i(\overline{x})}
+  = \dfrac{1}{\sum\limits_i\dfrac{p_s(\overline{x})}{p_i(\overline{x})}}\\
+  &= \Bigg(
+  \sum\limits_{i=0}^{s-1}\dfrac{p_s(\overline{x})}{p_i(\overline{x})}
+  + 1
+  + \sum\limits_{i=s+1}^{n}\dfrac{p_s(\overline{x})}{p_i(\overline{x})}
+  \Bigg)^{-1}
+\end{align*}
+
+ */
+Float BDPT::MISWeight(Scene &scene,
+                      RenderContext &ctx,
+                      Vertex *lightVertices,
+                      Vertex *cameraVertices,
+                      int s, int t,
+                      Vertex &sampled) {
+    if (s + t == 2)
+        return 1;
+    Float sumRi = 0;
+    // Remaps the delta pdf
+    auto remap0 = [](Float x) { return x != 0 ? x : 1; };
+
+    // Get the necessary vertices
+    Vertex *qs = s > 0 ? &lightVertices[s - 1] : nullptr,
+            *pt = t > 0 ? &cameraVertices[t - 1] : nullptr,
+            *qsMinus = s > 1 ? &lightVertices[s - 2] : nullptr,
+            *ptMinus = t > 1 ? &lightVertices[t - 2] : nullptr;
+
+    // Temporarily update vertex
+    ScopedAssignment<Vertex> a1;
+    if (s == 1) {
+        a1 = {qs, sampled};
+    } else if (t == 1) {
+        a1 = {pt, sampled};
+    }
+    ScopedAssignment<bool> a2, a3;
+    if (pt)
+        a2 = {&pt->isDelta, false};
+    if (qs)
+        a3 = {&qs->isDelta, false};
+    return 0;
 }
 
 /*
@@ -134,18 +216,29 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
  */
 Spectrum
 BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Vertex *cameraVertices, int s, int t,
-                  Point2f *raster, Float *misWeight) {
+                  Point2i *raster, Float *misWeightPtr) {
     // TODO: infinite lights
-    Float weight = 1.0f / (s + t - 1);
+
     Vertex &E = cameraVertices[t - 1];
     Spectrum Li;
+    Vertex sampled;
+    if (misWeightPtr) {
+        *misWeightPtr = 0;
+    }
     if (s == 0) {
         Vertex &prev = cameraVertices[t - 2];
         Li = prev.beta * E.Le(prev);
     } else {
         Vertex &L = lightVertices[s - 1];
+
         if (t == 1) {
-            return {};
+            // Try rasterizing the point
+            if (!ctx.camera->rasterize(L.hitPoint(), raster))
+                return {};
+            Ray primary(ctx.camera->viewpoint, (L.hitPoint() - ctx.camera->viewpoint).normalized());
+            Spectrum beta(1, 1, 1); // TODO: We should use `sampleWe` instead.
+            sampled = Vertex::createCameraVertex(primary, ctx.camera, beta);
+
         } else if (s == 1) {
             Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
             Li = L.L * E.beta * E.f(L);
@@ -158,8 +251,8 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             tester.targetPrimID = E.event.getIntersectionInfo()->primID;
             tester.shadowRay = Ray(L.hitPoint(), -1 * wi);
             if (!tester.visible(scene))return {};
+            sampled = Vertex::createLightVertex(L.light, tester.shadowRay, L.lightNormal, L.pdfPos, L.beta);
         } else {
-            if (Li.isBlack())return {};
             if (!L.connectable() || !E.connectable())return {};
             Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
             Li = L.beta * E.beta * L.f(E) * E.f(L);
@@ -173,7 +266,12 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
 
         }
     }
-    Li *= weight;
+    Float naiveWeight = 1.0f / (s + t - 1);
+    // Float weight = MISWeight(scene, ctx, lightVertices, cameraVertices, s, t, sampled);
+    if (misWeightPtr) {
+        *misWeightPtr = naiveWeight;
+    }
+    Li *= naiveWeight;
     return Li;
 }
 

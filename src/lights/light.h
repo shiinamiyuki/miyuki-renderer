@@ -38,6 +38,14 @@ namespace Miyuki {
         bool visible(const Scene &) const;
     };
 
+    struct OccludeTester {
+        Ray shadowRay;
+        Float far;
+
+        OccludeTester(const Ray &shadowRay, Float far) : shadowRay(shadowRay), far(far) {}
+
+        bool visible(const Scene &)const;
+    };
 
     class Light {
     protected:
