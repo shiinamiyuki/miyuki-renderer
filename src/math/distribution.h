@@ -23,7 +23,7 @@ namespace Miyuki {
         int sampleInt(Float x) const;
 
         Float sampleFloat(Float x) const;
-
+        Float pdf(int x)const;
         Float cdf(Float x) const;
     };
 }

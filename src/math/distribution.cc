@@ -54,3 +54,7 @@ Float Distribution1D::cdf(Float x) const {
     return cdfArray[i];
 }
 
+Float Distribution1D::pdf(int x) const {
+    return cdfArray[x + 1] - cdfArray[x];
+}
+

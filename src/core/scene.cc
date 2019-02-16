@@ -81,10 +81,13 @@ public:
 
 static NullLight nullLight;
 
-Light *Scene::chooseOneLight(Sampler &sampler) const {
+Light *Scene::chooseOneLight(Sampler &sampler, Float* lightPdf) const {
     if (lights.empty())
         return &nullLight;
     int32_t idx = lightDistribution->sampleInt(sampler.nextFloat());
+    if(lightPdf){
+        *lightPdf = lightDistribution->pdf(idx);
+    }
     return lights[idx].get();
 }
 

@@ -129,7 +129,7 @@ namespace Miyuki {
 
         void foreachPixel(std::function<void(RenderContext &)>);
 
-        Light *chooseOneLight(Sampler &) const;
+        Light *chooseOneLight(Sampler &, Float * lightPdf = nullptr) const;
 
         const std::vector<std::shared_ptr<Light>> &getAllLights() const;
 

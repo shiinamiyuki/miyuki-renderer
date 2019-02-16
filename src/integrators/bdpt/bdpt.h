@@ -45,7 +45,7 @@ namespace Miyuki {
         Float pdf(const Scene &, const Vertex *, const Vertex &next) const;
 
         static Vertex
-        createLightVertex(Light *light, const Ray &ray, const Vec3f &normal, const Spectrum &beta);
+        createLightVertex(Light *light, const Ray &ray, const Vec3f &normal,Float pdf,  const Spectrum &beta);
 
         static Vertex
         createCameraVertex(const Ray &primary, Camera *, const Spectrum &beta);
