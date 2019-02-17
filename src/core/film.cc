@@ -24,8 +24,8 @@ Film::Pixel &Film::getPixel(const Point2f &p) {
 }
 
 Film::Pixel &Film::getPixel(int32_t x, int32_t y) {
-    x = clamp<int32_t>(x, 0, imageBound.pMax.x());
-    y = clamp<int32_t>(y, 0, imageBound.pMax.y());
+    x = clamp<int32_t>(x, 0, imageBound.pMax.x() - 1);
+    y = clamp<int32_t>(y, 0, imageBound.pMax.y() - 1);
     return image[x + width() * y];
 }
 

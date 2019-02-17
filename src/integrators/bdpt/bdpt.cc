@@ -89,7 +89,10 @@ void BDPT::iteration(Scene &scene) {
 #ifdef BDPT_DEBUG
                 {
                     std::lock_guard<std::mutex> lockGuard(filmMutex);
-                    debugFilms[std::make_pair(s, t)].addSample(ctx.raster, Spectrum(LPath));
+                    if(t != 1)
+                        debugFilms[std::make_pair(s, t)].addSample(ctx.raster, Spectrum(LPath/ weight));
+                    else
+                        debugFilms[std::make_pair(s, t)].addSample(raster, Spectrum(LPath/ weight));
                 }
 #endif
             }
@@ -232,13 +235,24 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
         Vertex &L = lightVertices[s - 1];
 
         if (t == 1) {
+            if (!L.connectable())return {};
             // Try rasterizing the point
             if (!ctx.camera->rasterize(L.hitPoint(), raster))
                 return {};
-            Ray primary(ctx.camera->viewpoint, (L.hitPoint() - ctx.camera->viewpoint).normalized());
+            auto wi = (L.hitPoint() - ctx.camera->viewpoint);
+            auto dist = wi.lengthSquared();
+            wi /= sqrt(dist);
+
+
+            Ray primary(ctx.camera->viewpoint, wi);
             Spectrum beta(1, 1, 1); // TODO: We should use `sampleWe` instead.
             sampled = Vertex::createCameraVertex(primary, ctx.camera, beta);
-
+            Li = L.beta * L.f(sampled) / dist;
+            if (Li.isBlack())return {};
+            OccludeTester tester(primary, sqrt(dist));
+            if (!tester.visible(scene))return {};
+//            CHECK(tester.visible(scene));
+            Li *= Vec3f::absDot(primary.d, L.Ns());
         } else if (s == 1) {
             Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
             Li = L.L * E.beta * E.f(L);
@@ -266,7 +280,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
 
         }
     }
-    Float naiveWeight = 1.0f / (s + t - 1);
+    Float naiveWeight = 1.0f / (s + t);
     // Float weight = MISWeight(scene, ctx, lightVertices, cameraVertices, s, t, sampled);
     if (misWeightPtr) {
         *misWeightPtr = naiveWeight;

@@ -25,8 +25,9 @@ Float Camera::generatePrimaryRay(Sampler &sampler, const Point2i &raster, Ray *r
 //    Float p1, p2;
 //    pdfWe(*ray,&p1,&p2);
 //    CHECK(p1 > 0 && p2 > 0);
-//    Point2i  dummy;
-//    CHECK(rasterize(ro + 1.0 * rd, & dummy));
+    Point2i dummy;
+    CHECK(rasterize(ro + 400.0 * rd, &dummy));
+    CHECK(abs(dummy.x() - raster.x()) <= 1 && abs(dummy.y() - raster.y()) <= 1);
     return 1;
 }
 
