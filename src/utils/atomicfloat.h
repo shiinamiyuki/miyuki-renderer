@@ -23,9 +23,11 @@ namespace Miyuki {
     class AtomicFloat {
     public:
         AtomicFloat(Float v = 0) { bits = floatToBits(v); }
-        AtomicFloat(const AtomicFloat& rhs){
+
+        AtomicFloat(const AtomicFloat &rhs) {
             bits = floatToBits(rhs);
         }
+
         operator Float() const { return bitsToFloat(bits); }
 
         Float operator=(Float v) {

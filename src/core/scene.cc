@@ -43,7 +43,7 @@ void Scene::commit() {
             auto &material = *materialList[primitive.materialId];
             if (material.Ka().maxReflectance > 0.1) {
                 lights.emplace_back(std::shared_ptr<Light>(new AreaLight(primitive, material.Ka().color)));
-                primitive.light = lights.back().get();/**/
+                primitive.light = lights.back().get();
             }
 
         }

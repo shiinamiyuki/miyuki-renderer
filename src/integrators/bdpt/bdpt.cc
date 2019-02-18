@@ -10,7 +10,8 @@
 #include "../../lights/light.h"
 #include "../../core/film.h"
 #include "../../utils/stats.hpp"
-#define BDPT_DEBUG
+
+//#define BDPT_DEBUG
 using namespace Miyuki;
 
 void Miyuki::BDPT::render(Scene &scene) {
@@ -20,11 +21,13 @@ void Miyuki::BDPT::render(Scene &scene) {
     int32_t N = scene.option.samplesPerPixel;
     int32_t sleepTime = scene.option.sleepTime;
     auto maxDepth = scene.option.maxDepth;
-//    for (int t = 1; t <= maxDepth + 2; ++t) {
-//        for (int s = 0; s <= maxDepth + 12; ++s) {
-//            debugFilms[std::make_pair(s, t)] = Film(scene.film.width(), scene.film.height());
-//        }
-//    }
+#ifdef BDPT_DEBUG
+    for (int t = 1; t <= maxDepth + 2; ++t) {
+        for (int s = 0; s <= maxDepth + 12; ++s) {
+            debugFilms[std::make_pair(s, t)] = Film(scene.film.width(), scene.film.height());
+        }
+    }
+#endif
     double elapsed = 0;
     for (int32_t i = 0; i < N; i++) {
         auto t = runtime([&]() {
@@ -44,7 +47,7 @@ void Miyuki::BDPT::render(Scene &scene) {
                 int depth = t + s - 2;
                 if ((s == 1 && t == 1) || depth < 0 || depth > maxDepth)
                     continue;
-                debugFilms[std::make_pair(s, t)].writePNG(fmt::format("xdata/debug/bdpt_s{}_t{}.png", s, t));
+                debugFilms[std::make_pair(s, t)].writePNG(fmt::format("data/debug/l{}_s{}_t{}.png", s + t, s, t));
             }
         }
     }
@@ -57,7 +60,7 @@ void BDPT::iteration(Scene &scene) {
     auto &film = scene.film;
     auto &seeds = scene.seeds;
     int maxDepth = (int) scene.option.maxDepth;
-    std::mutex filmMutex;
+    std::mutex filmMutex, mutex;
     scene.foreachPixel([&](RenderContext &ctx) {
         Spectrum L;
         auto cameraVertices = ctx.arena.alloc<Vertex>(maxDepth + 2u);
@@ -75,28 +78,28 @@ void BDPT::iteration(Scene &scene) {
                     continue;
                 Point2i raster;
                 Float weight;
-                Spectrum LPath = connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, &raster, &weight);
+                Spectrum LPath = removeNaNs(connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, &raster, &weight));
+
                 if (t != 1)
                     L += LPath;
-                else {
-                    if (!LPath.isBlack()) {
-                       // std::lock_guard<std::mutex> lockGuard(filmMutex);
-                        film.addSplat(raster, LPath);
-                    }
+                else if (!LPath.isBlack()) {
+                    std::lock_guard<std::mutex> lockGuard(filmMutex);
+                    film.addSplat(raster, LPath);
                 }
-//#ifdef BDPT_DEBUG
-//                {
-//                    if (t != 1)
-//                        debugFilms[std::make_pair(s, t)].addSample(ctx.raster, LPath);
-//                    else
-//                        debugFilms[std::make_pair(s, t)].addSample(raster, LPath);
-//                }
-//#endif
+
+#ifdef BDPT_DEBUG
+                {
+                    std::lock_guard<std::mutex> lockGuard(mutex);
+                    if (t != 1)
+                        debugFilms[std::make_pair(s, t)].addSample(ctx.raster, LPath);
+                    else
+                        debugFilms[std::make_pair(s, t)].addSplat(raster, LPath);
+                }
+#endif
             }
         }
         film.addSample(ctx.raster, L);
     });
-
 }
 
 int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, Float pdf, int maxDepth, Vertex *path,
@@ -156,7 +159,7 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
     auto beta = Spectrum(Le * Vec3f::dot(ray.d, normal) / (pdfDir * pdfPos));
     if (pdfDir <= 0 || pdfPos <= 0 || Le.isBlack()) { return 0; }
     // TODO: infinite light
-    vertex = Vertex::createLightVertex(light, ray, normal, lightPdf * pdfDir, Le);
+    vertex = Vertex::createLightVertex(light, ray, normal, lightPdf * pdfPos, Le);
     vertex.L = Le;
     vertex.pdfPos = pdfPos;
     return randomWalk(ray, scene, ctx, beta, pdfDir, maxDepth - 1, path + 1, radiance) + 1;
@@ -229,12 +232,12 @@ Float BDPT::MISWeight(Scene &scene,
     }
 
     // Remaps the delta pdf
-    auto remap0 = [](Float x) { return x != 0 ? x : 1; };
+    auto remap0 = [](Float x) { return x != 0 ? x * x : 1; };
     Float sumRi = 0;
     Float ri = 1;
-    for (int i = t - 1; i > 0; i--) {
+    for (int i = t - 1; i >= 0; i--) { //???
         ri *= remap0(cameraVertices[i].pdfRev) / remap0(cameraVertices[i].pdfFwd);
-        if (!cameraVertices[i].isDelta && !cameraVertices[i - 1].isDelta)
+        if (!cameraVertices[i].isDelta && (i == 0 || !cameraVertices[i - 1].isDelta))
             sumRi += ri;
     }
     ri = 1;
@@ -277,11 +280,12 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             auto wi = (L.hitPoint() - ctx.camera->viewpoint);
             auto dist = wi.lengthSquared();
             wi /= sqrt(dist);
-
-
             Ray primary(ctx.camera->viewpoint, wi);
             Spectrum beta(1, 1, 1); // TODO: We should use `sampleWe` instead.
-            sampled = E;//Vertex::createCameraVertex(primary, ctx.camera, beta);
+            Float pdf, _;
+            ctx.camera->pdfWe(primary, &_, &pdf);
+            sampled = Vertex::createCameraVertex(primary, ctx.camera, Spectrum(beta / pdf));
+            sampled.pdfFwd = pdf;
             Li = L.beta * L.f(sampled) / dist;
             if (Li.isBlack())return {};
             OccludeTester tester(primary, sqrt(dist));
@@ -299,7 +303,8 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             tester.targetPrimID = E.event.getIntersectionInfo()->primID;
             tester.shadowRay = Ray(L.hitPoint(), -1 * wi);
             if (!tester.visible(scene))return {};
-            sampled = L;//Vertex::createLightVertex(L.light, tester.shadowRay, L.lightNormal, L.pdfPos, L.beta);
+            sampled = Vertex::createLightVertex(L.light, tester.shadowRay, L.lightNormal, L.pdfPos, L.beta);
+            sampled.pdfFwd = sampled.pdfLightOrigin(scene, E);
         } else {
             if (!L.connectable() || !E.connectable())return {};
             Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
@@ -314,7 +319,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
         }
     }
     if (Li.isBlack())return Li;
-    if(s + t == 2)return Li;
+    if (s + t == 2)return Li;
     Float naiveWeight = 1.0f / (s + t);
     Float weight = MISWeight(scene, ctx, lightVertices, cameraVertices, s, t, sampled);
     CHECK(!std::isnan(weight) && weight >= 0);

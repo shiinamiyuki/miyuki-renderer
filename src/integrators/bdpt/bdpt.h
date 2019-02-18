@@ -38,7 +38,8 @@ namespace Miyuki {
         Ray primary;
 
 
-        Vertex() : light(nullptr), camera(nullptr), primary({}, {}),pdfPos(NAN) {}
+        Vertex() : light(nullptr), camera(nullptr), primary({}, {}), pdfPos(NAN), pdfFwd(0), pdfRev(0),
+                   isDelta(false) {}
 
         bool connectable() const;
 

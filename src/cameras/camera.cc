@@ -64,6 +64,7 @@ void Camera::pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const {
     auto rd = ray.d;
     rd.w() = 1;
     rd = invMatrix.mult(rd);
+    rd.normalize();
     auto cosT = Vec3f::dot(rd, Vec3f(0, 0, 1));
     if (cosT < 0) {
         *pdfPos = *pdfDir = 0;
@@ -77,10 +78,10 @@ void Camera::pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const {
         return;
     }
     Float lensArea = 1;
-    Float A = 2 * (2.0f * filmDimension.x() / filmDimension.y());
+    Float A = 2 * ((2.0f * filmDimension.x()) / filmDimension.y());
     *pdfPos = 1 / lensArea;
     auto cosT2 = cosT * cosT;
-    *pdfDir = 1 / (A * lensArea * cosT * cosT2);
+    *pdfDir = 1.0f / (A * cosT * cosT2);
 
 }
 
