@@ -32,7 +32,7 @@ A PSSMLT running on path tracer is also implemented.
 4. ~~Primary Sample Space Metropolis Light Transport (Unidirectional)~~
 5. Primary Sample Space Metropolis Light Transport (Bidirectional)
 6. Multiplexed Metropolis Light Transport
-7. ~~Bidirectional Path Tracing with MIS~~ (Almost, except for supporting infnite light and fix small bugs in pdf calculation)
+7. ~~Bidirectional Path Tracing with MIS~~ (Almost, except for supporting infnite light and small bugs in pdf calculation)
 8. Multiple Importance Sampling
 9. Vertex Connection and Merging
 10. ~~Importance sampling for light source~~
