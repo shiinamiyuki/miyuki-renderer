@@ -78,7 +78,8 @@ void BDPT::iteration(Scene &scene) {
                     continue;
                 Point2i raster;
                 Float weight;
-                Spectrum LPath = removeNaNs(connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, &raster, &weight));
+                Spectrum LPath = removeNaNs(
+                        connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, &raster, &weight));
 
                 if (t != 1)
                     L += LPath;
@@ -109,6 +110,7 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
     auto infos = ctx.arena.alloc<IntersectionInfo>((size_t) maxDepth);
     int depth = 0;
     Float pdfFwd = pdf, pdfRev = 0;
+    Float R = beta.max();
     while (true) {
         Vertex &vertex = path[depth];
         Vertex &prev = path[depth - 1];
@@ -132,6 +134,13 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
         // TODO: correct shading normal
         ray = event.spawnRay(event.wiW);
         prev.pdfRev = vertex.convertDensity(pdfRev, prev);
+        if (depth >= scene.option.minDepth && beta.max() < R) {
+            if (ctx.sampler->nextFloat() * R < beta.max()) {
+                beta /= beta.max() / R;
+            } else {
+                break;
+            }
+        }
 
     }
     return depth;
@@ -157,7 +166,7 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
 
     // lightPdf is included in Le
     auto beta = Spectrum(Le * Vec3f::dot(ray.d, normal) / (pdfDir * pdfPos));
-    if (pdfDir <= 0 || pdfPos <= 0 || Le.isBlack()) { return 0; }
+    if (pdfDir <= 0 || pdfPos <= 0 || Le.isBlack() || beta.isBlack()) { return 0; }
     // TODO: infinite light
     vertex = Vertex::createLightVertex(light, ray, normal, lightPdf * pdfPos, Le);
     vertex.L = Le;
@@ -232,12 +241,12 @@ Float BDPT::MISWeight(Scene &scene,
     }
 
     // Remaps the delta pdf
-    auto remap0 = [](Float x) { return x != 0 ? x * x : 1; };
+    auto remap0 = [](Float x) { return x != 0 ? x : 1; };
     Float sumRi = 0;
     Float ri = 1;
-    for (int i = t - 1; i >= 0; i--) { //???
+    for (int i = t - 1; i > 0; i--) { //???
         ri *= remap0(cameraVertices[i].pdfRev) / remap0(cameraVertices[i].pdfFwd);
-        if (!cameraVertices[i].isDelta && (i == 0 || !cameraVertices[i - 1].isDelta))
+        if (!cameraVertices[i].isDelta && !cameraVertices[i - 1].isDelta)
             sumRi += ri;
     }
     ri = 1;
@@ -292,18 +301,28 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             if (!tester.visible(scene))return {};
             Li *= Vec3f::absDot(primary.d, L.Ns());
         } else if (s == 1) {
-            Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
-            Li = L.L * E.beta * E.f(L);
-            Li /= L.pdfPos;
-            if (Li.isBlack()) return {};
-            Li *= GWithoutAbs(scene, ctx, L, E);
-            if (Li.isBlack())return {};
+//            Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
+//            Li = L.L * E.beta * E.f(L);
+//            Li /= L.pdfPos;
+//            if (Li.isBlack()) return {};
+//            Li *= GWithoutAbs(scene, ctx, L, E);
+//            if (Li.isBlack())return {};
+
+//            VisibilityTester tester;
+//            tester.targetGeomID = E.event.getIntersectionInfo()->geomID;
+//            tester.targetPrimID = E.event.getIntersectionInfo()->primID;
+//            tester.shadowRay = Ray(L.hitPoint(), -1 * wi);
+//            if (!tester.visible(scene))return {};
+//            sampled = Vertex::createLightVertex(L.light, tester.shadowRay, L.lightNormal, L.pdfPos, L.beta);
+//            sampled.pdfFwd = sampled.pdfLightOrigin(scene, E);
+            Vec3f wi;
+            Float pdf;
             VisibilityTester tester;
-            tester.targetGeomID = E.event.getIntersectionInfo()->geomID;
-            tester.targetPrimID = E.event.getIntersectionInfo()->primID;
-            tester.shadowRay = Ray(L.hitPoint(), -1 * wi);
+            Li = L.light->sampleLi(ctx.sampler->nextFloat2D(), *E.event.getIntersectionInfo(), &wi, &pdf, &tester);
+            if (Li.isBlack() || pdf <= 0)return {};
+            sampled = Vertex::createLightVertex(L.light, tester.shadowRay, L.Ng(), pdf, Spectrum(Li / pdf));
             if (!tester.visible(scene))return {};
-            sampled = Vertex::createLightVertex(L.light, tester.shadowRay, L.lightNormal, L.pdfPos, L.beta);
+            Li *= E.f(sampled) / pdf * Vec3f::absDot(wi, E.Ns());
             sampled.pdfFwd = sampled.pdfLightOrigin(scene, E);
         } else {
             if (!L.connectable() || !E.connectable())return {};
@@ -439,9 +458,10 @@ Vertex::createSurfaceVertex(const ScatteringEvent &event, const Spectrum &beta, 
     Vertex vertex;
     vertex.event = event;
     vertex.beta = beta;
-    vertex.pdfFwd = prev.convertDensity(pdfFwd, vertex);
     vertex.type = surfaceVertex;
     vertex.light = event.getIntersectionInfo()->primitive->light;
+    // Critical, Vertex::convertDensity requires Vertex::type field to be initialized
+    vertex.pdfFwd = prev.convertDensity(pdfFwd, vertex);
     return vertex;
 }
 
@@ -452,6 +472,7 @@ Vertex::createCameraVertex(const Ray &primary, Camera *camera, const Spectrum &b
     vertex.camera = camera;
     vertex.primary = primary;
     vertex.type = cameraVertex;
+    vertex.isDelta = false;
     return vertex;
 
 }

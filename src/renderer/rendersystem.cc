@@ -142,7 +142,7 @@ void RenderSystem::readDescription(const std::string &filename) {
             if (document.hasKey("integrator")) {
                 const Value &integratorInfo = document["integrator"];
                 integratorName = integratorInfo["type"].getString();
-                if (integratorName == "path-tracer") {
+                if (integratorName == "path-tracer"||integratorName == "pt") {
                     integrator = std::make_unique<PathTracer>();
                 } else if (integratorName == "ambient-occlusion") {
                     integrator = std::make_unique<AOIntegrator>();

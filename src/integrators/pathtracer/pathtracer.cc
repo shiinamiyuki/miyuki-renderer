@@ -71,7 +71,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
         L += beta * direct;
         beta *= f * Vec3f::absDot(event.wiW, info.normal) / event.pdf;
         ray = event.spawnRay(event.wiW);
-        if (depth > scene.option.minDepth) {
+        if (depth > scene.option.minDepth && beta.max() < 1) {
             if (ctx.sampler->nextFloat() < beta.max()) {
                 beta /= beta.max();
             } else {
@@ -90,10 +90,11 @@ Spectrum PathTracer::importanceSampleOneLight(Scene &scene,
                                               ScatteringEvent &event,
                                               bool specular) {
     Spectrum Ld;
-    auto light = scene.chooseOneLight(*ctx.sampler);
+    Float pdfLightChoice;
+    auto light = scene.chooseOneLight(*ctx.sampler, &pdfLightChoice);
     ScatteringEvent scatteringEvent = event;
-    BSDFType bsdfFlags = specular ? BSDFType ::all:
-                         BSDFType ::allButSpecular;
+    BSDFType bsdfFlags = specular ? BSDFType::all :
+                         BSDFType::allButSpecular;
     auto bsdf = event.getIntersectionInfo()->bsdf;
     {
         Vec3f wi;
@@ -147,7 +148,7 @@ Spectrum PathTracer::importanceSampleOneLight(Scene &scene,
                     }
                 }
                 if (!Li.isBlack()) {
-                    Ld += Li * f * weight / scatteringPdf;
+                    Ld += Li * f * weight / scatteringPdf / pdfLightChoice;
                 }
             }
         }

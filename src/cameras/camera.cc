@@ -81,7 +81,7 @@ void Camera::pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const {
     Float A = 2 * ((2.0f * filmDimension.x()) / filmDimension.y());
     *pdfPos = 1 / lensArea;
     auto cosT2 = cosT * cosT;
-    *pdfDir = 1.0f / (A * cosT * cosT2);
+    *pdfDir = 1.0f / (cosT * cosT2);
 
 }
 
