@@ -8,6 +8,7 @@
 #include "../integrators/pathtracer/pathtracer.h"
 #include "../integrators/bdpt/bdpt.h"
 #include "../integrators/pssmlt/pssmlt.h"
+#include "../integrators/mmlt/mmlt.h"
 
 using namespace Miyuki;
 using namespace Miyuki::Json;
@@ -142,7 +143,7 @@ void RenderSystem::readDescription(const std::string &filename) {
             if (document.hasKey("integrator")) {
                 const Value &integratorInfo = document["integrator"];
                 integratorName = integratorInfo["type"].getString();
-                if (integratorName == "path-tracer"||integratorName == "pt") {
+                if (integratorName == "path-tracer" || integratorName == "pt") {
                     integrator = std::make_unique<PathTracer>();
                 } else if (integratorName == "ambient-occlusion") {
                     integrator = std::make_unique<AOIntegrator>();
@@ -150,7 +151,9 @@ void RenderSystem::readDescription(const std::string &filename) {
                     integrator = std::make_unique<BDPT>();
                 } else if (integratorName == "pssmlt") {
                     integrator = std::make_unique<PSSMLTUnidirectional>();
-                } else {
+                } else if (integratorName == "mmlt" || integratorName == "mlt") {
+                    integrator = std::make_unique<MultiplexedMLT>();
+                }else {
                     fmt::print(stderr, "Unrecognized integrator: {}\n", integratorName);
                 }
                 if (integratorInfo.hasKey("max-depth")) {

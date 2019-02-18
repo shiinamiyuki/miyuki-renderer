@@ -13,7 +13,10 @@
 
 
 namespace Miyuki {
-    namespace MLT {
+    class PSSMLTUnidirectional;
+
+    class PathTracer;
+    namespace PSSMLT {
         struct PrimarySample {
             int32_t modify;
             Float value;
@@ -41,52 +44,51 @@ namespace Miyuki {
 
             Float nextFloat(Seed *seed) override;
         };
+
+        class MLTSampler : public RandomSampler {
+            friend class Miyuki::PSSMLTUnidirectional;
+
+            Float I, oldI, b;
+            PSSMLT::Sample oldSample, newSample, contributionSample;
+            Float largeStepProb;
+            bool largeStep;
+            int32_t time;
+            int32_t largeStepTime;
+            int32_t streamIdx;
+            std::vector<PSSMLT::PrimarySample> u;
+            std::vector<std::pair<int32_t, PSSMLT::PrimarySample>> stack;
+
+            void start();
+
+            Float primarySample(int32_t i);
+
+            void push(int32_t i, const PSSMLT::PrimarySample &);
+
+            void pop();
+
+        public:
+            void assignSeed(const PSSMLT::PathSeedGenerator &);
+
+            MLTSampler(Seed *s);
+
+            Float nextFloat() override;
+
+            int32_t nextInt() override;
+
+            Float nextFloat(Seed *seed) override;
+
+            Point2f nextFloat2D() override;
+
+            int32_t nextInt(Seed *seed) override;
+
+            void update(const Point2i &pos, Spectrum &L);
+        };
+
     }
-    class PSSMLTUnidirectional;
 
-    class PathTracer;
-
-    class MLTSampler : public RandomSampler {
-        friend class PSSMLTUnidirectional;
-
-        Float I, oldI, b;
-        MLT::Sample oldSample, newSample, contributionSample;
-        Float largeStepProb;
-        bool largeStep;
-        int32_t time;
-        int32_t largeStepTime;
-        int32_t streamIdx;
-        std::vector<MLT::PrimarySample> u;
-        std::vector<std::pair<int32_t, MLT::PrimarySample>> stack;
-
-        void start();
-
-        Float primarySample(int32_t i);
-
-        void push(int32_t i, const MLT::PrimarySample &);
-
-        void pop();
-
-    public:
-        void assignSeed(const MLT::PathSeedGenerator &);
-
-        MLTSampler(Seed *s);
-
-        Float nextFloat() override;
-
-        int32_t nextInt() override;
-
-        Float nextFloat(Seed *seed) override;
-
-        Point2f nextFloat2D() override;
-
-        int32_t nextInt(Seed *seed) override;
-
-        void update(const Point2i &pos, Spectrum &L);
-    };
 
     class PSSMLTUnidirectional : public Integrator {
-        std::vector<MLTSampler> samples;
+        std::vector<PSSMLT::MLTSampler> samples;
         PathTracer pathTracer;
 
         Spectrum trace(MemoryArena &, int32_t, Scene &, Sampler &, Point2i &);

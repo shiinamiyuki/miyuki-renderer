@@ -12,15 +12,15 @@
 #include "pssmlt.h"
 
 using namespace Miyuki;
-using namespace MLT;
+using namespace PSSMLT;
 
-Float MLT::PathSeedGenerator::nextFloat() {
+Float PSSMLT::PathSeedGenerator::nextFloat() {
     auto x = RandomSampler::nextFloat();
     pathSeed.emplace_back(x);
     return x;
 }
 
-Float MLT::PathSeedGenerator::nextFloat(Seed *seed) {
+Float PSSMLT::PathSeedGenerator::nextFloat(Seed *seed) {
     auto x = RandomSampler::nextFloat(seed);
     pathSeed.emplace_back(x);
     return x;
@@ -40,25 +40,25 @@ Float mutate(Float x, Float u, Float v) {
     return x;
 }
 
-Float Miyuki::MLTSampler::nextFloat() {
+Float Miyuki::PSSMLT::MLTSampler::nextFloat() {
     while (streamIdx >= u.size()) {
-        u.emplace_back(MLT::PrimarySample(RandomSampler::nextFloat(), time));
+        u.emplace_back(PSSMLT::PrimarySample(RandomSampler::nextFloat(), time));
     }
     return primarySample(streamIdx++);
 }
 
-int32_t Miyuki::MLTSampler::nextInt() {
+int32_t Miyuki::PSSMLT::MLTSampler::nextInt() {
     return RandomSampler::nextInt();
 }
 
-Float Miyuki::MLTSampler::nextFloat(Seed *seed) {
+Float Miyuki::PSSMLT::MLTSampler::nextFloat(Seed *seed) {
     while (streamIdx >= u.size()) {
-        u.emplace_back(MLT::PrimarySample(RandomSampler::nextFloat(seed), time));
+        u.emplace_back(PSSMLT::PrimarySample(RandomSampler::nextFloat(seed), time));
     }
     return primarySample(streamIdx++);
 }
 
-int32_t Miyuki::MLTSampler::nextInt(Seed *seed) {
+int32_t Miyuki::PSSMLT::MLTSampler::nextInt(Seed *seed) {
     return RandomSampler::nextInt(seed);
 }
 
@@ -124,7 +124,7 @@ void MLTSampler::update(const Point2i &pos, Spectrum &L) {
     }
 }
 
-void MLTSampler::push(int32_t i, const MLT::PrimarySample &s) {
+void MLTSampler::push(int32_t i, const PSSMLT::PrimarySample &s) {
     stack.emplace_back(std::make_pair(i, s));
 }
 
@@ -134,7 +134,7 @@ void MLTSampler::pop() {
     u[pair.first] = pair.second;
 }
 
-void MLTSampler::assignSeed(const MLT::PathSeedGenerator &pathSeedGenerator) {
+void MLTSampler::assignSeed(const PSSMLT::PathSeedGenerator &pathSeedGenerator) {
     u.clear();
     for (auto &i : pathSeedGenerator.pathSeed) {
         u.emplace_back(PrimarySample(i, 0));

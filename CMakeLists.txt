@@ -23,7 +23,8 @@ file(GLOB integratorSRC
         "src/integrators/pssmlt/*.h"
         "src/integrators/pssmlt/*.cc"
         "src/integrators/bdpt/*.h"
-        "src/integrators/bdpt/*.cc")
+        "src/integrators/bdpt/*.cc"
+        "src/integrators/mmlt/*.cc")
 file(GLOB thirdpartySRC
         "thirdparty/lodepng/lodepng.cpp"
         "thirdparty/tiny_obj_loader/tiny_obj_loader.cc"

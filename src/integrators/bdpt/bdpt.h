@@ -125,7 +125,7 @@ namespace Miyuki {
         int randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, Float pdf, int maxDepth, Vertex *path,
                        TransportMode mode);
 
-        void iteration(Scene &scene);
+        virtual void iteration(Scene &scene);
 
         Spectrum connectBDPT(Scene &scene,
                              RenderContext &ctx,

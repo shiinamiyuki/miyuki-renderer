@@ -299,7 +299,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             if (Li.isBlack())return {};
             OccludeTester tester(primary, sqrt(dist));
             if (!tester.visible(scene))return {};
-            Li *= Vec3f::absDot(primary.d, L.Ns());
+            Li *= Vec3f::absDot(primary.d, L.Ng());
         } else if (s == 1) {
 //            Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
 //            Li = L.L * E.beta * E.f(L);
