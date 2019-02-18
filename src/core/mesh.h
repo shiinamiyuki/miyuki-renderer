@@ -33,6 +33,7 @@ namespace Miyuki {
 
     struct MeshInstance;
     enum class TextureOption;
+
     class BSDFFactory;
 
     std::shared_ptr<TriangularMesh>
@@ -70,14 +71,17 @@ namespace Miyuki {
 
     struct IntersectionInfo;
 
+    class Light;
+
     struct Primitive {
         Vec3f normal[3], vertices[3];
         Point2f textCoord[3];
         Vec3f Ng;
         int32_t materialId;
         Float area;
+        Light *light;
 
-        Primitive() {}
+        Primitive() : light(nullptr) {}
 
         Vec3f normalAt(const Point2f &) const;
 

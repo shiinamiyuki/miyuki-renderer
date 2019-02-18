@@ -59,5 +59,11 @@ namespace Miyuki{
 
         return sign * y;
     }
+    inline Float uniformSpherePdf(){
+        return INVPI;
+    }
+    inline Float cosineHemispherePdf(Float cosTheta){
+        return cosTheta * INVPI;
+    }
 }
 #endif //MIYUKI_FUNC_H

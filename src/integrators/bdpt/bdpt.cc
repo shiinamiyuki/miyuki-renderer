@@ -10,7 +10,7 @@
 #include "../../lights/light.h"
 #include "../../core/film.h"
 
-#define BDPT_DEBUG
+//#define BDPT_DEBUG
 using namespace Miyuki;
 
 void Miyuki::BDPT::render(Scene &scene) {
@@ -89,10 +89,10 @@ void BDPT::iteration(Scene &scene) {
 #ifdef BDPT_DEBUG
                 {
                     std::lock_guard<std::mutex> lockGuard(filmMutex);
-                    if(t != 1)
-                        debugFilms[std::make_pair(s, t)].addSample(ctx.raster, Spectrum(LPath/ weight));
+                    if (t != 1)
+                        debugFilms[std::make_pair(s, t)].addSample(ctx.raster, LPath);
                     else
-                        debugFilms[std::make_pair(s, t)].addSample(raster, Spectrum(LPath/ weight));
+                        debugFilms[std::make_pair(s, t)].addSample(raster, LPath);
                 }
 #endif
             }
@@ -102,7 +102,8 @@ void BDPT::iteration(Scene &scene) {
 
 }
 
-int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, Float pdf, int maxDepth, Vertex *path) {
+int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, Float pdf, int maxDepth, Vertex *path,
+                     TransportMode mode) {
     if (maxDepth <= 0)
         return 0;
     auto infos = ctx.arena.alloc<IntersectionInfo>((size_t) maxDepth);
@@ -142,7 +143,7 @@ int BDPT::generateCameraSubpath(Scene &scene, RenderContext &ctx, int maxDepth, 
     vertex = Vertex::createCameraVertex(ctx.primary, ctx.camera, {1, 1, 1});
     Float pdf, _;
     ctx.camera->pdfWe(ctx.primary, &_, &pdf);
-    return randomWalk(ctx.primary, scene, ctx, {1, 1, 1}, pdf, maxDepth - 1, path + 1) + 1;
+    return randomWalk(ctx.primary, scene, ctx, {1, 1, 1}, pdf, maxDepth - 1, path + 1, importance) + 1;
 }
 
 int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path) {
@@ -159,7 +160,8 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
     vertex = Vertex::createLightVertex(light, ray, normal, lightPdf * pdfDir, Le);
     vertex.L = Le;
     vertex.pdfPos = pdfPos;
-    return randomWalk(ray, scene, ctx, beta, pdfDir, maxDepth - 1, path + 1) + 1;
+    vertex.pdfLightChoice = lightPdf;
+    return randomWalk(ray, scene, ctx, beta, pdfDir, maxDepth - 1, path + 1, radiance) + 1;
 }
 
 /*
@@ -187,15 +189,12 @@ Float BDPT::MISWeight(Scene &scene,
                       Vertex &sampled) {
     if (s + t == 2)
         return 1;
-    Float sumRi = 0;
-    // Remaps the delta pdf
-    auto remap0 = [](Float x) { return x != 0 ? x : 1; };
 
     // Get the necessary vertices
     Vertex *qs = s > 0 ? &lightVertices[s - 1] : nullptr,
             *pt = t > 0 ? &cameraVertices[t - 1] : nullptr,
             *qsMinus = s > 1 ? &lightVertices[s - 2] : nullptr,
-            *ptMinus = t > 1 ? &lightVertices[t - 2] : nullptr;
+            *ptMinus = t > 1 ? &cameraVertices[t - 2] : nullptr;
 
     // Temporarily update vertex
     ScopedAssignment<Vertex> a1;
@@ -204,12 +203,50 @@ Float BDPT::MISWeight(Scene &scene,
     } else if (t == 1) {
         a1 = {pt, sampled};
     }
+
     ScopedAssignment<bool> a2, a3;
     if (pt)
         a2 = {&pt->isDelta, false};
     if (qs)
         a3 = {&qs->isDelta, false};
-    return 0;
+
+    ScopedAssignment<Float> a4;
+    if (pt) {
+        a4 = {&pt->pdfRev, s > 0 ? qs->pdf(scene, qsMinus, *pt) : pt->pdfLightOrigin(scene, *ptMinus)};
+    }
+
+    ScopedAssignment<Float> a5;
+    if (ptMinus) {
+        a5 = {&ptMinus->pdfRev, s > 0 ? pt->pdf(scene, qs, *ptMinus) : pt->pdfLight(scene, *ptMinus)};
+    }
+
+    ScopedAssignment<Float> a6;
+    if (qs) {
+        a6 = {&qs->pdfRev, pt->pdf(scene, ptMinus, *qs)};
+    }
+
+    ScopedAssignment<Float> a7;
+    if (qsMinus) {
+        a7 = {&qsMinus->pdfRev, qs->pdf(scene, pt, *qsMinus)};
+    }
+
+    // Remaps the delta pdf
+    auto remap0 = [](Float x) { return x != 0 ? x : 1; };
+    Float sumRi = 0;
+    Float ri = 1;
+    for (int i = t - 1; i > 0; i--) {
+        ri *= remap0(cameraVertices[i].pdfRev) / remap0(cameraVertices[i].pdfFwd);
+        if (!cameraVertices[i].isDelta && !cameraVertices[i - 1].isDelta)
+            sumRi += ri;
+    }
+    ri = 1;
+    for (int i = s - 1; i > 0; i--) {
+        ri *= remap0(lightVertices[i].pdfRev) / remap0(lightVertices[i].pdfFwd);
+        bool delta = i > 0 ? lightVertices[i - 1].isDelta : lightVertices[0].light->isDeltaLight();
+        if (!lightVertices[i].isDelta && !delta)
+            sumRi += ri;
+    }
+    return 1.0f / (1.0f + sumRi);
 }
 
 /*
@@ -251,7 +288,6 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             if (Li.isBlack())return {};
             OccludeTester tester(primary, sqrt(dist));
             if (!tester.visible(scene))return {};
-//            CHECK(tester.visible(scene));
             Li *= Vec3f::absDot(primary.d, L.Ns());
         } else if (s == 1) {
             Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
@@ -277,15 +313,16 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             tester.targetPrimID = E.event.getIntersectionInfo()->primID;
             tester.shadowRay = Ray(L.hitPoint(), -1 * wi);
             if (!tester.visible(scene))return {};
-
         }
     }
+    if (Li.isBlack())return Li;
     Float naiveWeight = 1.0f / (s + t);
-    // Float weight = MISWeight(scene, ctx, lightVertices, cameraVertices, s, t, sampled);
+    Float weight = MISWeight(scene, ctx, lightVertices, cameraVertices, s, t, sampled);
+    CHECK(!std::isnan(weight));
     if (misWeightPtr) {
-        *misWeightPtr = naiveWeight;
+        *misWeightPtr = weight;
     }
-    Li *= naiveWeight;
+    Li *= weight;
     return Li;
 }
 
@@ -341,22 +378,43 @@ Float Vertex::convertDensity(Float pdf, const Vertex &next) const {
     return pdf * invDist;
 }
 
-Float Vertex::pdf(const Scene &scene, const Vertex *prev, const Vertex &next) const {
+Float Vertex::pdfLight(Scene &scene, const Vertex &v) const {
+    auto w = v.hitPoint() - hitPoint();
+    Float invDist2 = 1 / w.lengthSquared();
+    w *= sqrt(invDist2);
+    Float pdf;
+    if (isInfiniteLight()) {
+        // TODO
+        return 1 / (PI * scene.worldRadius() * scene.worldRadius());
+    } else {
+        CHECK(light);
+        Float pdfPos, pdfDir;
+        light->pdfLe(Ray(hitPoint(), w), Ng(), &pdfPos, &pdfDir);
+        pdf = pdfDir * invDist2;
+    }
+    pdf *= Vec3f::absDot(v.Ng(), w);
+    return pdf;
+}
+
+Float Vertex::pdf(Scene &scene, const Vertex *prev, const Vertex &next) const {
+    if (type == Vertex::lightVertex) {
+        return pdfLight(scene, next);
+    }
     Vec3f wp, wn;
-    wn = (next.hitPoint() - event.hitPoint()).normalized();
+    wn = (next.hitPoint() - hitPoint()).normalized();
     if (prev) {
-        wp = (prev->hitPoint() - event.hitPoint()).normalized();
+        wp = (prev->hitPoint() - hitPoint()).normalized();
+    } else {
+        CHECK(type == Vertex::cameraVertex);
     }
     Float pdf;
     if (type == Vertex::surfaceVertex) {
-        pdf = event.getIntersectionInfo()->bsdf->pdf(wp, wn, event.sampledType);
+        pdf = event.getIntersectionInfo()->bsdf->pdf(event.worldToLocal(wp), event.worldToLocal(wn), BSDFType::all);
 
-    } else if (type == Vertex::lightVertex) {
-        return 0;
     } else {
-        CHECK(type == Vertex::cameraVertex);
+        assert(type == Vertex::cameraVertex);
         Float _;
-        camera->pdfWe(event.spawnRay(wn), &_, &pdf);
+        camera->pdfWe({hitPoint(), wn}, &_, &pdf);
     }
     return convertDensity(pdf, next);
 }
@@ -368,6 +426,7 @@ Vertex::createSurfaceVertex(const ScatteringEvent &event, const Spectrum &beta, 
     vertex.beta = beta;
     vertex.pdfFwd = prev.convertDensity(pdfFwd, vertex);
     vertex.type = surfaceVertex;
+    vertex.light = event.getIntersectionInfo()->primitive->light;
     return vertex;
 }
 
@@ -392,3 +451,14 @@ Vertex Vertex::createLightVertex(Light *light, const Ray &ray, const Vec3f &norm
     vertex.pdfFwd = pdf;
     return vertex;
 }
+
+Float Vertex::pdfLightOrigin(Scene &scene, const Vertex &v) const {
+    CHECK(!isInfiniteLight());
+    CHECK(light);
+    auto w = (v.hitPoint() - hitPoint()).normalized();
+    auto pdfChoice = scene.pdfLightChoice(light);
+    Float pdfPos, pdfDir;
+    light->pdfLe({hitPoint(), w}, Ng(), &pdfPos, &pdfDir);
+    return pdfPos * pdfChoice;
+}
+

@@ -37,13 +37,15 @@ void Scene::commit() {
     rtcCommitScene(rtcScene);
     checkError();
     lights = lightList;
-    for (const auto &instance : instances) {
-        for (const auto &primitive : instance.primitives) {
+    for (auto &instance : instances) {
+        for (auto &primitive : instance.primitives) {
             if (!materialList[primitive.materialId])continue;
             auto &material = *materialList[primitive.materialId];
             if (material.Ka().maxReflectance > 0.1) {
                 lights.emplace_back(std::shared_ptr<Light>(new AreaLight(primitive, material.Ka().color)));
+                primitive.light = lights.back().get();/**/
             }
+
         }
     }
     //  prob(L) = power(L) / total_power
@@ -52,6 +54,10 @@ void Scene::commit() {
         for (const auto &i: lights) {
             i->scalePower(lightDistribution->funcInt / i->power()); // scales by 1 / prob
         }
+    }
+    lightDistributionMap.clear();
+    for(int i= 0;i<lights.size();i++){
+        lightDistributionMap[lights[i].get()] = lightDistribution->pdf(i);
     }
     fmt::print("Important lights: {}, total power: {}\n", lights.size(), lightDistribution->funcInt);
 }
@@ -81,11 +87,11 @@ public:
 
 static NullLight nullLight;
 
-Light *Scene::chooseOneLight(Sampler &sampler, Float* lightPdf) const {
+Light *Scene::chooseOneLight(Sampler &sampler, Float *lightPdf) const {
     if (lights.empty())
         return &nullLight;
     int32_t idx = lightDistribution->sampleInt(sampler.nextFloat());
-    if(lightPdf){
+    if (lightPdf) {
         *lightPdf = lightDistribution->pdf(idx);
     }
     return lights[idx].get();
@@ -142,7 +148,7 @@ void Scene::addSphere(const Vec3f &pos, Float r, int materialId) {
 
 void Scene::writeImage(const std::string &filename) {
     double avg = 0;
-    for(auto &i:film.image){
+    for (auto &i:film.image) {
         avg += i.toInt().length();
     }
     avg /= film.width() * film.height() * 255.0f;
@@ -303,5 +309,9 @@ bool Scene::intersect(const Ray &ray, IntersectionInfo *info) {
     }
     getIntersectionInfo(intersection, info);
     return true;
+}
+
+Float Scene::worldRadius() const {
+    return 1000.0f;
 }
 

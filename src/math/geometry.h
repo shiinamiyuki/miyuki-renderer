@@ -780,8 +780,9 @@ namespace Miyuki {
     }
 
     const Float PI = 3.1415926535f;
-    const Float INVPI = 1.0 / PI;
+    const Float INVPI = 1.0f / PI;
     const Float PI2 = PI / 2;
+    const Float INV4PI = 1.0f / (4.0f * PI);
 
     inline Vec3f sphericalDirection(Float sinTheta, Float cosTheta, Float phi) {
         return Vec3f(sinTheta * std::cos(phi), cosTheta, sinTheta * std::sin(phi));

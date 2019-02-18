@@ -107,10 +107,11 @@ namespace Miyuki {
         Camera camera;
         std::vector<MeshInstance> instances;
         std::vector<Seed> seeds;
-        std::vector<Sampler * > samplers;
+        std::vector<Sampler *> samplers;
         std::vector<std::shared_ptr<Light>> lightList; // contains all user defined lights
         std::vector<std::shared_ptr<Light>> lights;    // contains all lights after commit() is called
         std::unique_ptr<Distribution1D> lightDistribution;
+        std::unordered_map<Light *, Float> lightDistributionMap;
 
         // commit and preprocess scene
         void commit();
@@ -129,15 +130,20 @@ namespace Miyuki {
 
         void foreachPixel(std::function<void(RenderContext &)>);
 
-        Light *chooseOneLight(Sampler &, Float * lightPdf = nullptr) const;
+        Light *chooseOneLight(Sampler &, Float *lightPdf = nullptr) const;
 
         const std::vector<std::shared_ptr<Light>> &getAllLights() const;
 
         void postResize();
 
     public:
+
         MemoryArena miscArena;
         Option option;
+
+        Float worldRadius() const;
+
+        Float pdfLightChoice(Light *light) { return lightDistributionMap[light]; }
 
         bool intersect(const Ray &, IntersectionInfo *);
 

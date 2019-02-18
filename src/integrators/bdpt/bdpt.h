@@ -16,7 +16,9 @@ namespace Miyuki {
     enum class BSDFType;
 
     class Light;
+
     class Film;
+
     struct Vertex {
         enum VertexType {
             lightVertex,
@@ -28,7 +30,7 @@ namespace Miyuki {
         Float pdfFwd, pdfRev;
         VertexType type;
         bool isDelta;
-        Float pdfPos;
+        Float pdfPos, pdfLightChoice;
         Spectrum L;
         Vec3f lightNormal;
         Light *light;
@@ -42,7 +44,7 @@ namespace Miyuki {
 
         Float convertDensity(Float pdf, const Vertex &) const;
 
-        Float pdf(const Scene &, const Vertex *, const Vertex &next) const;
+        Float pdf(Scene &, const Vertex *, const Vertex &next) const;
 
         static Vertex
         createLightVertex(Light *light, const Ray &ray, const Vec3f &normal, Float pdf, const Spectrum &beta);
@@ -94,17 +96,33 @@ namespace Miyuki {
             auto wo = (prev.hitPoint() - hitPoint()).normalized();
             return event.Le(wo);
         }
+
+        Float pdfLight(Scene &scene, const Vertex &v) const;
+
+        Float pdfLightOrigin(Scene &scene, const Vertex &v) const;
+
+        bool isInfiniteLight() const {
+            return false;
+        }
+
+        bool isOnSurface() const;
     };
 
     class BDPT : public Integrator {
     public:
         std::map<std::pair<int, int>, Film> debugFilms;
     protected:
+        enum TransportMode {
+            radiance,
+            importance
+        };
+
         int generateCameraSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path);
 
         int generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path);
 
-        int randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, Float pdf, int maxDepth, Vertex *path);
+        int randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, Float pdf, int maxDepth, Vertex *path,
+                       TransportMode mode);
 
         void iteration(Scene &scene);
 
@@ -123,7 +141,7 @@ namespace Miyuki {
                         Vertex *cameraVertices,
                         int s,
                         int t,
-                        Vertex & sampled);
+                        Vertex &sampled);
 
         Spectrum G(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E);
 
