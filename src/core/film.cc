@@ -8,15 +8,20 @@
 using namespace Miyuki;
 
 Miyuki::Spectrum Miyuki::Film::Pixel::toInt() const {
-    auto w = filterWeightSum == 0 ? 1 : filterWeightSum;
-    auto c = color;
-    c /= w;
-    return c.gammaCorrection();
+    return L().gammaCorrection();
 }
 
 void Film::Pixel::add(const Spectrum &c, const Float &w) {
     color += c;
     filterWeightSum += w;
+}
+
+Spectrum Film::Pixel::L() const {
+    auto w = filterWeightSum == 0 ? 1 : filterWeightSum;
+    auto c = color;
+    c += Spectrum{splatXYZ[0], splatXYZ[1], splatXYZ[2]};
+    c /= w;
+    return c;
 }
 
 Film::Pixel &Film::getPixel(const Point2f &p) {
@@ -63,7 +68,8 @@ void Film::addSample(const Point2i &pos, const Spectrum &c, Float weight) {
 }
 
 void Film::addSplat(const Point2i &pos, const Spectrum &c) {
-    getPixel(pos).add(c, 0);
+    for (int i = 0; i < 3; i++)
+        getPixel(pos).splatXYZ[i].add(c[i]);
 }
 
 void Film::initTiles() {

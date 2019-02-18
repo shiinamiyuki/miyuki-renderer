@@ -6,6 +6,7 @@
 #define MIYUKI_FILM_H
 
 #include "../utils/util.h"
+#include "../utils/atomicfloat.h"
 #include "../math/geometry.h"
 #include "spectrum.h"
 #include "memory.h"
@@ -21,11 +22,11 @@ namespace Miyuki {
         struct Pixel {
             Spectrum color;
             Float filterWeightSum;
-
-            Pixel() : color(0, 0, 0), filterWeightSum(0) {}
+            AtomicFloat splatXYZ[3];
+            Pixel() : color(0, 0, 0), filterWeightSum(0){}
 
             Spectrum toInt() const;
-
+            Spectrum L()const;
             void add(const Spectrum &c, const Float &w);
         };
 

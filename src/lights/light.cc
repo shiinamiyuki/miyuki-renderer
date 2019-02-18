@@ -18,7 +18,7 @@ bool OccludeTester::visible(const Scene &scene) const {
     Intersection intersection(shadowRay);
     intersection.rayHit.ray.tfar = far + 0.01f;
     intersection.intersect(scene);
-    return intersection.hitDistance() >= far - 0.01f;
+    return !intersection.hit();
 }
 
 AreaLight::AreaLight(const Primitive &_primitive, const Spectrum &ka)

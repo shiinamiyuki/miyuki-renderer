@@ -56,7 +56,7 @@ void Scene::commit() {
         }
     }
     lightDistributionMap.clear();
-    for(int i= 0;i<lights.size();i++){
+    for (int i = 0; i < lights.size(); i++) {
         lightDistributionMap[lights[i].get()] = lightDistribution->pdf(i);
     }
     fmt::print("Important lights: {}, total power: {}\n", lights.size(), lightDistribution->funcInt);
@@ -149,9 +149,9 @@ void Scene::addSphere(const Vec3f &pos, Float r, int materialId) {
 void Scene::writeImage(const std::string &filename) {
     double avg = 0;
     for (auto &i:film.image) {
-        avg += i.toInt().length();
+        avg += luminance(i.L());
     }
-    avg /= film.width() * film.height() * 255.0f;
+    avg /= film.width() * film.height();
     fmt::print("Avg brightness: {}\n", avg);
     film.writePNG(filename);
 }

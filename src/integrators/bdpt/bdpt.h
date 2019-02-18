@@ -30,7 +30,7 @@ namespace Miyuki {
         Float pdfFwd, pdfRev;
         VertexType type;
         bool isDelta;
-        Float pdfPos, pdfLightChoice;
+        Float pdfPos;
         Spectrum L;
         Vec3f lightNormal;
         Light *light;
@@ -38,7 +38,7 @@ namespace Miyuki {
         Ray primary;
 
 
-        Vertex() : light(nullptr), camera(nullptr), primary({}, {}) {}
+        Vertex() : light(nullptr), camera(nullptr), primary({}, {}),pdfPos(NAN) {}
 
         bool connectable() const;
 

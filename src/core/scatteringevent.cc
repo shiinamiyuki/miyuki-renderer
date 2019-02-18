@@ -44,6 +44,8 @@ const IntersectionInfo *ScatteringEvent::getIntersectionInfo() const {
 }
 
 Spectrum ScatteringEvent::Le(const Vec3f &wo) const {
+    if(worldToLocal(wo).y() < 0)
+        return {};
     return info->Le(wo);
 }
 
