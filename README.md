@@ -11,7 +11,16 @@
 
 Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-primitive intersection.
 
-## Current Progress (In inverse chronolocial order)
+## How to build
+
+Dependencies: Embree 3.0, boost filesystem(not required when on non-Windows).
+
+CMake everything.
+
+## Current Progress (In inverse chronological order)
+
+BDPT is almost done. We are now fixing remaining bugs. Soon Multiplexed MLT will also be available
+
 Debugging BDPT is total nightmare.
 
 Refactoring is done. Now we can handle `BSDF`s easier and faster.
@@ -33,12 +42,13 @@ A PSSMLT running on path tracer is also implemented.
 5. Primary Sample Space Metropolis Light Transport (Bidirectional)
 6. Multiplexed Metropolis Light Transport
 7. ~~Bidirectional Path Tracing with MIS~~ (Almost, except for supporting infnite light and small bugs in pdf calculation)
-8. Multiple Importance Sampling
+8. ~~Multiple Importance Sampling~~
 9. Vertex Connection and Merging
 10. ~~Importance sampling for light source~~
 11. Mixed BSDF (partially)
 12. Material system
 13. Fourier BSDF
+14. Environment mapping
 
 # Gallery (Random test images)
 
