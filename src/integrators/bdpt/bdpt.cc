@@ -116,7 +116,15 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
         Vertex &prev = path[depth - 1];
         auto info = &infos[depth];
         bool foundIntersection = scene.intersect(ray, info);
-        if (!foundIntersection) { break; }
+        if (!foundIntersection) {
+            // capture escaped rays from camera
+            if (mode == importance) {
+                // add infinite light
+                vertex = Vertex::createLightVertex(scene.infiniteLight.get(), ray, ray.d, pdfFwd, beta);
+                depth++;
+            }
+            break;
+        }
         ScatteringEvent event = makeScatteringEvent(ray, info, ctx.sampler);
         vertex = Vertex::createSurfaceVertex(event, beta, pdfFwd, prev);
         if (++depth >= maxDepth)
@@ -131,10 +139,11 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
             vertex.isDelta = true;
             pdfFwd = pdfRev = 0;
         }
-        // TODO: correct shading normal
+        // correct shading normal
+        beta *= correctShadingNormal(event, event.woW, event.wiW, mode);
         ray = event.spawnRay(event.wiW);
         prev.pdfRev = vertex.convertDensity(pdfRev, prev);
-        if (depth + 1 >= scene.option.minDepth && beta.max() < R) {
+        if (depth + 1 >= scene.option.minDepth) {
             if (ctx.sampler->nextFloat() * R < beta.max()) {
                 beta /= beta.max() / R;
             } else {
@@ -168,6 +177,7 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
     auto beta = Spectrum(Le * Vec3f::dot(ray.d, normal) / (pdfDir * pdfPos));
     if (pdfDir <= 0 || pdfPos <= 0 || Le.isBlack() || beta.isBlack()) { return 0; }
     // TODO: infinite light
+    // At present, no rays will be emitted from infinite area lights.
     vertex = Vertex::createLightVertex(light, ray, normal, lightPdf * pdfPos, Le);
     vertex.L = Le;
     vertex.pdfPos = pdfPos;
@@ -244,7 +254,7 @@ Float BDPT::MISWeight(Scene &scene,
     auto remap0 = [](Float x) { return x != 0 ? x : 1; };
     Float sumRi = 0;
     Float ri = 1;
-    for (int i = t - 1; i > 0; i--) { //???
+    for (int i = t - 1; i > 0; i--) {
         ri *= remap0(cameraVertices[i].pdfRev) / remap0(cameraVertices[i].pdfFwd);
         if (!cameraVertices[i].isDelta && !cameraVertices[i - 1].isDelta)
             sumRi += ri;
@@ -267,8 +277,9 @@ Float BDPT::MISWeight(Scene &scene,
 Spectrum
 BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Vertex *cameraVertices, int s, int t,
                   Point2i *raster, Float *misWeightPtr) {
-    // TODO: infinite lights
-
+    // Ignore nonsensical connections related to infinite lights
+    if (t > 1 && s != 0 && cameraVertices[t - 1].isInfiniteLight())
+        return {};
     Vertex &E = cameraVertices[t - 1];
     Spectrum Li;
     Vertex sampled;
@@ -277,7 +288,10 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
     }
     if (s == 0) {
         Vertex &prev = cameraVertices[t - 2];
-        Li = prev.beta * E.Le(prev);
+        Li = prev.beta * E.Le(prev) * E.beta;
+        //At present, the only way to sample infinite light is to sample the brdf
+        if(E.isInfiniteLight())
+            return Li;
     } else {
         Vertex &L = lightVertices[s - 1];
 
@@ -375,7 +389,9 @@ bool Vertex::connectable() const {
 }
 
 Float Vertex::convertDensity(Float pdf, const Vertex &next) const {
-    // TODO: infinite light
+    // solid angle density for infinite light
+    if(isInfiniteLight())
+        return pdf;
     // solid angle = dA cos(theta) / dist^2
     // 1/ solid angle = 1 / dA  * dist^2 / cos(theta)
     // pdf = pdfA * dist^2 / cos(theta)
@@ -388,7 +404,10 @@ Float Vertex::convertDensity(Float pdf, const Vertex &next) const {
 }
 
 Float Vertex::pdfLightOrigin(Scene &scene, const Vertex &v) const {
-    CHECK(!isInfiniteLight());
+    // TODO: infinite lights
+    // Current implementation doesn't allow rays to be emitted from infinite area lights
+    if(isInfiniteLight())
+        return 0;
     CHECK(light);
     auto w = (v.hitPoint() - hitPoint()).normalized();
     auto pdfChoice = scene.pdfLightChoice(light);
@@ -404,8 +423,9 @@ Float Vertex::pdfLight(Scene &scene, const Vertex &v) const {
     w *= sqrt(invDist2);
     Float pdf;
     if (isInfiniteLight()) {
-        // TODO
-        return 1 / (PI * scene.worldRadius() * scene.worldRadius());
+        // TODO: infinite lights
+        return 0;
+        //return 1 / (PI * scene.worldRadius() * scene.worldRadius());
     } else {
         CHECK(light);
         Float pdfPos, pdfDir;

@@ -6,11 +6,13 @@
 #define MIYUKI_INFINITE_H
 
 #include "light.h"
-namespace Miyuki{
-    class InfiniteLight : public Light{
+
+namespace Miyuki {
+    class InfiniteLight : public Light {
         ColorMap albedo;
     public:
-        InfiniteLight(ColorMap & albedo);
+        InfiniteLight(const ColorMap &albedo);
+
         Spectrum sampleLi(const Point2f &u, const IntersectionInfo &info, Vec3f *wi, Float *pdf,
                           VisibilityTester *tester) const override;
 

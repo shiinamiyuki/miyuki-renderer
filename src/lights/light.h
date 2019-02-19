@@ -44,7 +44,7 @@ namespace Miyuki {
 
         OccludeTester(const Ray &shadowRay, Float far) : shadowRay(shadowRay), far(far) {}
 
-        bool visible(const Scene &)const;
+        bool visible(const Scene &) const;
     };
 
     class Light {
@@ -57,10 +57,11 @@ namespace Miyuki {
             area = 4,
             infinite = 8
         } type;
+        Float importance;
 
-        Light() : ka() {}
+        Light() : ka(), importance(1) {}
 
-        explicit Light(const Spectrum &_ka) : ka(_ka) {}
+        explicit Light(const Spectrum &_ka) : ka(_ka), importance(1) {}
 
         virtual Spectrum sampleLi(const Point2f &u,
                                   const IntersectionInfo &info,
@@ -76,6 +77,8 @@ namespace Miyuki {
                                   Float *pdfDir) const = 0;
 
         virtual Float power() const { return ka.max(); }
+
+        virtual Spectrum L() const { return ka; }
 
         bool isDeltaLight() const {
             return ((int32_t) type & (int32_t) Type::deltaDirection)

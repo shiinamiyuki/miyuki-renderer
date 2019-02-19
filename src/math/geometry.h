@@ -582,6 +582,7 @@ namespace Miyuki {
 
     template<typename T, size_t N>
     struct Vec {
+        typedef T ValueType;
         T v[N];
 
         T &x() { static_assert(N >= 1, "no x component"); return v[0]; }
@@ -745,17 +746,31 @@ namespace Miyuki {
     const Float EPS = Float(0.001);
     const Float INF = 1e64;
 
+    template<typename T, size_t N>
+    Float distance(const Vec<T, N> &a, const Vec<T, N> &b) {
+        Float d = 0;
+        for (auto i = 0; i < N; i++) {
+            d += (a[i] - b[i]) * (a[i] - b[i]);
+        }
+        return sqrtf(d);
+    }
+
     template<typename T>
     struct Bound {
         T pMin, pMax;
 
         Bound(const T &_min, const T &_max) : pMin(_min), pMax(_max) {}
 
-        bool contains(const T &point) {
+        bool contains(const T &point) const {
             for (int32_t i = 0; i < pMax.size(); i++) {
                 if (point[i] < pMin[i] || point[i] > pMax[i])return false;
             }
             return true;
+        }
+
+        void boundingSphere(T *center, Float *radius) const {
+            *center = (pMin + pMax) / 2;
+            *radius = contains(*center) ? distance(*center, pMax) : 0;
         }
     };
 
@@ -795,4 +810,5 @@ namespace Miyuki {
                cosTheta * y;
     }
 }
+
 #endif //MIYUKI_VEC_HPP

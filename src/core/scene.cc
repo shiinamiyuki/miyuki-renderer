@@ -14,7 +14,7 @@
 
 using namespace Miyuki;
 
-Scene::Scene() : film(1000, 1000) {
+Scene::Scene() : film(1000, 1000), worldBound({}, {}) {
     rtcScene = rtcNewScene(GetEmbreeDevice());
     postResize();
     camera.fov = 80 / 180.0f * M_PI;
@@ -28,7 +28,8 @@ Scene::~Scene() {
 void Scene::computeLightDistribution() {
     std::vector<Float> power;
     for (const auto &i:lights) {
-        power.emplace_back(i->power());
+        CHECK(i->importance > 0);
+        power.emplace_back(i->power() * i->importance);
     }
     lightDistribution = std::make_unique<Distribution1D>(Distribution1D(power.data(), power.size()));
 }
@@ -50,16 +51,30 @@ void Scene::commit() {
     }
     //  prob(L) = power(L) / total_power
     computeLightDistribution();
-    if (lightDistribution) {
-        for (const auto &i: lights) {
-            i->scalePower(lightDistribution->funcInt / i->power()); // scales by 1 / prob
-        }
-    }
+//    if (lightDistribution) {
+//        for (const auto &i: lights) {
+//            i->scalePower(lightDistribution->funcInt / i->power()); // scales by 1 / prob
+//        }
+//    }
     lightDistributionMap.clear();
     for (int i = 0; i < lights.size(); i++) {
+        lights[i]->scalePower(1.0f / lightDistribution->pdf(i));
         lightDistributionMap[lights[i].get()] = lightDistribution->pdf(i);
     }
+    infiniteLight = std::make_unique<InfiniteLight>(ColorMap(ambientLight));
     fmt::print("Important lights: {}, total power: {}\n", lights.size(), lightDistribution->funcInt);
+    Point3f pMin(INF, INF, INF);
+    Point3f pMax(-INF, -INF, -INF);
+    for (const auto &i:instances) {
+        for (const auto &p:i.primitives) {
+            for (int _ = 0; _ < 3; _++) {
+                pMin = min(pMin, p.vertices[_]);
+                pMax = max(pMax, p.vertices[_]);
+            }
+        }
+    }
+    worldBound = Bound3f(pMin, pMax);
+    fmt::print("World radius: {}\n",worldRadius());
 }
 
 class NullLight : public Light {
@@ -312,6 +327,9 @@ bool Scene::intersect(const Ray &ray, IntersectionInfo *info) {
 }
 
 Float Scene::worldRadius() const {
-    return 1000.0f;
+    Float r;
+    Point3f center;
+    worldBound.boundingSphere(&center, &r);
+    return r;
 }
 

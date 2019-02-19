@@ -53,7 +53,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
     for (int32_t depth = 0; depth < maxDepth; depth++) {
         if (!scene.intersect(ray, &info)) {
             if (showAL || depth == 0) {
-                L += beta * scene.ambientLight;
+                L += beta * scene.infiniteLight->L();
             }
             break;
         }
@@ -71,7 +71,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
         L += beta * direct;
         beta *= f * Vec3f::absDot(event.wiW, info.normal) / event.pdf;
         ray = event.spawnRay(event.wiW);
-        if (depth > scene.option.minDepth && beta.max() < 1) {
+        if (depth > scene.option.minDepth) {
             if (ctx.sampler->nextFloat() < beta.max()) {
                 beta /= beta.max();
             } else {

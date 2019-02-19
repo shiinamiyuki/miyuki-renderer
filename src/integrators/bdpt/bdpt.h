@@ -94,6 +94,9 @@ namespace Miyuki {
         }
 
         Spectrum Le(const Vertex &prev) const {
+            if(isInfiniteLight()){
+                return light->L();
+            }
             auto wo = (prev.hitPoint() - hitPoint()).normalized();
             return event.Le(wo);
         }
@@ -103,7 +106,7 @@ namespace Miyuki {
         Float pdfLightOrigin(Scene &scene, const Vertex &v) const;
 
         bool isInfiniteLight() const {
-            return false;
+            return type == lightVertex && ((int) light->type & (int) Light::Type::infinite) != 0;
         }
 
         bool isOnSurface() const;
@@ -149,6 +152,16 @@ namespace Miyuki {
         Spectrum GWithoutAbs(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E);
 
     public:
+        static inline Float
+        correctShadingNormal(const ScatteringEvent &event, const Vec3f &wo, const Vec3f &wi, TransportMode mode) {
+            if (mode == importance) {
+                return (Vec3f::absDot(wo, event.Ns) * Vec3f::absDot(wi, event.Ng())) /
+                       (Vec3f::absDot(wo, event.Ng()) * Vec3f::absDot(wi, event.Ns));
+            } else {
+                return 1.0f;
+            }
+        }
+
         void render(Scene &) override;
     };
 

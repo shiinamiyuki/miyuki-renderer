@@ -24,7 +24,7 @@ void InfiniteLight::pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Fl
 
 }
 
-InfiniteLight::InfiniteLight(ColorMap &albedo) : albedo(albedo) {
+InfiniteLight::InfiniteLight(const ColorMap &albedo) : albedo(albedo), Light(albedo.color) {
     type = Light::Type::infinite;
     ka = albedo.color;
 }

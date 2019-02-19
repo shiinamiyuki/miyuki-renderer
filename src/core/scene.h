@@ -8,20 +8,20 @@
 #include "../utils/util.h"
 #include "film.h"
 #include "mesh.h"
-#include "../samplers/sampler.h"
-#include "../lights/light.h"
+#include "memory.h"
 #include "intersection.h"
 #include "ray.h"
 #include "scatteringevent.h"
+#include "../samplers/sampler.h"
+#include "../lights/light.h"
+#include "../lights/infinite.h"
 #include "../integrators/integrator.h"
 #include "../bsdfs/bsdf.h"
 #include "../math/transform.h"
 #include "../math/distribution.h"
-#include "memory.h"
 
 #include "../samplers/random.h"
 #include "../samplers/stratified.h"
-
 #include "../cameras/camera.h"
 
 namespace Miyuki {
@@ -100,6 +100,7 @@ namespace Miyuki {
 
         friend class MultiplexedMLT;
 
+        Bound3f worldBound;
         ConcurrentMemoryArenaAllocator arenaAllocator;
         MemoryArena samplerArena;
         Spectrum ambientLight;
@@ -138,6 +139,7 @@ namespace Miyuki {
 
         void postResize();
 
+        std::unique_ptr<InfiniteLight> infiniteLight;
     public:
 
         MemoryArena miscArena;
@@ -181,6 +183,14 @@ namespace Miyuki {
 
         Point2i getResolution() const { return Point2i(film.width(), film.height()); };
     };
+
+    inline Point3f min(const Point3f &a, const Vec3f &b) {
+        return {std::min(a.x(), b.x()), std::min(a.y(), b.y()), std::min(a.z(), b.z())};
+    }
+
+    inline Point3f max(const Point3f &a, const Vec3f &b) {
+        return {std::max(a.x(), b.x()), std::max(a.y(), b.y()), std::max(a.z(), b.z())};
+    }
 }
 
 
