@@ -22,8 +22,8 @@ namespace Miyuki {
         struct Pixel {
             Spectrum color;
             Float filterWeightSum;
-            //AtomicFloat splatXYZ[3];
-            Spectrum splat;
+            AtomicFloat splatXYZ[3];
+            //Spectrum splat;
             Pixel() : color(0, 0, 0), filterWeightSum(0){}
 
             Spectrum toInt() const;

@@ -3,6 +3,8 @@
 //
 
 #include "light.h"
+#include "../math/func.h"
+#include "../utils/util.h"
 
 using namespace Miyuki;
 
@@ -99,7 +101,11 @@ Spectrum PointLight::sampleLi(const Point2f &u, const IntersectionInfo &info, Ve
 
 Spectrum PointLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
                               Float *pdfDir) const {
-    return {};
+    *ray = Ray{position, sphereSampling(u1.x(), u1.y())};
+    *normal = ray->d;
+    *pdfPos = 1;
+    *pdfDir = uniformSpherePdf();
+    return ka;
 }
 
 Float PointLight::pdfLi(const IntersectionInfo &info, const Vec3f &wi) const {
@@ -108,5 +114,6 @@ Float PointLight::pdfLi(const IntersectionInfo &info, const Vec3f &wi) const {
 
 void PointLight::pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const {
     *pdfPos = 0;
+    *pdfDir = uniformSpherePdf();
 }
 

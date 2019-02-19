@@ -81,3 +81,7 @@ void MultiplexedMLT::iteration(Scene &scene) {
 void MultiplexedMLT::render(Scene &scene) {
     BDPT::render(scene);
 }
+
+Spectrum MultiplexedMLT::L(Scene &scene, MemoryArena &arena, MLTSampler &sampler, int depth, Point2i *raster) {
+    return Miyuki::Spectrum();
+}

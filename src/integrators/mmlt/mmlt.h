@@ -47,6 +47,7 @@ namespace Miyuki {
         void reject();
 
         int getNextIndex();
+
     public:
         MLTSampler(Seed *seed) : RandomSampler(seed),
                                  currentIteration(0), largeStep(true), lastLargeStepIteration(0) {}
@@ -58,12 +59,15 @@ namespace Miyuki {
         void start() override;
 
         void startIteration();
+
         void startStream(int index);
 
     };
 
     class MultiplexedMLT : public BDPT {
+        ConcurrentMemoryArenaAllocator arenaAllocator;
     public:
+        Spectrum L(Scene &scene, MemoryArena &arena, MLTSampler &sampler, int depth, Point2i *raster);
 
         void iteration(Scene &scene) override;
 

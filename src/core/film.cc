@@ -19,7 +19,7 @@ void Film::Pixel::add(const Spectrum &c, const Float &w) {
 Spectrum Film::Pixel::L() const {
     auto w = filterWeightSum == 0 ? 1 : filterWeightSum;
     auto c = color;
-    c += splat;//Spectrum{splatXYZ[0], splatXYZ[1], splatXYZ[2]};
+    c += Spectrum{splatXYZ[0], splatXYZ[1], splatXYZ[2]};
     c /= w;
     return c;
 }
@@ -68,9 +68,9 @@ void Film::addSample(const Point2i &pos, const Spectrum &c, Float weight) {
 }
 
 void Film::addSplat(const Point2i &pos, const Spectrum &c) {
-//    for (int i = 0; i < 3; i++)
-//        getPixel(pos).splatXYZ[i].add(c[i]);
-    getPixel(pos).splat += c;
+    for (int i = 0; i < 3; i++)
+        getPixel(pos).splatXYZ[i].add(c[i]);
+//    getPixel(pos).splat += c;
 }
 
 void Film::initTiles() {

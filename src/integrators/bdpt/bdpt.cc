@@ -84,7 +84,7 @@ void BDPT::iteration(Scene &scene) {
                 if (t != 1)
                     L += LPath;
                 else if (!LPath.isBlack()) {
-                    std::lock_guard<std::mutex> lockGuard(filmMutex);
+//                    std::lock_guard<std::mutex> lockGuard(filmMutex);
                     film.addSplat(raster, LPath);
                 }
 
@@ -134,7 +134,7 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
         // TODO: correct shading normal
         ray = event.spawnRay(event.wiW);
         prev.pdfRev = vertex.convertDensity(pdfRev, prev);
-        if (depth >= scene.option.minDepth && beta.max() < R) {
+        if (depth + 1 >= scene.option.minDepth && beta.max() < R) {
             if (ctx.sampler->nextFloat() * R < beta.max()) {
                 beta /= beta.max() / R;
             } else {
@@ -301,20 +301,6 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             if (!tester.visible(scene))return {};
             Li *= Vec3f::absDot(primary.d, L.Ng());
         } else if (s == 1) {
-//            Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
-//            Li = L.L * E.beta * E.f(L);
-//            Li /= L.pdfPos;
-//            if (Li.isBlack()) return {};
-//            Li *= GWithoutAbs(scene, ctx, L, E);
-//            if (Li.isBlack())return {};
-
-//            VisibilityTester tester;
-//            tester.targetGeomID = E.event.getIntersectionInfo()->geomID;
-//            tester.targetPrimID = E.event.getIntersectionInfo()->primID;
-//            tester.shadowRay = Ray(L.hitPoint(), -1 * wi);
-//            if (!tester.visible(scene))return {};
-//            sampled = Vertex::createLightVertex(L.light, tester.shadowRay, L.lightNormal, L.pdfPos, L.beta);
-//            sampled.pdfFwd = sampled.pdfLightOrigin(scene, E);
             Vec3f wi;
             Float pdf;
             VisibilityTester tester;
@@ -322,7 +308,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             if (Li.isBlack() || pdf <= 0)return {};
             sampled = Vertex::createLightVertex(L.light, tester.shadowRay, L.Ng(), pdf, Spectrum(Li / pdf));
             if (!tester.visible(scene))return {};
-            Li *= E.f(sampled) / pdf * Vec3f::absDot(wi, E.Ns());
+            Li *= E.beta * E.f(sampled) / pdf * Vec3f::absDot(wi, E.Ns());
             sampled.pdfFwd = sampled.pdfLightOrigin(scene, E);
         } else {
             if (!L.connectable() || !E.connectable())return {};
