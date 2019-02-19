@@ -143,16 +143,22 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
         beta *= correctShadingNormal(event, event.woW, event.wiW, mode);
         ray = event.spawnRay(event.wiW);
         prev.pdfRev = vertex.convertDensity(pdfRev, prev);
-        if (depth + 1 >= scene.option.minDepth) {
-            if (ctx.sampler->nextFloat() * R < beta.max()) {
-                beta /= beta.max() / R;
-            } else {
-                break;
-            }
+        Float p = continuationProbability(scene, R, beta, depth);
+        if (ctx.sampler->nextFloat() < p) {
+            beta /= p;
+        } else {
+            break;
         }
 
     }
     return depth;
+}
+
+Float BDPT::continuationProbability(const Scene &scene, Float R, const Spectrum &beta, int depth) {
+    if (depth + 1 >= scene.option.minDepth) {
+        return beta.max() / R;
+    }
+    return 1;
 }
 
 
@@ -290,7 +296,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
         Vertex &prev = cameraVertices[t - 2];
         Li = E.Le(prev) * E.beta;
         //At present, the only way to sample infinite light is to sample the brdf
-        if(E.isInfiniteLight())
+        if (E.isInfiniteLight())
             return Li;
     } else {
         Vertex &L = lightVertices[s - 1];
@@ -361,18 +367,6 @@ Spectrum BDPT::G(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E) {
     return beta;
 }
 
-Spectrum BDPT::GWithoutAbs(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E) {
-    Vec3f wi = (L.hitPoint() - E.hitPoint());
-    Float dist = wi.lengthSquared();
-    Float g = 1 / dist;
-    wi /= sqrt(dist);
-    g *= -Vec3f::dot(wi, L.Ns());
-    g *= Vec3f::dot(wi, E.Ns());
-    Spectrum beta(1, 1, 1);
-    beta *= g;
-    return beta;
-}
-
 
 bool Vertex::connectable() const {
     switch (type) {
@@ -390,7 +384,7 @@ bool Vertex::connectable() const {
 
 Float Vertex::convertDensity(Float pdf, const Vertex &next) const {
     // solid angle density for infinite light
-    if(isInfiniteLight())
+    if (isInfiniteLight())
         return pdf;
     // solid angle = dA cos(theta) / dist^2
     // 1/ solid angle = 1 / dA  * dist^2 / cos(theta)
@@ -406,7 +400,7 @@ Float Vertex::convertDensity(Float pdf, const Vertex &next) const {
 Float Vertex::pdfLightOrigin(Scene &scene, const Vertex &v) const {
     // TODO: infinite lights
     // Current implementation doesn't allow rays to be emitted from infinite area lights
-    if(isInfiniteLight())
+    if (isInfiniteLight())
         return 0;
     CHECK(light);
     auto w = (v.hitPoint() - hitPoint()).normalized();

@@ -41,6 +41,9 @@ Film::Pixel &Film::getPixel(const Point2i &p) {
 void Film::scaleImageColor(Float scale) {
     for (auto &i:image) {
         i.color *= scale;
+        for(int k = 0;k<3;k++){
+            i.splatXYZ[k] = i.splatXYZ[k] * scale;
+        }
     }
 }
 
@@ -68,8 +71,9 @@ void Film::addSample(const Point2i &pos, const Spectrum &c, Float weight) {
 }
 
 void Film::addSplat(const Point2i &pos, const Spectrum &c) {
+    auto color = removeNaNs(c);
     for (int i = 0; i < 3; i++)
-        getPixel(pos).splatXYZ[i].add(c[i]);
+        getPixel(pos).splatXYZ[i].add(color[i]);
 //    getPixel(pos).splat += c;
 }
 

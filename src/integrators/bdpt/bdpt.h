@@ -94,7 +94,7 @@ namespace Miyuki {
         }
 
         Spectrum Le(const Vertex &prev) const {
-            if(isInfiniteLight()){
+            if (isInfiniteLight()) {
                 return light->L();
             }
             auto wo = (prev.hitPoint() - hitPoint()).normalized();
@@ -149,7 +149,7 @@ namespace Miyuki {
 
         Spectrum G(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E);
 
-        Spectrum GWithoutAbs(Scene &scene, RenderContext &ctx, Vertex &L, Vertex &E);
+        virtual Float continuationProbability(const Scene &scene, Float R, const Spectrum &beta, int depth);
 
     public:
         static inline Float

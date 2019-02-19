@@ -68,6 +68,7 @@ namespace Miyuki {
         int32_t minDepth;
         int32_t samplesPerPixel;
         int32_t mltLuminanceSample;
+        int32_t mltNChains;
         Float largeStepProb;
         Float aoDistance;
         bool showAmbientLight;

@@ -12,7 +12,11 @@
 #include "../bdpt/bdpt.h"
 
 namespace Miyuki {
+    class MultiplexedMLT;
+
     class MLTSampler : public RandomSampler {
+        friend class MultiplexedMLT;
+
     protected:
         struct PrimarySample {
             Float value, valueBackup;
@@ -49,8 +53,19 @@ namespace Miyuki {
         int getNextIndex();
 
     public:
-        MLTSampler(Seed *seed) : RandomSampler(seed),
-                                 currentIteration(0), largeStep(true), lastLargeStepIteration(0) {}
+        static const int cameraStreamIndex = 0;
+        static const int lightStreamIndex = 1;
+        static const int connectionStreamIndex = 2;
+        static const int nSampleStreams = 3;
+        int depth;
+        Spectrum LCurrent;
+        Point2i pCurrent;
+
+        MLTSampler(Seed *seed, Float largeStepProb, int streamCount) : RandomSampler(seed),
+                                                                       currentIteration(0), largeStep(true),
+                                                                       lastLargeStepIteration(0),
+                                                                       streamCount(streamCount),
+                                                                       largeStepProbability(largeStepProb) {}
 
         Float nextFloat() override;
 
@@ -65,14 +80,20 @@ namespace Miyuki {
     };
 
     class MultiplexedMLT : public BDPT {
-        ConcurrentMemoryArenaAllocator arenaAllocator;
-    public:
-        Spectrum L(Scene &scene, MemoryArena &arena, MLTSampler &sampler, int depth, Point2i *raster);
+        MLTSampler *samplers;
+        std::vector<Seed> mltSeeds;
+        uint32_t nChains, nBootstrap, nChainMutations;
+        Float b;
 
-        void iteration(Scene &scene) override;
+    public:
+        MultiplexedMLT() : samplers(nullptr) {}
+
+        Spectrum L(Scene &scene, MemoryArena &arena, MLTSampler &sampler, int depth, Point2i *raster);
 
         void render(Scene &scene) override;
 
+    protected:
+        Float continuationProbability(const Scene &scene, Float R, const Spectrum &beta, int depth) override;
     };
 }
 #endif //MIYUKI_MMLT_H
