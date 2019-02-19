@@ -163,6 +163,9 @@ Float BDPT::continuationProbability(const Scene &scene, Float R, const Spectrum 
 
 
 int BDPT::generateCameraSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path) {
+    if(maxDepth == 0){
+        return 0;
+    }
     auto &vertex = path[0];
     vertex = Vertex::createCameraVertex(ctx.primary, ctx.camera, {1, 1, 1});
     Float pdf, _;
@@ -171,6 +174,9 @@ int BDPT::generateCameraSubpath(Scene &scene, RenderContext &ctx, int maxDepth, 
 }
 
 int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path) {
+    if(maxDepth == 0){
+        return 0;
+    }
     auto &vertex = path[0];
     Float lightPdf = 0;
     auto light = scene.chooseOneLight(*ctx.sampler, &lightPdf);

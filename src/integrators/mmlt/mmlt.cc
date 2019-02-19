@@ -38,6 +38,7 @@ void MLTSampler::ensureReady(int index) {
         Float effSigma = sigma * std::sqrt((Float) nSmall);
         Xi.value += normalSample * effSigma;
         Xi.value -= std::floor(Xi.value);
+        CHECK(0 <= Xi.value && Xi.value <= 1);
     }
     Xi.lastModificationIteration = currentIteration;
 }
@@ -87,7 +88,7 @@ Spectrum MultiplexedMLT::L(Scene &scene, MemoryArena &arena, MLTSampler &sampler
     } else {
         nStrategies = depth + 2;
         s = std::min((int) (sampler.nextFloat() * nStrategies), nStrategies - 1);
-        t = nStrategies - s;
+        t = nStrategies  - s;
     }
     auto cameraVertices = arena.alloc<Vertex>((size_t) t);
     auto lightVertices = arena.alloc<Vertex>((size_t) s);
@@ -191,6 +192,7 @@ void MultiplexedMLT::render(Scene &scene) {
                 Point2i pProposed;
                 Spectrum LProposed = L(scene, arenaInfo.arena, sampler, sampler.depth, &pProposed);
                 Float accept = std::min<Float>(1.0, luminance(LProposed) / luminance(sampler.LCurrent));
+                CHECK(!std::isnan(accept));
                 if (accept > 0) {
                     film.addSplat(pProposed, Spectrum(LProposed * accept / luminance(LProposed)));
                 }
@@ -211,7 +213,7 @@ void MultiplexedMLT::render(Scene &scene) {
         if (iter % percentage == 0) {
             fmt::print("Acceptance rate: {}\n", (double) acceptanceCounter / ((iter + 1) * nChains));
             fmt::print("Rendered {}%, elapsed {}s, remaining {}s\n",
-                       (double) iter / nChainMutations * 100,
+                       (double) (iter + 1) / nChainMutations * 100,
                        elapsed,
                        (double) (elapsed * nChainMutations) / (iter + 1) - elapsed);
         }

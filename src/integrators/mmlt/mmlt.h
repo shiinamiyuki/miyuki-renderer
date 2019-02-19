@@ -65,7 +65,10 @@ namespace Miyuki {
                                                                        currentIteration(0), largeStep(true),
                                                                        lastLargeStepIteration(0),
                                                                        streamCount(streamCount),
-                                                                       largeStepProbability(largeStepProb) {}
+                                                                       largeStepProbability(largeStepProb),
+                                                                       sigma(0.1f), depth(0),
+                                                                       streamIndex(0),
+                                                                       sampleIndex(0) {}
 
         Float nextFloat() override;
 
