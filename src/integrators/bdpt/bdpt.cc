@@ -288,7 +288,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
     }
     if (s == 0) {
         Vertex &prev = cameraVertices[t - 2];
-        Li = prev.beta * E.Le(prev) * E.beta;
+        Li = E.Le(prev) * E.beta;
         //At present, the only way to sample infinite light is to sample the brdf
         if(E.isInfiniteLight())
             return Li;
