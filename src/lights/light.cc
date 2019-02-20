@@ -37,9 +37,9 @@ AreaLight::sampleLi(const Point2f &u, const IntersectionInfo &info, Vec3f *wi, F
         x = 1 - x;
         y = 1 - y;
     }
-    auto p = pointOnTriangle(primitive->vertices[0],
-                             primitive->vertices[1],
-                             primitive->vertices[2],
+    auto p = pointOnTriangle(*primitive->vertices[0],
+                             *primitive->vertices[1],
+                             *primitive->vertices[2],
                              x,
                              y);
     auto Wi = (p - info.hitpoint);
@@ -59,9 +59,9 @@ AreaLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *norma
         x = 1 - x;
         y = 1 - y;
     }
-    auto p = pointOnTriangle(primitive->vertices[0],
-                             primitive->vertices[1],
-                             primitive->vertices[2],
+    auto p = pointOnTriangle(*primitive->vertices[0],
+                             *primitive->vertices[1],
+                             *primitive->vertices[2],
                              x,
                              y);
     *normal = primitive->normalAt(u1);

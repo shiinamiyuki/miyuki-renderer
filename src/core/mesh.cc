@@ -92,11 +92,13 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
             materialList->addMaterial(m.name, materialList->size());
             materialList->emplace_back(materialFactory(materialInfo));
         }
+        mesh->vertex.reserve(attrib.vertices.size());
         for (auto i = 0; i < attrib.vertices.size(); i += 3) {
             mesh->vertex.emplace_back(Vec3f(attrib.vertices[i],
                                             attrib.vertices[i + 1],
                                             attrib.vertices[i + 2]));
         }
+        mesh->normal.reserve(attrib.normals.size());
         for (auto i = 0; i < attrib.normals.size(); i += 3) {
             mesh->normal.emplace_back(Vec3f(attrib.normals[i],
                                             attrib.normals[i + 1],
@@ -171,35 +173,43 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
 
 MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Transform &t) {
     primitives.resize(mesh->triangleCount());
-    parallelFor(0u, mesh->triangleCount(),[&](int i){
+    vertices.resize(mesh->vertexCount());
+    normals.resize(mesh->normCount());
+    parallelFor(0u, mesh->vertexCount(), [&](int i) {
+        vertices[i] = t.apply(mesh->vertexArray()[i]);
+    });
+    parallelFor(0u, mesh->normCount(), [&](int i) {
+        normals[i] = t.applyRotation(mesh->normArray()[i]).normalized();
+    });
+    parallelFor(0u, mesh->triangleCount(), [&](int i) {
         auto &trig = mesh->triangleArray()[i];
         primitives[i].materialId = trig.materialId;
         primitives[i].Ng = trig.trigNorm;
         primitives[i].area = trig.area;
         for (int32_t k = 0; k < 3; k++) {
-            primitives[i].normal[k] = t.applyRotation(mesh->normal[trig.normal[k]]).normalized();
-            primitives[i].vertices[k] = t.apply(mesh->vertex[trig.vertex[k]]);
+            primitives[i].normal[k] = &normals[trig.normal[k]];//t.applyRotation(mesh->normal[trig.normal[k]]).normalized();
+            primitives[i].vertices[k] = &vertices[trig.vertex[k]];//t.apply(mesh->vertex[trig.vertex[k]]);
             primitives[i].textCoord[k] = trig.textCoord[k];
         }
     });
 }
 
 Vec3f Primitive::normalAt(const Point2f &p) const {
-    return pointOnTriangle(normal[0], normal[1], normal[2], p.x(), p.y());
+    return pointOnTriangle(*normal[0], *normal[1], *normal[2], p.x(), p.y());
 }
 
 bool Primitive::intersect(const Ray &ray, Float *tHit, IntersectionInfo *isct) const {
     const Float eps = 0.0000001;
     Vec3f edge1, edge2, h, s, q;
     Float a, f, u, v;
-    edge1 = vertices[1] - vertices[0];
-    edge2 = vertices[2] - vertices[0];
+    edge1 = *vertices[1] - *vertices[0];
+    edge2 = *vertices[2] - *vertices[0];
     h = Vec3f::cross(ray.d, edge2);
     a = Vec3f::dot(edge1, h);
     if (a > -eps && a < eps)
         return false;    // This ray is parallel to this triangle.
     f = 1.0f / a;
-    s = ray.o - vertices[0];
+    s = ray.o - *vertices[0];
     u = f * (Vec3f::dot(s, h));
     if (u < 0.0f || u > 1.0f)
         return false;
@@ -213,7 +223,7 @@ bool Primitive::intersect(const Ray &ray, Float *tHit, IntersectionInfo *isct) c
         *tHit = t;
         isct->hitpoint = ray.o + t * ray.d;
         isct->Ng = Ng;
-        isct->normal = pointOnTriangle(normal[0], normal[1], normal[2], u, v);
+        isct->normal = pointOnTriangle(*normal[0], *normal[1], *normal[2], u, v);
         return true;
     } else
         return false;

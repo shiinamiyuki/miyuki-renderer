@@ -74,7 +74,7 @@ namespace Miyuki {
     class Light;
 
     struct Primitive {
-        Vec3f normal[3], vertices[3];
+        Vec3f *normal[3], *vertices[3];
         Point2f textCoord[3];
         Vec3f Ng;
         int32_t materialId;
@@ -92,7 +92,7 @@ namespace Miyuki {
 
     struct MeshInstance {
 
-
+        std::vector<Vec3f> vertices, normals;
         std::vector<Primitive> primitives;
 
         const Primitive &getPrimitive(uint32_t primID) const { return primitives[primID]; }

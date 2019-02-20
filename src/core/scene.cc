@@ -82,8 +82,8 @@ void Scene::commit() {
     for (const auto &i:instances) {
         for (const auto &p:i.primitives) {
             for (int _ = 0; _ < 3; _++) {
-                pMin = min(pMin, p.vertices[_]);
-                pMax = max(pMax, p.vertices[_]);
+                pMin = min(pMin, *p.vertices[_]);
+                pMax = max(pMax, *p.vertices[_]);
             }
         }
     }
@@ -260,9 +260,9 @@ void Scene::getIntersectionInfo(const Intersection &intersection, IntersectionIn
                            intersection.rayHit.ray.org_z) + info->wo * -intersection.hitDistance();
     info->uv = Point2f(intersection.rayHit.hit.u, intersection.rayHit.hit.v);
     info->Ng = info->primitive->Ng;
-    info->normal = pointOnTriangle(info->primitive->normal[0],
-                                   info->primitive->normal[1],
-                                   info->primitive->normal[2],
+    info->normal = pointOnTriangle(*info->primitive->normal[0],
+                                   *info->primitive->normal[1],
+                                   *info->primitive->normal[2],
                                    info->uv.x(),
                                    info->uv.y());
     info->normal.normalize();
