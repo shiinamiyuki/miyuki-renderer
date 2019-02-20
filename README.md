@@ -25,22 +25,25 @@ Available algorithms: path tracing, bidirectional path tracing (default), PSSMLT
 
 Available materials: lambertian, oren-nayar, microfacet glossy reflection, mirror
 
+A GUI application is implemented solely for showing progressive rendering results.
+
 ##  TODO List
 
 1. Volumetric Path tracing with NEE
 2. ~~Ambient Occlusion~~
 3. Stochastic Progressive Photon Mapping
-4. ~~Primary Sample Space Metropolis Light Transport (Unidirectional)~~
-5. Primary Sample Space Metropolis Light Transport (Bidirectional)
-6. ~~Multiplexed Metropolis Light Transport~~
-7. ~~Bidirectional Path Tracing with MIS~~ 
-8. ~~Multiple Importance Sampling~~
-9. Vertex Connection and Merging
-10. ~~Importance sampling for light source~~
-11. Mixed BSDF (partially)
-12. Material system
-13. Fourier BSDF
-14. Environment mapping
+4. Path Space MLT
+5. ~~Primary Sample Space Metropolis Light Transport (Unidirectional)~~
+6. Primary Sample Space Metropolis Light Transport (Bidirectional)
+7. ~~Multiplexed Metropolis Light Transport~~
+8. ~~Bidirectional Path Tracing with MIS~~ 
+9. ~~Multiple Importance Sampling~~
+10. Vertex Connection and Merging
+11. ~~Importance sampling for light source~~
+12. Mixed BSDF (partially)
+13. Material system
+14. Fourier BSDF
+15. Environment mapping
 
 # Gallery (Random test images)
 
@@ -50,15 +53,8 @@ Available materials: lambertian, oren-nayar, microfacet glossy reflection, mirro
 
 ![](gallery/vokselia_spawn.png)
 
-![](gallery/conference.png)
+![(gallery/conference.png)
 
 ![](gallery/tough_box.png)
 
 
-
-# About the Miyuki_old
-
-That's my another attempt in creating a physically based renderer. It has many algorithms implemented but it's not that efficient comparing to Embree and GPU based renderer, despite the fact that I have used SIMD intrinsic to speed up ray-primitive.
-
-There are reasons why this new attempt is not GPU based. One of them is that writing OpenCL (my laptop doesn't have NV GPU) involves lots of nasty stuff and hard-to-debug code, not to mention the fact the some rendering algorithms requires tens to thousands of Ms of additional memory.<br/>
-Edit: Tried to write OpenCL again, the compiler is giving me tons of segfault. Nevertheless, BVH+SAH on GPU is really fun.
