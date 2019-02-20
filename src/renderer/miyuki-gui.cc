@@ -69,6 +69,7 @@ int main(int argc, char **argv) {
         renderSystem.processOptions(argc, argv);
 
         renderSystem.exec();
+        exit(0);
     });
     render.detach();
 
@@ -105,7 +106,7 @@ int main(int argc, char **argv) {
 
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(2500));
-    return 0;
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
 }

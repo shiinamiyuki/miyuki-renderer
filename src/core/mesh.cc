@@ -171,7 +171,7 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
 
 MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Transform &t) {
     primitives.resize(mesh->triangleCount());
-    for (int32_t i = 0; i < mesh->triangleCount(); i++) {
+    parallelFor(0u, mesh->triangleCount(),[&](int i){
         auto &trig = mesh->triangleArray()[i];
         primitives[i].materialId = trig.materialId;
         primitives[i].Ng = trig.trigNorm;
@@ -181,7 +181,7 @@ MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Transform
             primitives[i].vertices[k] = t.apply(mesh->vertex[trig.vertex[k]]);
             primitives[i].textCoord[k] = trig.textCoord[k];
         }
-    }
+    });
 }
 
 Vec3f Primitive::normalAt(const Point2f &p) const {

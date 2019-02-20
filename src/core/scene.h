@@ -74,6 +74,7 @@ namespace Miyuki {
         bool showAmbientLight;
         int32_t saveEverySecond;
         int32_t sleepTime;
+        Float maxRayIntensity;
         enum SamplerType {
             independent,
             stratified,

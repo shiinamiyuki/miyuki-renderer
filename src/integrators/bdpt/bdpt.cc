@@ -79,8 +79,8 @@ void BDPT::iteration(Scene &scene) {
                     continue;
                 Point2i raster;
                 Float weight;
-                Spectrum LPath = removeNaNs(
-                        connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, &raster, &weight));
+                Spectrum LPath =
+                        connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, &raster, &weight);
 
                 if (t != 1)
                     L += LPath;
@@ -164,7 +164,7 @@ Float BDPT::continuationProbability(const Scene &scene, Float R, const Spectrum 
 
 
 int BDPT::generateCameraSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path) {
-    if(maxDepth == 0){
+    if (maxDepth == 0) {
         return 0;
     }
     auto &vertex = path[0];
@@ -175,7 +175,7 @@ int BDPT::generateCameraSubpath(Scene &scene, RenderContext &ctx, int maxDepth, 
 }
 
 int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path) {
-    if(maxDepth == 0){
+    if (maxDepth == 0) {
         return 0;
     }
     auto &vertex = path[0];
@@ -359,6 +359,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
         *misWeightPtr = weight;
     }
     Li *= weight;
+    Li = clampRadiance(removeNaNs(Li), scene.option.maxRayIntensity);
     return Li;
 }
 

@@ -306,12 +306,13 @@ Option::Option() {
     maxDepth = 5;
     samplesPerPixel = 16;
     mltLuminanceSample = 100000;
-    mltNChains = 1000;
+    mltNChains = 100;
     largeStepProb = 0.3;
     showAmbientLight = true;
     aoDistance = 50;
     saveEverySecond = 10;
     sleepTime = 0;
+    maxRayIntensity = 10;
     samplerType = SamplerType::independent;
 }
 
