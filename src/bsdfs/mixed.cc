@@ -10,7 +10,7 @@ using namespace Miyuki;
 Spectrum MixedBSDF::f(const ScatteringEvent &event) const {
     auto f1 = bsdf1->f(event);
     auto f2 = bsdf2->f(event);
-    return Spectrum(f1 + f2);
+    return Spectrum(ratio * f1 + f2);
 
 }
 
@@ -25,8 +25,8 @@ Spectrum MixedBSDF::sample(ScatteringEvent &event) const {
         F = bsdf2->sample(event);
         p = 1 - p1;
     }
-    event.pdf = pdf(event.wo, event.wi, event.sampledType);
     F /= p;
+    event.pdf /= p;
     return F;
 }
 
@@ -39,12 +39,12 @@ Float MixedBSDF::pdf(const Vec3f &wo, const Vec3f &wi, BSDFType flags) const {
     } else if (a) {
         return bsdf1->pdf(wo, wi, flags);
     } else if (b) {
-        bsdf2->pdf(wo, wi, flags);
+        return bsdf2->pdf(wo, wi, flags);
     }
     return 0;
 }
 
-MixedBSDF::MixedBSDF(BSDF *bsdf1, BSDF *bsdf2, Float ratio) :
+MixedBSDF::MixedBSDF(std::shared_ptr<BSDF> bsdf1, std::shared_ptr<BSDF> bsdf2, Float ratio) :
         BSDF(BSDFType((int) bsdf1->getType() | (int) bsdf2->getType()), ColorMap()), bsdf1(bsdf1), bsdf2(bsdf2),
         ratio(ratio) {
 

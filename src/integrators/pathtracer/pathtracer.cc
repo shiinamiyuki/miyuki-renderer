@@ -9,15 +9,19 @@
 #include "../../samplers/random.h"
 #include "../../bsdfs/bsdf.h"
 #include "../../lights/light.h"
+#include "../../utils/stats.hpp"
 
 using namespace Miyuki;
-
+static DECLARE_STATS(uint32_t, pathCount);
+static DECLARE_STATS(uint32_t, zeroPathCount);
 void PathTracer::render(Scene &scene) {
     fmt::print("Rendering\n");
     auto &film = scene.film;
     auto &seeds = scene.seeds;
     int32_t N = scene.option.samplesPerPixel;
     int32_t sleepTime = scene.option.sleepTime;
+    pathCount = 0;
+    zeroPathCount = 0;
     double elapsed = 0;
     for (int32_t i = 0; i < N && scene.processContinuable(); i++) {
         auto t = runtime([&]() {
@@ -27,8 +31,9 @@ void PathTracer::render(Scene &scene) {
             }
         });
         elapsed += t;
-        fmt::print("iteration {} in {} secs, elapsed {}s, remaining {}s\n",
-                   1 + i, t, elapsed, (double) (elapsed * N) / (i + 1) - elapsed);
+        fmt::print("iteration {} in {} secs, elapsed {}s, remaining {}s, zero-path: {}%\n",
+                   1 + i, t, elapsed, (double) (elapsed * N) / (i + 1) - elapsed,
+                   (double) zeroPathCount / (double) pathCount * 100);
         scene.update();
     }
 }
@@ -37,7 +42,11 @@ void PathTracer::iteration(Scene &scene) {
     auto &film = scene.film;
     auto &seeds = scene.seeds;
     scene.foreachPixel([&](RenderContext &ctx) {
-        film.addSample(ctx.raster, render(ctx.raster, ctx, scene));
+        auto L = render(ctx.raster, ctx, scene);
+        UPDATE_STATS(pathCount, 1);
+        if(L.isBlack())
+            UPDATE_STATS(zeroPathCount,1);
+        film.addSample(ctx.raster, L);
     });
 }
 

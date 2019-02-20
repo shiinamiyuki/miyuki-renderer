@@ -13,6 +13,8 @@
 
 //#define BDPT_DEBUG
 using namespace Miyuki;
+static DECLARE_STATS(uint32_t, pathCount);
+static DECLARE_STATS(uint32_t, zeroPathCount);
 
 void Miyuki::BDPT::render(Scene &scene) {
     fmt::print("Rendering\n");
@@ -21,6 +23,8 @@ void Miyuki::BDPT::render(Scene &scene) {
     int32_t N = scene.option.samplesPerPixel;
     int32_t sleepTime = scene.option.sleepTime;
     auto maxDepth = scene.option.maxDepth;
+    pathCount = 0;
+    zeroPathCount = 0;
 #ifdef BDPT_DEBUG
     for (int t = 1; t <= maxDepth + 2; ++t) {
         for (int s = 0; s <= maxDepth + 12; ++s) {
@@ -37,8 +41,9 @@ void Miyuki::BDPT::render(Scene &scene) {
             }
         });
         elapsed += t;
-        fmt::print("iteration {} in {} secs, elapsed {}s, remaining {}s\n",
-                   1 + i, t, elapsed, (double) (elapsed * N) / (i + 1) - elapsed);
+        fmt::print("iteration {} in {} secs, elapsed {}s, remaining {}s, zero-path: {}%\n",
+                   1 + i, t, elapsed, (double) (elapsed * N) / (i + 1) - elapsed,
+                   (double) zeroPathCount / (double) pathCount * 100);
         scene.update();
     }
 #ifdef BDPT_DEBUG
@@ -81,7 +86,10 @@ void BDPT::iteration(Scene &scene) {
                 Float weight;
                 Spectrum LPath =
                         connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, &raster, &weight);
-
+                UPDATE_STATS(pathCount, 1);
+                if (LPath.isBlack()) {
+                    UPDATE_STATS(zeroPathCount, 1);
+                }
                 if (t != 1)
                     L += LPath;
                 else if (!LPath.isBlack()) {
@@ -100,6 +108,7 @@ void BDPT::iteration(Scene &scene) {
 #endif
             }
         }
+
         film.addSample(ctx.raster, L);
     });
 }
@@ -119,7 +128,7 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
         bool foundIntersection = scene.intersect(ray, info);
         if (!foundIntersection) {
             // capture escaped rays from camera
-            if (mode == importance) {
+            if (mode == TransportMode::radiance) {
                 // add infinite light
                 vertex = Vertex::createLightVertex(scene.infiniteLight.get(), ray, ray.d, pdfFwd, beta);
                 depth++;
@@ -171,7 +180,7 @@ int BDPT::generateCameraSubpath(Scene &scene, RenderContext &ctx, int maxDepth, 
     vertex = Vertex::createCameraVertex(ctx.primary, ctx.camera, {1, 1, 1});
     Float pdf, _;
     ctx.camera->pdfWe(ctx.primary, &_, &pdf);
-    return randomWalk(ctx.primary, scene, ctx, {1, 1, 1}, pdf, maxDepth - 1, path + 1, importance) + 1;
+    return randomWalk(ctx.primary, scene, ctx, {1, 1, 1}, pdf, maxDepth - 1, path + 1, TransportMode::radiance) + 1;
 }
 
 int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path) {
@@ -194,7 +203,7 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
     vertex = Vertex::createLightVertex(light, ray, normal, lightPdf * pdfPos, Le);
     vertex.L = Le;
     vertex.pdfPos = pdfPos;
-    return randomWalk(ray, scene, ctx, beta, pdfDir, maxDepth - 1, path + 1, radiance) + 1;
+    return randomWalk(ray, scene, ctx, beta, pdfDir, maxDepth - 1, path + 1, TransportMode::importance) + 1;
 }
 
 /*
@@ -322,7 +331,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             ctx.camera->pdfWe(primary, &_, &pdf);
             sampled = Vertex::createCameraVertex(primary, ctx.camera, Spectrum(beta / pdf));
             sampled.pdfFwd = pdf;
-            Li = L.beta * L.f(sampled) / dist;
+            Li = L.beta * L.f(sampled, TransportMode::importance) / dist;
             if (Li.isBlack())return {};
             OccludeTester tester(primary, sqrt(dist));
             if (!tester.visible(scene))return {};
@@ -335,12 +344,12 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             if (Li.isBlack() || pdf <= 0)return {};
             sampled = Vertex::createLightVertex(L.light, tester.shadowRay, L.Ng(), pdf, Spectrum(Li / pdf));
             if (!tester.visible(scene))return {};
-            Li *= E.beta * E.f(sampled) / pdf * Vec3f::absDot(wi, E.Ns());
+            Li *= E.beta * E.f(sampled, TransportMode::radiance) / pdf * Vec3f::absDot(wi, E.Ns());
             sampled.pdfFwd = sampled.pdfLightOrigin(scene, E);
         } else {
             if (!L.connectable() || !E.connectable())return {};
             Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
-            Li = L.beta * E.beta * L.f(E) * E.f(L);
+            Li = L.beta * E.beta * L.f(E, TransportMode::importance) * E.f(L, TransportMode::radiance);
             if (Li.isBlack()) return {};
             Li *= G(scene, ctx, L, E);
             VisibilityTester tester;
@@ -494,5 +503,20 @@ Vertex Vertex::createLightVertex(Light *light, const Ray &ray, const Vec3f &norm
     vertex.lightNormal = normal;
     vertex.pdfFwd = pdf;
     return vertex;
+}
+
+Spectrum Vertex::f(const Vertex &next, TransportMode mode) const {
+
+    auto wi = (next.hitPoint() - hitPoint()).normalized();
+    auto e = event;
+    e.wiW = wi;
+    e.wi = e.worldToLocal(e.wiW);
+    switch (type) {
+        case surfaceVertex:
+            return Spectrum(event.getIntersectionInfo()->bsdf->eval(e)
+                            * BDPT::correctShadingNormal(e, e.woW, e.wiW, mode));
+    }
+    return {};
+
 }
 

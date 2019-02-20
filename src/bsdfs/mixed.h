@@ -9,11 +9,16 @@
 
 namespace Miyuki {
     class MixedBSDF : public BSDF {
-        BSDF *bsdf1, *bsdf2;
-        Float ratio; // f(bsdf1) / f(bsdf2)
+        std::shared_ptr<BSDF> bsdf1, bsdf2;
+        // f = ratio * bsdf1->f() + bsdf2->f()
+        Float ratio;
     public:
-        MixedBSDF(BSDF *bsdf1, BSDF *bsdf2, Float ratio = 1);
+        MixedBSDF(std::shared_ptr<BSDF> bsdf1, std::shared_ptr<BSDF> bsdf2, Float ratio = 1);
 
+        /* We will importance sample the bsdfs
+         * bsdf1 has discrete probability of ratio/(1 + ratio)
+         * bsdf2 has discrete probability if 1/(1 + ratio)
+         */
         Spectrum sample(ScatteringEvent &event) const override;
 
         Float pdf(const Vec3f &wo, const Vec3f &wi, BSDFType flags) const override;

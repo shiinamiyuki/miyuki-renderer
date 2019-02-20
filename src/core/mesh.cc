@@ -78,11 +78,12 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
             MaterialInfo materialInfo(ka, kd, ks);
             materialInfo.Ni = m.ior;
             materialInfo.Tr = 1 - m.dissolve;
-            materialInfo.glossiness = m.roughness;
+            materialInfo.roughness = m.roughness;
             materialInfo.parameters = m.unknown_parameter;
             materialInfo.bsdfType = m.bsdfType;
             materialInfo.fresnelType = "default";
             materialInfo.microfacetType = "default";
+            materialInfo.Ns = m.shininess;
             if (materialInfo.parameters.find("fresnel") != materialInfo.parameters.end()) {
                 materialInfo.fresnelType = materialInfo.parameters["fresnel"];
             }

@@ -107,7 +107,8 @@ namespace Miyuki {
             ptr = p;
             return *this;
         }
-        Ty* raw()const{return ptr;}
+
+        Ty *raw() const { return ptr; }
     };
 
     template<typename T>
@@ -117,9 +118,23 @@ namespace Miyuki {
 
     void loadImage(const std::string &filename, std::vector<unsigned char> &data, uint32_t *w, uint32_t *h);
 
-    int32_t editDistance(const std::string& a, const std::string& b, bool matchCase = false);
+    int32_t editDistance(const std::string &a, const std::string &b, bool matchCase = false);
 
     int32_t getNumThreads();
+
+    struct LevenshteinString : public std::string {
+    public:
+        LevenshteinString(const std::string &s) : std::string(s) {}
+
+        bool operator==(const char *s) const {
+            auto dist = editDistance(*this, s, false);
+            if (length() <= 5)
+                return dist == 0;
+            else
+                return dist <= 3;
+        }
+    };
+
 
 #define CHECK(expr) do{if(!(expr)){fmt::print(stderr, "{}:{} {} failed\n",__FILE__, __LINE__, #expr);}}while(0)
 }

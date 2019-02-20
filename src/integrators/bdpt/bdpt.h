@@ -19,6 +19,11 @@ namespace Miyuki {
 
     class Film;
 
+    enum class TransportMode {
+        radiance,
+        importance
+    };
+
     struct Vertex {
         enum VertexType {
             lightVertex,
@@ -81,17 +86,7 @@ namespace Miyuki {
                 return event.Ns;
         }
 
-        Spectrum f(const Vertex &next) const {
-            auto wi = (next.hitPoint() - hitPoint()).normalized();
-            auto e = event;
-            e.wiW = wi;
-            e.wi = e.worldToLocal(e.wiW);
-            switch (type) {
-                case surfaceVertex:
-                    return event.getIntersectionInfo()->bsdf->eval(e);
-            }
-            return {};
-        }
+        Spectrum f(const Vertex &next, TransportMode mode) const;
 
         Spectrum Le(const Vertex &prev) const {
             if (isInfiniteLight()) {
@@ -116,10 +111,6 @@ namespace Miyuki {
     public:
         std::map<std::pair<int, int>, Film> debugFilms;
     protected:
-        enum TransportMode {
-            radiance,
-            importance
-        };
 
         int generateCameraSubpath(Scene &scene, RenderContext &ctx, int maxDepth, Vertex *path);
 
@@ -154,9 +145,11 @@ namespace Miyuki {
     public:
         static inline Float
         correctShadingNormal(const ScatteringEvent &event, const Vec3f &wo, const Vec3f &wi, TransportMode mode) {
-            if (mode == importance) {
-                return (Vec3f::absDot(wo, event.Ns) * Vec3f::absDot(wi, event.Ng())) /
-                       (Vec3f::absDot(wo, event.Ng()) * Vec3f::absDot(wi, event.Ns));
+            if (mode == TransportMode::importance) {
+                auto num = Vec3f::absDot(wo, event.Ns) * Vec3f::absDot(wi, event.Ng());
+                auto denom = Vec3f::absDot(wo, event.Ng()) * Vec3f::absDot(wi, event.Ns);
+                if(denom == 0)return 0;
+                return num / denom;
             } else {
                 return 1.0f;
             }

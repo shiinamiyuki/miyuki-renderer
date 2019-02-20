@@ -22,7 +22,6 @@ namespace Miyuki {
     class Integrator {
     protected:
         ScatteringEvent makeScatteringEvent(const Ray &ray,IntersectionInfo *, Sampler *sampler);
-
     public:
         virtual ~Integrator() = default;
 

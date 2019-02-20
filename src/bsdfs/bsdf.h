@@ -118,12 +118,12 @@ namespace Miyuki {
     struct MaterialInfo {
         ColorMap ka, kd, ks, bump;
         Float Ni, Ns, Tr;
-        Float glossiness;
+        Float roughness;
         std::string bsdfType, fresnelType, microfacetType;
         std::map<std::string, std::string> parameters;
 
         MaterialInfo(const ColorMap &ka, const ColorMap &kd, const ColorMap &ks, const ColorMap &bump = ColorMap()) :
-                ka(ka), kd(kd), ks(ks), bump(bump), Ni(1), Ns(0), Tr(0) {}
+                ka(ka), kd(kd), ks(ks), bump(bump), Ni(1), Ns(0), Tr(0),roughness(0) {}
     };
 
     class ScatteringEvent;
