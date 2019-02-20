@@ -29,7 +29,7 @@ void Miyuki::BDPT::render(Scene &scene) {
     }
 #endif
     double elapsed = 0;
-    for (int32_t i = 0; i < N; i++) {
+    for (int32_t i = 0; i < N && scene.processContinuable(); i++) {
         auto t = runtime([&]() {
             iteration(scene);
             if (sleepTime > 0) {
@@ -39,6 +39,7 @@ void Miyuki::BDPT::render(Scene &scene) {
         elapsed += t;
         fmt::print("iteration {} in {} secs, elapsed {}s, remaining {}s\n",
                    1 + i, t, elapsed, (double) (elapsed * N) / (i + 1) - elapsed);
+        scene.update();
     }
 #ifdef BDPT_DEBUG
     {

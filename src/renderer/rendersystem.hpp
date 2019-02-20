@@ -13,6 +13,7 @@
 
 
 void saveAtExit();
+
 namespace Miyuki {
     class RenderSystem {
         Scene scene;
@@ -21,15 +22,18 @@ namespace Miyuki {
         std::string outputFile;
         bool saved;
     public:
+        std::function<void(void)> guiCallBack;
+
         RenderSystem() {
             saved = false;
             Init();
             outputFile = "out.png";
+            guiCallBack = []() {};
             std::atexit(saveAtExit);
         }
 
         void processOptions(int32_t argc, char **argv) {
-            std::atexit(saveAtExit);
+
             printWelcome();
             if (argc <= 1) {
                 exit(0);
@@ -43,6 +47,10 @@ namespace Miyuki {
                 fmt::print("Image saved to {}\n", outputFile);
                 saved = true;
             }
+        }
+
+        void setProcessContinueFunction(const std::function<bool(void)> &f) {
+            scene.setProcessContinueFunction(f);
         }
 
         int32_t render() {
@@ -81,9 +89,13 @@ Integrator: {4}
             return render();
         }
 
+        void readImage(std::vector<uint8_t> &, int *width, int *height);
+
         ~RenderSystem() {
             Exit();
         }
+
+        void GUIMode();
     };
 }
 extern Miyuki::RenderSystem renderSystem;

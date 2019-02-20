@@ -11,14 +11,28 @@
 #include "../math/distribution.h"
 #include "../cameras/camera.h"
 
-
 using namespace Miyuki;
 
 Scene::Scene() : film(1000, 1000), worldBound({}, {}) {
     rtcScene = rtcNewScene(GetEmbreeDevice());
     postResize();
     camera.fov = 80 / 180.0f * M_PI;
-
+    readImageFunc = [&](Scene &scene, std::vector<uint8_t> &pixelData) {
+        if(pixelData.size() != film.width() * film.height() * 4)
+            pixelData.resize(film.width() * film.height() * 4);
+        for (int i = 0; i < film.width(); i++) {
+            for (int j = 0; j < film.height(); j++) {
+                auto out = film.getPixel(i, j).toInt();
+                auto idx = i + film.width() * (film.height() - j - 1);
+                pixelData[4 * idx] = out.x();
+                pixelData[4 * idx + 1] = out.y();
+                pixelData[4 * idx + 2] = out.z();
+                pixelData[4 * idx + 3] = 255;
+            }
+        }
+    };
+    updateFunc = [](Scene &) {};
+    signalFunc = []() { return true; };
 }
 
 Scene::~Scene() {
@@ -74,7 +88,7 @@ void Scene::commit() {
         }
     }
     worldBound = Bound3f(pMin, pMax);
-    fmt::print("World radius: {}\n",worldRadius());
+    fmt::print("World radius: {}\n", worldRadius());
 }
 
 class NullLight : public Light {
@@ -212,18 +226,6 @@ void Scene::useSampler(Option::SamplerType samplerType) {
 RenderContext Scene::getRenderContext(MemoryArena &arena, const Point2i &raster) {
     int32_t x0 = raster.x();
     int32_t y0 = raster.y();
-    Float x = -(2 * (Float) x0 / film.width() - 1) * static_cast<Float>(film.width()) / film.height();
-    Float y = 2 * (1 - (Float) y0 / film.height()) - 1;
-    Vec3f ro = camera.viewpoint;
-    auto z = (Float) (2.0 / tan(camera.fov / 2));
-    Float dx = 2.0 / film.height(), dy = 2.0 / film.height();
-    Seed *_Xi = &seeds[(x0 + y0 * film.width())];
-    Vec3f jitter = Vec3f(dx * erand48(_Xi->getPtr()), dy * erand48(_Xi->getPtr()), 0);
-    Vec3f rd = Vec3f(x, y, 0) + jitter - Vec3f(0, 0, -z);
-    rd.normalize();
-    rd = rotate(rd, Vec3f(1, 0, 0), -camera.direction.y());
-    rd = rotate(rd, Vec3f(0, 1, 0), camera.direction.x());
-    rd = rotate(rd, Vec3f(0, 0, 1), camera.direction.z());
     Sampler *sampler;
     size_t idx = x0 + film.width() * y0;
     sampler = samplers[idx];
@@ -304,8 +306,8 @@ Option::Option() {
     maxDepth = 5;
     samplesPerPixel = 16;
     mltLuminanceSample = 100000;
-    mltNChains = 100;
-    largeStepProb = 0.4;
+    mltNChains = 1000;
+    largeStepProb = 0.3;
     showAmbientLight = true;
     aoDistance = 50;
     saveEverySecond = 10;
@@ -332,5 +334,13 @@ Float Scene::worldRadius() const {
     Point3f center;
     worldBound.boundingSphere(&center, &r);
     return r;
+}
+
+void Scene::readImage(std::vector<uint8_t> &pixelData) {
+    readImageFunc(*this, pixelData);
+}
+
+void Scene::update() {
+    updateFunc(*this);
 }
 

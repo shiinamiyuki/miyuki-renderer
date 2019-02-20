@@ -116,6 +116,9 @@ namespace Miyuki {
         std::vector<std::shared_ptr<Light>> lights;    // contains all lights after commit() is called
         std::unique_ptr<Distribution1D> lightDistribution;
         std::unordered_map<Light *, Float> lightDistributionMap;
+        std::function<void(Scene &, std::vector<uint8_t> &)> readImageFunc;
+        std::function<void(Scene &)> updateFunc;
+        std::function<bool(void)> signalFunc;
 
         // commit and preprocess scene
         void commit();
@@ -142,7 +145,6 @@ namespace Miyuki {
 
         std::unique_ptr<InfiniteLight> infiniteLight;
     public:
-
         MemoryArena miscArena;
         Option option;
 
@@ -172,6 +174,16 @@ namespace Miyuki {
 
         void setFilmDimension(const Point2i &);
 
+        void setReadImageFunc(const std::function<void(Scene &, std::vector<uint8_t> &)> &f) {
+            readImageFunc = f;
+        }
+
+        void setUpdateFunc(const std::function<void(Scene &)> &f) {
+            updateFunc = f;
+        }
+
+        void readImage(std::vector<uint8_t> &);
+
         Camera &getCamera() { return camera; }
 
         RenderContext getRenderContext(MemoryArena &, const Point2i &);
@@ -183,6 +195,16 @@ namespace Miyuki {
         RTCScene getRTCSceneHandle() const { return rtcScene; }
 
         Point2i getResolution() const { return Point2i(film.width(), film.height()); };
+
+        void update();
+
+        bool processContinuable() {
+            return signalFunc();
+        }
+
+        void setProcessContinueFunction(const std::function<bool()> &f) {
+            signalFunc = f;
+        }
     };
 
     inline Point3f min(const Point3f &a, const Vec3f &b) {

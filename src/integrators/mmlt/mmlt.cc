@@ -8,6 +8,29 @@
 
 using namespace Miyuki;
 
+inline Float mutate(Float random, Float value) {
+    const float S1 = 1.0f / 512.0f;
+    const float S2 = 1.0f / 16.0f;
+    const float Factor = -std::log(S2 / S1);
+
+    bool negative = random < 0.5f;
+    random = negative ? random * 2.0f : (random - 0.5f) * 2.0f;
+
+    float delta = S2 * std::exp(Factor * random);
+    if (negative) {
+        value -= delta;
+        if (value < 0.0f)
+            value += 1.0f;
+    } else {
+        value += delta;
+        if (value >= 1.0f)
+            value -= 1.0f;
+    }
+    if (value == 1.0f)
+        value = 0.0f;
+    return value;
+}
+
 Miyuki::Float Miyuki::MLTSampler::nextFloat() {
     int index = getNextIndex();
     ensureReady(index);
@@ -26,19 +49,27 @@ void MLTSampler::ensureReady(int index) {
         Xi.value = randFloat();
         Xi.lastModificationIteration = lastLargeStepIteration;
     }
-    Xi.backup();
+
     if (largeStep) {
+        Xi.backup();
         Xi.value = randFloat();
     } else {
         // Applying n small mutations of N(u1, sigma) is equivalent to sampling N(X, n*sigma^2)
         // TODO: why? Justify the math
         int64_t nSmall = currentIteration - Xi.lastModificationIteration;
+        CHECK(nSmall >= 0);
         const Float Sqrt2 = std::sqrt(2);
-        Float normalSample = Sqrt2 * erfInv(2 * randFloat() - 1);
-        Float effSigma = sigma * std::sqrt((Float) nSmall);
-        Xi.value += normalSample * effSigma;
-        Xi.value -= std::floor(Xi.value);
-        CHECK(0 <= Xi.value && Xi.value <= 1);
+//        Float normalSample = Sqrt2 * erfInv(2 * randFloat() - 1);
+//        Float effSigma = sigma * std::sqrt((Float) nSmall);
+//        Xi.value += normalSample * effSigma;
+//        Xi.value -= std::floor(Xi.value);
+        for (int i = 0; i < nSmall - 1; i++) {
+            Xi.value = mutate(randFloat(), Xi.value);
+            Xi.lastModificationIteration++;
+
+        }
+        Xi.backup();
+        Xi.value = mutate(randFloat(), Xi.value);
     }
     Xi.lastModificationIteration = currentIteration;
 }
@@ -88,7 +119,7 @@ Spectrum MultiplexedMLT::L(Scene &scene, MemoryArena &arena, MLTSampler &sampler
     } else {
         nStrategies = depth + 2;
         s = std::min((int) (sampler.nextFloat() * nStrategies), nStrategies - 1);
-        t = nStrategies  - s;
+        t = nStrategies - s;
     }
     auto cameraVertices = arena.alloc<Vertex>((size_t) t);
     auto lightVertices = arena.alloc<Vertex>((size_t) s);

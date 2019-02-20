@@ -142,19 +142,21 @@ void RenderSystem::readDescription(const std::string &filename) {
         auto readIntegrator = [&]() -> void {
             if (document.hasKey("integrator")) {
                 const Value &integratorInfo = document["integrator"];
-                integratorName = integratorInfo["type"].getString();
-                if (integratorName == "path-tracer" || integratorName == "pt") {
-                    integrator = std::make_unique<PathTracer>();
-                } else if (integratorName == "ambient-occlusion") {
-                    integrator = std::make_unique<AOIntegrator>();
-                } else if (integratorName == "bdpt") {
-                    integrator = std::make_unique<BDPT>();
-                } else if (integratorName == "pssmlt") {
-                    integrator = std::make_unique<PSSMLTUnidirectional>();
-                } else if (integratorName == "mmlt" || integratorName == "mlt") {
-                    integrator = std::make_unique<MultiplexedMLT>();
-                }else {
-                    fmt::print(stderr, "Unrecognized integrator: {}\n", integratorName);
+                if (integratorInfo.hasKey("type")) {
+                    integratorName = integratorInfo["type"].getString();
+                    if (integratorName == "path-tracer" || integratorName == "pt") {
+                        integrator = std::make_unique<PathTracer>();
+                    } else if (integratorName == "ambient-occlusion") {
+                        integrator = std::make_unique<AOIntegrator>();
+                    } else if (integratorName == "bdpt") {
+                        integrator = std::make_unique<BDPT>();
+                    } else if (integratorName == "pssmlt") {
+                        integrator = std::make_unique<PSSMLTUnidirectional>();
+                    } else if (integratorName == "mmlt" || integratorName == "mlt") {
+                        integrator = std::make_unique<MultiplexedMLT>();
+                    } else {
+                        fmt::print(stderr, "Unrecognized integrator: {}\n", integratorName);
+                    }
                 }
                 if (integratorInfo.hasKey("max-depth")) {
                     scene.option.maxDepth = integratorInfo["max-depth"].getInt();
@@ -238,6 +240,23 @@ void RenderSystem::readDescription(const std::string &filename) {
         readRender();
         readLights();
     });
+    if (!integrator) {
+        fmt::print("Using bdpt for default settings\n");
+        integratorName = "bdpt";
+        integrator = std::make_unique<BDPT>();
+    }
     scene.prepare();
 
+}
+
+void RenderSystem::readImage(std::vector<uint8_t> &pixelData, int *width, int *height) {
+    scene.readImage(pixelData);
+    *width = scene.getResolution().x();
+    *height = scene.getResolution().y();
+}
+
+void RenderSystem::GUIMode() {
+    scene.setUpdateFunc([&](Scene &) {
+        guiCallBack();
+    });
 }

@@ -8,9 +8,8 @@
 #include "rendersystem.hpp"
 #include "../core/scene.h"
 
-
-
 int32_t main(int32_t argc, char **argv) {
+    std::atexit(saveAtExit);
     renderSystem.processOptions(argc, argv);
 
     return renderSystem.exec();

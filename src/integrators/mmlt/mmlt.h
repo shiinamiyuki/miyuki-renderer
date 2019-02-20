@@ -66,7 +66,7 @@ namespace Miyuki {
                                                                        lastLargeStepIteration(0),
                                                                        streamCount(streamCount),
                                                                        largeStepProbability(largeStepProb),
-                                                                       sigma(0.1f), depth(0),
+                                                                       sigma(0.01f), depth(0),
                                                                        streamIndex(0),
                                                                        sampleIndex(0) {}
 

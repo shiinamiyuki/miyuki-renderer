@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 project(Miyuki)
 
 set(CMAKE_CXX_STANDARD 14)
-link_libraries(embree3 boost_system boost_filesystem boost_unit_test_framework)
+link_libraries(embree3 boost_system boost_filesystem boost_unit_test_framework glfw3 opengl32)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 file(GLOB samplerSRC "src/samplers/*.h" "src/samplers/*.cc")
 file(GLOB rendererSRC "src/renderer/*.h" "src/renderer/*.hpp")
@@ -33,6 +33,14 @@ file(GLOB thirdpartySRC
         "thirdparty/fmt/format.cc"
         "thirdparty/fmt/posix/cc"
         "thirdparty/sobol/sobol.cpp")
+file(GLOB guiSRC
+        "thirdparty/imgui/imgui_demo.cpp"
+        "thirdparty/imgui/imgui_impl_glfw.cpp"
+        "thirdparty/imgui/imgui.cpp"
+        "thirdparty/imgui/imgui_widgets.cpp"
+        "thirdparty/imgui/imgui_draw.cpp"
+        "thirdparty/imgui/imgui_impl_opengl2.cpp"
+        "thirdparty/imgui/gl3w.c")
 add_executable(Miyuki
         ${rendererSRC}
         ${lightSRC}
@@ -45,6 +53,20 @@ add_executable(Miyuki
         ${utilSRC}
         ${samplerSRC}
         src/renderer/miyuki.cc
+        src/renderer/rendersystem.cc)
+add_executable(MiyukiGUI
+        ${rendererSRC}
+        ${lightSRC}
+        ${coreSRC}
+        ${bsdfSRC}
+        ${cameraSRC}
+        ${thirdpartySRC}
+        ${mathSRC}
+        ${integratorSRC}
+        ${utilSRC}
+        ${samplerSRC}
+        ${guiSRC}
+        src/renderer/miyuki-gui.cc
         src/renderer/rendersystem.cc)
 add_executable(obj2json
         ${thirdpartySRC}
