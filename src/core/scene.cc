@@ -260,12 +260,7 @@ void Scene::getIntersectionInfo(const Intersection &intersection, IntersectionIn
                            intersection.rayHit.ray.org_z) + info->wo * -intersection.hitDistance();
     info->uv = Point2f(intersection.rayHit.hit.u, intersection.rayHit.hit.v);
     info->Ng = info->primitive->Ng;
-    info->normal = pointOnTriangle(*info->primitive->normal[0],
-                                   *info->primitive->normal[1],
-                                   *info->primitive->normal[2],
-                                   info->uv.x(),
-                                   info->uv.y());
-    info->normal.normalize();
+    info->normal = info->primitive->normalAt(info->uv);
     info->geomID = intersection.geomID();
     info->primID = intersection.primID();
     info->bsdf = materialList[info->primitive->materialId].get();

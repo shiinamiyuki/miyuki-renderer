@@ -93,13 +93,15 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
             materialList->addMaterial(m.name, materialList->size());
             materialList->emplace_back(materialFactory(materialInfo));
         }
-        mesh->vertex.reserve(attrib.vertices.size());
+        CHECK(attrib.vertices.size() % 3 == 0);
+        mesh->vertex.reserve(attrib.vertices.size() / 3);
         for (auto i = 0; i < attrib.vertices.size(); i += 3) {
             mesh->vertex.emplace_back(Vec3f(attrib.vertices[i],
                                             attrib.vertices[i + 1],
                                             attrib.vertices[i + 2]));
         }
-        mesh->normal.reserve(attrib.normals.size());
+        CHECK(attrib.normals.size() % 3 == 0);
+        mesh->normal.reserve(attrib.normals.size() / 3);
         for (auto i = 0; i < attrib.normals.size(); i += 3) {
             mesh->normal.emplace_back(Vec3f(attrib.normals[i],
                                             attrib.normals[i + 1],
@@ -114,6 +116,7 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
                 assert(fv == 3); // we are using trig mesh
                 // Loop over vertices in the face.
                 Triangle triangle;
+                triangle.useNorm = true;
                 triangle.useTexture = true;
                 for (size_t v = 0; v < fv; v++) {
                     // access to vertex
@@ -196,7 +199,7 @@ MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Transform
 }
 
 Vec3f Primitive::normalAt(const Point2f &p) const {
-    return pointOnTriangle(*normal[0], *normal[1], *normal[2], p.x(), p.y());
+    return pointOnTriangle(*normal[0], *normal[1], *normal[2], p.x(), p.y()).normalized();
 }
 
 bool Primitive::intersect(const Ray &ray, Float *tHit, IntersectionInfo *isct) const {
@@ -224,7 +227,7 @@ bool Primitive::intersect(const Ray &ray, Float *tHit, IntersectionInfo *isct) c
         *tHit = t;
         isct->hitpoint = ray.o + t * ray.d;
         isct->Ng = Ng;
-        isct->normal = pointOnTriangle(*normal[0], *normal[1], *normal[2], u, v);
+        isct->normal = pointOnTriangle(*normal[0], *normal[1], *normal[2], u, v).normalized();
         return true;
     } else
         return false;

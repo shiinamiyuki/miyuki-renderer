@@ -26,9 +26,10 @@ Spectrum BSDF::evalAlbedo(const ScatteringEvent &event) const {
     return albedo.sample(event.uv());
 }
 
+// TODO: Ng and Ns
 Spectrum BSDF::eval(const ScatteringEvent &event) const {
-    bool reflect = Vec3f::dot(event.wiW, event.getIntersectionInfo()->Ng) *
-                   Vec3f::dot(event.woW, event.getIntersectionInfo()->Ng) > 0;
+    bool reflect = Vec3f::dot(event.wiW, event.Ns) *
+                   Vec3f::dot(event.woW, event.Ns) > 0;
     if (((reflect && ((int) type & (int) BSDFType::reflection)) ||
          (!reflect && ((int) type & (int) BSDFType::transmission))))
         return f(event);

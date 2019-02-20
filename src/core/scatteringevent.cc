@@ -17,7 +17,7 @@ Vec3f ScatteringEvent::localToWorld(const Vec3f &v) const {
 }
 
 void ScatteringEvent::computeLocalCoordinates() {
-    const auto &w = info->normal;
+    const auto &w = Ns;
     localX = Vec3f::cross((abs(w.x()) > 0.1) ? Vec3f{0, 1, 0} : Vec3f{1, 0, 0}, w);
     localX.normalize();
     localZ = Vec3f::cross(w, localX);
