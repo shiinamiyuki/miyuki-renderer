@@ -36,9 +36,12 @@ void Camera::lookAt(const Vec3f &pos) {
 }
 
 void Camera::initTransformMatrix() {
-    matrix = Matrix4x4::rotation(Vec3f(1, 0, 0), -direction.y());
+//    matrix = Matrix4x4::rotation(Vec3f(1, 0, 0), -direction.y());
+//    matrix = matrix.mult(Matrix4x4::rotation(Vec3f(0, 1, 0), direction.x()));
+//    matrix = matrix.mult(Matrix4x4::rotation(Vec3f(0, 0, 1), direction.z()));
+    matrix = Matrix4x4::rotation(Vec3f(0, 0, 1), direction.z());
     matrix = matrix.mult(Matrix4x4::rotation(Vec3f(0, 1, 0), direction.x()));
-    matrix = matrix.mult(Matrix4x4::rotation(Vec3f(0, 0, 1), direction.z()));
+    matrix = matrix.mult(Matrix4x4::rotation(Vec3f(1, 0, 0), -direction.y()));
     // matrix = matrix.mult(Matrix4x4::translation(viewpoint));
     Matrix4x4::inverse(matrix, invMatrix);
     /* Now the perspective matrix

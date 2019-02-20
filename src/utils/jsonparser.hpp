@@ -308,7 +308,7 @@ namespace Miyuki {
                     advance();
                     double p = 0.1;
                     while (isdigit(cur())) {
-                        x = p * (cur() - '0');
+                        x = x + p * (cur() - '0');
                         p *= 0.1;
                         advance();
                     }

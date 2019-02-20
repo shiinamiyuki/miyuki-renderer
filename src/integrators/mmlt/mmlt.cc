@@ -156,6 +156,7 @@ void MultiplexedMLT::render(Scene &scene) {
                                             scene.film.height()
                                             / (double) nChains);
     fmt::print("nChainMutations: {}\n", nChainMutations);
+    setReadImageFunc(scene);
     auto maxDepth = scene.option.maxDepth;
     Float largeStepProb = scene.option.largeStepProb;
     std::random_device rd;
@@ -214,7 +215,7 @@ void MultiplexedMLT::render(Scene &scene) {
     auto &film = scene.film;
     std::uniform_real_distribution<Float> dist;
     DECLARE_STATS(int32_t, acceptanceCounter);
-    for (int iter = 0; iter < nChainMutations; iter++) {
+    for (curIteration = 0; curIteration < nChainMutations && scene.processContinuable(); curIteration++) {
         auto t = runtime([&]() {
             parallelFor(0u, nChains, [&](int i) {
                 auto arenaInfo = arenaAllocator.getAvailableArena();
@@ -241,13 +242,38 @@ void MultiplexedMLT::render(Scene &scene) {
             });
         });
         elapsed += t;
-        if (iter % percentage == 0) {
-            fmt::print("Acceptance rate: {}\n", (double) acceptanceCounter / ((iter + 1) * nChains));
+        if (curIteration % percentage == 0) {
+            fmt::print("Acceptance rate: {}\n", (double) acceptanceCounter / ((curIteration + 1) * nChains));
             fmt::print("Rendered {}%, elapsed {}s, remaining {}s\n",
-                       (double) (iter + 1) / nChainMutations * 100,
+                       (double) (curIteration + 1) / nChainMutations * 100,
                        elapsed,
-                       (double) (elapsed * nChainMutations) / (iter + 1) - elapsed);
+                       (double) (elapsed * nChainMutations) / (curIteration + 1) - elapsed);
+            scene.update();
         }
     }
-    film.scaleImageColor(b / scene.option.samplesPerPixel);
+    double mpp = (double) (curIteration) * nChains / (double) (film.width() * film.height());
+    film.scaleImageColor(b / mpp);
+}
+
+void MultiplexedMLT::setReadImageFunc(Scene &s) {
+    s.setReadImageFunc([&](Scene &scene, std::vector<uint8_t> &pixelData) {
+        auto &film = scene.film;
+        double mpp = (double) (curIteration + 1) * nChains / (double) (film.width() * film.height());
+        if (pixelData.size() != film.width() * film.height() * 4)
+            pixelData.resize(film.width() * film.height() * 4);
+        for (int i = 0; i < film.width(); i++) {
+            for (int j = 0; j < film.height(); j++) {
+                auto pixel = film.getPixel(i, j);
+                for (int k = 0; k < 3; k++) {
+                    pixel.splatXYZ[k] = pixel.splatXYZ[k] * b / mpp;
+                }
+                auto out = pixel.toInt();
+                auto idx = i + film.width() * (film.height() - j - 1);
+                pixelData[4 * idx] = out.x();
+                pixelData[4 * idx + 1] = out.y();
+                pixelData[4 * idx + 2] = out.z();
+                pixelData[4 * idx + 3] = 255;
+            }
+        }
+    });
 }

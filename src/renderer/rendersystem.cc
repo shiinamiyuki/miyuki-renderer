@@ -146,7 +146,7 @@ void RenderSystem::readDescription(const std::string &filename) {
                     integratorName = integratorInfo["type"].getString();
                     if (integratorName == "path-tracer" || integratorName == "pt") {
                         integrator = std::make_unique<PathTracer>();
-                    } else if (integratorName == "ambient-occlusion") {
+                    } else if (integratorName == "ambient-occlusion" || integratorName == "ao") {
                         integrator = std::make_unique<AOIntegrator>();
                     } else if (integratorName == "bdpt") {
                         integrator = std::make_unique<BDPT>();

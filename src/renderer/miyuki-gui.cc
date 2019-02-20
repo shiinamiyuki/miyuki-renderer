@@ -58,7 +58,6 @@ int main(int argc, char **argv) {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL2_Init();
 
-    renderSystem.processOptions(argc, argv);
     renderSystem.GUIMode();
     renderSystem.setProcessContinueFunction([&]() {
         return (bool) flag;
@@ -67,12 +66,13 @@ int main(int argc, char **argv) {
         renderSystem.readImage(pixelData, &width, &height);
     };
     std::thread render([&]() {
+        renderSystem.processOptions(argc, argv);
+
         renderSystem.exec();
     });
     render.detach();
 
     ImVec4 clear_color = ImVec4(0, 0, 0, 1.00f);
-
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         int display_w, display_h;
