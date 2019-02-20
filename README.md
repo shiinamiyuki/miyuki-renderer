@@ -1,3 +1,5 @@
+
+
 # Miyuki Renderer(WIP)
 
 ```
@@ -17,21 +19,11 @@ Dependencies: Embree 3.0, boost filesystem(not required when on non-Windows).
 
 CMake everything.
 
-## Current Progress (In inverse chronological order)
+## Current Progress 
 
-BDPT is almost done. We are now fixing remaining bugs. Soon Multiplexed MLT will also be available
+Available algorithms: path tracing, bidirectional path tracing (default), PSSMLT and multiplexed MLT. The MLTs aren't working well though.
 
-Debugging BDPT is total nightmare.
-
-Refactoring is done. Now we can handle `BSDF`s easier and faster.
-
-I'm planning of another structual refactoring. I'm not quite satisfied with the way pbrt implements materials and bsdfs because I dislike dynamic memory allocation, even if the memory arena is super fast.
-
-We are more and more pbrt-like! Added memory arena so that we can implement `Material` and `BSDF` as pbrt does.
-
-We have ambient occlusion and path tracing with next event estimation and multiple importance sampling.
-
-A PSSMLT running on path tracer is also implemented.
+Available materials: lambertian, oren-nayar, microfacet glossy reflection, mirror
 
 ##  TODO List
 
@@ -40,7 +32,7 @@ A PSSMLT running on path tracer is also implemented.
 3. Stochastic Progressive Photon Mapping
 4. ~~Primary Sample Space Metropolis Light Transport (Unidirectional)~~
 5. Primary Sample Space Metropolis Light Transport (Bidirectional)
-6. Multiplexed Metropolis Light Transport
+6. ~~Multiplexed Metropolis Light Transport~~
 7. ~~Bidirectional Path Tracing with MIS~~ 
 8. ~~Multiple Importance Sampling~~
 9. Vertex Connection and Merging
@@ -54,13 +46,15 @@ A PSSMLT running on path tracer is also implemented.
 
 ![](gallery/vokselia_spawn_pr0.1.png)
 
+![](gallery/conference.png)
+
 ![](gallery/vokselia_spawn.png)
 
-![](gallery/conference.png)![](gallery/sportcar.png)
+![](gallery/conference.png)
 
-![](gallery/lots-of-thing-together.png)
+![](gallery/tough_box.png)
 
-![](gallery/test.png)
+
 
 # About the Miyuki_old
 
