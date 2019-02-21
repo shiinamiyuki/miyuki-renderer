@@ -189,6 +189,8 @@ namespace Miyuki {
 
         RenderContext getRenderContext(MemoryArena &, const Point2i &);
 
+        RenderContext getRenderContext(MemoryArena &, const Point2i &, Sampler *);
+
         Scene();
 
         ~Scene();

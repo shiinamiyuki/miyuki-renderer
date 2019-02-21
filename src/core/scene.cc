@@ -18,7 +18,7 @@ Scene::Scene() : film(1000, 1000), worldBound({}, {}) {
     postResize();
     camera.fov = 80 / 180.0f * M_PI;
     readImageFunc = [&](Scene &scene, std::vector<uint8_t> &pixelData) {
-        if(pixelData.size() != film.width() * film.height() * 4)
+        if (pixelData.size() != film.width() * film.height() * 4)
             pixelData.resize(film.width() * film.height() * 4);
         for (int i = 0; i < film.width(); i++) {
             for (int j = 0; j < film.height(); j++) {
@@ -235,6 +235,14 @@ RenderContext Scene::getRenderContext(MemoryArena &arena, const Point2i &raster)
     camera.generatePrimaryRay(*sampler, raster, &primary);
     return RenderContext(&camera, primary, sampler, arena, raster);
 }
+
+RenderContext Scene::getRenderContext(MemoryArena &arena, const Point2i &raster, Sampler *sampler) {
+    Ray primary{{},
+                {}};
+    camera.generatePrimaryRay(*sampler, raster, &primary);
+    return RenderContext(&camera, primary, sampler, arena, raster);
+}
+
 
 void Scene::checkError() {
     if (rtcGetDeviceError(GetEmbreeDevice()) != RTC_ERROR_NONE) {

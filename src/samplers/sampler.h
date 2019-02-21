@@ -21,7 +21,7 @@ namespace Miyuki {
     public:
         using Type = unsigned short;
 
-        Seed() { Xi[2] = rand(); }
+        Seed() { }
 
         unsigned short &operator[](uint32_t i) {
             assert(i < 3);

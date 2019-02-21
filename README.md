@@ -34,18 +34,17 @@ A GUI application is implemented solely for showing progressive rendering result
 1. Volumetric Path tracing with NEE
 2. ~~Ambient Occlusion~~
 3. Stochastic Progressive Photon Mapping
-4. Path Space MLT
-5. ~~Primary Sample Space Metropolis Light Transport (Unidirectional)~~
-6. Primary Sample Space Metropolis Light Transport (Bidirectional)
-7. ~~Multiplexed Metropolis Light Transport~~
-8. ~~Bidirectional Path Tracing with MIS~~ 
-9. ~~Multiple Importance Sampling~~
-10. Vertex Connection and Merging
-11. ~~Importance sampling for light source~~
-12. Mixed BSDF (partially)
-13. Material system
-14. Fourier BSDF
-15. Environment mapping
+4. ~~Primary Sample Space Metropolis Light Transport (Unidirectional)~~
+5. Primary Sample Space Metropolis Light Transport (Bidirectional)
+6. ~~Multiplexed Metropolis Light Transport~~
+7. ~~Bidirectional Path Tracing with MIS~~ 
+8. ~~Multiple Importance Sampling~~
+9. Vertex Connection and Merging
+10. ~~Importance sampling for light source~~
+11. Mixed BSDF (partially)
+12. Material system
+13. Fourier BSDF
+14. Environment mapping
 
 # Gallery (Random test images)
 

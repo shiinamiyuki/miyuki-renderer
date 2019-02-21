@@ -60,6 +60,7 @@ namespace Miyuki {
         int depth;
         Spectrum LCurrent;
         Point2i pCurrent;
+        MLTSampler():RandomSampler(nullptr){}
         MLTSampler(Seed *seed, Float largeStepProb, int streamCount) : RandomSampler(seed),
                                                                        currentIteration(0), largeStep(true),
                                                                        lastLargeStepIteration(0),

@@ -61,7 +61,7 @@ void TextureMapping2D::bumpToNormal() {
         for (int y = 0; y < bound.pMax.y(); y++) {
             auto dx = get(x - 1, y) - get(x + 1, y);
             auto dy = get(x, y - 1) - get(x, y + 1);
-            map[x + bound.pMax.x() * y] = Vec3f(dx, 1, dy).normalized();
+            map[x + bound.pMax.x() * y] = Vec3f(dx, dy, 1).normalized();
 
         }
     }
@@ -74,6 +74,7 @@ void TextureMapping2D::bumpToNormal() {
 
 void TextureMapping2D::preprocessNormal() {
     for (auto &n:texture) {
+        n = Vec3f{n.x(), n.z(), n.y()};
         n *= 2;
         n -= {1, 1, 1};
     }

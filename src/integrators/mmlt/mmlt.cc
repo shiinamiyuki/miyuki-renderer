@@ -11,8 +11,8 @@ static DECLARE_STATS(uint32_t, pathCount);
 static DECLARE_STATS(uint32_t, zeroPathCount);
 
 inline Float mutate(Float random, Float value) {
-    const float S1 = 1.0f / 512.0f;
-    const float S2 = 1.0f / 16.0f;
+    const float S1 = 1.0f / 1024.0f;
+    const float S2 = 1.0f / 64.0f;
     const float Factor = -std::log(S2 / S1);
 
     bool negative = random < 0.5f;
@@ -59,16 +59,27 @@ void MLTSampler::ensureReady(int index) {
         // Applying n small mutations of N(u1, sigma) is equivalent to sampling N(X, n*sigma^2)
         // TODO: why? Justify the math
         int64_t nSmall = currentIteration - Xi.lastModificationIteration;
-        CHECK(nSmall >= 0);
-        const Float Sqrt2 = std::sqrt(2);
+//        CHECK(nSmall >= 0);
+//        const Float Sqrt2 = std::sqrt(2);
 //        Float normalSample = Sqrt2 * erfInv(2 * randFloat() - 1);
 //        Float effSigma = sigma * std::sqrt((Float) nSmall);
 //        Xi.value += normalSample * effSigma;
 //        Xi.value -= std::floor(Xi.value);
-        for (int i = 0; i < nSmall - 1; i++) {
-            Xi.value = mutate(randFloat(), Xi.value);
-            Xi.lastModificationIteration++;
 
+
+//        for (int i = 0; i < nSmall - 1; i++) {
+//            Xi.value = mutate(randFloat(), Xi.value);
+//            Xi.lastModificationIteration++;
+//        }
+        auto nSmallMinus = nSmall - 1;
+        if (nSmallMinus > 0) {
+            auto x = Xi.value;
+            while (nSmallMinus > 0) {
+                nSmallMinus--;
+                x = mutate(randFloat(), x);
+            }
+            Xi.value = x;
+            Xi.lastModificationIteration = currentIteration - 1;
         }
         Xi.backup();
         Xi.value = mutate(randFloat(), Xi.value);
@@ -130,7 +141,7 @@ Spectrum MultiplexedMLT::L(Scene &scene, MemoryArena &arena, MLTSampler &sampler
     pLens.x() = clamp<int32_t>(_pLens.x(), 0, scene.film.width() - 1);
     pLens.y() = clamp<int32_t>(_pLens.y(), 0, scene.film.height() - 1);
     *raster = pLens;
-    auto ctx = scene.getRenderContext(arena, pLens);
+    auto ctx = scene.getRenderContext(arena, pLens, &sampler);
     ctx.sampler = &sampler;
     // Generate path with has a specific length
     if (generateCameraSubpath(scene, ctx, t, cameraVertices) != t)

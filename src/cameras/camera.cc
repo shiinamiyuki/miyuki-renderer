@@ -15,7 +15,7 @@ Float Camera::generatePrimaryRay(Sampler &sampler, const Point2i &raster, Ray *r
     Float dx = 2.0f / filmDimension.y(), dy = 2.0f / filmDimension.y();
     Vec3f ro = viewpoint;
     auto z = (Float) (2.0 / tan(fov / 2));
-    Vec3f jitter = Vec3f(dx * sampler.randFloat(), dy * sampler.randFloat(), 0);
+    Vec3f jitter = Vec3f(dx * sampler.nextFloat(), dy * sampler.nextFloat(), 0);
     Vec3f rd = Vec3f(x, y, 0) + jitter - Vec3f(0, 0, -z);
     rd.normalize();
     rd.w() = 1;

@@ -23,7 +23,7 @@ std::shared_ptr<BSDF> BSDFFactory::operator()(const MaterialInfo &materialInfo) 
     Fresnel *fresnel;
     fresnel = ARENA_ALLOC(scene->miscArena, FresnelPerfectSpecular)();
     if (kd.maxReflectance > 0) {
-        if (materialInfo.roughness <= 1e-4f)
+        if (materialInfo.roughness <= 1e-4f || ks.maxReflectance > 1e-4f)
             bsdf = std::make_shared<LambertianBSDF>(kd, bump);
         else
             bsdf = std::make_shared<OrenNayarBSDF>(materialInfo.roughness, kd, bump);
