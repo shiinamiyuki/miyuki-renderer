@@ -25,9 +25,14 @@ void ScatteringEvent::computeLocalCoordinates() {
 }
 
 ScatteringEvent::ScatteringEvent(const IntersectionInfo *info, Sampler *sampler)
-        : info(info), woW(info->wo), Ns(info->normal), pdf(0), sampler(sampler),flags(BSDFType::all) {
+        : info(info), woW(info->wo), Ns(info->normal), pdf(0), sampler(sampler), flags(BSDFType::all) {
     assert(info && sampler);
     computeLocalCoordinates();
+    if(info->bsdf->hasBump()){
+        Ns += localToWorld(info->bsdf->evalBump(*this));
+        Ns.normalized();
+        computeLocalCoordinates();
+    }
     wo = worldToLocal(woW);
 }
 
@@ -44,7 +49,7 @@ const IntersectionInfo *ScatteringEvent::getIntersectionInfo() const {
 }
 
 Spectrum ScatteringEvent::Le(const Vec3f &wo) const {
-    if(worldToLocal(wo).y() < 0)
+    if (Vec3f::dot(wo, Ns) < 0)
         return {};
     return info->Le(wo);
 }

@@ -82,7 +82,7 @@ Float AreaLight::pdfLi(const IntersectionInfo &info, const Vec3f &wi) const {
 
 void AreaLight::pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const {
     *pdfPos = 1 / area;
-    *pdfDir = Vec3f::dot(ray.d, normal) * INVPI;
+    *pdfDir = std::max<Float>(0, Vec3f::dot(ray.d, normal) * INVPI);
 }
 
 Spectrum PointLight::sampleLi(const Point2f &u, const IntersectionInfo &info, Vec3f *wi, Float *pdf,

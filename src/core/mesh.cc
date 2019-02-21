@@ -9,7 +9,7 @@
 
 using namespace Miyuki;
 
-std::shared_ptr<TextureMapping2D> loadFromPNG(const std::string &filename) {
+std::shared_ptr<TextureMapping2D> loadFromPNG(const std::string &filename, bool raw = false) {
     std::vector<unsigned char> pixelData;
     uint32_t w, h;
     lodepng::decode(pixelData, w, h, filename);
@@ -50,7 +50,7 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
             return;
         }
         for (const auto &m :materials) {
-            std::shared_ptr<TextureMapping2D> kaMap, kdMap, ksMap;
+            std::shared_ptr<TextureMapping2D> kaMap, kdMap, ksMap, bump;
             if (use && !m.diffuse_texname.empty()) {
                 if (textures.find(m.diffuse_texname) == textures.end()) {
                     kdMap = loadFromPNG(m.diffuse_texname);
@@ -72,10 +72,19 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
                 } else
                     kaMap = textures[m.emissive_texname];
             }
+            if (use && !m.bump_texname.empty()) {
+                if (textures.find(m.bump_texname) == textures.end()) {
+                    bump = loadFromPNG(m.bump_texname, true);
+                    bump->bumpToNormal();
+                    textures[m.bump_texname] = bump;
+                } else
+                    bump = textures[m.bump_texname];
+            }
             ColorMap ka(m.emission[0], m.emission[1], m.emission[2], kaMap);
             ColorMap kd(m.diffuse[0], m.diffuse[1], m.diffuse[2], kdMap);
             ColorMap ks(m.specular[0], m.specular[1], m.specular[2], ksMap);
-            MaterialInfo materialInfo(ka, kd, ks);
+            ColorMap bumpMap({1, 1, 1}, bump);
+            MaterialInfo materialInfo(ka, kd, ks, bumpMap);
             materialInfo.Ni = m.ior;
             materialInfo.Tr = 1 - m.dissolve;
             materialInfo.roughness = m.roughness;

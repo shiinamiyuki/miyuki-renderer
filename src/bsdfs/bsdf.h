@@ -123,7 +123,7 @@ namespace Miyuki {
         std::map<std::string, std::string> parameters;
 
         MaterialInfo(const ColorMap &ka, const ColorMap &kd, const ColorMap &ks, const ColorMap &bump = ColorMap()) :
-                ka(ka), kd(kd), ks(ks), bump(bump), Ni(1), Ns(0), Tr(0),roughness(0) {}
+                ka(ka), kd(kd), ks(ks), bump(bump), Ni(1), Ns(0), Tr(0), roughness(0) {}
     };
 
     class ScatteringEvent;
@@ -142,8 +142,8 @@ namespace Miyuki {
     public:
         ColorMap ka;
 
-        BSDF(BSDFType type, const ColorMap &albedo, const ColorMap &bump = ColorMap())
-                : type(type), albedo(albedo) {}
+        BSDF(BSDFType type, const ColorMap &albedo, const ColorMap &bump)
+                : type(type), albedo(albedo), bump(bump) {}
 
         virtual Spectrum sample(ScatteringEvent &) const;
 
@@ -162,6 +162,8 @@ namespace Miyuki {
         bool matchFlags(BSDFType flags) const {
             return (int) type & (int) flags;
         }
+        bool hasBump()const;
+        Vec3f evalBump(const ScatteringEvent &) const;
     };
 
 

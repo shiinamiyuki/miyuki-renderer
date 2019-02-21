@@ -4,6 +4,7 @@
 
 #include "bsdf.h"
 #include "../core/scatteringevent.h"
+#include "../core/mesh.h"
 
 using namespace Miyuki;
 
@@ -23,7 +24,10 @@ Float BSDF::pdf(const Vec3f &wo, const Vec3f &wi, BSDFType flags) const {
 }
 
 Spectrum BSDF::evalAlbedo(const ScatteringEvent &event) const {
-    return albedo.sample(event.uv());
+    auto &primitive = *event.getIntersectionInfo()->primitive;
+    auto uv = pointOnTriangle(primitive.textCoord[0], primitive.textCoord[1], primitive.textCoord[2],
+                              event.uv().x(), event.uv().y());
+    return albedo.sample(uv);
 }
 
 // TODO: Ng and Ns
@@ -34,5 +38,20 @@ Spectrum BSDF::eval(const ScatteringEvent &event) const {
          (!reflect && ((int) type & (int) BSDFType::transmission))))
         return f(event);
     return {};
+}
+
+bool BSDF::hasBump() const {
+    return bump.hasMapping();
+}
+
+Vec3f BSDF::evalBump(const ScatteringEvent &event) const {
+    auto &primitive = *event.getIntersectionInfo()->primitive;
+    auto uv = pointOnTriangle(primitive.textCoord[0], primitive.textCoord[1], primitive.textCoord[2],
+                              event.uv().x(), event.uv().y());
+    auto normal = bump.sample(uv);
+    Vec3f Ns(normal.x(), normal.z(), normal.y());
+    Ns -= Vec3f{0.5f, 0.5f, 0.5f};
+    Ns *= 2;
+    return Ns;
 }
 

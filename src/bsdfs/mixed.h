@@ -13,7 +13,7 @@ namespace Miyuki {
         // f = ratio * bsdf1->f() + bsdf2->f()
         Float ratio;
     public:
-        MixedBSDF(std::shared_ptr<BSDF> bsdf1, std::shared_ptr<BSDF> bsdf2, Float ratio = 1);
+        MixedBSDF(std::shared_ptr<BSDF> bsdf1, std::shared_ptr<BSDF> bsdf2, Float ratio,const ColorMap&bump);
 
         /* We will importance sample the bsdfs
          * bsdf1 has discrete probability of ratio/(1 + ratio)

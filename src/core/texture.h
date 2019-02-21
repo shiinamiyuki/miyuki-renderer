@@ -16,11 +16,13 @@ namespace Miyuki {
     public:
         TextureMapping2D() : bound({0, 0}, {0, 0}) {}
 
-        TextureMapping2D(const std::vector<unsigned char> &pixelData, const Point2i &dimension);
+        TextureMapping2D(const std::vector<unsigned char> &pixelData, const Point2i &dimension,bool raw = false);
 
-        void load(const std::vector<unsigned char> &pixelData, const Point2i &dimension);
+        void load(const std::vector<unsigned char> &pixelData, const Point2i &dimension,bool raw);
 
         Spectrum sample(const Point2f &uv) const;
+
+        void bumpToNormal();
     };
 
     struct ColorMap {
@@ -49,7 +51,9 @@ namespace Miyuki {
         bool operator!() const {
             return isNull;
         }
-
+        bool hasMapping()const{
+            return mapping != nullptr;
+        }
         Spectrum sample(const Point2f &) const;
     };
 }

@@ -44,8 +44,8 @@ Float MixedBSDF::pdf(const Vec3f &wo, const Vec3f &wi, BSDFType flags) const {
     return 0;
 }
 
-MixedBSDF::MixedBSDF(std::shared_ptr<BSDF> bsdf1, std::shared_ptr<BSDF> bsdf2, Float ratio) :
-        BSDF(BSDFType((int) bsdf1->getType() | (int) bsdf2->getType()), ColorMap()), bsdf1(bsdf1), bsdf2(bsdf2),
+MixedBSDF::MixedBSDF(std::shared_ptr<BSDF> bsdf1, std::shared_ptr<BSDF> bsdf2, Float ratio, const ColorMap &bump) :
+        BSDF(BSDFType((int) bsdf1->getType() | (int) bsdf2->getType()),ColorMap(), bump), bsdf1(bsdf1), bsdf2(bsdf2),
         ratio(ratio) {
 
 }

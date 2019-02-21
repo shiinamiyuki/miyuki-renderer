@@ -9,6 +9,7 @@
 using namespace Miyuki;
 static DECLARE_STATS(uint32_t, pathCount);
 static DECLARE_STATS(uint32_t, zeroPathCount);
+
 inline Float mutate(Float random, Float value) {
     const float S1 = 1.0f / 512.0f;
     const float S2 = 1.0f / 16.0f;
@@ -212,7 +213,7 @@ void MultiplexedMLT::render(Scene &scene) {
     }
     zeroPathCount = 0;
     pathCount = 0;
-    int percentage = std::max<int>(nChainMutations / 100, 1);
+    int percentage = std::max<int>(nChainMutations / scene.option.samplesPerPixel, 1);
     double elapsed = 0;
     ConcurrentMemoryArenaAllocator arenaAllocator;
     auto &film = scene.film;
@@ -227,8 +228,8 @@ void MultiplexedMLT::render(Scene &scene) {
                 Point2i pProposed;
                 Spectrum LProposed = L(scene, arenaInfo.arena, sampler, sampler.depth, &pProposed);
                 UPDATE_STATS(pathCount, 1);
-                if(LProposed.isBlack())
-                    UPDATE_STATS(zeroPathCount,1);
+                if (LProposed.isBlack())
+                    UPDATE_STATS(zeroPathCount, 1);
                 Float accept = std::min<Float>(1.0, luminance(LProposed) / luminance(sampler.LCurrent));
                 CHECK(!std::isnan(accept));
                 if (accept > 0) {
@@ -248,10 +249,11 @@ void MultiplexedMLT::render(Scene &scene) {
             });
         });
         elapsed += t;
+        double mpp = (double) (curIteration) * nChains / (double) (film.width() * film.height());
         if (curIteration % percentage == 0) {
             fmt::print("Acceptance rate: {}\n", (double) acceptanceCounter / ((curIteration + 1) * nChains));
-            fmt::print("Rendered {}%, elapsed {}s, remaining {}s, zero-path: {}%\n",
-                       (double) (curIteration + 1) / nChainMutations * 100,
+            fmt::print("Rendered {}mpp, elapsed {}s, remaining {}s, zero-path: {}%\n",
+                       mpp,
                        elapsed,
                        (double) (elapsed * nChainMutations) / (curIteration + 1) - elapsed,
                        (double) zeroPathCount / (double) pathCount * 100);

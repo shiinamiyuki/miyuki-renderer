@@ -13,6 +13,8 @@
 
 Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-primitive intersection.
 
+Although this is a CPU-only renderer, utilizing state-of-art rendering methods you can always get a nice image in around 5-10 minutes.
+
 ## How to build
 
 Dependencies: Embree 3.0, boost filesystem(not required when on non-Windows).
@@ -46,6 +48,8 @@ A GUI application is implemented solely for showing progressive rendering result
 15. Environment mapping
 
 # Gallery (Random test images)
+
+![](gallery/sibenik.png)
 
 ![](gallery/vokselia_spawn_pr0.1.png)
 

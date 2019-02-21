@@ -273,7 +273,7 @@ Float BDPT::MISWeight(Scene &scene,
     }
 
     // Remaps the delta pdf
-    auto remap0 = [](Float x) { return x != 0 ? x : 1; };
+    auto remap0 = [](Float x) { return x != 0 ? x * x: 1; };
     Float sumRi = 0;
     Float ri = 1;
     for (int i = t - 1; i > 0; i--) {
@@ -363,7 +363,8 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
     if (s + t == 2)return Li;
     Float naiveWeight = 1.0f / (s + t);
     Float weight = MISWeight(scene, ctx, lightVertices, cameraVertices, s, t, sampled);
-    CHECK(!std::isnan(weight) && weight >= 0);
+    CHECK(!std::isnan(weight));
+    CHECK(weight >= 0);
     if (misWeightPtr) {
         *misWeightPtr = weight;
     }
@@ -442,7 +443,9 @@ Float Vertex::pdfLight(Scene &scene, const Vertex &v) const {
         Float pdfPos, pdfDir;
         light->pdfLe(Ray(hitPoint(), w), Ng(), &pdfPos, &pdfDir);
         pdf = pdfDir * invDist2;
+        CHECK(pdfDir>=0);
     }
+
     pdf *= Vec3f::absDot(v.Ng(), w);
     return pdf;
 }
