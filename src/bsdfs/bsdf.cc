@@ -49,9 +49,6 @@ Vec3f BSDF::evalBump(const ScatteringEvent &event) const {
     auto uv = pointOnTriangle(primitive.textCoord[0], primitive.textCoord[1], primitive.textCoord[2],
                               event.uv().x(), event.uv().y());
     auto normal = bump.sample(uv);
-    Vec3f Ns(normal.x(), normal.z(), normal.y());
-    Ns -= Vec3f{0.5f, 0.5f, 0.5f};
-    Ns *= 2;
-    return Ns;
+    return normal;
 }
 

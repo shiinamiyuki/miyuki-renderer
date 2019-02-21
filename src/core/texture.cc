@@ -72,6 +72,13 @@ void TextureMapping2D::bumpToNormal() {
     }
 }
 
+void TextureMapping2D::preprocessNormal() {
+    for (auto &n:texture) {
+        n *= 2;
+        n -= {1, 1, 1};
+    }
+}
+
 Spectrum ColorMap::sample(const Point2f &uv) const {
     if (mapping) {
         return Spectrum(color * mapping->sample(uv));

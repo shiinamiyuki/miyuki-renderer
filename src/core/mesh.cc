@@ -76,6 +76,7 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
                 if (textures.find(m.bump_texname) == textures.end()) {
                     bump = loadFromPNG(m.bump_texname, true);
                     bump->bumpToNormal();
+                    bump->preprocessNormal();
                     textures[m.bump_texname] = bump;
                 } else
                     bump = textures[m.bump_texname];
@@ -198,7 +199,7 @@ MeshInstance::MeshInstance(std::shared_ptr<TriangularMesh> mesh, const Transform
         auto &trig = mesh->triangleArray()[i];
         primitives[i].materialId = trig.materialId;
         primitives[i].Ng = trig.trigNorm;
-        primitives[i].area = trig.area;
+        primitives[i].area = trig.area * t.scale * t.scale;
         for (int32_t k = 0; k < 3; k++) {
             primitives[i].normal[k] = &normals[trig.normal[k]];//t.applyRotation(mesh->normal[trig.normal[k]]).normalized();
             primitives[i].vertices[k] = &vertices[trig.vertex[k]];//t.apply(mesh->vertex[trig.vertex[k]]);
