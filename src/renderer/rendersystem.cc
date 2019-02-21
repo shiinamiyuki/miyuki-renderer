@@ -158,6 +158,9 @@ void RenderSystem::readDescription(const std::string &filename) {
                         fmt::print(stderr, "Unrecognized integrator: {}\n", integratorName);
                     }
                 }
+                if(integratorInfo.hasKey("clamp")){
+                    scene.option.maxRayIntensity = integratorInfo["clamp"].getFloat();
+                }
                 if (integratorInfo.hasKey("max-depth")) {
                     scene.option.maxDepth = integratorInfo["max-depth"].getInt();
                 }

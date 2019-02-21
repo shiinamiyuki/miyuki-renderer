@@ -52,6 +52,8 @@ A GUI application is implemented solely for showing progressive rendering result
 
 ![](gallery/vokselia_spawn_pr0.1.png)
 
+![](gallery/ring.png)
+
 ![](gallery/sportsCar.png)
 
 ![](gallery/conference.png)
