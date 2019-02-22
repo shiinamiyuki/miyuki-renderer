@@ -310,7 +310,8 @@ Option::Option() {
     samplesPerPixel = 16;
     mltLuminanceSample = 100000;
     mltNChains = 256;
-    largeStepProb = 0.3;
+    mltDirectSamples = 16;
+    largeStepProb = 0.4;
     showAmbientLight = true;
     aoDistance = 50;
     saveEverySecond = 10;

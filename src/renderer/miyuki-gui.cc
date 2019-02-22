@@ -97,6 +97,7 @@ int main(int argc, char **argv) {
 
         glfwMakeContextCurrent(window);
         glfwSwapBuffers(window);
+        std::this_thread::sleep_for(std::chrono::milliseconds(60));
     }
     flag = false;
     // Cleanup

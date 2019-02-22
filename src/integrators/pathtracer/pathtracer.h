@@ -25,11 +25,6 @@ namespace Miyuki {
 
         void iteration(Scene &);
 
-        Spectrum importanceSampleOneLight(Scene &scene,
-                                          RenderContext &ctx,
-                                          ScatteringEvent &event,
-                                          bool specular = false);
-
         Spectrum render(const Point2i &, RenderContext &, Scene &);
 
     public:

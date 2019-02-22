@@ -6,10 +6,12 @@
 #define MIYUKI_INTEGRATOR_H
 
 #include "../utils/util.h"
+#include "../core/spectrum.h"
 
 namespace Miyuki {
     class Scene;
 
+    struct RenderContext;
     struct Ray;
     struct IntersectionInfo;
 
@@ -21,7 +23,13 @@ namespace Miyuki {
 
     class Integrator {
     protected:
-        ScatteringEvent makeScatteringEvent(const Ray &ray,IntersectionInfo *, Sampler *sampler);
+        ScatteringEvent makeScatteringEvent(const Ray &ray, IntersectionInfo *, Sampler *sampler);
+
+        virtual Spectrum importanceSampleOneLight(Scene &scene,
+                                                  RenderContext &ctx,
+                                                  ScatteringEvent &event,
+                                                  bool specular = false);
+
     public:
         virtual ~Integrator() = default;
 

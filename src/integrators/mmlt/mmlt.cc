@@ -125,14 +125,30 @@ void MLTSampler::startStream(int index) {
 Spectrum MultiplexedMLT::L(Scene &scene, MemoryArena &arena, MLTSampler &sampler, int depth, Point2i *raster) {
     sampler.startStream(MLTSampler::cameraStreamIndex);
     int s, t, nStrategies;
-    if (depth == 0) {
-        nStrategies = 1;
-        s = 0;
-        t = 2;
+    if (directSamples <= 0) {
+        if (depth == 0) {
+            nStrategies = 1;
+            s = 0;
+            t = 2;
+        } else {
+            nStrategies = depth + 2;
+            s = std::min((int) (sampler.nextFloat() * nStrategies), nStrategies - 1);
+            t = nStrategies - s;
+        }
     } else {
-        nStrategies = depth + 2;
-        s = std::min((int) (sampler.nextFloat() * nStrategies), nStrategies - 1);
-        t = nStrategies - s;
+        // direct lighting is handled by other methods
+        if (depth == 0) {
+            return {};
+        } else {
+            // avoid generating t = 2, s = 1 paths
+            nStrategies = depth + 2;
+            s = std::min((int) (sampler.nextFloat() * nStrategies), nStrategies - 1);
+            t = nStrategies - s;
+            if (t == 2 && s == 1) {
+                return {};
+            }
+            nStrategies -= 1;
+        }
     }
     auto cameraVertices = arena.alloc<Vertex>((size_t) t);
     auto lightVertices = arena.alloc<Vertex>((size_t) s);
@@ -159,8 +175,47 @@ Float MultiplexedMLT::continuationProbability(const Scene &scene, Float R, const
     return 1;
 }
 
+void MultiplexedMLT::handleDirect(Scene &scene) {
+    fmt::print("Computing direct lighting\n");
+    double acc = 0;
+    for (int i = 0; i < directSamples && scene.processContinuable(); i++) {
+        auto t = runtime([&]() {
+            scene.foreachPixel([&](RenderContext &ctx) {
+                Sampler &randomSampler = *ctx.sampler;
+                Ray ray = ctx.primary;
+                Spectrum L;
+                Vec3f beta(1, 1, 1);
+                bool showAL = scene.option.showAmbientLight;
+                IntersectionInfo info;
+                ScatteringEvent event;
+                auto &film = scene.film;
+                if (!scene.intersect(ray, &info)) {
+                    if (showAL) {
+                        L += beta * scene.infiniteLight->L();
+                    }
+                    film.addSample(ctx.raster, L);
+                    return;
+                }
+                event = makeScatteringEvent(ray, &info, ctx.sampler);
+                L += beta * event.Le(-1 * ray.d);
+                auto direct = importanceSampleOneLight(scene, ctx, event);
+                L += beta * direct;
+                film.addSample(ctx.raster, L);
+            });
+        });
+        fmt::print("Done direct sample {}\n", i + 1);
+        acc += t;
+        if (acc >= 1.5) {
+            acc = 0;
+            scene.update();
+        }
+    }
+    scene.update();
+}
+
 void MultiplexedMLT::render(Scene &scene) {
     delete[] samplers;
+    directSamples = scene.option.mltDirectSamples;
     nChains = (uint32_t) scene.option.mltNChains;
     nBootstrap = (uint32_t) scene.option.mltLuminanceSample;
     mltSeeds.resize(nChains);
@@ -168,8 +223,9 @@ void MultiplexedMLT::render(Scene &scene) {
     nChainMutations = static_cast<uint32_t>((double) scene.option.samplesPerPixel * scene.film.width() *
                                             scene.film.height()
                                             / (double) nChains);
-    fmt::print("nChainMutations: {}\n", nChainMutations);
     setReadImageFunc(scene);
+    handleDirect(scene);
+    fmt::print("nChainMutations: {}\n", nChainMutations);
     auto maxDepth = scene.option.maxDepth;
     Float largeStepProb = scene.option.largeStepProb;
     std::random_device rd;
@@ -272,7 +328,14 @@ void MultiplexedMLT::render(Scene &scene) {
         }
     }
     double mpp = (double) (curIteration) * nChains / (double) (film.width() * film.height());
-    film.scaleImageColor(b / mpp);
+    for (int i = 0; i < film.width(); i++) {
+        for (int j = 0; j < film.height(); j++) {
+            auto &pixel = film.getPixel(i, j);
+            for (int k = 0; k < 3; k++) {
+                pixel.splatXYZ[k] = pixel.splatXYZ[k] * b / mpp * std::max<Float>(1, directSamples);
+            }
+        }
+    }
 }
 
 void MultiplexedMLT::setReadImageFunc(Scene &s) {
@@ -285,7 +348,7 @@ void MultiplexedMLT::setReadImageFunc(Scene &s) {
             for (int j = 0; j < film.height(); j++) {
                 auto pixel = film.getPixel(i, j);
                 for (int k = 0; k < 3; k++) {
-                    pixel.splatXYZ[k] = pixel.splatXYZ[k] * b / mpp;
+                    pixel.splatXYZ[k] = pixel.splatXYZ[k] * b / mpp * std::max<Float>(1, directSamples);
                 }
                 auto out = pixel.toInt();
                 auto idx = i + film.width() * (film.height() - j - 1);
@@ -297,3 +360,4 @@ void MultiplexedMLT::setReadImageFunc(Scene &s) {
         }
     });
 }
+

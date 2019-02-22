@@ -69,6 +69,7 @@ namespace Miyuki {
         int32_t samplesPerPixel;
         int32_t mltLuminanceSample;
         int32_t mltNChains;
+        int32_t mltDirectSamples;
         Float largeStepProb;
         Float aoDistance;
         bool showAmbientLight;
@@ -101,6 +102,8 @@ namespace Miyuki {
         friend class PSSMLTUnidirectional;
 
         friend class MultiplexedMLT;
+
+        friend class Integrator;
 
         Bound3f worldBound;
         ConcurrentMemoryArenaAllocator arenaAllocator;

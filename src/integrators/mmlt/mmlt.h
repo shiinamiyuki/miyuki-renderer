@@ -60,7 +60,9 @@ namespace Miyuki {
         int depth;
         Spectrum LCurrent;
         Point2i pCurrent;
-        MLTSampler():RandomSampler(nullptr){}
+
+        MLTSampler() : RandomSampler(nullptr) {}
+
         MLTSampler(Seed *seed, Float largeStepProb, int streamCount) : RandomSampler(seed),
                                                                        currentIteration(0), largeStep(true),
                                                                        lastLargeStepIteration(0),
@@ -86,17 +88,21 @@ namespace Miyuki {
         MLTSampler *samplers;
         std::vector<Seed> mltSeeds;
         uint32_t nChains, nBootstrap, nChainMutations;
+        int32_t directSamples;
         Float b;
         int curIteration;
     public:
-        MultiplexedMLT() : samplers(nullptr) ,curIteration(0){}
+        MultiplexedMLT() : samplers(nullptr), curIteration(0) {}
 
         Spectrum L(Scene &scene, MemoryArena &arena, MLTSampler &sampler, int depth, Point2i *raster);
 
         void render(Scene &scene) override;
 
     protected:
+        void handleDirect(Scene &scene);
+
         void setReadImageFunc(Scene &scene);
+
         Float continuationProbability(const Scene &scene, Float R, const Spectrum &beta, int depth) override;
     };
 }
