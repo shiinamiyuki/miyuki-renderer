@@ -359,6 +359,7 @@ namespace Miyuki {
                     throw ParserError("'[' expected");
                 }
                 advance();
+                skipSpace();
                 auto object = JsonObject::makeArray();
                 while (cur() && cur() != ']') {
                     skipSpace();

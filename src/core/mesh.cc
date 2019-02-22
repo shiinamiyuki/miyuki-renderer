@@ -9,7 +9,7 @@
 
 using namespace Miyuki;
 
-std::shared_ptr<TextureMapping2D> loadFromPNG(const std::string &filename, bool raw = false) {
+std::shared_ptr<TextureMapping2D> loadFromPNG(const std::string &filename, bool raw) {
     std::vector<unsigned char> pixelData;
     uint32_t w, h;
     lodepng::decode(pixelData, w, h, filename);
@@ -35,6 +35,7 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
     bool succ = true;
     std::map<std::string, std::shared_ptr<TextureMapping2D>> textures;
     bool use = (int32_t) opt;
+    bool raw = (int) opt | (int) TextureOption::raw;
     fmt::print("Use texture = {}\n", use);
     readUnderPath(filename, [&](const std::string &file) -> void {
         std::string err;
@@ -53,21 +54,21 @@ std::shared_ptr<TriangularMesh> Miyuki::LoadFromObj(
             std::shared_ptr<TextureMapping2D> kaMap, kdMap, ksMap, bump;
             if (use && !m.diffuse_texname.empty()) {
                 if (textures.find(m.diffuse_texname) == textures.end()) {
-                    kdMap = loadFromPNG(m.diffuse_texname);
+                    kdMap = loadFromPNG(m.diffuse_texname, raw);
                     textures[m.diffuse_texname] = kdMap;
                 } else
                     kdMap = textures[m.diffuse_texname];
             }
             if (use && !m.specular_texname.empty()) {
                 if (textures.find(m.specular_texname) == textures.end()) {
-                    ksMap = loadFromPNG(m.specular_texname);
+                    ksMap = loadFromPNG(m.specular_texname, raw);
                     textures[m.specular_texname] = ksMap;
                 } else
                     ksMap = textures[m.specular_texname];
             }
             if (use && !m.emissive_texname.empty()) {
                 if (textures.find(m.emissive_texname) == textures.end()) {
-                    kaMap = loadFromPNG(m.emissive_texname);
+                    kaMap = loadFromPNG(m.emissive_texname, raw);
                     textures[m.emissive_texname] = kaMap;
                 } else
                     kaMap = textures[m.emissive_texname];

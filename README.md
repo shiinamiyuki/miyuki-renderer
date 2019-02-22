@@ -46,6 +46,8 @@ A GUI application is implemented solely for showing progressive rendering result
 
 # Gallery (Random test images)
 
+![](gallery/living_room.png)
+
 ![](gallery/sibenik.png)
 
 ![](gallery/vokselia_spawn_pr0.1.png)

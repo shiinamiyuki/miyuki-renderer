@@ -68,7 +68,7 @@ AreaLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *norma
     *pdfPos = 1 / area;
     Vec3f dir = cosineWeightedHemisphereSampling(*normal, u2.x(), u2.y());
     *ray = Ray(p, dir);
-    *pdfDir = Vec3f::dot(dir, *normal) * INVPI;
+    *pdfDir = Vec3f::absDot(dir, *normal) * INVPI;
     return ka;
 }
 
