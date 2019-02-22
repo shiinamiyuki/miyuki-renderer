@@ -201,7 +201,6 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
     // TODO: infinite light
     // At present, no rays will be emitted from infinite area lights.
     vertex = Vertex::createLightVertex(light, ray, normal, lightPdf * pdfPos, Le);
-    vertex.L = Le;
     vertex.pdfPos = pdfPos;
     return randomWalk(ray, scene, ctx, beta, pdfDir, maxDepth - 1, path + 1, TransportMode::importance) + 1;
 }
@@ -273,7 +272,7 @@ Float BDPT::MISWeight(Scene &scene,
     }
 
     // Remaps the delta pdf
-    auto remap0 = [](Float x) { return x != 0 ? x * x: 1; };
+    auto remap0 = [](Float x) { return x != 0 ? x * x : 1; };
     Float sumRi = 0;
     Float ri = 1;
     for (int i = t - 1; i > 0; i--) {
@@ -335,7 +334,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             if (Li.isBlack())return {};
             OccludeTester tester(primary, sqrt(dist));
             if (!tester.visible(scene))return {};
-            Li *= Vec3f::absDot(primary.d, L.Ng());
+            Li *= Vec3f::absDot(primary.d, L.Ns());
         } else if (s == 1) {
             Vec3f wi;
             Float pdf;
@@ -343,8 +342,9 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             Li = L.light->sampleLi(ctx.sampler->nextFloat2D(), *E.event.getIntersectionInfo(), &wi, &pdf, &tester);
             if (Li.isBlack() || pdf <= 0)return {};
             sampled = Vertex::createLightVertex(L.light, tester.shadowRay, L.Ng(), pdf, Spectrum(Li / pdf));
-            if (!tester.visible(scene))return {};
             Li *= E.beta * E.f(sampled, TransportMode::radiance) / pdf * Vec3f::absDot(wi, E.Ns());
+            if (Li.isBlack())return {};
+            if (!tester.visible(scene))return {};
             sampled.pdfFwd = sampled.pdfLightOrigin(scene, E);
         } else {
             if (!L.connectable() || !E.connectable())return {};
@@ -443,7 +443,7 @@ Float Vertex::pdfLight(Scene &scene, const Vertex &v) const {
         Float pdfPos, pdfDir;
         light->pdfLe(Ray(hitPoint(), w), Ng(), &pdfPos, &pdfDir);
         pdf = pdfDir * invDist2;
-        CHECK(pdfDir>=0);
+        CHECK(pdfDir >= 0);
     }
 
     pdf *= Vec3f::absDot(v.Ng(), w);

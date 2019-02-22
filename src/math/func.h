@@ -60,7 +60,7 @@ namespace Miyuki{
         return sign * y;
     }
     inline Float uniformSpherePdf(){
-        return INVPI;
+        return INV4PI;
     }
     inline Float cosineHemispherePdf(Float cosTheta){
         return cosTheta * INVPI;

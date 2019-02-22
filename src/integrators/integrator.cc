@@ -6,10 +6,12 @@
 #include "../core/scene.h"
 
 using namespace Miyuki;
+
 ScatteringEvent
 Integrator::makeScatteringEvent(const Ray &ray, IntersectionInfo *info, Sampler *sampler) {
-    return ScatteringEvent( info, sampler);
+    return ScatteringEvent(info, sampler);
 }
+
 Spectrum Integrator::importanceSampleOneLight(Scene &scene,
                                               RenderContext &ctx,
                                               ScatteringEvent &event,
@@ -32,7 +34,7 @@ Spectrum Integrator::importanceSampleOneLight(Scene &scene,
         // sample light source
         if (lightPdf > 0 && !Li.isBlack()) {
             Spectrum f;
-            f = bsdf->eval(scatteringEvent) * Vec3f::dot(wi, event.getIntersectionInfo()->normal);
+            f = bsdf->eval(scatteringEvent) * Vec3f::absDot(wi, event.getIntersectionInfo()->normal);
             scatteringPdf = bsdf->pdf(event.wo, scatteringEvent.wi, bsdfFlags);
             if (!f.isBlack() && !occlude && tester.visible(scene)) {
                 if (light->isDeltaLight()) {

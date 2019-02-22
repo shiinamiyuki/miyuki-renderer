@@ -91,12 +91,12 @@ Spectrum PointLight::sampleLi(const Point2f &u, const IntersectionInfo &info, Ve
     auto Wi = (position - info.hitpoint);
     auto dist = Wi.lengthSquared();
     Wi.normalize();
-    *pdf = dist;
+    *pdf = 1.0;
     *wi = Wi;
     tester->shadowRay = Ray(position, *wi * -1);
     tester->targetPrimID = info.primID;
     tester->targetGeomID = info.geomID;
-    return ka;
+    return Spectrum{ka / dist};
 }
 
 Spectrum PointLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,

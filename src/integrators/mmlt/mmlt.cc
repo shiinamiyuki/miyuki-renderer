@@ -140,11 +140,11 @@ Spectrum MultiplexedMLT::L(Scene &scene, MemoryArena &arena, MLTSampler &sampler
         if (depth == 0) {
             return {};
         } else {
-            // avoid generating t = 2, s = 1 paths
+            // avoid generating direct lighting paths
             nStrategies = depth + 2;
             s = std::min((int) (sampler.nextFloat() * nStrategies), nStrategies - 1);
             t = nStrategies - s;
-            if(nStrategies == 3) {
+            if(s + t == 3) {
                 return {};
             }
         }
