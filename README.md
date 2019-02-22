@@ -23,7 +23,7 @@ CMake everything.
 
 ## Current Progress 
 
-Available algorithms: path tracing, bidirectional path tracing (default), PSSMLT and multiplexed MLT. BDPT is good at most scenes and converge to a nice results quickly. MLT is also a great solution which, for some scenes, delivers ultra fast convergence.
+Available algorithms: path tracing, bidirectional path tracing (default),  and multiplexed MLT. BDPT is good at most scenes and converge to a nice results quickly. MLT is also a great solution which, for some scenes, delivers ultra fast convergence.
 
 Available materials: lambertian, oren-nayar, microfacet glossy reflection, mirror
 
@@ -31,20 +31,18 @@ A GUI application is implemented solely for showing progressive rendering result
 
 ##  TODO List
 
-1. Volumetric Path tracing with NEE
+1. Volumetric Path tracing
 2. ~~Ambient Occlusion~~
-3. Stochastic Progressive Photon Mapping
-4. ~~Primary Sample Space Metropolis Light Transport (Unidirectional)~~
-5. Primary Sample Space Metropolis Light Transport (Bidirectional)
-6. ~~Multiplexed Metropolis Light Transport~~
-7. ~~Bidirectional Path Tracing with MIS~~ 
-8. ~~Multiple Importance Sampling~~
-9. Vertex Connection and Merging
-10. ~~Importance sampling for light source~~
-11. Mixed BSDF (partially)
-12. Material system
-13. Fourier BSDF
-14. Environment mapping
+3. ~~Multiplexed Metropolis Light Transport~~
+4. ~~Bidirectional Path Tracing with MIS~~ 
+5. ~~Multiple Importance Sampling~~
+6. Vertex Connection and Merging
+7. ~~Importance sampling for light source~~
+8. Mixed BSDF (partially)
+9. Material system
+10. Fourier BSDF
+11. Environment mapping
+12. Reversible Jump MLT ?
 
 # Gallery (Random test images)
 
