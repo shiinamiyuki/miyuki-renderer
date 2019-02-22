@@ -23,7 +23,7 @@ CMake everything.
 
 ## Current Progress 
 
-Available algorithms: path tracing, bidirectional path tracing (default), PSSMLT and multiplexed MLT. The MLTs aren't working well though.
+Available algorithms: path tracing, bidirectional path tracing (default), PSSMLT and multiplexed MLT. BDPT is good at most scenes and converge to a nice results quickly. MLT is also a great solution which, for some scenes, delivers ultra fast convergence.
 
 Available materials: lambertian, oren-nayar, microfacet glossy reflection, mirror
 
