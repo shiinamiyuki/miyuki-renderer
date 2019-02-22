@@ -144,10 +144,9 @@ Spectrum MultiplexedMLT::L(Scene &scene, MemoryArena &arena, MLTSampler &sampler
             nStrategies = depth + 2;
             s = std::min((int) (sampler.nextFloat() * nStrategies), nStrategies - 1);
             t = nStrategies - s;
-            if (t == 2 && s == 1) {
+            if(nStrategies == 3) {
                 return {};
             }
-            nStrategies -= 1;
         }
     }
     auto cameraVertices = arena.alloc<Vertex>((size_t) t);
