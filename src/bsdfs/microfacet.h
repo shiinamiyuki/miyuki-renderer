@@ -109,7 +109,7 @@ namespace Miyuki {
         Spectrum sample(ScatteringEvent &event) const override {
             const auto &wo = event.wo;
             if (wo.y() == 0) return 0.;
-            Vec3f wh = distribution.sampleWh(wo, event.getSampler()->nextFloat2D());
+            Vec3f wh = distribution.sampleWh(wo, event.u);
             event.setWi(reflect(wo, wh).normalized());
             if (!sameHemisphere(wo, event.wi)) return {};
 

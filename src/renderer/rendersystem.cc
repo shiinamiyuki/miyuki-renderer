@@ -161,6 +161,12 @@ void RenderSystem::readDescription(const std::string &filename) {
                 if(integratorInfo.hasKey("clamp")){
                     scene.option.maxRayIntensity = integratorInfo["clamp"].getFloat();
                 }
+                if(integratorInfo.hasKey("large-step")){
+                    scene.option.largeStepProb = integratorInfo["large-step"].getFloat();
+                }
+                if(integratorInfo.hasKey("chains")){
+                    scene.option.mltNChains = integratorInfo["chains"].getFloat();
+                }
                 if (integratorInfo.hasKey("max-depth")) {
                     scene.option.maxDepth = integratorInfo["max-depth"].getInt();
                 }

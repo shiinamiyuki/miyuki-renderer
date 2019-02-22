@@ -18,10 +18,15 @@ Spectrum MixedBSDF::sample(ScatteringEvent &event) const {
     auto p1 = ratio / (ratio + 1);
     Float p = 0;
     Spectrum F;
-    if (event.getSampler()->nextFloat() < p1) {
+
+    if (event.u[0] < p1) {
+        // recover event.u[0]
+        event.u[0] = event.u[0] / p1;
         F = bsdf1->sample(event);
         p = p1;
     } else {
+        // recover event.u, event.u[0] \in [p1, 1)
+        event.u[0] = (event.u[0] - p1) / (1 - p1);
         F = bsdf2->sample(event);
         p = 1 - p1;
     }
@@ -45,7 +50,7 @@ Float MixedBSDF::pdf(const Vec3f &wo, const Vec3f &wi, BSDFType flags) const {
 }
 
 MixedBSDF::MixedBSDF(std::shared_ptr<BSDF> bsdf1, std::shared_ptr<BSDF> bsdf2, Float ratio, const ColorMap &bump) :
-        BSDF(BSDFType((int) bsdf1->getType() | (int) bsdf2->getType()),ColorMap(), bump), bsdf1(bsdf1), bsdf2(bsdf2),
+        BSDF(BSDFType((int) bsdf1->getType() | (int) bsdf2->getType()), ColorMap(), bump), bsdf1(bsdf1), bsdf2(bsdf2),
         ratio(ratio) {
 
 }

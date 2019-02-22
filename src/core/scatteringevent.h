@@ -11,16 +11,23 @@
 
 namespace Miyuki {
     class Intersection;
+
     enum class BSDFType;
     struct IntersectionInfo;
     struct Ray;
+
     class Sampler;
+
+    enum class TransportMode {
+        radiance,
+        importance
+    };
+
     class ScatteringEvent {
         const IntersectionInfo *info;
 
         void computeLocalCoordinates();
 
-        Sampler *sampler;
     public:
         /* wo and wi should be in the positive-y hemisphere for reflection
          * */
@@ -32,7 +39,9 @@ namespace Miyuki {
         Float pdf;
         BSDFType sampledType;
         BSDFType flags;
-        ScatteringEvent() : info(nullptr), sampler(nullptr) {}
+        Point2f u;
+
+        ScatteringEvent() : info(nullptr) {}
 
         ScatteringEvent(const IntersectionInfo *info, Sampler *sampler);
 
@@ -40,12 +49,12 @@ namespace Miyuki {
 
         Vec3f localToWorld(const Vec3f &v) const;
 
-        Sampler *getSampler() const { return sampler; }
-
         const Point2f &uv() const;
 
         const Vec3f &hitPoint() const;
-        const Vec3f &Ng()const;
+
+        const Vec3f &Ng() const;
+
         const IntersectionInfo *getIntersectionInfo() const;
 
         Ray spawnRay(const Vec3f &wi) const {
@@ -55,8 +64,10 @@ namespace Miyuki {
         Ray spawnRayLocal(const Vec3f &wi) const {
             return {hitPoint(), localToWorld(wi)};
         }
-        Spectrum Le(const Vec3f&wo)const;
-        void setWi(const Vec3f& wi){
+
+        Spectrum Le(const Vec3f &wo) const;
+
+        void setWi(const Vec3f &wi) {
             this->wi = wi;
             wiW = localToWorld(wi);
         }

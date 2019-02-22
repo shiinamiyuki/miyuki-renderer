@@ -9,7 +9,7 @@
 using namespace Miyuki;
 
 Spectrum BSDF::sample(ScatteringEvent &event) const {
-    event.setWi(cosineWeightedHemisphereSampling(event.getSampler()->nextFloat2D()));
+    event.setWi(cosineWeightedHemisphereSampling(event.u));
     event.sampledType = type;
     event.pdf = pdf(event.wo, event.wi, event.sampledType);
     return eval(event);
@@ -51,4 +51,3 @@ Vec3f BSDF::evalBump(const ScatteringEvent &event) const {
     auto normal = bump.sample(uv);
     return normal;
 }
-

@@ -19,11 +19,6 @@ namespace Miyuki {
 
     class Film;
 
-    enum class TransportMode {
-        radiance,
-        importance
-    };
-
     struct Vertex {
         enum VertexType {
             lightVertex,

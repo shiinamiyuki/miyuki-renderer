@@ -162,7 +162,9 @@ namespace Miyuki {
         bool matchFlags(BSDFType flags) const {
             return (int) type & (int) flags;
         }
-        bool hasBump()const;
+
+        bool hasBump() const;
+
         Vec3f evalBump(const ScatteringEvent &) const;
     };
 

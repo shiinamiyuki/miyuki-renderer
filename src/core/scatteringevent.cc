@@ -25,7 +25,7 @@ void ScatteringEvent::computeLocalCoordinates() {
 }
 
 ScatteringEvent::ScatteringEvent(const IntersectionInfo *info, Sampler *sampler)
-        : info(info), woW(info->wo), Ns(info->normal), pdf(0), sampler(sampler), flags(BSDFType::all) {
+        : info(info), woW(info->wo), Ns(info->normal), pdf(0), u(sampler->nextFloat2D()), flags(BSDFType::all) {
     assert(info && sampler);
     computeLocalCoordinates();
     if(info->bsdf->hasBump()){
