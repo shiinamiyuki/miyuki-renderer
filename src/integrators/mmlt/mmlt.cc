@@ -141,11 +141,15 @@ Spectrum MultiplexedMLT::L(Scene &scene, MemoryArena &arena, MLTSampler &sampler
             return {};
         } else {
             // avoid generating direct lighting paths
-            nStrategies = depth + 2;
-            s = std::min((int) (sampler.nextFloat() * nStrategies), nStrategies - 1);
-            t = nStrategies - s;
-            if(s + t == 3) {
-                return {};
+            // infinite area lights won't be sampled
+            if (depth == 1) {
+                s = 0;
+                t = 3;
+                nStrategies = 1;
+            } else {
+                nStrategies = depth + 2;
+                s = std::min((int) (sampler.nextFloat() * nStrategies), nStrategies - 1);
+                t = nStrategies - s;
             }
         }
     }
@@ -164,6 +168,10 @@ Spectrum MultiplexedMLT::L(Scene &scene, MemoryArena &arena, MLTSampler &sampler
     sampler.startStream(MLTSampler::lightStreamIndex);
     if (generateLightSubpath(scene, ctx, s, lightVertices) != s)
         return {};
+    if (s + t == 3 && s == 0) {
+        if (!cameraVertices[t - 1].isInfiniteLight())
+            return {};
+    }
     sampler.startStream(MLTSampler::connectionStreamIndex);
     return removeNaNs(Spectrum(connectBDPT(scene, ctx, lightVertices, cameraVertices, s, t, raster) * nStrategies));
 

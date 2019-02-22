@@ -339,8 +339,8 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             Vec3f wi;
             Float pdf;
             VisibilityTester tester;
-            // dynamically sample a light source
-            auto light = scene.chooseOneLight(*ctx.sampler);
+            // dynamically sample the light source
+            auto light = L.light;
             Li = light->sampleLi(ctx.sampler->nextFloat2D(), *E.event.getIntersectionInfo(), &wi, &pdf, &tester);
             if (Li.isBlack() || pdf <= 0)return {};
             sampled = Vertex::createLightVertex(light, tester.shadowRay, {}, pdf, Spectrum(Li / pdf));

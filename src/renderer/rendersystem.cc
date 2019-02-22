@@ -7,7 +7,6 @@
 #include "../integrators/ao/ao.h"
 #include "../integrators/pathtracer/pathtracer.h"
 #include "../integrators/bdpt/bdpt.h"
-#include "../integrators/pssmlt/pssmlt.h"
 #include "../integrators/mmlt/mmlt.h"
 
 using namespace Miyuki;
@@ -150,8 +149,6 @@ void RenderSystem::readDescription(const std::string &filename) {
                         integrator = std::make_unique<AOIntegrator>();
                     } else if (integratorName == "bdpt") {
                         integrator = std::make_unique<BDPT>();
-                    } else if (integratorName == "pssmlt") {
-                        integrator = std::make_unique<PSSMLTUnidirectional>();
                     } else if (integratorName == "mmlt" || integratorName == "mlt") {
                         integrator = std::make_unique<MultiplexedMLT>();
                     } else {
@@ -166,6 +163,9 @@ void RenderSystem::readDescription(const std::string &filename) {
                 }
                 if(integratorInfo.hasKey("chains")){
                     scene.option.mltNChains = integratorInfo["chains"].getFloat();
+                }
+                if(integratorInfo.hasKey("direct-samples")){
+                    scene.option.mltDirectSamples = integratorInfo["direct-samples"].getFloat();
                 }
                 if (integratorInfo.hasKey("max-depth")) {
                     scene.option.maxDepth = integratorInfo["max-depth"].getInt();

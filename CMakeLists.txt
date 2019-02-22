@@ -20,8 +20,6 @@ file(GLOB integratorSRC
         "src/integrators/ao/*.cc"
         "src/integrators/pathtracer/*.h"
         "src/integrators/pathtracer/*.cc"
-        "src/integrators/pssmlt/*.h"
-        "src/integrators/pssmlt/*.cc"
         "src/integrators/bdpt/*.h"
         "src/integrators/bdpt/*.cc"
         "src/integrators/mmlt/*.cc")
