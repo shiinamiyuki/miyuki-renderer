@@ -6,8 +6,8 @@
 #include "../utils/jsonparser.hpp"
 #include "../integrators/ao/ao.h"
 #include "../integrators/pathtracer/pathtracer.h"
-//#include "../integrators/bdpt/bdpt.h"
-//#include "../integrators/mmlt/mmlt.h"
+#include "../integrators/bdpt/bdpt.h"
+#include "../integrators/mmlt/mmlt.h"
 
 using namespace Miyuki;
 using namespace Miyuki::Json;
@@ -113,6 +113,12 @@ void RenderSystem::readDescription(const std::string &filename) {
                 if (camera.hasKey("fov")) {
                     scene.getCamera().fov = camera["fov"].getFloat() / 180.0 * M_PI;
                 }
+                if (camera.hasKey("lens-radius")) {
+                    scene.getCamera().lensRadius = camera["lens-radius"].getFloat();
+                }
+                if (camera.hasKey("focal-distance")) {
+                    scene.getCamera().focalDistance = camera["focal-distance"].getFloat();
+                }
                 if (camera.hasKey("resolution")) {
                     const Value &resolution = camera["resolution"];
                     if (resolution.isArray())
@@ -147,11 +153,11 @@ void RenderSystem::readDescription(const std::string &filename) {
                         integrator = std::make_unique<PathTracer>();
                     } else if (integratorName == "ambient-occlusion" || integratorName == "ao") {
                         integrator = std::make_unique<AOIntegrator>();
-                    } /*else if (integratorName == "bdpt") {
+                    } else if (integratorName == "bdpt") {
                         integrator = std::make_unique<BDPT>();
                     } else if (integratorName == "mmlt" || integratorName == "mlt") {
                         integrator = std::make_unique<MultiplexedMLT>();
-                    } */else {
+                    } else {
                         fmt::print(stderr, "Unrecognized integrator: {}\n", integratorName);
                     }
                 }
@@ -196,6 +202,9 @@ void RenderSystem::readDescription(const std::string &filename) {
                     else {
                         fmt::print(stderr, "Unrecognized sampler type: {}\n", s);
                     }
+                } else{
+                   // fmt::print("Using sobol QMC for default\n");
+                    scene.useSampler(Option::independent);
                 }
             }
         };

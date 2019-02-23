@@ -18,9 +18,9 @@ bool VisibilityTester::visible(const Scene &scene) const {
 
 bool OccludeTester::visible(const Scene &scene) const {
     Intersection intersection(shadowRay);
-    intersection.rayHit.ray.tfar = far + 0.01f;
+    intersection.rayHit.ray.tfar = far + 0.1f;
     intersection.intersect(scene);
-    return intersection.hitDistance() >= far - 0.01f;
+    return !intersection.hit() || intersection.hitDistance() >= far - 0.1f;
 }
 
 AreaLight::AreaLight(const Primitive &_primitive, const Spectrum &ka)
@@ -68,7 +68,7 @@ AreaLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *norma
     *pdfPos = 1 / area;
     Vec3f dir = cosineWeightedHemisphereSampling(*normal, u2.x(), u2.y());
     *ray = Ray(p, dir);
-    *pdfDir = Vec3f::absDot(dir, *normal) * INVPI;
+    *pdfDir = Vec3f::dot(dir, *normal) * INVPI;
     return ka;
 }
 

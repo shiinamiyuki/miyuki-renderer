@@ -18,7 +18,12 @@ namespace Miyuki {
         Matrix4x4 matrix, invMatrix;
         Matrix4x4 perspectiveMatrix;
         Float A;
+
     public:
+        // all units in mm
+
+        Float lensRadius;
+        Float focalDistance;
         Vec3f viewpoint;
         Vec3f direction;
         double fov;
@@ -37,11 +42,11 @@ namespace Miyuki {
         void lookAt(const Vec3f &pos);
 
         Camera(const Vec3f &v = Vec3f(0, 0, 0), const Vec3f &d = Vec3f(0, 0, 0))
-                : viewpoint(v), direction(d), fov(M_PI / 2) {}
+                : viewpoint(v), direction(d), fov(M_PI / 2),lensRadius(0) {}
 
         void initTransformMatrix();
 
-        Float generatePrimaryRay(Sampler &sampler, const Point2i &raster, Ray *ray);
+        Float generatePrimaryRay(Sampler &sampler, const Point2i &raster, Ray *ray,Float *weight);
 
         void pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const;
         Spectrum We(const Ray& ray);

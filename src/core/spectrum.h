@@ -57,10 +57,10 @@ namespace Miyuki {
         RGBSpectrum gammaCorrection() const;
 
         bool hasNaNs() const;
-
-        bool isBlack() const {
-            return r() <= 0 && g() <= 0 && b() <= 0;
+        bool nonNeg()const{
+            return r() >= 0 && g() >= 0 && b() >= 0;
         }
+        bool isBlack() const;
     };
 
     RGBSpectrum removeNaNs(const RGBSpectrum&);

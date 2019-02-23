@@ -17,6 +17,11 @@ bool RGBSpectrum::hasNaNs() const {
     return std::isnan(r()) || std::isnan(g()) || std::isnan(b());
 }
 
+bool RGBSpectrum::isBlack() const {
+    return r() <= 0 && g() <= 0 && b() <= 0;
+
+}
+
 static Float removeNaN(Float x) {
     if (std::isnan(x))return 0;
     return x;

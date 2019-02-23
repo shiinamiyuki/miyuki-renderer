@@ -10,7 +10,10 @@ using namespace Miyuki;
 
 Spectrum BSDF::sample(ScatteringEvent &event) const {
     // TODO: flip if necessary
-    event.setWi(cosineWeightedHemisphereSampling(event.u));
+    if(event.wo.y() < 0)
+        event.setWi(-1 * cosineWeightedHemisphereSampling(event.u));
+    else
+        event.setWi(cosineWeightedHemisphereSampling(event.u));
     event.sampledType = type;
     event.pdf = pdf(event.wo, event.wi, event.sampledType);
     return eval(event);

@@ -20,9 +20,9 @@ file(GLOB integratorSRC
         "src/integrators/ao/*.cc"
         "src/integrators/pathtracer/*.h"
         "src/integrators/pathtracer/*.cc"
-#        "src/integrators/bdpt/*.h"
-#        "src/integrators/bdpt/*.cc"
-#        "src/integrators/mmlt/*.cc"
+        "src/integrators/bdpt/*.h"
+        "src/integrators/bdpt/*.cc"
+        "src/integrators/mmlt/*.cc"
         )
 file(GLOB thirdpartySRC
         "thirdparty/lodepng/lodepng.cpp"

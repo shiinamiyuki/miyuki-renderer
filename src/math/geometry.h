@@ -385,6 +385,8 @@ namespace Miyuki {
             return v[n];
         }
 
+        explicit Vec3f(Float x) { v[0] = v[1] = v[2] = x; }
+
         Vec3f(Float a, Float b, Float c) {
             v[0] = a;
             v[1] = b;
@@ -394,7 +396,7 @@ namespace Miyuki {
 
         Vec3f() { for (auto i = 0; i < 3; i++) { v[i] = 0; }}
 
-        Vec3f(const Float4 &f) : v(f) {}
+        explicit Vec3f(const Float4 &f) : v(f) {}
 
         Vec3f(const Vec3f &rhs) {
 
@@ -404,7 +406,7 @@ namespace Miyuki {
             v[3] = rhs.v[3];
         }
 
-        Vec3f(const std::initializer_list<Float> &list) {
+        explicit Vec3f(const std::initializer_list<Float> &list) {
             auto iter = list.begin();
             assert(list.size() == 3);
             for (int32_t i = 0; i < 3; i++) {

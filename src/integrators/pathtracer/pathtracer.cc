@@ -14,6 +14,7 @@
 using namespace Miyuki;
 static DECLARE_STATS(uint32_t, pathCount);
 static DECLARE_STATS(uint32_t, zeroPathCount);
+
 void PathTracer::render(Scene &scene) {
     fmt::print("Rendering\n");
     auto &film = scene.film;
@@ -44,17 +45,16 @@ void PathTracer::iteration(Scene &scene) {
     scene.foreachPixel([&](RenderContext &ctx) {
         auto L = render(ctx.raster, ctx, scene);
         UPDATE_STATS(pathCount, 1);
-        if(L.isBlack())
-            UPDATE_STATS(zeroPathCount,1);
-        film.addSample(ctx.raster, L);
+        if (L.isBlack())
+            UPDATE_STATS(zeroPathCount, 1);
+        film.addSample(ctx.raster, L, ctx.filterWeight);
     });
 }
 
 Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
-    Sampler &randomSampler = *ctx.sampler;
     Ray ray = ctx.primary;
     Spectrum L;
-    Vec3f beta(1, 1, 1);
+    Spectrum beta(1, 1, 1);
     int32_t maxDepth = scene.option.maxDepth;
     bool showAL = scene.option.showAmbientLight;
     bool specular = false;
@@ -72,25 +72,26 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
             L += beta * event.Le(-1 * ray.d);
         }
         auto f = info.bsdf->sample(event);
+        specular = ((int) event.sampledType & (int) BSDFType::specular) != 0;
         if (event.pdf <= 0) {
             break;
         }
-        auto direct = importanceSampleOneLight(scene, ctx, event);
-        specular = ((int) event.sampledType & (int) BSDFType::specular) != 0;
 
-        L += beta * direct;
+        auto direct = importanceSampleOneLight(scene, ctx, event);
+        if (!direct.isBlack())
+            L += beta * direct;
         beta *= f * Vec3f::absDot(event.wiW, event.Ns) / event.pdf;
         ray = event.spawnRay(event.wiW);
         if (depth > scene.option.minDepth) {
-            if (ctx.sampler->nextFloat() < beta.max()) {
-                beta /= beta.max();
+            Float p = std::min(1.0f, beta.max());
+            if (ctx.sampler->nextFloat() < p) {
+                beta /= p;
             } else {
                 break;
             }
         }
     }
-    L = removeNaNs(L);
-    L = clampRadiance(removeNaNs(L), scene.option.maxRayIntensity);
+//    L = clampRadiance(removeNaNs(L), scene.option.maxRayIntensity);
     return L;
 }
 

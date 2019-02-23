@@ -100,10 +100,11 @@ void BDPT::iteration(Scene &scene) {
 #ifdef BDPT_DEBUG
                 {
                     std::lock_guard<std::mutex> lockGuard(mutex);
+                    Spectrum out = LPath;
                     if (t != 1)
-                        debugFilms[std::make_pair(s, t)].addSample(ctx.raster, LPath);
+                        debugFilms[std::make_pair(s, t)].addSample(ctx.raster, out);
                     else
-                        debugFilms[std::make_pair(s, t)].addSplat(raster, LPath);
+                        debugFilms[std::make_pair(s, t)].addSplat(raster, out);
                 }
 #endif
             }
@@ -137,14 +138,6 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
         }
         ScatteringEvent event = makeScatteringEvent(ray, info, ctx.sampler);
         vertex = Vertex::createSurfaceVertex(event, beta, pdfFwd, prev);
-        if(event.getIntersectionInfo()->primitive->light ) {
-            if (mode == TransportMode::importance)
-                break;
-            else {
-                depth++;
-                break;
-            }
-        }
         if (++depth >= maxDepth)
             break;
         auto f = info->bsdf->sample(event);
@@ -174,7 +167,7 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
 
 Float BDPT::continuationProbability(const Scene &scene, Float R, const Spectrum &beta, int depth) {
     if (depth + 1 >= scene.option.minDepth) {
-        return beta.max() / R;
+        return std::min(1.0f, beta.max() / R);
     }
     return 1;
 }
@@ -204,7 +197,7 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
     auto Le = light->sampleLe(ctx.sampler->nextFloat2D(), ctx.sampler->nextFloat2D(), &ray, &normal, &pdfPos, &pdfDir);
 
     // lightPdf is included in Le
-    auto beta = Spectrum(Le * Vec3f::absDot(ray.d, normal) / (pdfDir * pdfPos));
+    auto beta = Spectrum(Le * Vec3f::dot(ray.d, normal) / (pdfDir * pdfPos));
     if (pdfDir <= 0 || pdfPos <= 0 || Le.isBlack() || beta.isBlack()) { return 0; }
     // TODO: infinite light
     // At present, no rays will be emitted from infinite area lights.
@@ -279,7 +272,7 @@ Float BDPT::MISWeight(Scene &scene,
     }
 
     // Remaps the delta pdf
-    auto remap0 = [](Float x) { return x != 0 ? x : 1; };
+    auto remap0 = [](Float x) { return x != 0 ? x * x : 1; };
     Float sumRi = 0;
     Float ri = 1;
     for (int i = t - 1; i > 0; i--) {
@@ -321,6 +314,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
         if (E.isInfiniteLight())
             return Li;
     } else {
+
         Vertex &L = lightVertices[s - 1];
         // nightmare
         if (t == 1) {
@@ -357,19 +351,19 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             if (!tester.visible(scene))return {};
             sampled.pdfFwd = sampled.pdfLightOrigin(scene, E);
         } else {
-            if (!L.connectable() || !E.connectable())return {};
-            Vec3f wi = (L.hitPoint() - E.hitPoint()).normalized();
-            Li = L.beta * E.beta * L.f(E, TransportMode::importance) * E.f(L, TransportMode::radiance);
-            if (Li.isBlack()) return {};
-            Li *= G(scene, ctx, L, E);
-            VisibilityTester tester;
-            tester.targetGeomID = E.event.getIntersectionInfo()->geomID;
-            tester.targetPrimID = E.event.getIntersectionInfo()->primID;
-            tester.shadowRay = Ray(L.hitPoint(), -1 * wi);
-            if (!tester.visible(scene))return {};
+            if (L.connectable() && E.connectable()) {
+                Li = L.beta * E.beta * L.f(E, TransportMode::importance) * E.f(L, TransportMode::radiance);
+                if (Li.isBlack())return Li;
+                Li *= G(scene, ctx, L, E);
+                VisibilityTester tester;
+                tester.shadowRay = Ray{L.hitPoint(), (E.hitPoint() - L.hitPoint()).normalized()};
+                tester.targetPrimID = E.event.getIntersectionInfo()->primID;
+                tester.targetGeomID = E.event.getIntersectionInfo()->geomID;
+                if (!tester.visible(scene))return {};
+            }
         }
     }
-    if (Li.isBlack())return Li;
+    if (Li.isBlack())return {};
     if (s + t == 2)return Li;
     Float naiveWeight = 1.0f / (s + t);
     Float weight = MISWeight(scene, ctx, lightVertices, cameraVertices, s, t, sampled);
@@ -421,7 +415,7 @@ Float Vertex::convertDensity(Float pdf, const Vertex &next) const {
     // TODO: justify the math
     Vec3f w = next.hitPoint() - hitPoint();
     Float invDist = 1.0f / w.lengthSquared();
-    pdf *= Vec3f::absDot(next.Ng(), w * sqrt(invDist));
+    pdf *= Vec3f::absDot(next.Ng(), w.normalized());
     return pdf * invDist;
 }
 

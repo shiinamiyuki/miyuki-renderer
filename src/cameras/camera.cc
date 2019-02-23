@@ -8,26 +8,54 @@
 
 using namespace Miyuki;
 
-Float Camera::generatePrimaryRay(Sampler &sampler, const Point2i &raster, Ray *ray) {
+Point2f concentricSampleDisk(const Point2f &u) {
+
+    Point2f uOffset = Point2f{2.0f, 2.0f} * u - Point2f(1, 1);
+
+    if (uOffset.x() == 0 && uOffset.y() == 0)
+        return Point2f(0, 0);
+
+    Float theta, r;
+    if (std::abs(uOffset.x()) > std::abs(uOffset.y())) {
+        r = uOffset.x();
+        theta = PI / 4.0f * (uOffset.y() / uOffset.x());
+    } else {
+        r = uOffset.y();
+        theta = PI / 2.0f - PI / 4.0f * (uOffset.x() / uOffset.y());
+    }
+    return Point2f{r, r} * Point2f(std::cos(theta), std::sin(theta));
+
+}
+
+Float Camera::generatePrimaryRay(Sampler &sampler, const Point2i &raster, Ray *ray, Float *weight) {
     Float x = -(2 * (Float) raster.x() / filmDimension.x() - 1) * static_cast<Float>(filmDimension.x()) /
               filmDimension.y();
     Float y = 2 * (1 - (Float) raster.y() / filmDimension.y()) - 1;
-    Float dx = 2.0f / filmDimension.y(), dy = 2.0f / filmDimension.y();
-    Vec3f ro = viewpoint;
+    Float dx = 2.0f / filmDimension.y() / 2, dy = 2.0f / filmDimension.y() / 2;
+    Vec3f ro(0, 0, 0);
     auto z = (Float) (2.0 / tan(fov / 2));
-    Vec3f jitter = Vec3f(dx * sampler.nextFloat(), dy * sampler.nextFloat(), 0);
+    Float rx = 2 * sampler.nextFloat() - 1;
+    Float ry = 2 * sampler.nextFloat() - 1;
+    Vec3f jitter = Vec3f(dx * rx, dy * ry, 0);
+    *weight = (1.0f - fabs(rx)) * (1.0f - fabs(ry));
     Vec3f rd = Vec3f(x, y, 0) + jitter - Vec3f(0, 0, -z);
     rd.normalize();
+    if (lensRadius > 0) {
+        Point2f pLens = Point2f(lensRadius, lensRadius) * concentricSampleDisk(sampler.randFloat());
+        Float ft = focalDistance / rd.z();
+        auto pFocus = ro + ft * rd;
+        ro = Vec3f(pLens.x(), pLens.y(), 0);
+        rd = (pFocus - ro).normalized();
+    }
+    ro.w() = 1;
+    ro = matrix.mult(ro);
+    ro += viewpoint;
+
+
     rd.w() = 1;
     rd = matrix.mult(rd);
     rd.normalize();
     *ray = Ray{ro, rd};
-//    Float p1, p2;
-//    pdfWe(*ray,&p1,&p2);
-//    CHECK(p1 > 0 && p2 > 0);
-//    Point2i dummy;
-//    CHECK(rasterize(ro + 400.0 * rd, &dummy));
-//    CHECK(abs(dummy.x() - raster.x()) <= 1 && abs(dummy.y() - raster.y()) <= 1);
     return 1;
 }
 
@@ -90,7 +118,7 @@ void Camera::pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const {
     Float lensArea = 1;
     *pdfPos = 1 / lensArea;
     auto cosT2 = cosT * cosT;
-    *pdfDir = 1.0f / (A *  cosT * cosT2);
+    *pdfDir = 1.0f / (A * cosT * cosT2);
 
 }
 
@@ -118,6 +146,7 @@ bool Camera::rasterize(const Vec3f &p, Point2i *rasterPos) const {
     auto dir = (p - viewpoint).normalized();
     dir.w() = 1;
     dir = invMatrix.mult(dir);
+    dir.normalize();
     auto cosT = Vec3f::dot(dir, Vec3f(0, 0, 1));
     if (cosT < 0) {
         return false;

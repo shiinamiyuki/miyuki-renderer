@@ -16,6 +16,8 @@ using namespace Miyuki;
 Scene::Scene() : film(1000, 1000), worldBound({}, {}) {
     rtcScene = rtcNewScene(GetEmbreeDevice());
     postResize();
+    camera.lensRadius = 0;
+    camera.focalDistance = 35;
     camera.fov = 80 / 180.0f * M_PI;
     readImageFunc = [&](Scene &scene, std::vector<uint8_t> &pixelData) {
         if (pixelData.size() != film.width() * film.height() * 4)
@@ -232,15 +234,17 @@ RenderContext Scene::getRenderContext(MemoryArena &arena, const Point2i &raster)
     sampler->start();
     Ray primary{{},
                 {}};
-    camera.generatePrimaryRay(*sampler, raster, &primary);
-    return RenderContext(&camera, primary, sampler, arena, raster);
+    Float w;
+    camera.generatePrimaryRay(*sampler, raster, &primary,&w);
+    return RenderContext(&camera, primary, sampler, arena, raster,w);
 }
 
 RenderContext Scene::getRenderContext(MemoryArena &arena, const Point2i &raster, Sampler *sampler) {
     Ray primary{{},
                 {}};
-    camera.generatePrimaryRay(*sampler, raster, &primary);
-    return RenderContext(&camera, primary, sampler, arena, raster);
+    Float w;
+    camera.generatePrimaryRay(*sampler, raster, &primary,&w);
+    return RenderContext(&camera, primary, sampler, arena, raster, w);
 }
 
 

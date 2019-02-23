@@ -76,7 +76,7 @@ void TextureMapping2D::preprocessNormal() {
     for (auto &n:texture) {
         n = Vec3f{n.x(), n.z(), n.y()};
         n *= 2;
-        n -= {1, 1, 1};
+        n -= Vec3f{1, 1, 1};
     }
 }
 

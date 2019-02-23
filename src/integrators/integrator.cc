@@ -34,7 +34,7 @@ Spectrum Integrator::importanceSampleOneLight(Scene &scene,
         if (lightPdf > 0 && !Li.isBlack()) {
             Spectrum f;
             f = bsdf->eval(scatteringEvent) * Vec3f::absDot(wi, event.Ns);
-            scatteringPdf = bsdf->pdf(event.wo, scatteringEvent.wi, bsdfFlags);
+            scatteringPdf = bsdf->pdf(event.wo, scatteringEvent.wi, BSDFType::all);
             if (!f.isBlack() && tester.visible(scene)) {
                 if (light->isDeltaLight()) {
                     Ld += f * Li / lightPdf;
@@ -46,15 +46,17 @@ Spectrum Integrator::importanceSampleOneLight(Scene &scene,
             }
         }
     }
+    scatteringEvent.u = ctx.sampler->nextFloat2D();
     // sample brdf
     if (!light->isDeltaLight()) {
         Spectrum f;
         bool sampledSpecular;
+
         f = bsdf->sample(scatteringEvent);
         Float scatteringPdf = scatteringEvent.pdf;
         Vec3f wi = scatteringEvent.wiW;
         Float lightPdf = 0;
-        f *= Vec3f::dot(wi, event.Ns);
+        f *= Vec3f::absDot(wi, scatteringEvent.Ns);
         sampledSpecular = ((int) event.sampledType & (int) BSDFType::specular) != 0;
         if (!f.isBlack() && scatteringPdf > 0) {
             Float weight;
@@ -72,6 +74,8 @@ Spectrum Integrator::importanceSampleOneLight(Scene &scene,
                     } else {
                         return Ld;
                     }
+                } else {
+                    return Ld;
                 }
                 if (!Li.isBlack()) {
                     Ld += Li * f * weight / scatteringPdf / pdfLightChoice;

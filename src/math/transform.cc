@@ -80,9 +80,9 @@ Matrix4x4 Matrix4x4::operator/(const Matrix4x4 &rhs) const {
 }
 
 Vec3f Matrix4x4::mult(const Vec3f &rhs) const {
-    Vec3f v =  {Vec3f::matDot(m[0], rhs),
-            Vec3f::matDot(m[1], rhs),
-            Vec3f::matDot(m[2], rhs)};
+    Vec3f v = Vec3f{Vec3f::matDot(m[0], rhs),
+                    Vec3f::matDot(m[1], rhs),
+                    Vec3f::matDot(m[2], rhs)};
     v.w() = Vec3f::matDot(m[3], rhs);
     return v;
 }

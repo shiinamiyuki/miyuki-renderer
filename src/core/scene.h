@@ -56,9 +56,9 @@ namespace Miyuki {
         MemoryArena &arena;
         Point2i raster;
         Camera *camera;
-
-        RenderContext(Camera *camera, const Ray &r, Sampler *s, MemoryArena &a, const Point2i &pos)
-                : camera(camera), arena(a), primary(r), sampler(s), raster(pos) {}
+        Float filterWeight;
+        RenderContext(Camera *camera, const Ray &r, Sampler *s, MemoryArena &a, const Point2i &pos,Float filterWeight)
+                : camera(camera), arena(a), primary(r), sampler(s), raster(pos),filterWeight(filterWeight) {}
     };
 
     class Light;
