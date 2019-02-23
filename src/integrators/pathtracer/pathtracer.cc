@@ -79,7 +79,7 @@ Spectrum PathTracer::render(const Point2i &, RenderContext &ctx, Scene &scene) {
         specular = ((int) event.sampledType & (int) BSDFType::specular) != 0;
 
         L += beta * direct;
-        beta *= f * Vec3f::absDot(event.wiW, info.normal) / event.pdf;
+        beta *= f * Vec3f::absDot(event.wiW, event.Ns) / event.pdf;
         ray = event.spawnRay(event.wiW);
         if (depth > scene.option.minDepth) {
             if (ctx.sampler->nextFloat() < beta.max()) {

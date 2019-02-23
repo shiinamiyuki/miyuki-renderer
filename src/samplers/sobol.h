@@ -9,8 +9,10 @@
 namespace Miyuki{
     class SobolSampler : public Sampler{
         int sobolIndex;
+        int dim;
+        int dimIndex;
     public:
-        SobolSampler(Seed * s);
+        SobolSampler(Seed * s, int dim);
         Float nextFloat() override;
 
         int32_t nextInt() override;
@@ -18,6 +20,8 @@ namespace Miyuki{
         Float nextFloat(Seed *seed) override;
 
         int32_t nextInt(Seed *seed) override;
+
+        void start() override;
 
         Point2f nextFloat2D() override;
     };

@@ -6,8 +6,8 @@
 #include "../utils/jsonparser.hpp"
 #include "../integrators/ao/ao.h"
 #include "../integrators/pathtracer/pathtracer.h"
-#include "../integrators/bdpt/bdpt.h"
-#include "../integrators/mmlt/mmlt.h"
+//#include "../integrators/bdpt/bdpt.h"
+//#include "../integrators/mmlt/mmlt.h"
 
 using namespace Miyuki;
 using namespace Miyuki::Json;
@@ -147,11 +147,11 @@ void RenderSystem::readDescription(const std::string &filename) {
                         integrator = std::make_unique<PathTracer>();
                     } else if (integratorName == "ambient-occlusion" || integratorName == "ao") {
                         integrator = std::make_unique<AOIntegrator>();
-                    } else if (integratorName == "bdpt") {
+                    } /*else if (integratorName == "bdpt") {
                         integrator = std::make_unique<BDPT>();
                     } else if (integratorName == "mmlt" || integratorName == "mlt") {
                         integrator = std::make_unique<MultiplexedMLT>();
-                    } else {
+                    } */else {
                         fmt::print(stderr, "Unrecognized integrator: {}\n", integratorName);
                     }
                 }
@@ -250,9 +250,9 @@ void RenderSystem::readDescription(const std::string &filename) {
         readLights();
     });
     if (!integrator) {
-        fmt::print("Using bdpt for default settings\n");
-        integratorName = "bdpt";
-        integrator = std::make_unique<BDPT>();
+        fmt::print("Using pt for default settings\n");
+        integratorName = "pt";
+        integrator = std::make_unique<PathTracer>();
     }
     scene.prepare();
 

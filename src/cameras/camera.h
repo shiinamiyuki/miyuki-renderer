@@ -7,6 +7,7 @@
 
 #include "../math/geometry.h"
 #include "../math/transform.h"
+#include "../core/spectrum.h"
 
 namespace Miyuki {
     class Sampler;
@@ -16,12 +17,13 @@ namespace Miyuki {
     class Camera {
         Matrix4x4 matrix, invMatrix;
         Matrix4x4 perspectiveMatrix;
+        Float A;
     public:
         Vec3f viewpoint;
         Vec3f direction;
         double fov;
         Point2i filmDimension;
-
+        Vec3f normal;
         void moveTo(const Vec3f &pos) { viewpoint = pos; }
 
         void rotateTo(const Vec3f &dir) {
@@ -42,7 +44,7 @@ namespace Miyuki {
         Float generatePrimaryRay(Sampler &sampler, const Point2i &raster, Ray *ray);
 
         void pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const;
-
+        Spectrum We(const Ray& ray);
         bool rasterize(const Vec3f &p, Point2i *raster) const;
 
     };

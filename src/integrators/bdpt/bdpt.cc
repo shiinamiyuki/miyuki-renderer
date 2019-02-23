@@ -137,6 +137,14 @@ int BDPT::randomWalk(Ray ray, Scene &scene, RenderContext &ctx, Spectrum beta, F
         }
         ScatteringEvent event = makeScatteringEvent(ray, info, ctx.sampler);
         vertex = Vertex::createSurfaceVertex(event, beta, pdfFwd, prev);
+        if(event.getIntersectionInfo()->primitive->light ) {
+            if (mode == TransportMode::importance)
+                break;
+            else {
+                depth++;
+                break;
+            }
+        }
         if (++depth >= maxDepth)
             break;
         auto f = info->bsdf->sample(event);
@@ -196,7 +204,7 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
     auto Le = light->sampleLe(ctx.sampler->nextFloat2D(), ctx.sampler->nextFloat2D(), &ray, &normal, &pdfPos, &pdfDir);
 
     // lightPdf is included in Le
-    auto beta = Spectrum(Le * Vec3f::dot(ray.d, normal) / (pdfDir * pdfPos));
+    auto beta = Spectrum(Le * Vec3f::absDot(ray.d, normal) / (pdfDir * pdfPos));
     if (pdfDir <= 0 || pdfPos <= 0 || Le.isBlack() || beta.isBlack()) { return 0; }
     // TODO: infinite light
     // At present, no rays will be emitted from infinite area lights.
@@ -230,7 +238,6 @@ Float BDPT::MISWeight(Scene &scene,
                       Vertex &sampled) {
     if (s + t == 2)
         return 1;
-
     // Get the necessary vertices
     Vertex *qs = s > 0 ? &lightVertices[s - 1] : nullptr,
             *pt = t > 0 ? &cameraVertices[t - 1] : nullptr,
@@ -272,7 +279,7 @@ Float BDPT::MISWeight(Scene &scene,
     }
 
     // Remaps the delta pdf
-    auto remap0 = [](Float x) { return x != 0 ? x * x : 1; };
+    auto remap0 = [](Float x) { return x != 0 ? x : 1; };
     Float sumRi = 0;
     Float ri = 1;
     for (int i = t - 1; i > 0; i--) {
@@ -315,7 +322,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             return Li;
     } else {
         Vertex &L = lightVertices[s - 1];
-
+        // nightmare
         if (t == 1) {
             if (!L.connectable())return {};
             // Try rasterizing the point
@@ -325,17 +332,18 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             auto dist = wi.lengthSquared();
             wi /= sqrt(dist);
             Ray primary(ctx.camera->viewpoint, wi);
-            Spectrum beta(1, 1, 1); // TODO: We should use `sampleWe` instead.
+            Spectrum beta = ctx.camera->We(primary); // TODO: We should use `sampleWe` instead.
             Float pdf, _;
-            ctx.camera->pdfWe(primary, &_, &pdf);
+            pdf = dist / Vec3f::absDot(ctx.camera->normal, wi);
             sampled = Vertex::createCameraVertex(primary, ctx.camera, Spectrum(beta / pdf));
             sampled.pdfFwd = pdf;
-            Li = L.beta * L.f(sampled, TransportMode::importance) / dist;
+            Li = L.beta * L.f(sampled, TransportMode::importance) * sampled.beta;
             if (Li.isBlack())return {};
             OccludeTester tester(primary, sqrt(dist));
             if (!tester.visible(scene))return {};
-            Li *= Vec3f::absDot(primary.d, L.Ns());
+            Li *= Vec3f::absDot(primary.d, L.Ns()) * Vec3f::dot(primary.d, ctx.camera->normal);
         } else if (s == 1) {
+            if (!E.connectable())return {};
             Vec3f wi;
             Float pdf;
             VisibilityTester tester;
@@ -343,7 +351,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             auto light = L.light;
             Li = light->sampleLi(ctx.sampler->nextFloat2D(), *E.event.getIntersectionInfo(), &wi, &pdf, &tester);
             if (Li.isBlack() || pdf <= 0)return {};
-            sampled = Vertex::createLightVertex(light, tester.shadowRay, {}, pdf, Spectrum(Li / pdf));
+            sampled = Vertex::createLightVertex(light, tester.shadowRay, L.Ng(), pdf, Spectrum(Li / pdf));
             Li *= E.beta * E.f(sampled, TransportMode::radiance) / pdf * Vec3f::absDot(wi, E.Ns());
             if (Li.isBlack())return {};
             if (!tester.visible(scene))return {};

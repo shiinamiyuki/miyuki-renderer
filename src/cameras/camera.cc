@@ -61,6 +61,13 @@ void Camera::initTransformMatrix() {
             {0,  0,  1,  0}
     };
     perspectiveMatrix = Matrix4x4(m);
+    normal = Vec3f{0, 0, 1};
+    normal.w() = 1;
+    normal = matrix.mult(normal);
+    normal.normalize();
+    // 1 / z0^2 = A / A'
+    // A = A' / z0^2
+    A = 2 * ((2.0f * filmDimension.x()) / filmDimension.y()) / (z0 * z0);
 }
 
 void Camera::pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const {
@@ -81,11 +88,30 @@ void Camera::pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const {
         return;
     }
     Float lensArea = 1;
-    Float A = 2 * ((2.0f * filmDimension.x()) / filmDimension.y());
     *pdfPos = 1 / lensArea;
     auto cosT2 = cosT * cosT;
-    *pdfDir = 1.0f / (cosT * cosT2);
+    *pdfDir = 1.0f / (A *  cosT * cosT2);
 
+}
+
+Spectrum Camera::We(const Ray &ray) {
+    auto rd = ray.d;
+    rd.w() = 1;
+    rd = invMatrix.mult(rd);
+    rd.normalize();
+    auto cosT = Vec3f::dot(rd, Vec3f(0, 0, 1));
+    if (cosT < 0) {
+        return {};
+    }
+    auto z0 = (Float) (2.0 / tan(fov / 2));
+    Point2f raster(rd.x() / rd.z() * z0, rd.y() / rd.z() * z0);
+    // check if out of bound
+    if (fabs(raster.x()) > (float) filmDimension.x() / filmDimension.y() || fabs(raster.y()) > 1.0f) {
+        return {};
+    }
+    auto cosT2 = cosT * cosT;
+    auto w = 1.0f / (A * cosT2 * cosT2);
+    return {w, w, w};
 }
 
 bool Camera::rasterize(const Vec3f &p, Point2i *rasterPos) const {
@@ -107,3 +133,4 @@ bool Camera::rasterize(const Vec3f &p, Point2i *rasterPos) const {
     *rasterPos = {x, y};
     return true;
 }
+

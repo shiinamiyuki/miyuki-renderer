@@ -6,9 +6,24 @@
 #include "../../thirdparty/sobol/sobol.hpp"
 
 using namespace Miyuki;
+static Float *sobolMatrix = nullptr;
+static int sobolDimenson = -1;
+static int N = 1024 * 1024;
+
+void init(int dim) {
+    if (dim != sobolDimenson) {
+        fmt::print("Generating sobol matrix\n");
+        delete[] sobolMatrix;
+        sobolDimenson = dim;
+        sobolMatrix = i4_sobol_generate(sobolDimenson, N, rand() % (65535));
+    }
+}
 
 Float SobolSampler::nextFloat() {
-    return randFloat();
+    if(sobolIndex >= N)
+        sobolIndex = 0;
+    int idx = sobolIndex * sobolDimenson + dimIndex++;
+    return sobolMatrix[idx];
 }
 
 int32_t SobolSampler::nextInt() {
@@ -16,7 +31,7 @@ int32_t SobolSampler::nextInt() {
 }
 
 Float SobolSampler::nextFloat(Seed *seed) {
-    return erand48(seed->getPtr());
+    return  nextFloat();
 }
 
 int32_t SobolSampler::nextInt(Seed *seed) {
@@ -24,11 +39,18 @@ int32_t SobolSampler::nextInt(Seed *seed) {
 }
 
 Point2f SobolSampler::nextFloat2D() {
-    Float v[2];
-    i4_sobol(2, &sobolIndex, v);
-    return {v[0], v[1]};
+    return {nextFloat(), nextFloat()};
 }
 
-SobolSampler::SobolSampler(Seed *s) : Sampler(s) {
-    sobolIndex = randInt() % (1024);
+SobolSampler::SobolSampler(Seed *s, int dim) : Sampler(s), dim(dim) {
+    sobolIndex = randInt() % N;
+    init(dim);
+}
+
+static std::mutex mutex;
+
+void SobolSampler::start() {
+    sobolIndex++;
+    dimIndex = 0;
+
 }

@@ -213,7 +213,7 @@ void Scene::useSampler(Option::SamplerType samplerType) {
         if (samplerType == Option::independent) {
             s = ARENA_ALLOC(samplerArena, RandomSampler)(&seeds[i]);
         } else if (samplerType == Option::sobol) {
-            s = ARENA_ALLOC(samplerArena, SobolSampler)(&seeds[i]);
+            s = ARENA_ALLOC(samplerArena, SobolSampler)(&seeds[i],option.maxDepth * (8) + 2);
         } else {
             CHECK(samplerType == Option::stratified);
             s = ARENA_ALLOC(samplerArena, StratifiedSampler)(&seeds[i]);

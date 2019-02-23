@@ -67,7 +67,7 @@ namespace Miyuki {
             if (type == lightVertex)
                 return lightNormal;
             else if (type == cameraVertex) {
-                return {};
+                return primary.d;
             } else
                 return event.Ng();
         }
@@ -76,7 +76,7 @@ namespace Miyuki {
             if (type == lightVertex)
                 return lightNormal;
             else if (type == cameraVertex) {
-                return {};
+                return primary.d;
             } else
                 return event.Ns;
         }

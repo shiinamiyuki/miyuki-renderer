@@ -28,15 +28,14 @@ Spectrum Integrator::importanceSampleOneLight(Scene &scene,
         VisibilityTester tester;
         Float lightPdf = 0, scatteringPdf = 0;
         auto Li = light->sampleLi(ctx.sampler->nextFloat2D(), *event.getIntersectionInfo(), &wi, &lightPdf, &tester);
-        bool occlude = Vec3f::dot(wi, event.getIntersectionInfo()->Ng) < 0;
         scatteringEvent.wiW = wi;
         scatteringEvent.wi = scatteringEvent.worldToLocal(scatteringEvent.wiW);
         // sample light source
         if (lightPdf > 0 && !Li.isBlack()) {
             Spectrum f;
-            f = bsdf->eval(scatteringEvent) * Vec3f::absDot(wi, event.getIntersectionInfo()->normal);
+            f = bsdf->eval(scatteringEvent) * Vec3f::absDot(wi, event.Ns);
             scatteringPdf = bsdf->pdf(event.wo, scatteringEvent.wi, bsdfFlags);
-            if (!f.isBlack() && !occlude && tester.visible(scene)) {
+            if (!f.isBlack() && tester.visible(scene)) {
                 if (light->isDeltaLight()) {
                     Ld += f * Li / lightPdf;
                 } else {
@@ -55,7 +54,7 @@ Spectrum Integrator::importanceSampleOneLight(Scene &scene,
         Float scatteringPdf = scatteringEvent.pdf;
         Vec3f wi = scatteringEvent.wiW;
         Float lightPdf = 0;
-        f *= Vec3f::dot(wi, event.getIntersectionInfo()->normal);
+        f *= Vec3f::dot(wi, event.Ns);
         sampledSpecular = ((int) event.sampledType & (int) BSDFType::specular) != 0;
         if (!f.isBlack() && scatteringPdf > 0) {
             Float weight;
