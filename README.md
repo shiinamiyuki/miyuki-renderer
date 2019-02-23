@@ -13,7 +13,7 @@
 
 Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-primitive intersection.
 
-<b>Bidirectional methods are disabled until I fathom the essence of path space measurement. (They won't convergence to the reference result (path traced) at the moment.</b>
+<b>Bidirectional methods are disabled until I fathom the essence of path space measurement. (They won't converge to the reference result (path traced) at the moment.</b>
 
 Although this is a CPU-only renderer, utilizing state-of-art rendering methods you can always get a nice image in around 5-10 minutes.
 
