@@ -306,11 +306,12 @@ void MultiplexedMLT::render(Scene &scene) {
                     UPDATE_STATS(zeroPathCount, 1);
                 Float accept = std::min<Float>(1.0, luminance(LProposed) / luminance(sampler.LCurrent));
                 CHECK(!std::isnan(accept));
+                auto Lnew = removeNaNs(Spectrum(LProposed * accept / luminance(LProposed)));
+                auto Lold = removeNaNs(Spectrum(sampler.LCurrent * (1 - accept) / luminance(sampler.LCurrent)));
                 if (accept > 0) {
-                    film.addSplat(pProposed, Spectrum(LProposed * accept / luminance(LProposed)));
+                    film.addSplat(pProposed, Lnew);
                 }
-                film.addSplat(sampler.pCurrent,
-                              Spectrum(sampler.LCurrent * (1 - accept) / luminance(sampler.LCurrent)));
+                film.addSplat(sampler.pCurrent, Lold);
                 if (dist(rd) < accept) {
                     sampler.LCurrent = LProposed;
                     sampler.pCurrent = pProposed;

@@ -48,6 +48,8 @@ A GUI application is implemented solely for showing progressive rendering result
 
 # Gallery (Random test images)
 
+![](gallery/breakfast_room.png)
+
 ![](gallery/living_room.png)
 
 ![](gallery/sibenik.png)

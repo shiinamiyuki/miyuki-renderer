@@ -70,7 +70,9 @@ void BDPT::iteration(Scene &scene) {
     scene.foreachPixel([&](RenderContext &ctx) {
         Spectrum L;
         auto cameraVertices = ctx.arena.alloc<Vertex>(maxDepth + 2u);
+        ctx.sampler->start();
         auto lightVertices = ctx.arena.alloc<Vertex>(maxDepth + 1u);
+        ctx.sampler->start();
         auto nCamera = generateCameraSubpath(scene, ctx, maxDepth + 2, cameraVertices);
         auto nLight = generateLightSubpath(scene, ctx, maxDepth + 1, lightVertices);
         for (int i = 0; i < nLight; i++)
@@ -314,7 +316,6 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
         if (E.isInfiniteLight())
             return Li;
     } else {
-
         Vertex &L = lightVertices[s - 1];
         // nightmare
         if (t == 1) {
