@@ -168,7 +168,7 @@ Spectrum MultiplexedMLT::L(Scene &scene, MemoryArena &arena, MLTSampler &sampler
     sampler.startStream(MLTSampler::lightStreamIndex);
     if (generateLightSubpath(scene, ctx, s, lightVertices) != s)
         return {};
-    if (s + t == 3 && s == 0) {
+    if (directSamples > 0 && s + t == 3 && s == 0) {
         if (!cameraVertices[t - 1].isInfiniteLight())
             return {};
     }
