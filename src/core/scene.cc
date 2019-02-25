@@ -74,7 +74,6 @@ void Scene::commit() {
 //    }
     lightDistributionMap.clear();
     for (int i = 0; i < lights.size(); i++) {
-        lights[i]->scalePower(1.0f / lightDistribution->pdf(i));
         lightDistributionMap[lights[i].get()] = lightDistribution->pdf(i);
     }
     infiniteLight = std::make_unique<InfiniteLight>(ColorMap(ambientLight));

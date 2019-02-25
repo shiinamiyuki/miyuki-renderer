@@ -30,28 +30,28 @@ Spectrum Integrator::importanceSampleOneLight(Scene &scene,
         auto Li = light->sampleLi(ctx.sampler->nextFloat2D(), *event.getIntersectionInfo(), &wi, &lightPdf, &tester);
         scatteringEvent.wiW = wi;
         scatteringEvent.wi = scatteringEvent.worldToLocal(scatteringEvent.wiW);
+        lightPdf *= pdfLightChoice;
         // sample light source
         if (lightPdf > 0 && !Li.isBlack()) {
             Spectrum f;
             f = bsdf->eval(scatteringEvent) * Vec3f::absDot(wi, event.Ns);
             scatteringPdf = bsdf->pdf(event.wo, scatteringEvent.wi, BSDFType::all);
             if (!f.isBlack() && tester.visible(scene)) {
-                if (light->isDeltaLight()) {
-                    Ld += f * Li / lightPdf;
-                } else {
-                    Float weight = powerHeuristic(1, lightPdf, 1, scatteringPdf);
-                    Ld += f * Li * weight / lightPdf;
-
-                }
+                Float weight = powerHeuristic(1, lightPdf, 1, scatteringPdf);
+                Ld += f * Li * weight / lightPdf;
             }
         }
     }
     scatteringEvent.u = ctx.sampler->nextFloat2D();
-    // sample brdf
-    if (!light->isDeltaLight()) {
+
+    /* This part is different from pbrt
+     * Instead of sample contribution of the previous light source,
+     * we randomly sample a ray according to BSDF and if it hit a light source,
+     * we compute the reverse probability of sampling that light source (similar to MIS in bdpt)
+     * */
+    {
         Spectrum f;
         bool sampledSpecular;
-
         f = bsdf->sample(scatteringEvent);
         Float scatteringPdf = scatteringEvent.pdf;
         Vec3f wi = scatteringEvent.wiW;
@@ -59,26 +59,19 @@ Spectrum Integrator::importanceSampleOneLight(Scene &scene,
         f *= Vec3f::absDot(wi, scatteringEvent.Ns);
         sampledSpecular = ((int) event.sampledType & (int) BSDFType::specular) != 0;
         if (!f.isBlack() && scatteringPdf > 0) {
-            Float weight;
             if (!sampledSpecular) {
-                lightPdf = light->pdfLi(*event.getIntersectionInfo(), wi);
-                if (lightPdf <= 0)
-                    return Ld;
-                weight = powerHeuristic(1, scatteringPdf, 1, lightPdf);
                 Ray ray = event.spawnRay(wi);
                 IntersectionInfo lightIntersect;
-                Spectrum Li;
-                if (scene.intersect(ray, &lightIntersect)) {
-                    if (lightIntersect.primitive.raw() == light->getPrimitive()) {
-                        Li = lightIntersect.Le(-1 * wi);
-                    } else {
-                        return Ld;
+                // hit light source
+                if (scene.intersect(ray, &lightIntersect) && lightIntersect.primitive->light) {
+                    light = lightIntersect.primitive->light;
+                    pdfLightChoice = scene.pdfLightChoice(light);
+                    lightPdf = light->pdfLi(*event.getIntersectionInfo(), wi) * pdfLightChoice;
+                    if (lightPdf > 0) {
+                        Float weight = powerHeuristic(1, scatteringPdf, 1, lightPdf);
+                        Spectrum Li = lightIntersect.Le(-1 * wi);
+                        Ld += f * Li * weight / scatteringPdf;
                     }
-                } else {
-                    return Ld;
-                }
-                if (!Li.isBlack()) {
-                    Ld += Li * f * weight / scatteringPdf / pdfLightChoice;
                 }
             }
         }

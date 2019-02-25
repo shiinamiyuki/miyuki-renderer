@@ -198,8 +198,7 @@ int BDPT::generateLightSubpath(Scene &scene, RenderContext &ctx, int maxDepth, V
     Vec3f normal;
     auto Le = light->sampleLe(ctx.sampler->nextFloat2D(), ctx.sampler->nextFloat2D(), &ray, &normal, &pdfPos, &pdfDir);
 
-    // lightPdf is included in Le
-    auto beta = Spectrum(Le * Vec3f::dot(ray.d, normal) / (pdfDir * pdfPos));
+    auto beta = Spectrum(Le * Vec3f::dot(ray.d, normal) / (lightPdf * pdfDir * pdfPos));
     if (pdfDir <= 0 || pdfPos <= 0 || Le.isBlack() || beta.isBlack()) { return 0; }
     // TODO: infinite light
     // At present, no rays will be emitted from infinite area lights.
@@ -347,7 +346,7 @@ BDPT::connectBDPT(Scene &scene, RenderContext &ctx, Vertex *lightVertices, Verte
             Li = light->sampleLi(ctx.sampler->nextFloat2D(), *E.event.getIntersectionInfo(), &wi, &pdf, &tester);
             if (Li.isBlack() || pdf <= 0)return {};
             sampled = Vertex::createLightVertex(light, tester.shadowRay, L.Ng(), pdf, Spectrum(Li / pdf));
-            Li *= E.beta * E.f(sampled, TransportMode::radiance) / pdf * Vec3f::absDot(wi, E.Ns());
+            Li *= E.beta * E.f(sampled, TransportMode::radiance) / pdf * Vec3f::absDot(wi, E.Ns()) / scene.pdfLightChoice(light);
             if (Li.isBlack())return {};
             if (!tester.visible(scene))return {};
             sampled.pdfFwd = sampled.pdfLightOrigin(scene, E);
