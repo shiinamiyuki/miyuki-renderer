@@ -47,12 +47,11 @@ A GUI application is implemented solely for showing progressive rendering result
 12. Reversible Jump MLT ?
 
 # Gallery (Random test images)
-
-![](gallery/veach.png)
+![](gallery/living_room.png)
 
 ![](gallery/breakfast_room.png)
 
-![](gallery/living_room.png)
+![](gallery/veach.png)
 
 ![](gallery/sibenik.png)
 
