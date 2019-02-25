@@ -184,6 +184,7 @@ Float MultiplexedMLT::continuationProbability(const Scene &scene, Float R, const
 
 void MultiplexedMLT::handleDirect(Scene &scene) {
     fmt::print("Computing direct lighting\n");
+    scene.useSampler(Option::sobol);
     double acc = 0;
     for (int i = 0; i < directSamples && scene.processContinuable(); i++) {
         auto t = runtime([&]() {

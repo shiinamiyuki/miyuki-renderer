@@ -15,6 +15,7 @@ void init(int dim) {
         fmt::print("Generating sobol matrix\n");
         delete[] sobolMatrix;
         sobolDimension = dim;
+        N = 1024 * 1024 * 64 / sobolDimension;
         sobolMatrix = i4_sobol_generate(sobolDimension, N, 0);
     }
 }

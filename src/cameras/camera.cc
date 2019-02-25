@@ -115,10 +115,10 @@ void Camera::pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const {
         *pdfPos = *pdfDir = 0;
         return;
     }
-    Float lensArea = 1;
+    Float lensArea = lensRadius <= 0 ? 1 : PI * lensRadius * lensRadius;
     *pdfPos = 1 / lensArea;
     auto cosT2 = cosT * cosT;
-    *pdfDir = 1.0f / (A * cosT * cosT2);
+    *pdfDir = 1.0f / (A * lensArea * cosT * cosT2);
 
 }
 
@@ -137,8 +137,9 @@ Spectrum Camera::We(const Ray &ray) {
     if (fabs(raster.x()) > (float) filmDimension.x() / filmDimension.y() || fabs(raster.y()) > 1.0f) {
         return {};
     }
+    Float lensArea = lensRadius <= 0 ? 1 : PI * lensRadius * lensRadius;
     auto cosT2 = cosT * cosT;
-    auto w = 1.0f / (A * cosT2 * cosT2);
+    auto w = 1.0f / (A * lensArea * cosT2 * cosT2);
     return {w, w, w};
 }
 
