@@ -13,7 +13,7 @@
 
 Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-primitive intersection.
 
-<b>We are used radiance clamping to suppress fireflies,. This technique caused pt and bdpt converge to different results under complex lighting.</b>
+<b>We are using radiance clamping to suppress fireflies. This technique caused pt and bdpt converge to different results under complex lighting.</b>
 
 Although this is a CPU-only renderer, utilizing state-of-art rendering methods you can always get a nice image in around 5-10 minutes.
 
