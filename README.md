@@ -10,6 +10,7 @@
 \/    \/_|\__, |\__,_|_|\_\_| \/ \_/\___|_| |_|\__,_|\___|_|  \___|_|
           |___/
 ```
+<b>抄书到此为止，接下来项目将按自己理解重写</b>
 
 Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-primitive intersection.
 
