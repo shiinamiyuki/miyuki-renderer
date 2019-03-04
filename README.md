@@ -21,9 +21,9 @@ Goal: a high performance pbrt-style renderer.
  Using embree delievers great performance but little achivement, so I' ll write a custom BVH too.
 
 ### Light transport algorithm:
-Volumetric path tracer (Unless volpath is completely implemented, I won't move on to others)
-VCM (Unified path sampling)
-Multiplexed MLT (It's just 100 lines of code, why not?)
+Volumetric path tracer (Unless volpath is completely implemented, I won't move on to others)</br>
+VCM (Unified path sampling)</br>
+Multiplexed MLT (It's just 100 lines of code, why not?)</br>
 Veach style MLT (and its variants)
 
 ### Miscellaneous 
