@@ -11,12 +11,23 @@
           |___/
 ```
 <b>抄书到此为止，接下来项目将按自己理解重写</b>
+<b>Currently under rewriting</b>
 
-Goal: a high performance pbrt-style renderer. Using Embree for accelerated ray-primitive intersection.
+Goal: a high performance pbrt-style renderer. 
 
-<b>We are using radiance clamping to suppress fireflies. This technique caused pt and bdpt converge to different results under complex lighting.</b>
+## Features (will have after rewriting)
+### Ray tracing kernels:
+ Embree and custom SAH BVH.
+ Using embree delievers great performance but little achivement, so I' ll write a custom BVH too.
 
-Although this is a CPU-only renderer, utilizing state-of-art rendering methods you can always get a nice image in around 5-10 minutes.
+### Light transport algorithm:
+Volumetric path tracer (Unless volpath is completely implemented, I won't move on to others)
+VCM (Unified path sampling)
+Multiplexed MLT (It's just 100 lines of code, why not?)
+Veach style MLT (and its variants)
+
+### Miscellaneous 
+We'll have possibly a denoiser and unlikely a blender plugin.
 
 ## How to build
 
@@ -24,30 +35,7 @@ Dependencies: Embree 3.0, boost filesystem(not required when on non-Windows).
 
 CMake everything.
 
-## Current Progress 
-
-Available algorithms: path tracing, bidirectional path tracing (default),  and multiplexed MLT. BDPT is good at most scenes and converge to a nice results quickly. MLT is also a great solution which, for some scenes, delivers ultra fast convergence.
-
-Available materials: lambertian, oren-nayar, microfacet glossy reflection, mirror
-
-A GUI application is implemented solely for showing progressive rendering results.
-
-##  TODO List
-
-1. Volumetric Path tracing
-2. ~~Ambient Occlusion~~
-3. ~~Multiplexed Metropolis Light Transport~~
-4. ~~Bidirectional Path Tracing with MIS~~ 
-5. ~~Multiple Importance Sampling~~
-6. Vertex Connection and Merging
-7. ~~Importance sampling for light source~~
-8. Mixed BSDF (partially)
-9. Material system
-10. Fourier BSDF
-11. Environment mapping
-12. Reversible Jump MLT ?
-
-# Gallery (Random test images)
+## Gallery (Random test images)
 ![](gallery/living_room.png)
 
 ![](gallery/breakfast_room.png)
