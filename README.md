@@ -18,7 +18,7 @@ Goal: a high performance pbrt-style renderer.
 ## Features (will have after rewriting)
 ### Ray tracing kernels:
  Embree and custom SAH BVH.
- Using embree delievers great performance but little achivement, so I' ll write a custom BVH too.
+ Using embree delivers great performance but little achivement, so I' ll write a custom BVH too.
 
 ### Light transport algorithm:
 Volumetric path tracer (Unless volpath is completely implemented, I won't move on to others)</br>
