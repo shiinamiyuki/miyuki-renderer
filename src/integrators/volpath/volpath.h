@@ -15,6 +15,8 @@ namespace Miyuki {
         bool progressive;
         int minDepth;
         int maxDepth;
+        Float maxRayIntensity;
+        bool caustics;
     public:
         VolPath(const ParameterSet & set);
         void render(Scene &scene) override;

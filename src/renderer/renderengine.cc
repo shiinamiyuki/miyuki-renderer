@@ -98,6 +98,9 @@ namespace Miyuki {
                     if (I.hasKey("maxDepth")) {
                         parameters.addInt("volpath.maxDepth", IO::deserialize<int>(I["maxDepth"]));
                     }
+                    if (I.hasKey("caustics")) {
+                        parameters.addInt("volpath.caustics", I["caustics"].getBool());
+                    }
                     integrator = std::make_unique<VolPath>(parameters);
                 } else {
                     fmt::print(stderr, "Unknown integrator type `{}`\n", type);

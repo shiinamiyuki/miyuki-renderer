@@ -28,6 +28,24 @@ namespace Miyuki {
         info.ka = IO::deserialize<Texture>(mtl["ka"]);
         info.kd = IO::deserialize<Texture>(mtl["kd"]);
         info.ks = IO::deserialize<Texture>(mtl["ks"]);
+        if(mtl.hasKey("sigma")){
+            info.sigma = mtl["sigma"].getFloat();
+        }
+        if(mtl.hasKey("Ni")){
+            info.Ni = mtl["Ni"].getFloat();
+        }
+        if(mtl.hasKey("alphaX")){
+            info.alphaX = mtl["alphaX"].getFloat();
+        }
+        if(mtl.hasKey("alphaY")){
+            info.alphaY = mtl["alphaY"].getFloat();
+        }
+        if(mtl.hasKey("roughness")){
+            info.roughness  = mtl["roughness"].getFloat();
+        }
+        if(mtl.hasKey("Tr")){
+            info.roughness  = mtl["Tr"].getFloat();
+        }
         return std::make_shared<PBRMaterial>(info);
     }
 }

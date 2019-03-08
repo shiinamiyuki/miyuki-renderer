@@ -32,7 +32,7 @@ namespace Miyuki {
         Float alphaX = 0.0001f, alphaY = 0.0001f;
         Float Ni = 1.0f;
         Float Tr = 0.0f;
-
+        Float sigma = 0.0f;
         MaterialInfo() {}
     };
 

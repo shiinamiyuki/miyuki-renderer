@@ -30,7 +30,8 @@ namespace Miyuki {
                     for (int s = 0; s < spp; s++) {
                         auto raster = Point2i{x, y};
                         auto ctx = scene.getRenderContext(raster, &scene.arenas[threadId]);
-                        auto Li = L(ctx, scene);
+                        auto Li = removeNaNs(L(ctx, scene));
+                        Li = clampRadiance(Li, maxRayIntensity);
                         film.addSample({x, y}, Li, ctx.weight);
                     }
                 }
@@ -51,7 +52,7 @@ namespace Miyuki {
                 break;
             }
             makeScatteringEvent(&event, ctx, &intersection);
-            if (specular || depth == 0) {
+            if ((caustics && specular) || depth == 0) {
                 Li += event.Le(-1 * ray.d) * beta;
             }
             Li += beta * importanceSampleOneLight(scene, ctx, event);
@@ -79,5 +80,7 @@ namespace Miyuki {
         minDepth = set.findInt("volpath.minDepth", 3);
         maxDepth = set.findInt("volpath.maxDepth", 5);
         spp = set.findInt("volpath.spp", 4);
+        maxRayIntensity = set.findFloat("volpath.maxRayIntensity", 100.0f);
+        caustics = set.findInt("volpath.caustics", true);
     }
 }

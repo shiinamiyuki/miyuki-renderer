@@ -26,8 +26,8 @@ namespace Miyuki {
         tester->geomId = intersection.geomId;
         tester->primId = intersection.primId;
         // convert area to solid angle
-        Float solidAngle = primitive->area * Vec3f::absDot(w, primitive->Ng) * invDist2;
-        *pdf = 1.0f / solidAngle;
+        Float solidAngle = primitive->area * -Vec3f::dot(w, primitive->Ng) * invDist2;
+        *pdf = std::max<Float>(0.0f, 1.0f / solidAngle);
         *wi = w;
         return L();
 

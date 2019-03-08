@@ -28,8 +28,10 @@ namespace Miyuki {
         return hit();
     }
 
-    Spectrum Intersection::Le(const Vec3f &) const {
-        return primitive->material()->emission.albedo;
+    Spectrum Intersection::Le(const Vec3f &wi) const {
+        if(Vec3f::dot(wi, Ns) > 0)
+            return primitive->material()->emission.albedo;
+        return {};
     }
 
     RTCRay Ray::toRTCRay() const {
