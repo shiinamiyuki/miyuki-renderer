@@ -1,77 +1,61 @@
 //
-// Created by Shiina Miyuki on 2019/2/8.
+// Created by Shiina Miyuki on 2019/3/5.
 //
 
 #ifndef MIYUKI_SCATTERINGEVENT_H
 #define MIYUKI_SCATTERINGEVENT_H
 
-#include "../utils/util.h"
-#include "../core/spectrum.h"
-#include "intersection.h"
+#include "core/geometry.h"
+#include "core/ray.h"
+#include "samplers/sampler.h"
+#include "bsdfs/bsdf.h"
 
 namespace Miyuki {
-    class Intersection;
-
-    enum class BSDFType;
-    struct IntersectionInfo;
-    struct Ray;
-
-    class Sampler;
-
-    enum class TransportMode {
-        radiance,
-        importance
-    };
+    class BSDF;
 
     class ScatteringEvent {
-        const IntersectionInfo *info;
-
-        void computeLocalCoordinates();
-
+        Intersection *intersection;
+        CoordinateSystem coordinateSystem;
     public:
-        /* wo and wi should be in the positive-y hemisphere for reflection
-         * */
-        Vec3f Ns;
-        Vec3f localX, localZ;
-        Vec3f wiW;
-        Vec3f woW;
-        Vec3f wo, wi;
-        Float pdf;
-        BSDFType sampledType;
-        BSDFType flags;
         Point2f u;
+        BSDF *bsdf;
+        Vec3f wi, wo;
+        Vec3f wiW, woW;
+        Float pdf;
+        BSDFLobe bsdfLobe;
 
-        ScatteringEvent() : info(nullptr) {}
+        ScatteringEvent() : bsdf(nullptr), intersection(nullptr) {}
 
-        ScatteringEvent(const IntersectionInfo *info, Sampler *sampler);
+        ScatteringEvent(Sampler *, Intersection *, BSDF *);
 
-        Vec3f worldToLocal(const Vec3f &v) const; // transform according to shading normal
+        const Vec3f Ns() const {
+            return intersection->Ns;
+        }
 
-        Vec3f localToWorld(const Vec3f &v) const;
+        const Vec3f Ng() const {
+            return intersection->Ng;
+        }
 
-        const Point2f &uv() const;
+        Vec3f localToWord(const Vec3f &w) const {
+            return coordinateSystem.localToWorld(w);
+        }
 
-        const Vec3f &hitPoint() const;
+        Vec3f worldToLocal(const Vec3f &w) const {
+            return coordinateSystem.worldToLocal(w);
+        }
 
-        const Vec3f &Ng() const;
-
-        const IntersectionInfo *getIntersectionInfo() const;
+        void setWi(const Vec3f &w) {
+            wi = w;
+            wiW = localToWord(wi);
+        }
 
         Ray spawnRay(const Vec3f &wi) const {
-            return {hitPoint(), wi};
+            return Ray(intersection->ref, wi);
         }
 
-        Ray spawnRayLocal(const Vec3f &wi) const {
-            return {hitPoint(), localToWorld(wi)};
-        }
+        Spectrum Le(const Vec3f &wi) const;
 
-        Spectrum Le(const Vec3f &wo) const;
-
-        void setWi(const Vec3f &wi) {
-            this->wi = wi;
-            wiW = localToWorld(wi);
-        }
+        Intersection *getIntersection() const { return intersection; }
     };
 }
-
 #endif //MIYUKI_SCATTERINGEVENT_H

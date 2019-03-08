@@ -1,12 +1,11 @@
 //
-// Created by Shiina Miyuki on 2019/1/16.
+// Created by Shiina Miyuki on 2019/2/28.
 //
 
 #ifndef MIYUKI_SPECTRUM_H
 #define MIYUKI_SPECTRUM_H
 
-#include "../utils/util.h"
-#include "../math/geometry.h"
+#include "geometry.h"
 
 namespace Miyuki {
     template<size_t N>
@@ -21,13 +20,13 @@ namespace Miyuki {
 
     class RGBSpectrum : public CoefficientSpectrum<3> {
     public:
-        explicit RGBSpectrum(const Vec3f &c) {
+        RGBSpectrum(const Vec3f &c) {
             v[0] = c[0];
             v[1] = c[1];
             v[2] = c[2];
         }
 
-        explicit RGBSpectrum(const Vec<Float, 3> &c) {
+        RGBSpectrum(const Vec<Float, 3> &c) {
             v[0] = c[0];
             v[1] = c[1];
             v[2] = c[2];
@@ -57,13 +56,19 @@ namespace Miyuki {
         RGBSpectrum gammaCorrection() const;
 
         bool hasNaNs() const;
-        bool nonNeg()const{
+
+        bool nonNeg() const {
             return r() >= 0 && g() >= 0 && b() >= 0;
         }
+
         bool isBlack() const;
+
+        inline Float luminance() const {
+            return Float(0.299) * r() + Float(0.587) * g() + Float(0.114) * b();
+        }
     };
 
-    RGBSpectrum removeNaNs(const RGBSpectrum&);
+    RGBSpectrum removeNaNs(const RGBSpectrum &);
 
     using Spectrum = RGBSpectrum;
 

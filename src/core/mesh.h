@@ -1,105 +1,59 @@
 //
-// Created by Shiina Miyuki on 2019/1/15.
+// Created by Shiina Miyuki on 2019/2/28.
 //
 
 #ifndef MIYUKI_MESH_H
 #define MIYUKI_MESH_H
 
-#include "../math/geometry.h"
-#include "spectrum.h"
-#include "../math/transform.h"
-#include "../bsdfs/bsdf.h"
-#include "../bsdfs/bsdffactory.h"
-#include "scatteringevent.h"
+#include "miyuki.h"
+#include "math/transform.h"
+#include "core/geometry.h"
 
 namespace Miyuki {
-    class MaterialList;
-
-
-    struct Triangle {
-        int32_t vertex[3];
-        int32_t normal[3];
-        int32_t materialId;
-        bool useNorm;
-        Vec3f trigNorm;
-        Point2f textCoord[3];
-        Float area;
-        bool useTexture;
-
-        Triangle() = default;
-    };
-
-    class TriangularMesh;
-
-    struct MeshInstance;
-    enum class TextureOption;
-
-    class BSDFFactory;
-
-    std::shared_ptr<TriangularMesh>
-    LoadFromObj(BSDFFactory &, MaterialList *materialList, const char *filename, TextureOption opt);
-
-    class TriangularMesh {
-        std::vector<Vec3f> vertex, normal;
-        std::vector<Triangle> trigs;
-    public:
-        friend struct MeshInstance;
-
-        TriangularMesh() {}
-
-        friend std::shared_ptr<TriangularMesh> LoadFromObj(
-                BSDFFactory &,
-                MaterialList *materialList,
-                const char *filename, TextureOption opt);
-
-        const Triangle *triangleArray() const { return trigs.data(); }
-
-        const Vec3f *vertexArray() const { return vertex.data(); }
-
-        const Vec3f *normArray() const { return normal.data(); }
-
-        size_t triangleCount() const { return trigs.size(); }
-
-        size_t vertexCount() const { return vertex.size(); }
-
-        size_t normCount() const { return normal.size(); }
-    };
-
-    struct Ray;
-
-    class Intersection;
-
-    struct IntersectionInfo;
-
     class Light;
 
+    struct Mesh;
+
+    class Material;
+
+    struct Ray;
+    struct Intersection;
+
     struct Primitive {
-        Vec3f *normal[3], *vertices[3];
-        Point2f textCoord[3];
+        uint32_t vertices[3];
+        uint32_t normals[3];
+        Point2f textureCoord[3];
         Vec3f Ng;
-        int32_t materialId;
-        Float area;
         Light *light;
+        Mesh *instance;
+        int32_t nameId;
+        Float area;
 
-        Primitive() : light(nullptr) {}
+        Primitive();
 
-        Vec3f normalAt(const Point2f &) const;
+        const Vec3f &v(int32_t) const;
 
-        bool intersect(const Ray &ray, Float *tHit, IntersectionInfo *) const;
+        const Vec3f &n(int32_t) const;
 
-        Float pdf(const IntersectionInfo &ref, const Vec3f &wi) const;
+        Vec3f Ns(const Point2f &uv) const;
+
+        Material *material() const;
+
+        const std::string &name() const;
+
+        bool intersect(const Ray &, Intersection *) const;
     };
 
-    struct MeshInstance {
 
+    struct Mesh {
         std::vector<Vec3f> vertices, normals;
         std::vector<Primitive> primitives;
+        std::vector<std::string> names;
+        std::vector<std::shared_ptr<Material>> materials;
 
-        const Primitive &getPrimitive(uint32_t primID) const { return primitives[primID]; }
+        Mesh(const std::string &filename);
 
-        MeshInstance() = default;
-
-        MeshInstance(std::shared_ptr<TriangularMesh>, const Transform &t = Transform());
+        std::shared_ptr<Mesh> instantiate(const Transform &transform = Transform()) const;
     };
 }
 #endif //MIYUKI_MESH_H

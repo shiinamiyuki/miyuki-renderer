@@ -3,7 +3,12 @@
 //
 
 #include "memory.h"
+#include "utils/thread.h"
 
+#ifdef MIYUKI_ON_WINDOWS
+#define MIYUKI_HAS_ALIGNED_MALLOC
+#else
+#endif
 using namespace Miyuki;
 #ifdef MIYUKI_ON_WINDOWS
 #define MIYUKI_HAS_ALIGNED_MALLOC
@@ -93,7 +98,7 @@ ConcurrentMemoryArenaAllocator::getAvailableArena() {
     return {arenas.back().first, arenas.back().second};
 }
 
-ConcurrentMemoryArenaAllocator::ConcurrentMemoryArenaAllocator() : arenas((size_t) getNumThreads()) {
+ConcurrentMemoryArenaAllocator::ConcurrentMemoryArenaAllocator() : arenas(Thread::pool->numThreads()) {
     for (auto &i:arenas) {
         i.second = true;
     }

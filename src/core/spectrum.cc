@@ -1,9 +1,7 @@
 //
-// Created by Shiina Miyuki on 2019/1/16.
+// Created by Shiina Miyuki on 2019/2/28.
 //
-
 #include "spectrum.h"
-
 using namespace Miyuki;
 static auto gamma = [](Float x) -> int {
     return lround(pow(clamp<Float>(x, 0.0, 1.0), 1.0 / 2.2) * 255.0);

@@ -1,28 +1,72 @@
 //
-// Created by Shiina Miyuki on 2019/1/19.
+// Created by Shiina Miyuki on 2019/2/28.
 //
 
 #ifndef MIYUKI_RAY_H
 #define MIYUKI_RAY_H
 
-#include "../utils/util.h"
-#include "../math/geometry.h"
-
+#include "miyuki.h"
+#include "geometry.h"
+#include "spectrum.h"
 namespace Miyuki {
     struct Ray {
         Vec3f o, d;
+        mutable Float near, far;
 
-        Ray(const Vec3f &_o, const Vec3f &_d) : o(_o), d(_d) {}
+        /*unused*/
+        Float time;
 
-        Ray(const RTCRay &ray);
+        Ray() : time(0), near(0), far(INF) {}
+
+        Ray(const Vec3f &o, const Vec3f &d, Float near = EPS, Float far = INF) : o(o), d(d), near(near), far(far) {}
 
         RTCRay toRTCRay() const;
+
+        Vec3f operator()(Float t) {
+            return o + t * d;
+        }
     };
 
-    struct RayDifferential : public Ray {
-        RayDifferential(const Vec3f &_o, const Vec3f &_d) : Ray(_o, _d) {}
+    struct RayDifferential : Ray {
+        Vec3f rxOrigin, ryOrigin;
+        Vec3f rxDirection, ryDirection;
+        bool hasDifferential;
 
-        RayDifferential(const RTCRay &ray) : Ray(ray) {}
+        RayDifferential() { hasDifferential = false; }
+
+        RayDifferential(const Ray &ray) : Ray(ray) { hasDifferential = false; }
+
+        RayDifferential(const Vec3f &o, const Vec3f &d, Float near = EPS, Float far = INF)
+                : Ray(o, d, near, far) { hasDifferential = false; }
+
+        // scale differentials according to estimated spacing s
+        void scaleDifferentials(Float s);
+
+    };
+
+    struct Primitive;
+
+    struct Intersection {
+        RTCIntersectContext context;
+        RTCRayHit rayHit;
+        Vec3f ref;
+        Vec3f Ng;
+        Vec3f Ns;
+        Vec3f wo;
+        int32_t primId, geomId;
+        const Primitive *primitive = nullptr;
+        Point2f uv;
+
+        Intersection(const Ray &ray = Ray());
+
+        bool hit() const;
+
+        bool intersect(RTCScene scene);
+
+        Float hitDistance() const {
+            return rayHit.ray.tfar;
+        }
+        Spectrum Le(const Vec3f&)const;
     };
 }
 #endif //MIYUKI_RAY_H

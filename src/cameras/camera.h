@@ -1,57 +1,71 @@
 //
-// Created by Shiina Miyuki on 2019/2/13.
+// Created by Shiina Miyuki on 2019/3/3.
 //
 
 #ifndef MIYUKI_CAMERA_H
 #define MIYUKI_CAMERA_H
 
-#include "../math/geometry.h"
-#include "../math/transform.h"
-#include "../core/spectrum.h"
+#include "miyuki.h"
+#include "core/geometry.h"
+#include "core/ray.h"
+#include "math/transform.h"
+#include "core/parameter.h"
 
 namespace Miyuki {
+    class Scene;
+
     class Sampler;
 
-    struct Ray;
-
     class Camera {
-        Matrix4x4 matrix, invMatrix;
-        Matrix4x4 perspectiveMatrix;
-        Float A;
+        friend class Scene;
 
+    protected:
+        Vec3f viewpot;
+        // euler angle;
+        Vec3f direction;
+        Matrix4x4 rotationMatrix, invMatrix;
+
+        Point2i dimension;
     public:
-        // all units in mm
+        Camera(const Point2i &dim) : dimension(dim) {}
 
+        void moveTo(const Vec3f &v);
+
+        void move(const Vec3f &v);
+
+        void rotate(const Vec3f &v);
+
+        void rotateTo(const Vec3f &v);
+
+        void computeTransformMatrix();
+
+        virtual Float generateRay(Sampler &sampler, const Point2i &raster, Ray *ray, Float *weight) = 0;
+
+        virtual Float
+        generateRayDifferential(Sampler &sampler, const Point2i &raster, RayDifferential *ray, Float *weight) = 0;
+
+        virtual void preprocess() { computeTransformMatrix(); }
+    };
+
+    class PerspectiveCamera : public Camera {
+        friend class Scene;
+
+        Float fov;
         Float lensRadius;
         Float focalDistance;
-        Vec3f viewpoint;
-        Vec3f direction;
-        double fov;
-        Point2i filmDimension;
-        Vec3f normal;
-        void moveTo(const Vec3f &pos) { viewpoint = pos; }
+        Float A;
+    public:
+        PerspectiveCamera(const Point2i &dim, Float fov, Float lensRadius = 0, Float focalDistance = 0)
+                : Camera(dim),
+                  fov(fov), lensRadius(lensRadius), focalDistance(focalDistance) {}
 
-        void rotateTo(const Vec3f &dir) {
-            direction = dir;
-        }
+        Float generateRay(Sampler &sampler, const Point2i &raster, Ray *ray, Float *weight) override;
 
-        void rotate(const Vec3f &dir) {
-            direction += dir;
-        }
-
-        void lookAt(const Vec3f &pos);
-
-        Camera(const Vec3f &v = Vec3f(0, 0, 0), const Vec3f &d = Vec3f(0, 0, 0))
-                : viewpoint(v), direction(d), fov(M_PI / 2),lensRadius(0) {}
-
-        void initTransformMatrix();
-
-        Float generatePrimaryRay(Sampler &sampler, const Point2i &raster, Ray *ray,Float *weight);
-
-        void pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const;
-        Spectrum We(const Ray& ray);
-        bool rasterize(const Vec3f &p, Point2i *raster) const;
+        Float generateRayDifferential(Sampler &sampler, const Point2i &raster,
+                                      RayDifferential *ray, Float *weight) override;
 
     };
+
+    std::unique_ptr<PerspectiveCamera> CreatePerspectiveCamera(const ParameterSet &);
 }
 #endif //MIYUKI_CAMERA_H

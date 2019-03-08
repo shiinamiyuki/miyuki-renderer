@@ -1,226 +1,93 @@
 //
-// Created by Shiina Miyuki on 2019/1/12.
+// Created by Shiina Miyuki on 2019/3/3.
 //
 
-#ifndef MIYUKI_SCENE_HPP
-#define MIYUKI_SCENE_HPP
+#ifndef MIYUKI_SCENE_H
+#define MIYUKI_SCENE_H
 
-#include "../utils/util.h"
-#include "film.h"
+#include <cameras/camera.h>
+
+#include "embreescene.h"
 #include "mesh.h"
-#include "memory.h"
-#include "intersection.h"
-#include "ray.h"
-#include "scatteringevent.h"
-#include "../samplers/sampler.h"
-#include "../lights/light.h"
-#include "../lights/infinite.h"
-#include "../integrators/integrator.h"
-#include "../bsdfs/bsdf.h"
-#include "../math/transform.h"
-#include "../math/distribution.h"
-
-#include "../samplers/random.h"
-#include "../samplers/stratified.h"
-#include "../cameras/camera.h"
+#include "rendercontext.h"
+#include "film.h"
+#include "core/memory.h"
+#include "math/distribution.h"
+#include "parameter.h"
+#include "materials/materialfactory.h"
 
 namespace Miyuki {
+    class EmbreeScene;
 
+    class Integrator;
 
-    class Material;
-
-    class BSDF;
-
-    using MaterialPtr = std::shared_ptr<BSDF>;
-
-    class MaterialList :
-            public std::vector<MaterialPtr> {
-        std::unordered_map<std::string, int32_t> map;
-    public:
-        void addMaterial(const std::string &name, int32_t id) { map[name] = id; }
-
-        MaterialPtr getMaterial(const std::string &name) { return at(map[name]); }
-    };
+    class VolPath;
 
     class Camera;
 
-    struct Ray;
+    class Sampler;
 
-    class Intersection;
-
-    struct IntersectionInfo;
-
-    struct RenderContext {
-        Ray primary;
-        Sampler *sampler;
-        MemoryArena &arena;
-        Point2i raster;
-        Camera *camera;
-        Float filterWeight;
-        RenderContext(Camera *camera, const Ray &r, Sampler *s, MemoryArena &a, const Point2i &pos,Float filterWeight)
-                : camera(camera), arena(a), primary(r), sampler(s), raster(pos),filterWeight(filterWeight) {}
-    };
-
-    class Light;
-
-    struct Option {
-        int32_t maxDepth;
-        int32_t minDepth;
-        int32_t samplesPerPixel;
-        int32_t mltLuminanceSample;
-        int32_t mltNChains;
-        int32_t mltDirectSamples;
-        Float largeStepProb;
-        Float aoDistance;
-        bool showAmbientLight;
-        int32_t saveEverySecond;
-        int32_t sleepTime;
-        Float maxRayIntensity;
-        enum SamplerType {
-            independent,
-            stratified,
-            sobol,
-        } samplerType;
-
-        Option();
-    };
-
-    struct MeshInstance;
-    enum class TextureOption {
-        discard = 0,
-        use = 1,
-        raw = 2,
-    };
+    class RenderEngine;
 
     class Scene {
-        friend class AOIntegrator;
+        std::unique_ptr<EmbreeScene> embreeScene;
+        std::vector<std::shared_ptr<Mesh>> instances;
+        std::map<std::string, std::shared_ptr<Mesh>> meshes;
+        std::unique_ptr<Camera> camera;
+        std::unique_ptr<Film> film;
+        std::vector<Seed> seeds;
+        std::vector<Sampler *> samplers;
+        std::vector<MemoryArena> arenas;
+        std::vector<std::shared_ptr<Light>> lights;
+        std::unique_ptr<Distribution1D> lightDistribution;
+        std::unordered_map<Light *, Float> lightPdfMap;
+        std::unique_ptr<MaterialFactory> factory;
+        ParameterSet parameterSet;
+        MemoryArena samplerArena;
 
-        friend class BDPT;
-
-        friend class PathTracer;
-
-        friend class PSSMLTUnidirectional;
-
-        friend class MultiplexedMLT;
 
         friend class Integrator;
 
-        Bound3f worldBound;
-        ConcurrentMemoryArenaAllocator arenaAllocator;
-        MemoryArena samplerArena;
-        Spectrum ambientLight;
-        RTCScene rtcScene;
-        Film film;
-        MaterialList materialList;
-        Camera camera;
-        std::vector<MeshInstance> instances;
-        std::vector<Seed> seeds;
-        std::vector<Sampler *> samplers;
-        std::vector<std::shared_ptr<Light>> lightList; // contains all user defined lights
-        std::vector<std::shared_ptr<Light>> lights;    // contains all lights after commit() is called
-        std::unique_ptr<Distribution1D> lightDistribution;
-        std::unordered_map<Light *, Float> lightDistributionMap;
-        std::function<void(Scene &, std::vector<uint8_t> &)> readImageFunc;
-        std::function<void(Scene &)> updateFunc;
-        std::function<bool(void)> signalFunc;
+        friend class VolPath;
 
-        // commit and preprocess scene
-        void commit();
+        friend class RenderEngine;
 
         void computeLightDistribution();
 
-        void checkError();
-
-        void addMesh(std::shared_ptr<TriangularMesh>, const Transform &transform = Transform());
-
-        void instantiateMesh(std::shared_ptr<TriangularMesh>, const Transform &transform);
-
-        const Primitive &fetchIntersectedPrimitive(const Intersection &);
-
-        void getIntersectionInfo(const Intersection &, IntersectionInfo *info);
-
-        void foreachPixel(std::function<void(RenderContext &)>);
-
-        Light *chooseOneLight(Sampler &, Float *lightPdf = nullptr) const;
-
-        const std::vector<std::shared_ptr<Light>> &getAllLights() const;
-
-        void postResize();
-
-        std::unique_ptr<InfiniteLight> infiniteLight;
+        Json::JsonObject description;
     public:
-        MemoryArena miscArena;
-        Option option;
+        Scene();
 
-        Float worldRadius() const;
 
-        Float pdfLightChoice(Light *light) { return lightDistributionMap[light]; }
-
-        bool intersect(const Ray &, IntersectionInfo *);
-
-        void addSphere(const Vec3f &pos, Float r, int materialId);
-
-        void useSampler(Option::SamplerType);
-
-        void addPointLight(const Spectrum &ka, const Vec3f &pos);
-
-        void setAmbientLight(const Spectrum &s) { ambientLight = s; }
-
-        RTCScene sceneHandle() const { return rtcScene; }
-
-        void prepare();
-
-        void loadObjTrigMesh(const char *filename,
-                             const Transform &transform = Transform(),
-                             TextureOption opt = TextureOption::use);
-
-        void writeImage(const std::string &filename);
+        ParameterSet &parameters() {
+            return parameterSet;
+        }
 
         void setFilmDimension(const Point2i &);
 
-        void setReadImageFunc(const std::function<void(Scene &, std::vector<uint8_t> &)> &f) {
-            readImageFunc = f;
-        }
+        void loadObjMesh(const std::string &filename);
 
-        void setUpdateFunc(const std::function<void(Scene &)> &f) {
-            updateFunc = f;
-        }
+        void loadObjMeshAndInstantiate(const std::string &name, const Transform &T = Transform());
 
-        void readImage(std::vector<uint8_t> &);
+        void instantiateMesh(const std::string &name, const Transform &);
 
-        Camera &getCamera() { return camera; }
+        void commit();
 
-        RenderContext getRenderContext(MemoryArena &, const Point2i &);
+        bool intersect(const RayDifferential &ray, Intersection *);
 
-        RenderContext getRenderContext(MemoryArena &, const Point2i &, Sampler *);
+        RenderContext getRenderContext(const Point2i &raster, MemoryArena *);
 
-        Scene();
+        void test();
 
-        ~Scene();
+        void saveImage();
 
-        RTCScene getRTCSceneHandle() const { return rtcScene; }
+        Light *chooseOneLight(Sampler *, Float *pdf);
 
-        Point2i getResolution() const { return Point2i(film.width(), film.height()); };
-
-        void update();
-
-        bool processContinuable() {
-            return signalFunc();
-        }
-
-        void setProcessContinueFunction(const std::function<bool()> &f) {
-            signalFunc = f;
+        Float pdfLightChoice(Light *light) {
+            return lightPdfMap[light];
         }
     };
 
-    inline Point3f min(const Point3f &a, const Vec3f &b) {
-        return {std::min(a.x(), b.x()), std::min(a.y(), b.y()), std::min(a.z(), b.z())};
-    }
 
-    inline Point3f max(const Point3f &a, const Vec3f &b) {
-        return {std::max(a.x(), b.x()), std::max(a.y(), b.y()), std::max(a.z(), b.z())};
-    }
 }
-
-
-#endif //MIYUKI_SCENE_HPP
+#endif //MIYUKI_SCENE_H

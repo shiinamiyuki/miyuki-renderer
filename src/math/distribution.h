@@ -5,7 +5,7 @@
 #ifndef MIYUKI_DISTRIBUTION_H
 #define MIYUKI_DISTRIBUTION_H
 
-#include "../utils/util.h"
+#include "miyuki.h"
 
 namespace Miyuki {
     // an arbitrary 1d distribution

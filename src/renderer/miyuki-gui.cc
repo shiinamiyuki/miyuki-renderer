@@ -1,10 +1,12 @@
-//
-// Created by Shiina Miyuki on 2019/1/29.
-//
-#include "rendersystem.hpp"
-#include "../../thirdparty/imgui/imgui.h"
-#include "../../thirdparty/imgui/imgui_impl_glfw.h"
-#include "../../thirdparty/imgui/imgui_impl_opengl2.h"
+#include "miyuki.h"
+#include "thirdparty/imgui/imgui.h"
+#include "thirdparty/imgui/imgui_impl_glfw.h"
+#include "thirdparty/imgui/imgui_impl_opengl2.h"
+
+#include <stdio.h>
+#include "utils/thread.h"
+
+using namespace Miyuki;
 
 #include <stdio.h>
 
@@ -24,11 +26,10 @@
 static void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
-
 int main(int argc, char **argv) {
     using namespace Miyuki;
     std::atomic<bool> flag(true);
-    int width = 0, height = 0;
+    int width = 1280, height = 720;
     std::vector<uint8_t> pixelData;
     pixelData.reserve(1920 * 1080 * 4);
     // Setup window
@@ -58,20 +59,6 @@ int main(int argc, char **argv) {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL2_Init();
 
-    renderSystem.GUIMode();
-    renderSystem.setProcessContinueFunction([&]() {
-        return (bool) flag;
-    });
-    renderSystem.guiCallBack = [&]() {
-        renderSystem.readImage(pixelData, &width, &height);
-    };
-    std::thread render([&]() {
-        renderSystem.processOptions(argc, argv);
-
-        renderSystem.exec();
-        exit(0);
-    });
-    render.detach();
 
     ImVec4 clear_color = ImVec4(0, 0, 0, 1.00f);
     // Main loop
@@ -107,7 +94,5 @@ int main(int argc, char **argv) {
 
     glfwDestroyWindow(window);
     glfwTerminate();
-    while (true) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
+    return 0;
 }

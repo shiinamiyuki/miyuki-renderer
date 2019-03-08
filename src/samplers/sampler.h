@@ -1,74 +1,76 @@
 //
-// Created by Shiina Miyuki on 2019/1/17.
+// Created by Shiina Miyuki on 2019/3/3.
 //
 
 #ifndef MIYUKI_SAMPLER_H
 #define MIYUKI_SAMPLER_H
 
-#include "../utils/util.h"
-#include "../math/geometry.h"
+#include <cameras/camera.h>
+
+#include "miyuki.h"
+#include "core/geometry.h"
 
 namespace Miyuki {
-    template<uint32_t Dividend>
-    uint32_t divide(uint32_t x) {
-        constexpr uint64_t k = ((0x100000000LL) / Dividend);
-        uint64_t t = k * x;
-        return t >> 33;
-    }
-
-    class Seed {
-        unsigned short Xi[3];
-    public:
-        using Type = unsigned short;
-
-        Seed() { }
-
-        unsigned short &operator[](uint32_t i) {
-            assert(i < 3);
-            return Xi[i];
+    struct Seed {
+        uint16_t seeds[3];
+        Seed();
+        uint16_t &operator[](uint32_t i) {
+            Assert(i < 3);
+            return seeds[i];
         }
 
-        Type *getPtr() { return Xi; }
+        uint16_t *get() {
+            return seeds;
+        }
+    };
+
+    class RNG {
+        Seed *seed;
+    public:
+        RNG(Seed *seed = nullptr) : seed(seed) {}
+
+        void reseed(Seed *seed) { this->seed = seed; }
+
+        int32_t uniformInt32();
+
+        Float uniformFloat();
+
+        int32_t uniformInt32(Seed *seed);
+
+        Float uniformFloat(Seed *seed);
     };
 
     class Sampler {
     protected:
         Seed *seed;
+        RNG rng;
     public:
-        explicit Sampler(Seed *s) : seed(s) {}
+        Sampler(Seed *seed) : seed(seed), rng(seed) {}
 
-        Seed *getSeed() const { return seed; }
+        virtual void start() = 0;
 
-        void setSeed(Seed *s) { seed = s; }
+        virtual Float get1D() = 0;
 
-        virtual Float nextFloat() = 0;
+        virtual Point2f get2D() = 0;
 
-        virtual int32_t nextInt() = 0;
-
-        virtual Float nextFloat(Seed *) = 0;
-
-        virtual int32_t nextInt(Seed *) = 0;
-
-        virtual Point2f nextFloat2D() = 0;
-
-        virtual void start() {}
-
-        int32_t randInt() {
-            return nrand48(seed->getPtr());
+        int32_t uniformInt32() {
+            return rng.uniformInt32();
         }
 
-        Float randFloat() {
-            return erand48(seed->getPtr());
+        Float uniformFloat() {
+            return rng.uniformFloat();
         }
     };
+    class RandomSampler : public Sampler {
+    public:
+        RandomSampler(Seed *seed) : Sampler(seed) {}
 
-    inline Float balanceHeuristic(int nf, Float fPdf, int ng, Float gPdf) {
-        return (nf * fPdf) / (nf * fPdf + ng * gPdf);
-    }
+        void start() override;
 
-    inline Float powerHeuristic(int nf, Float fPdf, int ng, Float gPdf) {
-        Float f = nf * fPdf, g = ng * gPdf;
-        return (f * f) / (f * f + g * g);
-    }
+        Float get1D() override;
+
+        Point2f get2D() override;
+    };
 }
+
 #endif //MIYUKI_SAMPLER_H

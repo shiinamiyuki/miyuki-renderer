@@ -5,8 +5,8 @@
 #ifndef MIYUKI_TRANSFORM_H
 #define MIYUKI_TRANSFORM_H
 
-#include "../utils/util.h"
-#include "geometry.h"
+#include "miyuki.h"
+#include "core/geometry.h"
 
 namespace Miyuki {
     struct Matrix4x4 {
@@ -64,6 +64,28 @@ namespace Miyuki {
         Vec3f apply(const Vec3f &) const;
 
         Vec3f applyRotation(const Vec3f &) const;
+    };
+
+    class CoordinateSystem {
+        Vec3f localX, localZ, normal;
+    public:
+        CoordinateSystem() {}
+
+        CoordinateSystem(const Vec3f &N) : normal(N) {
+            const auto &w = normal;
+            localX = Vec3f::cross((abs(w.x()) > 0.1) ? Vec3f{0, 1, 0} : Vec3f{1, 0, 0}, w);
+            localX.normalize();
+            localZ = Vec3f::cross(w, localX);
+            localZ.normalize();
+        }
+
+        Vec3f worldToLocal(const Vec3f &v) const {
+            return Vec3f(Vec3f::dot(localX, v), Vec3f::dot(normal, v), Vec3f::dot(localZ, v)).normalized();
+        }
+
+        Vec3f localToWorld(const Vec3f &v) const {
+            return (v.x() * localX + v.y() * normal + v.z() * localZ).normalized();
+        }
     };
 }
 #endif //MIYUKI_TRANSFORM_H

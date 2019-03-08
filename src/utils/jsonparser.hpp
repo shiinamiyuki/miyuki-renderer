@@ -438,7 +438,7 @@ namespace Miyuki {
             }
         };
 
-        JsonObject parse(const std::string &source) {
+        inline JsonObject parse(const std::string &source) {
             return JsonParser(source).parseToplevel();
         }
     }

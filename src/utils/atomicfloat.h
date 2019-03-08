@@ -5,7 +5,7 @@
 #ifndef MIYUKI_ATOMICFLOAT_H
 #define MIYUKI_ATOMICFLOAT_H
 
-#include "util.h"
+#include "miyuki.h"
 
 namespace Miyuki {
     inline uint32_t floatToBits(float f) {

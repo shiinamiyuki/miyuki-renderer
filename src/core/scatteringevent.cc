@@ -1,60 +1,19 @@
 //
-// Created by Shiina Miyuki on 2019/2/8.
+// Created by Shiina Miyuki on 2019/3/5.
 //
 
 #include "scatteringevent.h"
-#include "../bsdfs/bsdf.h"
+#include "mesh.h"
+#include "materials/material.h"
 
-using namespace Miyuki;
-
-
-Vec3f ScatteringEvent::worldToLocal(const Vec3f &v) const {
-    return Vec3f(Vec3f::dot(localX, v), Vec3f::dot(Ns, v), Vec3f::dot(localZ, v)).normalized();
-}
-
-Vec3f ScatteringEvent::localToWorld(const Vec3f &v) const {
-    return (v.x() * localX + v.y() * Ns + v.z() * localZ).normalized();
-}
-
-void ScatteringEvent::computeLocalCoordinates() {
-    const auto &w = Ns;
-    localX = Vec3f::cross((abs(w.x()) > 0.1) ? Vec3f{0, 1, 0} : Vec3f{1, 0, 0}, w);
-    localX.normalize();
-    localZ = Vec3f::cross(w, localX);
-    localZ.normalize();
-}
-
-ScatteringEvent::ScatteringEvent(const IntersectionInfo *info, Sampler *sampler)
-        : info(info), woW(info->wo), Ns(info->normal), pdf(0), u(sampler->nextFloat2D()), flags(BSDFType::all) {
-    assert(info && sampler);
-    computeLocalCoordinates();
-    if(info->bsdf->hasBump()){
-        Ns += localToWorld(info->bsdf->evalBump(*this));
-        Ns.normalized();
-        computeLocalCoordinates();
+namespace Miyuki {
+    ScatteringEvent::ScatteringEvent(Sampler *sampler, Intersection *isct, BSDF *bsdf)
+            : u(sampler->get2D()), intersection(isct), coordinateSystem(isct->Ns), bsdf(bsdf) {
+        woW = isct->wo;
+        wo = worldToLocal(woW);
     }
-    wo = worldToLocal(woW);
-}
 
-const Point2f &ScatteringEvent::uv() const {
-    return info->uv;
+    Spectrum ScatteringEvent::Le(const Vec3f &wi) const {
+        return intersection->Le(wi);
+    }
 }
-
-const Vec3f &ScatteringEvent::hitPoint() const {
-    return info->hitpoint;
-}
-
-const IntersectionInfo *ScatteringEvent::getIntersectionInfo() const {
-    return info;
-}
-
-Spectrum ScatteringEvent::Le(const Vec3f &wo) const {
-    if (Vec3f::dot(wo, Ns) < 0)
-        return {};
-    return info->Le(wo);
-}
-
-const Vec3f &ScatteringEvent::Ng() const {
-    return info->Ng;
-}
-

@@ -1,42 +1,32 @@
 //
-// Created by Shiina Miyuki on 2019/1/12.
+// Created by Shiina Miyuki on 2019/3/3.
 //
 
 #ifndef MIYUKI_INTEGRATOR_H
 #define MIYUKI_INTEGRATOR_H
 
-#include "../utils/util.h"
-#include "../core/spectrum.h"
+#include "miyuki.h"
+#include "core/scene.h"
+#include "core/spectrum.h"
+#include "core/scatteringevent.h"
 
 namespace Miyuki {
     class Scene;
 
-    struct RenderContext;
-    struct Ray;
-    struct IntersectionInfo;
-
-    class Intersection;
-
-    class Sampler;
-
-    class ScatteringEvent;
-
     class Integrator {
     protected:
-        ScatteringEvent makeScatteringEvent(const Ray &ray, IntersectionInfo *, Sampler *sampler);
+        virtual Spectrum L(RenderContext &ctx, Scene &) = 0;
 
-        virtual Spectrum importanceSampleOneLight(Scene &scene,
-                                                  RenderContext &ctx,
-                                                  ScatteringEvent &event,
-                                                  bool specular = false);
+        void makeScatteringEvent(ScatteringEvent *, RenderContext &ctx, Intersection *);
+
+        // Importance sample one light according to its power
+        // using multiple importance sampling
+        Spectrum importanceSampleOneLight(Scene &scene, RenderContext &ctx, const ScatteringEvent &event);
 
     public:
-        virtual ~Integrator() = default;
-
         virtual void render(Scene &) = 0;
-    };
 
-    template<typename T>
-    Integrator *createIntegrator() { return nullptr; }
+        virtual ~Integrator() {}
+    };
 }
 #endif //MIYUKI_INTEGRATOR_H

@@ -1,17 +1,18 @@
 //
-// Created by Shiina Miyuki on 2019/1/12.
+// Created by Shiina Miyuki on 2019/3/3.
 //
 
+#include "miyuki.h"
+#include "renderengine.h"
 
-//#include "../thirdparty/cxxopts.hpp"
+using namespace Miyuki;
 
-#include "rendersystem.hpp"
-#include "../core/scene.h"
-
-int32_t main(int32_t argc, char **argv) {
-    std::atexit(saveAtExit);
-    renderSystem.processOptions(argc, argv);
-
-    return renderSystem.exec();
-
+int main(int argc, char **argv) {
+    RenderEngine engine;
+    try {
+        engine.processCommandLine(argc, argv);
+        return engine.exec();
+    } catch (std::exception &e) {
+        std::cerr << e.what() << std::endl;
+    }
 }

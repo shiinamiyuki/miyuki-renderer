@@ -1,173 +1,102 @@
 //
-// Created by Shiina Miyuki on 2019/2/3.
+// Created by Shiina Miyuki on 2019/3/5.
 //
 
-#ifndef MIYUKI_REFLECTION_H
-#define MIYUKI_REFLECTION_H
+#ifndef MIYUKI_BSDF_H
+#define MIYUKI_BSDF_H
 
-#include "../utils/util.h"
-#include "../math/geometry.h"
-#include "../core/spectrum.h"
-#include "../samplers/sampler.h"
-#include "../core/scatteringevent.h"
-#include "../core/texture.h"
+#include "core/geometry.h"
+#include "core/spectrum.h"
 
 namespace Miyuki {
-    struct Interaction;
-    struct ColorMap;
-    enum class BSDFType {
-        reflection = 1 << 0,
-        transmission = 1 << 1,
-        diffuse = 1 << 2,
-        glossy = 1 << 3,
-        specular = 1 << 4,
-        all = diffuse | glossy | specular |
-              reflection | transmission,
-        allButSpecular = all & ~specular,
-    };
-
-    inline bool hasBxDFType(BSDFType query, BSDFType ty) {
-        return (bool) ((int) query & (int) ty);
+    inline bool SameHemisphere(const Vec3f &w1, const Vec3f &w2) {
+        return w1.y() * w2.y() >= 0;
     }
 
-    inline bool isDeltaDistribution(BSDFType type) {
-        return hasBxDFType(type, BSDFType::specular) && !hasBxDFType(type, BSDFType::glossy);
-    }
-
-
-    inline Float cosTheta(const Vec3f &w) {
+    inline Float CosTheta(const Vec3f &w) {
         return w.y();
     }
 
-    inline Float absCosTheta(const Vec3f &w) {
-        return fabs(w.y());
+    inline Float AbsCosTheta(const Vec3f &w) {
+        return fabs(CosTheta(w));
     }
 
-    inline Float cos2Theta(const Vec3f &w) {
-        return w.y() * w.y();
-    }
+    struct BSDFLobe {
+        static const uint32_t none = 0;
+        static const uint32_t reflection = 1;
+        static const uint32_t transmission = 2;
+        static const uint32_t diffuse = 4;
+        static const uint32_t glossy = 8;
+        static const uint32_t specular = 16;
+        static const uint32_t all = reflection | transmission | glossy | specular | diffuse;
+        static const uint32_t allButSpecular = all & ~specular;
 
-    inline Float sin2Theta(const Vec3f &w) {
-        return std::max(Float(0), 1 - cos2Theta(w));
-    }
-
-    inline Float sinTheta(const Vec3f &w) {
-        return std::sqrt(sin2Theta(w));
-    }
-
-    inline Float tanTheta(const Vec3f &w) {
-        return sinTheta(w) / cosTheta(w);
-    }
-
-    inline Float tan2Theta(const Vec3f &w) {
-        return sin2Theta(w) / cos2Theta(w);
-    }
-
-    inline Float cosPhi(const Vec3f &w) {
-        auto s = sinTheta(w);
-        return s == 0 ? 1.0f : clamp(w.x() / s, -1.0f, -1.0f);
-    }
-
-    inline Float sinPhi(const Vec3f &w) {
-        auto s = sinTheta(w);
-        return s == 0 ? 1.0f : clamp(w.z() / s, -1.0f, -1.0f);
-    }
-
-    inline Float cos2Phi(const Vec3f &w) {
-        auto c = cosPhi(w);
-        return c * c;
-    }
-
-    inline Float sin2Phi(const Vec3f &w) {
-        auto s = sinPhi(w);
-        return s * s;
-    }
-
-    inline Float cosDPhi(const Vec3f &wa, const Vec3f &wb) {
-        return clamp<Float>((wa.x() * wb.x() + wa.z() * wb.z()) /
-                            std::sqrt((wa.x() * wa.x() + wa.z() * wa.z()) *
-                                      (wb.x() * wb.x() + wb.z() * wb.z())), -1.0f, 1.0f);
-    }
-
-    inline Float FrDielectric(Float cosThetaI, Float etaI, Float etaT) {
-        cosThetaI = clamp(cosThetaI, -1, 1);
-        bool entering = cosThetaI > 0.f;
-        if (!entering) {
-            std::swap(etaI, etaT);
-            cosThetaI = std::abs(cosThetaI);
+        operator int() const {
+            return value;
         }
-        Float sinThetaI = std::sqrt(std::max((Float) 0,
-                                             1 - cosThetaI * cosThetaI));
-        Float sinThetaT = etaI / etaT * sinThetaI;
-        if (sinThetaT >= 1)
-            return 1;
-        Float cosThetaT = std::sqrt(std::max((Float) 0,
-                                             1 - sinThetaT * sinThetaT));
 
-        Float Rparl = ((etaT * cosThetaI) - (etaI * cosThetaT)) /
-                      ((etaT * cosThetaI) + (etaI * cosThetaT));
-        Float Rperp = ((etaI * cosThetaI) - (etaT * cosThetaT)) /
-                      ((etaI * cosThetaI) + (etaT * cosThetaT));
-        return (Rparl * Rparl + Rperp * Rperp) / 2;
-    }
+        BSDFLobe() : value(none) {}
 
-    inline bool sameHemisphere(const Vec3f &wo, const Vec3f &wi) {
-        return wo.y() * wi.y() >= 0;
-    }
+        BSDFLobe(int value) : value(value) {}
 
-    struct MaterialInfo {
-        ColorMap ka, kd, ks, bump;
-        Float Ni, Ns, Tr;
-        Float roughness;
-        std::string bsdfType, fresnelType, microfacetType;
-        std::map<std::string, std::string> parameters;
+        bool matchFlag(const BSDFLobe &rhs) const {
+            return (value & rhs.value) != 0;
+        }
 
-        MaterialInfo(const ColorMap &ka, const ColorMap &kd, const ColorMap &ks, const ColorMap &bump = ColorMap()) :
-                ka(ka), kd(kd), ks(ks), bump(bump), Ni(1), Ns(0), Tr(0), roughness(0) {}
+    private:
+        uint32_t value;
     };
 
     class ScatteringEvent;
 
-    class MixedBSDF;
+    class BSDF;
 
-    class BSDF {
-    protected:
-        BSDFType type;
-        ColorMap albedo, bump;
-
-        virtual Spectrum f(const ScatteringEvent &) const = 0;
-
-        friend class MixedBSDF;
-
+    class BxDF {
     public:
-        ColorMap ka;
+        const BSDFLobe lobe;
 
-        BSDF(BSDFType type, const ColorMap &albedo, const ColorMap &bump)
-                : type(type), albedo(albedo), bump(bump) {}
+        BxDF(const BSDFLobe &lobe) : lobe(lobe) {}
 
-        virtual Spectrum sample(ScatteringEvent &) const;
+        virtual Spectrum f(const ScatteringEvent &event) const = 0;
 
-        Spectrum eval(const ScatteringEvent &) const;
+        virtual Float pdf(const ScatteringEvent &event) const;
 
-        virtual Float pdf(const Vec3f &wo, const Vec3f &wi, BSDFType flags) const;
+        virtual Spectrum sample(ScatteringEvent &event) const;
 
-        Spectrum evalAlbedo(const ScatteringEvent &) const;
+        virtual ~BxDF() {}
 
-        const ColorMap &Ka() const {
-            return ka;
+        bool matchFlag(const BSDFLobe &rhs) const {
+            return lobe.matchFlag(rhs);
         }
-
-        BSDFType getType() const { return type; }
-
-        bool matchFlags(BSDFType flags) const {
-            return (int) type & (int) flags;
-        }
-
-        bool hasBump() const;
-
-        Vec3f evalBump(const ScatteringEvent &) const;
     };
 
+    class BSDF {
+    public:
+        static const int maxBxDFs = 8;
+    protected:
+        int nBxDFs = 0;
+        BxDF *bxdfs[maxBxDFs];
+    public:
+        void add(BxDF *bxdf) {
+            bxdfs[nBxDFs++] = bxdf;
+        }
 
+        BSDF() {}
+
+        Spectrum f(const ScatteringEvent &event, BSDFLobe lobe = BSDFLobe::all) const;
+
+        Float pdf(const ScatteringEvent &event, BSDFLobe lobe = BSDFLobe::all) const;
+
+        Spectrum sample(ScatteringEvent &event, BSDFLobe lobe = BSDFLobe::all) const;
+
+        int numComponents(BSDFLobe lobe) const {
+            int n = 0;
+            for (int i = 0; i < nBxDFs; i++) {
+                if (bxdfs[i]->lobe.matchFlag(lobe))n++;
+            }
+            return n;
+        }
+    };
 }
-#endif //MIYUKI_REFLECTION_H
+
+#endif //MIYUKI_BSDF_H

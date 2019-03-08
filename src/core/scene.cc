@@ -1,354 +1,167 @@
 //
-// Created by Shiina Miyuki on 2019/1/12.
+// Created by Shiina Miyuki on 2019/3/3.
 //
 
 #include "scene.h"
-#include "mesh.h"
-#include "spectrum.h"
-#include "../samplers/random.h"
-#include "../samplers/stratified.h"
-#include "../samplers/sobol.h"
-#include "../math/distribution.h"
-#include "../cameras/camera.h"
+#include "cameras/camera.h"
+#include "utils/thread.h"
+#include "samplers/sampler.h"
+#include "samplers/sobol.h"
+#include "math/sampling.h"
+#include "core/profile.h"
+#include "lights/area.h"
 
-using namespace Miyuki;
+namespace Miyuki {
 
-Scene::Scene() : film(1000, 1000), worldBound({}, {}) {
-    rtcScene = rtcNewScene(GetEmbreeDevice());
-    postResize();
-    camera.lensRadius = 0;
-    camera.focalDistance = 35;
-    camera.fov = 80 / 180.0f * M_PI;
-    readImageFunc = [&](Scene &scene, std::vector<uint8_t> &pixelData) {
-        if (pixelData.size() != film.width() * film.height() * 4)
-            pixelData.resize(film.width() * film.height() * 4);
-        for (int i = 0; i < film.width(); i++) {
-            for (int j = 0; j < film.height(); j++) {
-                auto out = film.getPixel(i, j).toInt();
-                auto idx = i + film.width() * (film.height() - j - 1);
-                pixelData[4 * idx] = out.x();
-                pixelData[4 * idx + 1] = out.y();
-                pixelData[4 * idx + 2] = out.z();
-                pixelData[4 * idx + 3] = 255;
+    Scene::Scene() : embreeScene(new EmbreeScene()) {
+        arenas.resize(Thread::pool->numThreads());
+        setFilmDimension({1000, 1000});
+        factory = std::make_unique<MaterialFactory>();
+    }
+
+    void Scene::setFilmDimension(const Point2i &dim) {
+        film = std::make_unique<Film>(dim[0], dim[1]);
+        camera = std::make_unique<PerspectiveCamera>(
+                film->imageDimension(),
+                parameterSet.findFloat("camera.fov", 80.0f) / 180.0f * PI,
+                parameterSet.findFloat("camera.lensRadius", 0.0f),
+                parameterSet.findFloat("camera.focalDistance", 0.0f));
+        camera->rotateTo(parameterSet.findVec3f("camera.rotation", {}) / 180.0f * PI);
+        camera->moveTo(parameterSet.findVec3f("camera.translation", {}));
+
+        seeds.resize(film->width() * film->height());
+        samplerArena.reset();
+        samplers.clear();
+        for (int i = 0; i < film->width() * film->height(); i++) {
+            auto *temp = ARENA_ALLOC(samplerArena, RandomSampler)(&seeds[i]);
+            samplers.emplace_back(temp);
+        }
+    }
+
+    void Scene::loadObjMesh(const std::string &filename) {
+        auto mesh = std::make_shared<Mesh>(filename);
+        CHECK(meshes.find(filename) == meshes.end());
+        meshes[filename] = mesh;
+    }
+
+    void Scene::loadObjMeshAndInstantiate(const std::string &name, const Transform &T) {
+        loadObjMesh(name);
+        instantiateMesh(name, T);
+    }
+
+    void Scene::instantiateMesh(const std::string &name, const Transform &T) {
+        CHECK(meshes.find(name) != meshes.end());
+        auto mesh = meshes[name]->instantiate(T);
+        embreeScene->addMesh(mesh, instances.size());
+        factory->applyMaterial(description["shapes"], description["materials"], *mesh);
+        instances.emplace_back(mesh);
+    }
+
+    void Scene::computeLightDistribution() {
+        lights.clear();
+        for (const auto &mesh:instances) {
+            for (auto &p:mesh->primitives) {
+                if (p.material()->emission.albedo.max() > 0.0f) {
+                    lights.emplace_back(std::make_shared<AreaLight>(&p));
+                    p.light = lights.back().get();
+                }
             }
         }
-    };
-    updateFunc = [](Scene &) {};
-    signalFunc = []() { return true; };
-}
-
-Scene::~Scene() {
-    rtcReleaseScene(rtcScene);
-}
-
-void Scene::computeLightDistribution() {
-    std::vector<Float> power;
-    for (const auto &i:lights) {
-        CHECK(i->importance > 0);
-        power.emplace_back(i->power() * i->importance);
-    }
-    lightDistribution = std::make_unique<Distribution1D>(Distribution1D(power.data(), power.size()));
-}
-
-void Scene::commit() {
-    rtcCommitScene(rtcScene);
-    checkError();
-    lights = lightList;
-    for (auto &instance : instances) {
-        for (auto &primitive : instance.primitives) {
-            if (!materialList[primitive.materialId])continue;
-            auto &material = *materialList[primitive.materialId];
-            if (material.Ka().maxReflectance > 0.1) {
-                lights.emplace_back(std::shared_ptr<Light>(new AreaLight(primitive, material.Ka().color)));
-                primitive.light = lights.back().get();
-            }
-
+        Float *power = new Float[lights.size()];
+        for (int i = 0; i < lights.size(); i++) {
+            power[i] = lights[i]->power();
         }
-    }
-    //  prob(L) = power(L) / total_power
-    computeLightDistribution();
-//    if (lightDistribution) {
-//        for (const auto &i: lights) {
-//            i->scalePower(lightDistribution->funcInt / i->power()); // scales by 1 / prob
-//        }
-//    }
-    lightDistributionMap.clear();
-    for (int i = 0; i < lights.size(); i++) {
-        lightDistributionMap[lights[i].get()] = lightDistribution->pdf(i);
-    }
-    infiniteLight = std::make_unique<InfiniteLight>(ColorMap(ambientLight));
-    fmt::print("Important lights: {}, total power: {}\n", lights.size(), lightDistribution->funcInt);
-    Point3f pMin(INF, INF, INF);
-    Point3f pMax(-INF, -INF, -INF);
-    for (const auto &i:instances) {
-        for (const auto &p:i.primitives) {
-            for (int _ = 0; _ < 3; _++) {
-                pMin = min(pMin, *p.vertices[_]);
-                pMax = max(pMax, *p.vertices[_]);
-            }
+        lightDistribution = std::make_unique<Distribution1D>(power, lights.size());
+        lightPdfMap.clear();
+        for (int i = 0; i < lights.size(); i++) {
+            lightPdfMap[lights[i].get()] = lightDistribution->pdf(i);
         }
-    }
-    worldBound = Bound3f(pMin, pMax);
-    fmt::print("World radius: {}\n", worldRadius());
-}
-
-class NullLight : public Light {
-public:
-    Spectrum sampleLi(const Point2f &u, const IntersectionInfo &info, Vec3f *wi, Float *pdf,
-                      VisibilityTester *tester) const override {
-        *pdf = 0;
-        return Miyuki::Spectrum();
+        delete[] power;
+        fmt::print("Important lights: {} Total power: {}\n", lights.size(), lightDistribution->funcInt);
     }
 
-    Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfDir,
-                      Float *pdfPos) const override {
-        *pdfDir = *pdfPos = 0;
-        return Miyuki::Spectrum();
+    void Scene::commit() {
+        setFilmDimension(Point2i{parameterSet.findInt("render.width", 500),
+                                 parameterSet.findInt("render.height", 500)});
+        embreeScene->commit();
+        camera->computeTransformMatrix();
+        fmt::print("Film dimension: {}x{}\n", film->width(), film->height());
+        fmt::print("Output file: {}\n", parameterSet.findString("render.output", "scene.png"));
+        computeLightDistribution();
     }
 
-    Float pdfLi(const IntersectionInfo &, const Vec3f &wi) const override {
-        return 0;
+    RenderContext Scene::getRenderContext(const Point2i &raster, MemoryArena *arena) {
+        int idx = raster.x() + raster.y() * film->width();
+        Ray primary;
+        auto sampler = samplers[idx];
+        Float weight;
+        sampler->start();
+        camera->generateRay(*sampler, raster, &primary, &weight);
+        return RenderContext(raster, primary, camera.get(), arena, sampler, weight);
     }
 
-    void pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const override {
-        *pdfPos = *pdfDir = 0;
+    bool Scene::intersect(const RayDifferential &ray, Intersection *isct) {
+        *isct = Intersection(ray);
+        if (!isct->intersect(embreeScene->scene))
+            return false;
+        isct->uv = Point2f{isct->rayHit.hit.u, isct->rayHit.hit.v};
+        isct->primitive = &instances[isct->geomId]->primitives[isct->primId];
+        isct->wo = -1 * ray.d;
+        auto p = isct->primitive;
+        isct->Ns = p->Ns(isct->uv);
+        isct->Ng = p->Ng;
+        isct->ref = ray.o + isct->hitDistance() * ray.d;
+        return true;
     }
-};
 
-static NullLight nullLight;
-
-Light *Scene::chooseOneLight(Sampler &sampler, Float *lightPdf) const {
-    if (lights.empty())
-        return &nullLight;
-    int32_t idx = lightDistribution->sampleInt(sampler.nextFloat());
-    if (lightPdf) {
-        *lightPdf = lightDistribution->pdf(idx);
-    }
-    return lights[idx].get();
-}
-
-const std::vector<std::shared_ptr<Light>> &Scene::getAllLights() const {
-    return lights;
-}
-
-void Scene::loadObjTrigMesh(const char *filename, const Transform &transform, TextureOption opt) {
-    auto factory = BSDFFactory(this);
-    auto mesh = LoadFromObj(factory, &materialList, filename, opt);
-    if (!mesh)return;
-    addMesh(mesh, transform);
-    checkError();
-}
-
-void Scene::instantiateMesh(std::shared_ptr<TriangularMesh> mesh, const Transform &transform) {
-    instances.emplace_back(MeshInstance(mesh, transform));
-}
-
-void Scene::addMesh(std::shared_ptr<TriangularMesh> mesh, const Transform &transform) {
-    RTCGeometry rtcMesh = rtcNewGeometry(GetEmbreeDevice(), RTC_GEOMETRY_TYPE_TRIANGLE);
-    auto vertices =
-            (Float *) rtcSetNewGeometryBuffer(rtcMesh,
-                                              RTC_BUFFER_TYPE_VERTEX,
-                                              0,
-                                              RTC_FORMAT_FLOAT3,
-                                              sizeof(Float) * 3,
-                                              mesh->vertexCount());
-    auto triangles = (uint32_t *) rtcSetNewGeometryBuffer(rtcMesh,
-                                                          RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3,
-                                                          sizeof(uint32_t) * 3,
-                                                          mesh->triangleCount());
-    for (int32_t i = 0; i < mesh->triangleCount(); i++) {
-        for (int32_t j = 0; j < 3; j++)
-            triangles[3 * i + j] = (uint32_t) mesh->triangleArray()[i].vertex[j];
-    }
-    for (int32_t i = 0; i < mesh->vertexCount(); i++) {
-        Vec3f v(mesh->vertexArray()[i][0], mesh->vertexArray()[i][1], mesh->vertexArray()[i][2]);
-        v = transform.apply(v);
-        for (int32_t j = 0; j < 3; j++)
-            vertices[3 * i + j] = v[j];
-    }
-    rtcCommitGeometry(rtcMesh);
-    rtcAttachGeometryByID(rtcScene, rtcMesh, instances.size());
-    rtcReleaseGeometry(rtcMesh);
-    instantiateMesh(mesh, transform);
-}
-
-void Scene::addSphere(const Vec3f &pos, Float r, int materialId) {
-
-}
-
-void Scene::writeImage(const std::string &filename) {
-    double avg = 0;
-    for (auto &i:film.image) {
-        avg += luminance(i.L());
-    }
-    avg /= film.width() * film.height();
-    fmt::print("Avg brightness: {}\n", avg);
-    film.writePNG(filename);
-}
-
-void Scene::postResize() {
-    seeds.resize(film.width() * film.height());
-    std::random_device rd;
-    std::uniform_int_distribution<int32_t> dist;
-    for (int32_t i = 0; i < seeds.size(); i++) {
-        seeds[i][0] = dist(rd);
-        seeds[i][1] = dist(rd);
-        seeds[i][2] = dist(rd);
-    }
-    useSampler(option.samplerType);
-    camera.filmDimension = {film.width(), film.height()};
-}
-
-void Scene::setFilmDimension(const Point2i &dim) {
-    film = Film(dim.x(), dim.y());
-    postResize();
-}
-
-void Scene::useSampler(Option::SamplerType samplerType) {
-    option.samplerType = samplerType;
-    samplerArena.reset();
-    samplers.clear();
-    // Trust compiler optimizations
-    for (int32_t i = 0; i < seeds.size(); i++) {
-        Sampler *s;
-        if (samplerType == Option::independent) {
-            s = ARENA_ALLOC(samplerArena, RandomSampler)(&seeds[i]);
-        } else if (samplerType == Option::sobol) {
-            s = ARENA_ALLOC(samplerArena, SobolSampler)(&seeds[i],option.maxDepth * (8) + 2);
-        } else {
-            CHECK(samplerType == Option::stratified);
-            s = ARENA_ALLOC(samplerArena, StratifiedSampler)(&seeds[i]);
+    void Scene::test() {
+        commit();
+        Point2i nTiles = film->imageDimension() / TileSize + Point2i{1, 1};
+        Profiler profiler;
+        for (int n = 0; n < 64; n++) {
+            Thread::parallelFor2D(nTiles, [&](Point2i tile, uint32_t threadId) {
+                arenas[threadId].reset();
+                for (int i = 0; i < TileSize; i++) {
+                    for (int j = 0; j < TileSize; j++) {
+                        int x = tile.x() * TileSize + i;
+                        int y = tile.y() * TileSize + j;
+                        if (x >= film->width() || y >= film->height())
+                            continue;
+                        auto raster = Point2i{x, y};
+                        auto ctx = getRenderContext(raster, &arenas[threadId]);
+                        Intersection intersection;
+                        if (!intersect(ctx.primary, &intersection)) {
+                            film->addSample(raster, {0, 0, 0});
+                        } else {
+                            CoordinateSystem system(intersection.Ns);
+                            Vec3f wi = system.localToWorld(CosineWeightedHemisphereSampling(ctx.sampler->get2D()));
+                            auto ray = Ray{intersection.ref, wi};
+                            Intersection _;
+                            if (intersect(ray, &_)) {
+                                film->addSample(raster, {0, 0, 0});
+                            } else {
+                                film->addSample(raster, {1, 1, 1});
+                            }
+                        }
+                    }
+                }
+            });
         }
-        samplers.emplace_back(s);
+        fmt::print("{}secs, {}M rays/sec", profiler.elapsedSeconds(),
+                   64 * film->width() * film->height() / 1e6 / profiler.elapsedSeconds());
+        film->writePNG("out.png");
     }
 
-}
+    Light *Scene::chooseOneLight(Sampler *sampler, Float *pdf) {
+        if (lights.empty()) {
+            return nullptr;
+        }
+        auto light = lightDistribution->sampleInt(sampler->get1D());
+        *pdf = lightDistribution->pdf(light);
+        return lights[light].get();
+    }
 
-RenderContext Scene::getRenderContext(MemoryArena &arena, const Point2i &raster) {
-    int32_t x0 = raster.x();
-    int32_t y0 = raster.y();
-    Sampler *sampler;
-    size_t idx = x0 + film.width() * y0;
-    sampler = samplers[idx];
-    sampler->start();
-    Ray primary{{},
-                {}};
-    Float w;
-    camera.generatePrimaryRay(*sampler, raster, &primary,&w);
-    return RenderContext(&camera, primary, sampler, arena, raster,w);
-}
-
-RenderContext Scene::getRenderContext(MemoryArena &arena, const Point2i &raster, Sampler *sampler) {
-    Ray primary{{},
-                {}};
-    Float w;
-    camera.generatePrimaryRay(*sampler, raster, &primary,&w);
-    return RenderContext(&camera, primary, sampler, arena, raster, w);
-}
-
-
-void Scene::checkError() {
-    if (rtcGetDeviceError(GetEmbreeDevice()) != RTC_ERROR_NONE) {
-        fmt::print("Error!\n");
-        exit(-1);
+    void Scene::saveImage() {
+        film->writePNG(parameterSet.findString("render.output", "out.png"));
     }
 }
-
-const Primitive &Scene::fetchIntersectedPrimitive(const Intersection &intersection) {
-    return instances[intersection.geomID()].primitives[intersection.primID()];
-}
-
-
-// TODO: coord on triangle, see Embree's documentation
-void Scene::getIntersectionInfo(const Intersection &intersection, IntersectionInfo *info) {
-    info->primitive = makeRef<const Primitive>(&fetchIntersectedPrimitive(intersection));
-    info->distance = intersection.hitDistance();
-    info->wo = Vec3f(-intersection.rayHit.ray.dir_x,
-                     -intersection.rayHit.ray.dir_y,
-                     -intersection.rayHit.ray.dir_z);
-    info->hitpoint = Vec3f(intersection.rayHit.ray.org_x,
-                           intersection.rayHit.ray.org_y,
-                           intersection.rayHit.ray.org_z) + info->wo * -intersection.hitDistance();
-    info->uv = Point2f(intersection.rayHit.hit.u, intersection.rayHit.hit.v);
-    info->Ng = info->primitive->Ng;
-    info->normal = info->primitive->normalAt(info->uv);
-    info->geomID = intersection.geomID();
-    info->primID = intersection.primID();
-    info->bsdf = materialList[info->primitive->materialId].get();
-}
-
-void Scene::prepare() {
-    commit();
-    if (lights.empty()) {
-        fmt::print(stderr, "No lights!\n");
-    }
-    camera.initTransformMatrix();
-}
-
-void Scene::foreachPixel(std::function<void(RenderContext &)> f) {
-//    parallelFor(0u, (uint32_t) film.width(), [&](uint32_t x) {
-//        for (int32_t y = 0; y < film.height(); y++) {
-//            f(Point2i(x, y));
-//        }
-//    });
-    auto &tiles = film.getTiles();
-    parallelFor(0u, tiles.size(), [&](uint32_t i) {
-        auto arenaInfo = arenaAllocator.getAvailableArena();
-        tiles[i].foreachPixel([&](const Point2i &pos) {
-            auto ctx = getRenderContext(arenaInfo.arena, pos);
-            f(ctx);
-        });
-        arenaInfo.arena.reset();
-    });
-}
-
-
-Vec3f Intersection::intersectionPoint() const {
-    return Vec3f();
-}
-
-Option::Option() {
-    minDepth = 0;
-    maxDepth = 5;
-    samplesPerPixel = 16;
-    mltLuminanceSample = 100000;
-    mltNChains = 256;
-    mltDirectSamples = 16;
-    largeStepProb = 0.3;
-    showAmbientLight = true;
-    aoDistance = 50;
-    saveEverySecond = 10;
-    sleepTime = 0;
-    maxRayIntensity = 10;
-    samplerType = SamplerType::independent;
-}
-
-void Scene::addPointLight(const Spectrum &ka, const Vec3f &pos) {
-    lightList.emplace_back(std::make_shared<PointLight>(ka, pos));
-}
-
-bool Scene::intersect(const Ray &ray, IntersectionInfo *info) {
-    Intersection intersection(ray);
-    intersection.intersect(*this);
-    if (!intersection.hit()) {
-        return false;
-    }
-    getIntersectionInfo(intersection, info);
-    return true;
-}
-
-Float Scene::worldRadius() const {
-    Float r;
-    Point3f center;
-    worldBound.boundingSphere(&center, &r);
-    return r;
-}
-
-void Scene::readImage(std::vector<uint8_t> &pixelData) {
-    readImageFunc(*this, pixelData);
-}
-
-void Scene::update() {
-    updateFunc(*this);
-}
-
