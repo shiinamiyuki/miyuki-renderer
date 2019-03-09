@@ -12,7 +12,7 @@
 
 namespace Miyuki {
     class Scene;
-
+    static const int TileSize = 16;
     class Integrator {
     protected:
         virtual Spectrum L(RenderContext &ctx, Scene &) = 0;

@@ -10,8 +10,6 @@
 #include "utils/atomicfloat.h"
 
 namespace Miyuki {
-    static const int TileSize = 16;
-
     struct BufferElement {
         AtomicFloat splatXYZ[3];
         Spectrum value;

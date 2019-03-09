@@ -35,16 +35,14 @@ namespace Miyuki {
         std::map<std::string, std::shared_ptr<Mesh>> meshes;
         std::unique_ptr<Camera> camera;
         std::unique_ptr<Film> film;
-        std::vector<Seed> seeds;
-        std::vector<Sampler *> samplers;
         std::vector<MemoryArena> arenas;
         std::vector<std::shared_ptr<Light>> lights;
         std::unique_ptr<Distribution1D> lightDistribution;
         std::unordered_map<Light *, Float> lightPdfMap;
         std::unique_ptr<MaterialFactory> factory;
+        std::function<void(Scene&)> updateFunc;
+        std::function<bool(Scene&)> processContinueFunc;
         ParameterSet parameterSet;
-        MemoryArena samplerArena;
-
 
         friend class Integrator;
 
@@ -58,6 +56,7 @@ namespace Miyuki {
     public:
         Scene();
 
+        void readImage(std::vector<uint8_t> &pixelData);
 
         ParameterSet &parameters() {
             return parameterSet;
@@ -75,9 +74,7 @@ namespace Miyuki {
 
         bool intersect(const RayDifferential &ray, Intersection *);
 
-        RenderContext getRenderContext(const Point2i &raster, MemoryArena *);
-
-        void test();
+        RenderContext getRenderContext(const Point2i &raster, MemoryArena *,Sampler * );
 
         void saveImage();
 
@@ -85,6 +82,16 @@ namespace Miyuki {
 
         Float pdfLightChoice(Light *light) {
             return lightPdfMap[light];
+        }
+
+        void update();
+
+        void setUpdateFunc(std::function<void(Scene&)> func){
+            updateFunc = func;
+        }
+
+        bool processContinuable(){
+            return processContinueFunc(*this);
         }
     };
 

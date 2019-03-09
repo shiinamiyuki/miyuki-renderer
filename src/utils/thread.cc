@@ -40,8 +40,7 @@ namespace Miyuki {
         }
 
         void parallelFor(uint32_t begin, uint32_t end, TaskFunc task) {
-            auto num = pool->numThreads();
-            auto workSize = (end - begin) / num;
+            auto workSize = 1;
             while (begin + workSize < end) {
                 pool->enqueue(task, begin, begin + workSize);
                 begin += workSize;

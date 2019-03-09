@@ -7,29 +7,56 @@
 #include "core/scene.h"
 #include "math/sampling.h"
 #include "core/progress.h"
+#include "thirdparty/hilbert/hilbert_curve.hpp"
+#include "samplers/sobol.h"
 
 namespace Miyuki {
     void VolPath::render(Scene &scene) {
         fmt::print("Integrator: Volumetric Path Tracer\nSamples per pixel:{}\n", spp);
         auto &film = *scene.film;
         Point2i nTiles = film.imageDimension() / TileSize + Point2i{1, 1};
+
+        // 2^M >= nTiles.x() * nTiles.y()
+        // M >= log2(nTiles.x() * nTiles.y());
+        int M = std::ceil(std::log2(nTiles.x() * nTiles.y()));
+        nTiles = Point2i(std::pow(2, M / 2), std::pow(2, M / 2));
+        std::mutex mutex;
         ProgressReporter reporter(nTiles.x() * nTiles.y(), [&](int cur, int total) {
-            if (cur % (total / 100) == 0)
-                fmt::print("Rendered tiles: {}/{} Elapsed:{} Remaining:{}\n",
-                           cur,
-                           total, reporter.elapsedSeconds(), reporter.estimatedTimeToFinish());
+            if (spp > 16) {
+                if (cur % 16 == 0) {
+                    std::lock_guard<std::mutex> lockGuard(mutex);
+                    if (reporter.count() % 16 == 0) {
+                        fmt::print("Rendered tiles: {}/{} Elapsed:{} Remaining:{}\n",
+                                   cur,
+                                   total, reporter.elapsedSeconds(), reporter.estimatedTimeToFinish());
+                        scene.update();
+                    }
+                }
+            }
         });
+        int dim = 4 + 10 * maxDepth;
+        InitSobolSamples(dim);
+        std::vector<Seed> seeds(Thread::pool->numThreads());
         Thread::parallelFor2D(nTiles, [&](Point2i tile, uint32_t threadId) {
             scene.arenas[threadId].reset();
+            int tileIndex = tile.x() + nTiles.x() * tile.y();
+            int tx, ty;
+            ::d2xy(M, tileIndex, tx, ty);
+            if (tx >= film.width() || ty >= film.height())
+                return;
             for (int i = 0; i < TileSize; i++) {
                 for (int j = 0; j < TileSize; j++) {
-                    int x = tile.x() * TileSize + i;
-                    int y = tile.y() * TileSize + j;
+                    if (!scene.processContinuable()) {
+                        return;
+                    }
+                    int x = tx * TileSize + i;
+                    int y = ty * TileSize + j;
                     if (x >= film.width() || y >= film.height())
                         continue;
+                    auto raster = Point2i{x, y};
+                    SobolSampler sampler(&seeds[threadId], dim);
                     for (int s = 0; s < spp; s++) {
-                        auto raster = Point2i{x, y};
-                        auto ctx = scene.getRenderContext(raster, &scene.arenas[threadId]);
+                        auto ctx = scene.getRenderContext(raster, &scene.arenas[threadId], &sampler);
                         auto Li = removeNaNs(L(ctx, scene));
                         Li = clampRadiance(Li, maxRayIntensity);
                         film.addSample({x, y}, Li, ctx.weight);
@@ -38,6 +65,7 @@ namespace Miyuki {
             }
             reporter.update();
         });
+        scene.update();
     }
 
     Spectrum VolPath::L(RenderContext &ctx, Scene &scene) {
@@ -76,7 +104,7 @@ namespace Miyuki {
     }
 
     VolPath::VolPath(const ParameterSet &set) {
-        progressive = true;
+        progressive = false;
         minDepth = set.findInt("volpath.minDepth", 3);
         maxDepth = set.findInt("volpath.maxDepth", 5);
         spp = set.findInt("volpath.spp", 4);

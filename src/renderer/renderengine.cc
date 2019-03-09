@@ -4,6 +4,7 @@
 
 #include "renderengine.h"
 #include "integrators/volpath/volpath.h"
+#include "core/film.h"
 
 namespace Miyuki {
     namespace IO {
@@ -56,8 +57,22 @@ namespace Miyuki {
     int RenderEngine::exec() {
         scene.commit();
         if (integrator) {
+            scene.processContinueFunc = [this](Scene &x) {
+                return renderContinue == true;
+            };
+            if (mode == gui) {
+                scene.setUpdateFunc([&](Scene & s){
+                    updateFunc();
+                });
+            }
             integrator->render(scene);
             scene.saveImage();
+        }
+        if(mode == gui){
+            while(renderContinue){
+                std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            }
+
         }
         return 0;
     }
@@ -150,5 +165,23 @@ namespace Miyuki {
                                                 IO::deserialize<Transform>(obj["transform"]));
             }
         }
+    }
+
+    RenderEngine::RenderEngine() : renderContinue(true),mode(commandLine) {
+        updateFunc = []() {};
+    }
+
+    void RenderEngine::stopRender() {
+        renderContinue = false;
+    }
+
+    void RenderEngine::startRender() {
+        renderContinue = true;
+    }
+
+    void RenderEngine::readPixelData(std::vector<uint8_t> &pixelData, int &width, int &height) {
+        scene.readImage(pixelData);
+        width = scene.film->width();
+        height = scene.film->height();
     }
 }

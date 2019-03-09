@@ -4,7 +4,7 @@
 #include "thirdparty/imgui/imgui_impl_opengl2.h"
 
 #include <stdio.h>
-#include "utils/thread.h"
+#include "renderengine.h"
 
 using namespace Miyuki;
 
@@ -26,73 +26,95 @@ using namespace Miyuki;
 static void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
+
 int main(int argc, char **argv) {
     using namespace Miyuki;
-    std::atomic<bool> flag(true);
-    int width = 1280, height = 720;
-    std::vector<uint8_t> pixelData;
-    pixelData.reserve(1920 * 1080 * 4);
-    // Setup window
-    glfwSetErrorCallback(glfw_error_callback);
-    if (!glfwInit())
-        return 1;
-    GLFWwindow *window = glfwCreateWindow(1280, 720, "Miyuki Renderer GUI", nullptr, nullptr);
-    if (window == nullptr)
-        return 1;
-
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1); // Enable vsync
-
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
-    (void) io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-    // Setup Platform/Renderer bindings
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL2_Init();
-
-
-    ImVec4 clear_color = ImVec4(0, 0, 0, 1.00f);
-    // Main loop
-    while (!glfwWindowShouldClose(window)) {
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glfwPollEvents();
-
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL2_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixelData.data());
-        // Rendering
-        ImGui::Render();
-
-
-        ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+    try {
+        RenderEngine renderEngine;
+        renderEngine.setGuiMode(true);
+        renderEngine.processCommandLine(argc, argv);
+        int width = 1280, height = 720;
+        std::vector<uint8_t> pixelData;
+        pixelData.reserve(1920 * 1080 * 4);
+        // Setup window
+        glfwSetErrorCallback(glfw_error_callback);
+        if (!glfwInit())
+            return 1;
+        GLFWwindow *window = glfwCreateWindow(1280, 720, "Miyuki Renderer GUI", nullptr, nullptr);
+        if (window == nullptr)
+            return 1;
 
         glfwMakeContextCurrent(window);
-        glfwSwapBuffers(window);
-        std::this_thread::sleep_for(std::chrono::milliseconds(60));
-    }
-    flag = false;
-    // Cleanup
-    ImGui_ImplOpenGL2_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+        glfwSwapInterval(1); // Enable vsync
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
+        // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO &io = ImGui::GetIO();
+        (void) io;
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
+
+        // Setup Dear ImGui style
+        ImGui::StyleColorsDark();
+        //ImGui::StyleColorsClassic();
+
+        // Setup Platform/Renderer bindings
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplOpenGL2_Init();
+
+        renderEngine.updateFunc = [&]() {
+            renderEngine.readPixelData(pixelData, width, height);
+        };
+        std::condition_variable mainThreadEnd;
+        std::mutex mainThreadMutex;
+        std::thread renderThread([&]() {
+            renderEngine.exec();
+            {
+               std::exit(0);
+            }
+        });
+        ImVec4 clear_color = ImVec4(0, 0, 0, 1.00f);
+        // Main loop
+        while (!glfwWindowShouldClose(window)) {
+            int display_w, display_h;
+            glfwGetFramebufferSize(window, &display_w, &display_h);
+            glViewport(0, 0, display_w, display_h);
+            glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glfwPollEvents();
+
+            // Start the Dear ImGui frame
+            ImGui_ImplOpenGL2_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixelData.data());
+            // Rendering
+            ImGui::Render();
+
+
+            ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+
+            glfwMakeContextCurrent(window);
+            glfwSwapBuffers(window);
+            std::this_thread::sleep_for(std::chrono::milliseconds(60));
+        }
+        renderEngine.stopRender();
+        // Cleanup
+        ImGui_ImplOpenGL2_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        {
+            std::unique_lock<std::mutex> lock(mainThreadMutex);
+            mainThreadEnd.wait(lock);
+        }
+        fmt::print("Exit\n");
+    } catch (std::exception &e) {
+        std::cerr << e.what() << std::endl;
+    }
     return 0;
 }

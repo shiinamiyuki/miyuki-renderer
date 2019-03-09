@@ -7,10 +7,9 @@
 
 namespace Miyuki {
     static Float *sobolValues = nullptr;
-    const static int maxN = 1024 * 1024;
+    const static int maxN = 32 * 1024 * 1024;
     static int N = 0;
     static int D = 0;
-
     static void init() {
         N = maxN / D;
         delete[] sobolValues;
@@ -38,5 +37,10 @@ namespace Miyuki {
             init();
         }
         sobolIndex = uniformInt32() % N;
+    }
+
+    void InitSobolSamples(int M) {
+        D = M;
+        init();
     }
 }

@@ -27,7 +27,10 @@ namespace Miyuki {
         Float elapsedSeconds() const {
             return profiler.elapsedSeconds();
         }
-        Float estimatedTimeToFinish()const;
+
+        Float estimatedTimeToFinish() const;
+
+        int count() const { return counter; }
     };
 }
 #endif //MIYUKI_PROGRESS_H

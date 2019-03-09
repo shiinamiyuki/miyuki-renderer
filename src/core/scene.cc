@@ -17,6 +17,8 @@ namespace Miyuki {
         arenas.resize(Thread::pool->numThreads());
         setFilmDimension({1000, 1000});
         factory = std::make_unique<MaterialFactory>();
+        updateFunc = [](Scene &x) {};
+        processContinueFunc = [](Scene &x) { return true; };
     }
 
     void Scene::setFilmDimension(const Point2i &dim) {
@@ -28,14 +30,6 @@ namespace Miyuki {
                 parameterSet.findFloat("camera.focalDistance", 0.0f));
         camera->rotateTo(parameterSet.findVec3f("camera.rotation", {}) / 180.0f * PI);
         camera->moveTo(parameterSet.findVec3f("camera.translation", {}));
-
-        seeds.resize(film->width() * film->height());
-        samplerArena.reset();
-        samplers.clear();
-        for (int i = 0; i < film->width() * film->height(); i++) {
-            auto *temp = ARENA_ALLOC(samplerArena, RandomSampler)(&seeds[i]);
-            samplers.emplace_back(temp);
-        }
     }
 
     void Scene::loadObjMesh(const std::string &filename) {
@@ -90,12 +84,12 @@ namespace Miyuki {
         computeLightDistribution();
     }
 
-    RenderContext Scene::getRenderContext(const Point2i &raster, MemoryArena *arena) {
+    RenderContext Scene::getRenderContext(const Point2i &raster, MemoryArena *arena,Sampler * sampler) {
+        sampler->start();
         int idx = raster.x() + raster.y() * film->width();
         Ray primary;
-        auto sampler = samplers[idx];
         Float weight;
-        sampler->start();
+
         camera->generateRay(*sampler, raster, &primary, &weight);
         return RenderContext(raster, primary, camera.get(), arena, sampler, weight);
     }
@@ -114,44 +108,6 @@ namespace Miyuki {
         return true;
     }
 
-    void Scene::test() {
-        commit();
-        Point2i nTiles = film->imageDimension() / TileSize + Point2i{1, 1};
-        Profiler profiler;
-        for (int n = 0; n < 64; n++) {
-            Thread::parallelFor2D(nTiles, [&](Point2i tile, uint32_t threadId) {
-                arenas[threadId].reset();
-                for (int i = 0; i < TileSize; i++) {
-                    for (int j = 0; j < TileSize; j++) {
-                        int x = tile.x() * TileSize + i;
-                        int y = tile.y() * TileSize + j;
-                        if (x >= film->width() || y >= film->height())
-                            continue;
-                        auto raster = Point2i{x, y};
-                        auto ctx = getRenderContext(raster, &arenas[threadId]);
-                        Intersection intersection;
-                        if (!intersect(ctx.primary, &intersection)) {
-                            film->addSample(raster, {0, 0, 0});
-                        } else {
-                            CoordinateSystem system(intersection.Ns);
-                            Vec3f wi = system.localToWorld(CosineWeightedHemisphereSampling(ctx.sampler->get2D()));
-                            auto ray = Ray{intersection.ref, wi};
-                            Intersection _;
-                            if (intersect(ray, &_)) {
-                                film->addSample(raster, {0, 0, 0});
-                            } else {
-                                film->addSample(raster, {1, 1, 1});
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        fmt::print("{}secs, {}M rays/sec", profiler.elapsedSeconds(),
-                   64 * film->width() * film->height() / 1e6 / profiler.elapsedSeconds());
-        film->writePNG("out.png");
-    }
-
     Light *Scene::chooseOneLight(Sampler *sampler, Float *pdf) {
         if (lights.empty()) {
             return nullptr;
@@ -162,6 +118,27 @@ namespace Miyuki {
     }
 
     void Scene::saveImage() {
-        film->writePNG(parameterSet.findString("render.output", "out.png"));
+        auto out = parameterSet.findString("render.output", "out.png");
+        fmt::print("Image saved to {}\n", out);
+        film->writePNG(out);
+    }
+
+    void Scene::readImage(std::vector<uint8_t> &pixelData) {
+        if (pixelData.size() != film->width() * film->height() * 4)
+            pixelData.resize(film->width() * film->height() * 4);
+        for (int i = 0; i < film->width(); i++) {
+            for (int j = 0; j < film->height(); j++) {
+                auto out = film->getPixel(i, j).color.toInt();
+                auto idx = i + film->width() * (film->height() - j - 1);
+                pixelData[4 * idx] = out.x();
+                pixelData[4 * idx + 1] = out.y();
+                pixelData[4 * idx + 2] = out.z();
+                pixelData[4 * idx + 3] = 255;
+            }
+        }
+    }
+
+    void Scene::update() {
+        updateFunc(*this);
     }
 }

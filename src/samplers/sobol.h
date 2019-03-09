@@ -19,5 +19,6 @@ namespace Miyuki{
 
         Point2f get2D() override;
     };
+    void InitSobolSamples(int M);
 }
 #endif //MIYUKI_SOBOL_H

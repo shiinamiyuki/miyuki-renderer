@@ -7,8 +7,8 @@
 namespace Miyuki {
 
     void ProgressReporter::update() {
-        int cnt = counter + 1;
         counter++;
+        int cnt = counter;
         callback(cnt, total);
     }
 
