@@ -43,9 +43,6 @@ namespace Miyuki {
         if(mtl.hasKey("roughness")){
             info.roughness  = mtl["roughness"].getFloat();
         }
-        if(mtl.hasKey("Tr")){
-            info.roughness  = mtl["Tr"].getFloat();
-        }
         return std::make_shared<PBRMaterial>(info);
     }
 }

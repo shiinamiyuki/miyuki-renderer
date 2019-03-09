@@ -55,7 +55,7 @@ namespace Miyuki {
 
     int RenderEngine::exec() {
         scene.commit();
-        if(integrator){
+        if (integrator) {
             integrator->render(scene);
             scene.saveImage();
         }

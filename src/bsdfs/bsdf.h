@@ -21,6 +21,56 @@ namespace Miyuki {
         return fabs(CosTheta(w));
     }
 
+    inline Float Cos2Theta(const Vec3f &w) {
+        return w.y() * w.y();
+    }
+
+    inline Float Sin2Theta(const Vec3f &w) {
+        return std::max(Float(0), 1 - Cos2Theta(w));
+    }
+
+    inline Float SinTheta(const Vec3f &w) {
+        return std::sqrt(Sin2Theta(w));
+    }
+
+    inline Float TanTheta(const Vec3f &w) {
+        return SinTheta(w) / CosTheta(w);
+    }
+
+    inline Float Tan2Theta(const Vec3f &w) {
+        return Sin2Theta(w) / Cos2Theta(w);
+    }
+
+    inline Float CosPhi(const Vec3f &w) {
+        auto s = SinTheta(w);
+        return s == 0 ? 1.0f : clamp(w.x() / s, -1.0f, -1.0f);
+    }
+
+    inline Float SinPhi(const Vec3f &w) {
+        auto s = SinTheta(w);
+        return s == 0 ? 1.0f : clamp(w.z() / s, -1.0f, -1.0f);
+    }
+
+    inline Float Cos2Phi(const Vec3f &w) {
+        auto c = CosPhi(w);
+        return c * c;
+    }
+
+    inline Float Sin2Phi(const Vec3f &w) {
+        auto s = SinPhi(w);
+        return s * s;
+    }
+
+    inline Float CosDPhi(const Vec3f &wa, const Vec3f &wb) {
+        return clamp<Float>((wa.x() * wb.x() + wa.z() * wb.z()) /
+                            std::sqrt((wa.x() * wa.x() + wa.z() * wa.z()) *
+                                      (wb.x() * wb.x() + wb.z() * wb.z())), -1.0f, 1.0f);
+    }
+
+    inline Vec3f Reflect(const Vec3f &wo, const Vec3f &n) {
+        return -1 * wo + 2 * Vec3f::dot(wo, n) * n;
+    }
+
     struct BSDFLobe {
         static const uint32_t none = 0;
         static const uint32_t reflection = 1;
@@ -95,6 +145,18 @@ namespace Miyuki {
                 if (bxdfs[i]->lobe.matchFlag(lobe))n++;
             }
             return n;
+        }
+    };
+
+    class Fresnel {
+    public:
+        virtual Spectrum eval(Float cosI) const = 0;
+    };
+
+    class PerfectSpecularFresnel : public Fresnel {
+    public:
+        Spectrum eval(Float cosI) const override {
+            return {1, 1, 1};
         }
     };
 }

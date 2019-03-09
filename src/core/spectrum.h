@@ -32,7 +32,13 @@ namespace Miyuki {
             v[2] = c[2];
         }
 
-        RGBSpectrum(Float x = 0, Float y = 0, Float z = 0) {
+        RGBSpectrum(Float x = 0) {
+            v[0] = x;
+            v[1] = x;
+            v[2] = x;
+        }
+
+        RGBSpectrum(Float x, Float y, Float z) {
             v[0] = x;
             v[1] = y;
             v[2] = z;
