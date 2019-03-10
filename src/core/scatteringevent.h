@@ -56,6 +56,10 @@ namespace Miyuki {
         Spectrum Le(const Vec3f &wi) const;
 
         Intersection *getIntersection() const { return intersection; }
+        const Point2f& uv()const{
+            return intersection->uv;
+        }
+        const Point2f textureUV()const;
     };
 }
 #endif //MIYUKI_SCATTERINGEVENT_H

@@ -12,6 +12,9 @@ namespace Miyuki {
         Image::Image(const std::string &filename, ImageFormat format) : format(format) {
             int ch;
             auto data = stbi_load(filename.c_str(), &width, &height, &ch, 3);
+            if(!data){
+                throw std::runtime_error(fmt::format("Cannot load {}\n", filename).c_str());
+            }
             std::function<Float(uint8_t)> f;
             if (format == ImageFormat::none) {
                 f = [](uint8_t _x) -> Float {

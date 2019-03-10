@@ -4,7 +4,6 @@
 
 #include "miyuki.h"
 #include "renderengine.h"
-
 using namespace Miyuki;
 
 int main(int argc, char **argv) {

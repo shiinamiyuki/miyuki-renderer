@@ -61,15 +61,15 @@ namespace Miyuki {
                 return renderContinue == true;
             };
             if (mode == gui) {
-                scene.setUpdateFunc([&](Scene & s){
+                scene.setUpdateFunc([&](Scene &s) {
                     updateFunc();
                 });
             }
             integrator->render(scene);
             scene.saveImage();
         }
-        if(mode == gui){
-            while(renderContinue){
+        if (mode == gui) {
+            while (renderContinue) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(250));
             }
 
@@ -104,6 +104,9 @@ namespace Miyuki {
                 auto type = I["type"].getString();
                 if (type == "volpath" || type == "path") {
                     parameters.addString("integrator", "volpath");
+                    if (I.hasKey("maxRayIntensity")) {
+                        parameters.addFloat("volpath.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
+                    }
                     if (I.hasKey("spp")) {
                         parameters.addInt("volpath.spp", IO::deserialize<int>(I["spp"]));
                     }
@@ -167,7 +170,7 @@ namespace Miyuki {
         }
     }
 
-    RenderEngine::RenderEngine() : renderContinue(true),mode(commandLine) {
+    RenderEngine::RenderEngine() : renderContinue(true), mode(commandLine) {
         updateFunc = []() {};
     }
 

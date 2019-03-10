@@ -19,30 +19,40 @@ namespace Miyuki {
         }
     }
 
+    Texture MaterialFactory::deserialize(Json::JsonObject obj) {
+        std::string texture;
+        if (obj.hasKey("texture"))
+            texture = obj["texture"].getString();
+        return Texture(IO::deserialize<Vec3f>(obj["albedo"]),
+                       texture.empty() ? nullptr : loader.load(texture));
+    }
+
     std::shared_ptr<Material> MaterialFactory::createMaterial(const std::string &name, Json::JsonObject mtl) {
         auto iter = materials.find(name);
         if (iter != materials.end()) {
             return iter->second;
         }
         MaterialInfo info;
-        info.ka = IO::deserialize<Texture>(mtl["ka"]);
-        info.kd = IO::deserialize<Texture>(mtl["kd"]);
-        info.ks = IO::deserialize<Texture>(mtl["ks"]);
-        if(mtl.hasKey("sigma")){
+        info.ka = deserialize(mtl["ka"]);
+        info.kd = deserialize(mtl["kd"]);
+        info.ks = deserialize(mtl["ks"]);
+        if (mtl.hasKey("sigma")) {
             info.sigma = mtl["sigma"].getFloat();
         }
-        if(mtl.hasKey("Ni")){
+        if (mtl.hasKey("Ni")) {
             info.Ni = mtl["Ni"].getFloat();
         }
-        if(mtl.hasKey("alphaX")){
+        if (mtl.hasKey("alphaX")) {
             info.alphaX = mtl["alphaX"].getFloat();
         }
-        if(mtl.hasKey("alphaY")){
+        if (mtl.hasKey("alphaY")) {
             info.alphaY = mtl["alphaY"].getFloat();
         }
-        if(mtl.hasKey("roughness")){
-            info.roughness  = mtl["roughness"].getFloat();
+        if (mtl.hasKey("roughness")) {
+            info.roughness = mtl["roughness"].getFloat();
         }
         return std::make_shared<PBRMaterial>(info);
     }
+
+
 }

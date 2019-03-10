@@ -108,6 +108,7 @@ namespace Miyuki {
         for (auto &p:mesh->primitives) {
             p.instance = mesh.get();
             p.Ng = transform.applyRotation(p.Ng).normalized();
+            p.area *= pow(transform.scale, 2);
         }
         return mesh;
     }

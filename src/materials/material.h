@@ -9,21 +9,9 @@
 #include "core/spectrum.h"
 #include "core/rendercontext.h"
 #include "core/scatteringevent.h"
-
+#include "core/texture.h"
 namespace Miyuki {
-    struct Texture {
-        Spectrum albedo;
 
-        Texture() {}
-
-        Texture(const Spectrum &albedo) : albedo(albedo) {}
-    };
-    namespace IO {
-        template<>
-        inline Texture deserialize<Texture>(const Json::JsonObject &object) {
-            return std::move(Texture(deserialize<Vec3f>(object["albedo"])));
-        }
-    }
     struct MaterialInfo {
         Texture ka;
         Texture kd;

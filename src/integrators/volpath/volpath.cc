@@ -18,11 +18,10 @@ namespace Miyuki {
 
         // 2^M >= nTiles.x() * nTiles.y()
         // M >= log2(nTiles.x() * nTiles.y());
-        int M = std::ceil(std::log2(nTiles.x() * nTiles.y()));
-        Point2i nTiles2 = Point2i(std::pow(2, M / 2), std::pow(2, M / 2));
+        int M = std::ceil(std::log2(std::max(nTiles.x(), nTiles.y())));
         std::mutex mutex;
         std::vector<Point2f> hilbertMapping;
-        for (int i = 0; i < nTiles2.x() * nTiles2.y(); i++) {
+        for (int i = 0; i < pow(2, M + M); i++) {
             int tx, ty;
             ::d2xy(M, i, tx, ty);
             if (tx >= nTiles.x() || ty >= nTiles.y())

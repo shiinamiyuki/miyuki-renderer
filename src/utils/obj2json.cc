@@ -5,7 +5,6 @@
 #include "obj2json.h"
 #include "io/io.h"
 #include "io/serialize.h"
-
 namespace Miyuki {
     namespace IO {
         Json::JsonObject serialize(const tinyobj::real_t v[3]) {
@@ -52,14 +51,17 @@ namespace Miyuki {
             }
             for (const auto &material : materials) {
                 if (mtl.hasKey(material.name)) {
-                    fmt::print("{} already exists, skipping", material.name);
-                    continue;
+                    fmt::print("{} already exists, overriding\n", material.name);
                 }
                 Json::JsonObject m = Json::JsonObject::makeObject();
                 m["ka"] = func(material.emission, material.emissive_texname);
                 m["kd"] = func(material.diffuse, material.diffuse_texname);
                 m["ks"] = func(material.specular, material.specular_texname);
-                m["roughness"] = Json::JsonObject(material.roughness);
+                if(material.roughness > 0)
+                    m["roughness"] = Json::JsonObject(material.roughness);
+                else if(material.shininess > 2){
+                    m["roughness"] = Json::JsonObject(sqrtf(2.0f / (2.0f + material.shininess)));
+                }
                 m["Ni"] = Json::JsonObject(material.ior);
                 m["Tr"] = Json::JsonObject(1 - material.dissolve);
 
