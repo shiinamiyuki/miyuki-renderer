@@ -9,7 +9,8 @@
 namespace Miyuki{
     class SobolSampler : public Sampler{
         int dimension;
-        int numPass;
+        uint32_t rng;
+        uint32_t numPass;
     public:
         SobolSampler(Seed *s);
         void start() override;
