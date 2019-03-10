@@ -20,7 +20,6 @@ file(GLOB thirdpartySRC
         "src/thirdparty/rapidjson/rapidjson.h"
         "src/thirdparty/fmt/format.cc"
         "src/thirdparty/fmt/posix/cc"
-        "src/thirdparty/sobol/sobol.cpp"
         "src/thirdparty/hilbert/hilbert_curve.cpp")
 file(GLOB utilsSRC
         "src/utils/*.cc"

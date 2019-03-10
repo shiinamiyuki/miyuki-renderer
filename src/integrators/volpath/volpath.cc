@@ -34,11 +34,10 @@ namespace Miyuki {
                 }
             }
         });
-        int dim = 4 + 10 * maxDepth;
-        InitSobolSamples(dim);
         std::vector<Seed> seeds(Thread::pool->numThreads());
+        std::vector<MemoryArena> arenas(Thread::pool->numThreads());
         Thread::parallelFor2D(nTiles, [&](Point2i tile, uint32_t threadId) {
-            scene.arenas[threadId].reset();
+            arenas[threadId].reset();
             int tileIndex = tile.x() + nTiles.x() * tile.y();
             int tx, ty;
             ::d2xy(M, tileIndex, tx, ty);
@@ -54,9 +53,9 @@ namespace Miyuki {
                     if (x >= film.width() || y >= film.height())
                         continue;
                     auto raster = Point2i{x, y};
-                    SobolSampler sampler(&seeds[threadId], dim);
+                    SobolSampler sampler(&seeds[threadId]);
                     for (int s = 0; s < spp; s++) {
-                        auto ctx = scene.getRenderContext(raster, &scene.arenas[threadId], &sampler);
+                        auto ctx = scene.getRenderContext(raster, &arenas[threadId], &sampler);
                         auto Li = removeNaNs(L(ctx, scene));
                         Li = clampRadiance(Li, maxRayIntensity);
                         film.addSample({x, y}, Li, ctx.weight);
@@ -108,7 +107,7 @@ namespace Miyuki {
         minDepth = set.findInt("volpath.minDepth", 3);
         maxDepth = set.findInt("volpath.maxDepth", 5);
         spp = set.findInt("volpath.spp", 4);
-        maxRayIntensity = set.findFloat("volpath.maxRayIntensity", 100.0f);
+        maxRayIntensity = set.findFloat("volpath.maxRayIntensity", 10000.0f);
         caustics = set.findInt("volpath.caustics", true);
     }
 }

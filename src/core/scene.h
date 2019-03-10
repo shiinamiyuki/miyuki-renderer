@@ -35,7 +35,6 @@ namespace Miyuki {
         std::map<std::string, std::shared_ptr<Mesh>> meshes;
         std::unique_ptr<Camera> camera;
         std::unique_ptr<Film> film;
-        std::vector<MemoryArena> arenas;
         std::vector<std::shared_ptr<Light>> lights;
         std::unique_ptr<Distribution1D> lightDistribution;
         std::unordered_map<Light *, Float> lightPdfMap;

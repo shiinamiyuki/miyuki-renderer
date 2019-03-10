@@ -35,8 +35,8 @@ namespace Miyuki {
     };
 
     struct Pixel {
-        BufferElement color, depth, pos, normal;
-        LightingComposition diffuse, specular, glossy;
+        BufferElement color;//, depth, pos, normal;
+       // LightingComposition diffuse, specular, glossy;
 
         void scale(Float k);
     };

@@ -3,44 +3,34 @@
 //
 
 #include "sobol.h"
-#include "thirdparty/sobol/sobol.hpp"
+#include "sobolmat.hpp"
+#define SOBOL_SKIP 64
+static float sobol(const unsigned int vectors[][32], unsigned int dimension, unsigned int i)
+{
+    unsigned int result = 0;
+    for(unsigned int j = 0; i; i >>= 1, j++)
+        if(i & 1)
+            result ^= vectors[dimension][j];
+
+    return result * (1.0f/(float)0xFFFFFFFF);
+}
 
 namespace Miyuki {
-    static Float *sobolValues = nullptr;
-    const static int maxN = 32 * 1024 * 1024;
-    static int N = 0;
-    static int D = 0;
-    static void init() {
-        N = maxN / D;
-        delete[] sobolValues;
-        sobolValues = i4_sobol_generate(D, N, rand() % N);
-    }
-
     void SobolSampler::start() {
-        sobolIndex++;
-        if (sobolIndex >= N)
-            sobolIndex = 0;
-        sampleIndex = 0;
+        dimension = 0;
+        numPass++;
     }
 
     Float SobolSampler::get1D() {
-        return sobolValues[sobolIndex * D + sampleIndex++];
+        return sobol(SobolMatrix, dimension++, numPass);
     }
 
     Point2f SobolSampler::get2D() {
         return {get1D(), get1D()};
     }
 
-    SobolSampler::SobolSampler(Seed *s, int dimension) : Sampler(s), dimension(dimension) {
-        if (!sobolValues || D != dimension) {
-            D = dimension;
-            init();
-        }
-        sobolIndex = uniformInt32() % N;
+    SobolSampler::SobolSampler(Seed *s) : Sampler(s) {
+        numPass = uniformInt32();
     }
 
-    void InitSobolSamples(int M) {
-        D = M;
-        init();
-    }
 }

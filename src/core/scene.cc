@@ -14,7 +14,6 @@
 namespace Miyuki {
 
     Scene::Scene() : embreeScene(new EmbreeScene()) {
-        arenas.resize(Thread::pool->numThreads());
         setFilmDimension({1000, 1000});
         factory = std::make_unique<MaterialFactory>();
         updateFunc = [](Scene &x) {};
