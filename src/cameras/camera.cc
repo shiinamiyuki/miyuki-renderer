@@ -55,7 +55,6 @@ namespace Miyuki {
         ro = rotationMatrix.mult(ro);
         ro += viewpot;
 
-
         rd.w() = 1;
         rd = rotationMatrix.mult(rd);
         rd.normalize();

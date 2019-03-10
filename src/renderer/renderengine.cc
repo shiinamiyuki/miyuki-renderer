@@ -132,19 +132,19 @@ namespace Miyuki {
                     h = res[1].getInt();
                 } else {
                     Assert(res.isString());
-                    if (res == "1080p") {
+                    if (res.getString() == "1080p") {
                         w = 1920;
                         h = 1080;
-                    } else if (res == "4k") {
+                    } else if (res.getString() == "4k") {
                         w = 3840;
                         h = 2160;
-                    } else if (res == "240p") {
+                    } else if (res.getString() == "240p") {
                         w = 426;
                         h = 240;
-                    } else if (res == "360p") {
+                    } else if (res.getString() == "360p") {
                         w = 480;
                         h = 360;
-                    } else if (res == "720p") {
+                    } else if (res.getString() == "720p") {
                         w = 1280;
                         h = 720;
                     } else {

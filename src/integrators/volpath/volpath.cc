@@ -19,9 +19,18 @@ namespace Miyuki {
         // 2^M >= nTiles.x() * nTiles.y()
         // M >= log2(nTiles.x() * nTiles.y());
         int M = std::ceil(std::log2(nTiles.x() * nTiles.y()));
-        nTiles = Point2i(std::pow(2, M / 2), std::pow(2, M / 2));
+        Point2i nTiles2 = Point2i(std::pow(2, M / 2), std::pow(2, M / 2));
         std::mutex mutex;
-        ProgressReporter reporter(nTiles.x() * nTiles.y(), [&](int cur, int total) {
+        std::vector<Point2f> hilbertMapping;
+        for (int i = 0; i < nTiles2.x() * nTiles2.y(); i++) {
+            int tx, ty;
+            ::d2xy(M, i, tx, ty);
+            if (tx >= nTiles.x() || ty >= nTiles.y())
+                continue;
+            hilbertMapping.emplace_back(tx, ty);
+        }
+
+        ProgressReporter reporter(hilbertMapping.size(), [&](int cur, int total) {
             if (spp > 16) {
                 if (cur % 16 == 0) {
                     std::lock_guard<std::mutex> lockGuard(mutex);
@@ -36,13 +45,11 @@ namespace Miyuki {
         });
         std::vector<Seed> seeds(Thread::pool->numThreads());
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
-        Thread::parallelFor2D(nTiles, [&](Point2i tile, uint32_t threadId) {
+        Thread::ParallelFor(0u, hilbertMapping.size(), [&](uint32_t idx, uint32_t threadId) {
             arenas[threadId].reset();
-            int tileIndex = tile.x() + nTiles.x() * tile.y();
             int tx, ty;
-            ::d2xy(M, tileIndex, tx, ty);
-            if (tx >= film.width() || ty >= film.height())
-                return;
+            tx = hilbertMapping[idx].x();
+            ty = hilbertMapping[idx].y();
             for (int i = 0; i < TileSize; i++) {
                 for (int j = 0; j < TileSize; j++) {
                     if (!scene.processContinuable()) {

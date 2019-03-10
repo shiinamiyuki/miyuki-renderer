@@ -39,7 +39,7 @@ namespace Miyuki {
             }
         }
 
-        void parallelFor(uint32_t begin, uint32_t end, TaskFunc task) {
+        void ParallelFor(uint32_t begin, uint32_t end, TaskFunc task) {
             auto workSize = 1;
             while (begin + workSize < end) {
                 pool->enqueue(task, begin, begin + workSize);
@@ -51,8 +51,8 @@ namespace Miyuki {
             pool->waitForAll();
         }
 
-        void parallelFor2D(Point2i N, TaskFunc2D taskFunc2D) {
-            parallelFor(0u, N.x() * N.y(), [=](uint32_t id, uint32_t threadId) {
+        void ParallelFor2D(Point2i N, TaskFunc2D taskFunc2D) {
+            ParallelFor(0u, N.x() * N.y(), [=](uint32_t id, uint32_t threadId) {
                 // id = x + N.x() * y
                 int x = id % N.x();
                 int y = id / N.y();
