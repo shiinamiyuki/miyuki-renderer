@@ -121,8 +121,11 @@ namespace Miyuki {
                         continue;
                     auto raster = Point2i{x, y};
                     RandomSampler sampler(&seeds[threadId]);
-                    arenas[threadId].reset();
+
                     for (int s = 0; s < spp; s++) {
+                        // keeps minimum mem usage for cache efficiency
+                        // should we do this?
+                        arenas[threadId].reset();
                         auto ctx = scene.getRenderContext(raster, &arenas[threadId], &sampler);
                         auto Li = removeNaNs(L(ctx, scene));
                         Li = clampRadiance(Li, maxRayIntensity);

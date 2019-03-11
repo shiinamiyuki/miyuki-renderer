@@ -48,7 +48,10 @@ namespace Miyuki {
 
         ~MemoryArena();
 
-        void reset();
+        void reset() {
+            currentBlockPos = 0;
+            availableBlocks.splice(availableBlocks.begin(), usedBlocks);
+        }
     };
 
     class ConcurrentMemoryArena : public MemoryArena {

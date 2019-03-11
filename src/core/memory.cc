@@ -38,11 +38,6 @@ void Miyuki::freeAligned(void *ptr) {
 
 }
 
-void MemoryArena::reset() {
-    currentBlockPos = 0;
-    availableBlocks.splice(availableBlocks.begin(), usedBlocks);
-}
-
 MemoryArena::~MemoryArena() {
     freeAligned(currentBlock);
     for (auto &block:usedBlocks)freeAligned(block.second);

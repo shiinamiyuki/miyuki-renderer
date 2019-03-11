@@ -22,7 +22,13 @@ namespace Miyuki {
         void render(Scene &scene) override;
 
     protected:
-        Spectrum L(RenderContext &ctx, Scene &scene) override;
+        Spectrum L(RenderContext &ctx, Scene &scene) override {
+            return LRandomWalk(ctx, scene);
+        }
+
+        Spectrum LPathTraced(RenderContext &ctx, Scene &scene);
+
+        Spectrum LRandomWalk(RenderContext &ctx, Scene &scene);
     };
 
 }

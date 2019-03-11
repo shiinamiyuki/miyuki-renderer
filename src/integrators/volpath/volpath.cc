@@ -15,8 +15,8 @@ namespace Miyuki {
         SamplerIntegrator::render(scene);
     }
 
-#if 0
-    Spectrum VolPath::L(RenderContext &ctx, Scene &scene) {
+
+    Spectrum VolPath::LPathTraced(RenderContext &ctx, Scene &scene) {
         RayDifferential ray = ctx.primary;
         Intersection intersection;
         ScatteringEvent event;
@@ -50,9 +50,8 @@ namespace Miyuki {
         }
         return Li;
     }
-#else
 
-    Spectrum VolPath::L(RenderContext &ctx, Scene &scene) {
+    Spectrum VolPath::LRandomWalk(RenderContext &ctx, Scene &scene) {
         using Bidir::Vertex, Bidir::SubPath;
         auto vertices = ctx.arena->alloc<Bidir::Vertex>(size_t(maxDepth + 1));
         Spectrum beta(1, 1, 1);
@@ -66,14 +65,14 @@ namespace Miyuki {
         for (int depth = 0; depth < path.N; depth++) {
             if (specular || depth == 0) {
                 Vec3f wo = (path[depth - 1].ref - path[depth].ref).normalized();
-                Li += path[depth].beta * path[depth].event->Le(wo);
+                Li += path[depth].beta * path[depth].Le(wo);
             }
             Li += path[depth].beta * importanceSampleOneLight(scene, ctx, *path[depth].event);
+            specular = path[depth].delta;
         }
         return Li;
     }
 
-#endif
 
     VolPath::VolPath(const ParameterSet &set) {
         progressive = false;

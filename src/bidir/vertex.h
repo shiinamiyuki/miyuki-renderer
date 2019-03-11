@@ -73,6 +73,15 @@ namespace Miyuki {
                 w *= sqrtf(invDist2);
                 return pdf * invDist2 * Vec3f::absDot(w, other.Ng);
             }
+
+            Spectrum Le(const Vec3f &wo) const {
+                if (type == surfaceVertex) {
+                    return event->Le(wo);
+                } else if (type == lightVertex) {
+                    return light->L();
+                }
+                return {};
+            }
         };
 
         inline Vertex CreateSurfaceVertex(ScatteringEvent *event, Float pdf, Spectrum beta, const Vertex &prev) {
@@ -140,7 +149,8 @@ namespace Miyuki {
             Vertex *end() const {
                 return vertices + N;
             }
-            Vertex &operator[] (int i){
+
+            Vertex &operator[](int i) {
                 return vertices[i];
             }
         };
