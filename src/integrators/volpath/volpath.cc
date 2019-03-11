@@ -6,71 +6,13 @@
 #include "utils/thread.h"
 #include "core/scene.h"
 #include "math/sampling.h"
-#include "core/progress.h"
-#include "thirdparty/hilbert/hilbert_curve.hpp"
+
 #include "samplers/sobol.h"
 
 namespace Miyuki {
     void VolPath::render(Scene &scene) {
         fmt::print("Integrator: Volumetric Path Tracer\nSamples per pixel:{}\n", spp);
-        auto &film = *scene.film;
-        Point2i nTiles = film.imageDimension() / TileSize + Point2i{1, 1};
-
-        // 2^M >= nTiles.x() * nTiles.y()
-        // M >= log2(nTiles.x() * nTiles.y());
-        int M = std::ceil(std::log2(std::max(nTiles.x(), nTiles.y())));
-        std::mutex mutex;
-        std::vector<Point2f> hilbertMapping;
-        for (int i = 0; i < pow(2, M + M); i++) {
-            int tx, ty;
-            ::d2xy(M, i, tx, ty);
-            if (tx >= nTiles.x() || ty >= nTiles.y())
-                continue;
-            hilbertMapping.emplace_back(tx, ty);
-        }
-
-        ProgressReporter reporter(hilbertMapping.size(), [&](int cur, int total) {
-            if (spp > 16) {
-                if (cur % 16 == 0) {
-                    std::lock_guard<std::mutex> lockGuard(mutex);
-                    if (reporter.count() % 16 == 0) {
-                        fmt::print("Rendered tiles: {}/{} Elapsed:{} Remaining:{}\n",
-                                   cur,
-                                   total, reporter.elapsedSeconds(), reporter.estimatedTimeToFinish());
-                        scene.update();
-                    }
-                }
-            }
-        });
-        std::vector<Seed> seeds(Thread::pool->numThreads());
-        std::vector<MemoryArena> arenas(Thread::pool->numThreads());
-        Thread::ParallelFor(0u, hilbertMapping.size(), [&](uint32_t idx, uint32_t threadId) {
-            arenas[threadId].reset();
-            int tx, ty;
-            tx = hilbertMapping[idx].x();
-            ty = hilbertMapping[idx].y();
-            for (int i = 0; i < TileSize; i++) {
-                for (int j = 0; j < TileSize; j++) {
-                    if (!scene.processContinuable()) {
-                        return;
-                    }
-                    int x = tx * TileSize + i;
-                    int y = ty * TileSize + j;
-                    if (x >= film.width() || y >= film.height())
-                        continue;
-                    auto raster = Point2i{x, y};
-                    SobolSampler sampler(&seeds[threadId]);
-                    for (int s = 0; s < spp; s++) {
-                        auto ctx = scene.getRenderContext(raster, &arenas[threadId], &sampler);
-                        auto Li = removeNaNs(L(ctx, scene));
-                        Li = clampRadiance(Li, maxRayIntensity);
-                        film.addSample({x, y}, Li, ctx.weight);
-                    }
-                }
-            }
-            reporter.update();
-        });
-        scene.update();
+        SamplerIntegrator::render(scene);
     }
 
     Spectrum VolPath::L(RenderContext &ctx, Scene &scene) {

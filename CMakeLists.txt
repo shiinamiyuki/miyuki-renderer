@@ -12,7 +12,8 @@ file(GLOB coreSRC
         "src/samplers/*.cc"
         "src/bsdfs/*.cc"
         "src/lights/*.cc"
-        "src/materials/*.cc")
+        "src/materials/*.cc"
+        "src/bidir/*.cc")
 file(GLOB thirdpartySRC
         "src/thirdparty/lodepng/lodepng.cpp"
         "src/thirdparty/tiny_obj_loader/tiny_obj_loader.cc"

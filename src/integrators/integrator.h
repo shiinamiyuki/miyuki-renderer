@@ -28,5 +28,12 @@ namespace Miyuki {
 
         virtual ~Integrator() {}
     };
+    class SamplerIntegrator : public Integrator{
+    protected:
+        int spp;
+        Float maxRayIntensity;
+    public:
+        void render(Scene &scene) override;
+    };
 }
 #endif //MIYUKI_INTEGRATOR_H

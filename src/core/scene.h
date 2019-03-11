@@ -21,6 +21,8 @@ namespace Miyuki {
 
     class Integrator;
 
+    class SamplerIntegrator;
+
     class VolPath;
 
     class Camera;
@@ -39,8 +41,8 @@ namespace Miyuki {
         std::unique_ptr<Distribution1D> lightDistribution;
         std::unordered_map<Light *, Float> lightPdfMap;
         std::unique_ptr<MaterialFactory> factory;
-        std::function<void(Scene&)> updateFunc;
-        std::function<bool(Scene&)> processContinueFunc;
+        std::function<void(Scene &)> updateFunc;
+        std::function<bool(Scene &)> processContinueFunc;
         ParameterSet parameterSet;
 
         friend class Integrator;
@@ -48,6 +50,8 @@ namespace Miyuki {
         friend class VolPath;
 
         friend class RenderEngine;
+
+        friend class SamplerIntegrator;
 
         void computeLightDistribution();
 
@@ -73,7 +77,7 @@ namespace Miyuki {
 
         bool intersect(const RayDifferential &ray, Intersection *);
 
-        RenderContext getRenderContext(const Point2i &raster, MemoryArena *,Sampler * );
+        RenderContext getRenderContext(const Point2i &raster, MemoryArena *, Sampler *);
 
         void saveImage();
 
@@ -85,11 +89,11 @@ namespace Miyuki {
 
         void update();
 
-        void setUpdateFunc(std::function<void(Scene&)> func){
+        void setUpdateFunc(std::function<void(Scene &)> func) {
             updateFunc = func;
         }
 
-        bool processContinuable(){
+        bool processContinuable() {
             return processContinueFunc(*this);
         }
     };

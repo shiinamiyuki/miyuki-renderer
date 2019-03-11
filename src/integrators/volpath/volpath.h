@@ -10,12 +10,10 @@
 #include "integrators/integrator.h"
 #include "core/parameter.h"
 namespace Miyuki {
-    class VolPath : public Integrator {
-        int spp;
+    class VolPath : public SamplerIntegrator {
         bool progressive;
         int minDepth;
         int maxDepth;
-        Float maxRayIntensity;
         bool caustics;
     public:
         VolPath(const ParameterSet & set);
