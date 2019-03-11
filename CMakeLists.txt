@@ -35,7 +35,8 @@ file(GLOB guiSRC
         "src/thirdparty/imgui/gl3w.c")
 file(GLOB integratorSRC
         "src/integrators/*.cc"
-        "src/integrators/volpath/*.cc")
+        "src/integrators/volpath/*.cc"
+        "src/integrators/bdpt/*.cc")
 add_executable(MiyukiGUI
         "src/miyuki.h"
         ${thirdpartySRC}

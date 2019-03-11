@@ -6,7 +6,7 @@
 #include "utils/thread.h"
 #include "core/scene.h"
 #include "math/sampling.h"
-
+#include <bidir/vertex.h>
 #include "samplers/sobol.h"
 
 namespace Miyuki {
@@ -15,6 +15,7 @@ namespace Miyuki {
         SamplerIntegrator::render(scene);
     }
 
+#if 0
     Spectrum VolPath::L(RenderContext &ctx, Scene &scene) {
         RayDifferential ray = ctx.primary;
         Intersection intersection;
@@ -49,6 +50,30 @@ namespace Miyuki {
         }
         return Li;
     }
+#else
+
+    Spectrum VolPath::L(RenderContext &ctx, Scene &scene) {
+        using Bidir::Vertex, Bidir::SubPath;
+        auto vertices = ctx.arena->alloc<Bidir::Vertex>(size_t(maxDepth + 1));
+        Spectrum beta(1, 1, 1);
+        vertices[0] = Bidir::CreateCameraVertex(ctx.camera, ctx.raster, ctx.primary, 1.0f, beta);
+        auto path = Bidir::RandomWalk(vertices + 1, ctx.primary, beta,
+                                      1.0f, scene, ctx, minDepth, maxDepth,
+                                      Bidir::TransportMode::importance);
+        Spectrum Li(0, 0, 0);
+        bool specular = false;
+        ctx.sampler->startDimension(4 + 4 * maxDepth);
+        for (int depth = 0; depth < path.N; depth++) {
+            if (specular || depth == 0) {
+                Vec3f wo = (path[depth - 1].ref - path[depth].ref).normalized();
+                Li += path[depth].beta * path[depth].event->Le(wo);
+            }
+            Li += path[depth].beta * importanceSampleOneLight(scene, ctx, *path[depth].event);
+        }
+        return Li;
+    }
+
+#endif
 
     VolPath::VolPath(const ParameterSet &set) {
         progressive = false;

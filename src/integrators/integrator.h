@@ -12,23 +12,27 @@
 
 namespace Miyuki {
     class Scene;
+
     static const int TileSize = 16;
+
     class Integrator {
     protected:
         virtual Spectrum L(RenderContext &ctx, Scene &) = 0;
 
-        void makeScatteringEvent(ScatteringEvent *, RenderContext &ctx, Intersection *);
 
         // Importance sample one light according to its power
         // using multiple importance sampling
         Spectrum importanceSampleOneLight(Scene &scene, RenderContext &ctx, const ScatteringEvent &event);
 
     public:
+        static void makeScatteringEvent(ScatteringEvent *, RenderContext &ctx, Intersection *);
+
         virtual void render(Scene &) = 0;
 
         virtual ~Integrator() {}
     };
-    class SamplerIntegrator : public Integrator{
+
+    class SamplerIntegrator : public Integrator {
     protected:
         int spp;
         Float maxRayIntensity;

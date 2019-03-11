@@ -47,4 +47,8 @@ namespace Miyuki {
         rng = static_cast<uint32_t>(uniformInt32());
     }
 
+    void SobolSampler::startDimension(int dimension) {
+        this->dimension = dimension;
+    }
+
 }

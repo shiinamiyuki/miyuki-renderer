@@ -9,6 +9,7 @@
 
 #include "integrators/integrator.h"
 #include "core/parameter.h"
+
 namespace Miyuki {
     class VolPath : public SamplerIntegrator {
         bool progressive;
@@ -16,8 +17,10 @@ namespace Miyuki {
         int maxDepth;
         bool caustics;
     public:
-        VolPath(const ParameterSet & set);
+        VolPath(const ParameterSet &set);
+
         void render(Scene &scene) override;
+
     protected:
         Spectrum L(RenderContext &ctx, Scene &scene) override;
     };

@@ -20,6 +20,8 @@ namespace Miyuki {
         Float get1D() override;
 
         Point2f get2D() override;
+
+        void startDimension(int dimension) override;
     };
 }
 #endif //MIYUKI_SOBOL_H

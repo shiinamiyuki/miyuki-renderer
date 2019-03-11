@@ -13,7 +13,9 @@
 namespace Miyuki {
     struct Seed {
         uint16_t seeds[3];
+
         Seed();
+
         uint16_t &operator[](uint32_t i) {
             Assert(i < 3);
             return seeds[i];
@@ -60,7 +62,10 @@ namespace Miyuki {
         Float uniformFloat() {
             return rng.uniformFloat();
         }
+
+        virtual void startDimension(int dimension) {}
     };
+
     class RandomSampler : public Sampler {
     public:
         RandomSampler(Seed *seed) : Sampler(seed) {}

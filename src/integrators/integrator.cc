@@ -106,7 +106,7 @@ namespace Miyuki {
         std::vector<Seed> seeds(Thread::pool->numThreads());
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
         Thread::ParallelFor(0u, hilbertMapping.size(), [&](uint32_t idx, uint32_t threadId) {
-            arenas[threadId].reset();
+
             int tx, ty;
             tx = hilbertMapping[idx].x();
             ty = hilbertMapping[idx].y();
@@ -120,7 +120,8 @@ namespace Miyuki {
                     if (x >= film.width() || y >= film.height())
                         continue;
                     auto raster = Point2i{x, y};
-                    SobolSampler sampler(&seeds[threadId]);
+                    RandomSampler sampler(&seeds[threadId]);
+                    arenas[threadId].reset();
                     for (int s = 0; s < spp; s++) {
                         auto ctx = scene.getRenderContext(raster, &arenas[threadId], &sampler);
                         auto Li = removeNaNs(L(ctx, scene));
