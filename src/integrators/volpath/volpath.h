@@ -12,6 +12,7 @@
 
 namespace Miyuki {
     class VolPath : public SamplerIntegrator {
+    protected:
         bool progressive;
         int minDepth;
         int maxDepth;

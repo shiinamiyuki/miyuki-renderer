@@ -120,7 +120,7 @@ namespace Miyuki {
                     if (x >= film.width() || y >= film.height())
                         continue;
                     auto raster = Point2i{x, y};
-                    RandomSampler sampler(&seeds[threadId]);
+                    SobolSampler sampler(&seeds[threadId]);
 
                     for (int s = 0; s < spp; s++) {
                         // keeps minimum mem usage for cache efficiency

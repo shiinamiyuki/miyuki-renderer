@@ -3,18 +3,17 @@
 //
 
 #include "volpath.h"
-#include "utils/thread.h"
-#include "core/scene.h"
-#include "math/sampling.h"
+#include <utils/thread.h>
+#include <core/scene.h>
+#include <math/sampling.h>
 #include <bidir/vertex.h>
-#include "samplers/sobol.h"
+#include <samplers/sobol.h>
 
 namespace Miyuki {
     void VolPath::render(Scene &scene) {
         fmt::print("Integrator: Volumetric Path Tracer\nSamples per pixel:{}\n", spp);
         SamplerIntegrator::render(scene);
     }
-
 
     Spectrum VolPath::LPathTraced(RenderContext &ctx, Scene &scene) {
         RayDifferential ray = ctx.primary;

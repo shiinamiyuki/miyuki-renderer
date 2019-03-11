@@ -11,21 +11,16 @@
 #include "core/geometry.h"
 
 namespace Miyuki {
-    struct Seed {
-        uint16_t seeds[3];
+    typedef uint32_t Seed;
 
-        Seed();
-
-        uint16_t &operator[](uint32_t i) {
-            Assert(i < 3);
-            return seeds[i];
-        }
-
-        uint16_t *get() {
-            return seeds;
-        }
-    };
-
+    inline Float LCRand(Seed *rng) {
+        *rng = (1103515245 * (*rng) + 12345);
+        return (float) *rng / (float) 0xFFFFFFFF;
+    }
+    inline uint32_t LCRandI(Seed *rng) {
+        *rng = (1103515245 * (*rng) + 12345);
+        return *rng;
+    }
     class RNG {
         Seed *seed;
     public:

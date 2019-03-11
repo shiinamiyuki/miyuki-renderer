@@ -17,7 +17,6 @@ file(GLOB coreSRC
 file(GLOB thirdpartySRC
         "src/thirdparty/lodepng/lodepng.cpp"
         "src/thirdparty/tiny_obj_loader/tiny_obj_loader.cc"
-        "src/thirdparty/rand48/rand48.c"
         "src/thirdparty/rapidjson/rapidjson.h"
         "src/thirdparty/fmt/format.cc"
         "src/thirdparty/fmt/posix/cc"
@@ -36,7 +35,8 @@ file(GLOB guiSRC
 file(GLOB integratorSRC
         "src/integrators/*.cc"
         "src/integrators/volpath/*.cc"
-        "src/integrators/bdpt/*.cc")
+        "src/integrators/bdpt/*.cc"
+        "src/integrators/pathmlt/*.cc")
 add_executable(MiyukiGUI
         "src/miyuki.h"
         ${thirdpartySRC}
