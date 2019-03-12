@@ -15,6 +15,7 @@ namespace Miyuki {
         SamplerIntegrator::render(scene);
     }
 
+    // TODO: try maxDepth=1
     Spectrum VolPath::LPathTraced(RenderContext &ctx, Scene &scene) {
         RayDifferential ray = ctx.primary;
         Intersection intersection;
@@ -33,7 +34,7 @@ namespace Miyuki {
             Li += beta * importanceSampleOneLight(scene, ctx, event);
             auto f = event.bsdf->sample(event);
             specular = event.bsdfLobe.matchFlag(BSDFLobe::specular);
-            if (event.pdf < 0) {
+            if (event.pdf <= 0) {
                 break;
             }
             ray = event.spawnRay(event.wiW);

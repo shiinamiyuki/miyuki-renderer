@@ -24,7 +24,7 @@ namespace Miyuki {
         }
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
         Thread::ParallelFor(0u, nBootstrap, [&](uint32_t idx, uint32_t threadId) {
-            bootstrapWeights[idx] = f(&bootstrapSeeds[idx]);
+            bootstrapWeights[idx] = f(&bootstrapSeeds[idx],&arenas[threadId]);
         });
         Distribution1D bootstrap(bootstrapWeights.data(), nBootstrap);
         samples->b = bootstrap.funcInt / nBootstrap;

@@ -9,6 +9,9 @@
 #include <integrators/volpath/volpath.h>
 #include <bidir/vertex.h>
 #include <bidir/mutation.h>
+#include <integrators/metropolis.h>
+#include <core/scene.h>
+
 
 namespace Miyuki {
     // Unidirectional Path Space MLT
@@ -17,6 +20,19 @@ namespace Miyuki {
         Float largeStepProbability;
         int luminanceSamples;
         int directSamples;
+        int nChains;
+        class Bootstrapper : public MetropolisBootstrapper {
+        public:
+            Scene &scene;
+            PathMLT *integrator;
+
+            Bootstrapper(Scene &scene, PathMLT *integrator) : scene(scene), integrator(integrator) {}
+
+            Float f(Seed *seed, MemoryArena *) override;
+        };
+
+        friend class Bootstrapper;
+
     public:
         PathMLT(const ParameterSet &set);
 
@@ -24,5 +40,7 @@ namespace Miyuki {
 
     protected:
     };
+
+
 }
 #endif //MIYUKI_PATHMLT_H

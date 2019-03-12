@@ -8,6 +8,7 @@
 #include "miyuki.h"
 #include "geometry.h"
 #include "spectrum.h"
+
 namespace Miyuki {
     struct Ray {
         Vec3f o, d;
@@ -53,7 +54,7 @@ namespace Miyuki {
         Vec3f Ng;
         Vec3f Ns;
         Vec3f wo;
-        int32_t primId, geomId;
+        int32_t primId = -1, geomId = -1;
         const Primitive *primitive = nullptr;
         Point2f uv;
 
@@ -66,7 +67,8 @@ namespace Miyuki {
         Float hitDistance() const {
             return rayHit.ray.tfar;
         }
-        Spectrum Le(const Vec3f&)const;
+
+        Spectrum Le(const Vec3f &) const;
     };
 }
 #endif //MIYUKI_RAY_H

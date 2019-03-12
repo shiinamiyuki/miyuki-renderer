@@ -83,7 +83,7 @@ namespace Miyuki {
         computeLightDistribution();
     }
 
-    RenderContext Scene::getRenderContext(const Point2i &raster, MemoryArena *arena,Sampler * sampler) {
+    RenderContext Scene::getRenderContext(const Point2i &raster, MemoryArena *arena, Sampler *sampler) {
         sampler->start();
         int idx = raster.x() + raster.y() * film->width();
         Ray primary;
@@ -91,6 +91,12 @@ namespace Miyuki {
 
         camera->generateRay(*sampler, raster, &primary, &weight);
         return RenderContext(raster, primary, camera.get(), arena, sampler, weight);
+    }
+
+    RenderContext Scene::getRenderContext(const Point2f &raster, MemoryArena *arena, Sampler *sampler) {
+        Point2i r(clamp<int>(std::round(raster.x() * film->width()), 0, film->width() - 1),
+                  clamp<int>(std::round(raster.y() * film->height()), 0, film->height() - 1));
+        return getRenderContext(r, arena, sampler);
     }
 
     bool Scene::intersect(const RayDifferential &ray, Intersection *isct) {

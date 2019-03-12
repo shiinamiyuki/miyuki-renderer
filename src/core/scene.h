@@ -25,6 +25,10 @@ namespace Miyuki {
 
     class VolPath;
 
+    class BDPT;
+
+    class PathMLT;
+
     class Camera;
 
     class Sampler;
@@ -53,6 +57,10 @@ namespace Miyuki {
 
         friend class SamplerIntegrator;
 
+        friend class BDPT;
+
+        friend class PathMLT;
+
         void computeLightDistribution();
 
         Json::JsonObject description;
@@ -67,6 +75,8 @@ namespace Miyuki {
 
         void setFilmDimension(const Point2i &);
 
+        Point2i filmDimension() const { return {film->width(), film->height()}; }
+
         void loadObjMesh(const std::string &filename);
 
         void loadObjMeshAndInstantiate(const std::string &name, const Transform &T = Transform());
@@ -78,7 +88,7 @@ namespace Miyuki {
         bool intersect(const RayDifferential &ray, Intersection *);
 
         RenderContext getRenderContext(const Point2i &raster, MemoryArena *, Sampler *);
-
+        RenderContext getRenderContext(const Point2f &raster, MemoryArena *, Sampler *);
         void saveImage();
 
         Light *chooseOneLight(Sampler *, Float *pdf);

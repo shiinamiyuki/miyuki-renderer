@@ -14,10 +14,20 @@ namespace Miyuki {
         largeStepProbability = set.findFloat("pathmlt.largeStep", 0.3);
         luminanceSamples = set.findInt("pathmlt.luminanceSamples", 100000);
         directSamples = set.findInt("pathmlt.directSamples", 16);
+        nChains = set.findInt("pathmlt.nChains", 1000);
     }
 
     void PathMLT::render(Scene &scene) {
-        VolPath::render(scene);
+        Bootstrapper bootstrapper(scene, this);
+        BootstrapSample bootstrapSample;
+        fmt::print("Generate bootstrap samples\n");
+        bootstrapper.generateBootstrapSamples(&bootstrapSample, luminanceSamples, nChains);
+        fmt::print("b = {}\n", bootstrapSample.b);
     }
 
+    Float PathMLT::Bootstrapper::f(Seed *seed, MemoryArena *arena) {
+        RandomSampler sampler(seed);
+        auto ctx = scene.getRenderContext(sampler.get2D(), arena, &sampler);
+        return integrator->LRandomWalk(ctx, scene).luminance();
+    }
 }
