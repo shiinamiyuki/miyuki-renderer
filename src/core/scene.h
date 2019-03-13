@@ -47,6 +47,7 @@ namespace Miyuki {
         std::unique_ptr<MaterialFactory> factory;
         std::function<void(Scene &)> updateFunc;
         std::function<bool(Scene &)> processContinueFunc;
+        std::function<void(std::vector<uint8_t>&)> readImageFunc;
         ParameterSet parameterSet;
 
         friend class Integrator;

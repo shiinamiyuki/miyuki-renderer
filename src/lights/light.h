@@ -52,6 +52,10 @@ namespace Miyuki {
         virtual void pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const = 0;
 
         virtual const Primitive *getPrimitive() const { return nullptr; }
+
+        bool isDeltaLight() const {
+            return (type & (deltaDirection | deltaPosition)) != 0;
+        }
     };
 }
 #endif //MIYUKI_LIGHT_H

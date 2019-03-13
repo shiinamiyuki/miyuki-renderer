@@ -139,4 +139,24 @@ namespace Miyuki {
         A = 2 * ((2.0f * dimension.x()) / dimension.y()) / (z0 * z0);
     }
 
+    void PerspectiveCamera::pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const {
+        auto rd = worldToCamera(ray.d);
+        auto cosT = Vec3f::dot(rd, Vec3f(0, 0, 1));
+        if (cosT < 0) {
+            *pdfPos = *pdfDir = 0;
+            return;
+        }
+        auto z0 = (Float) (2.0 / std::tan(fov / 2));
+        Point2f raster(rd.x() / rd.z() * z0, rd.y() / rd.z() * z0);
+        // check if out of bound
+        if (fabs(raster.x()) > (float) dimension.x() / dimension.y() || fabs(raster.y()) > 1.0f) {
+            *pdfPos = *pdfDir = 0;
+            return;
+        }
+        Float lensArea = lensRadius <= 0 ? 1 : PI * lensRadius * lensRadius;
+        *pdfPos = 1 / lensArea;
+        auto cosT2 = cosT * cosT;
+        *pdfDir = 1.0f / (A * lensArea * cosT * cosT2);
+    }
+
 }

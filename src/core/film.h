@@ -14,6 +14,7 @@ namespace Miyuki {
         AtomicFloat splatXYZ[3];
         Spectrum value;
         Float filterWeightSum;
+        Float splatWeight = 1;
 
         BufferElement() : value(0, 0, 0), filterWeightSum(0) {}
 
@@ -36,7 +37,7 @@ namespace Miyuki {
 
     struct Pixel {
         BufferElement color;//, depth, pos, normal;
-       // LightingComposition diffuse, specular, glossy;
+        // LightingComposition diffuse, specular, glossy;
 
         void scale(Float k);
     };
@@ -65,6 +66,10 @@ namespace Miyuki {
         void addSample(const Point2i &, const Spectrum &c, Float weight = 1);
 
         void addSplat(const Point2i &, const Spectrum &c);
+
+        Float &splatWeight(const Point2i &pos) {
+            return getPixel(pos).color.splatWeight;
+        }
 
         void scaleImageColor(Float scale);
 

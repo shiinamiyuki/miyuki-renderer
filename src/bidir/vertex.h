@@ -46,6 +46,7 @@ namespace Miyuki {
             Spectrum beta;
             ScatteringEvent *event = nullptr;
             Point2i raster;
+            Float vc = 0, vcm = 0;
             const Camera *camera = nullptr;
             const Light *light = nullptr;
             const Primitive *primitive = nullptr;
@@ -112,11 +113,59 @@ namespace Miyuki {
                 e.wi = e.worldToLocal(e.wiW);
                 switch (type) {
                     case surfaceVertex:
-                        return (event->bsdf->f(e)
-                                * CorrectShadingNormal(e, e.woW, e.wiW, mode));
+                        return event->bsdf->f(e)
+                                * CorrectShadingNormal(e, e.woW, e.wiW, mode);
                 }
                 return {};
             }
+            Float pdfLight(Scene &scene, const Vertex &v) const {
+                auto w = v.ref - ref;
+                Float invDist2 = 1 / w.lengthSquared();
+                w *= sqrt(invDist2);
+                Float pdf;
+                if (isInfiniteLight()) {
+                    // TODO: infinite lights
+                    return 0;
+                    //return 1 / (PI * scene.worldRadius() * scene.worldRadius());
+                } else {
+                    CHECK(light);
+                    Float pdfPos, pdfDir;
+                    light->pdfLe(Ray(ref, w), Ng, &pdfPos, &pdfDir);
+                    pdf = pdfDir * invDist2;
+                    CHECK(pdfDir >= 0);
+                }
+
+                pdf *= Vec3f::absDot(v.Ng, w);
+                return pdf;
+            }
+
+            Float pdf(Scene &scene, const Vertex *prev, const Vertex &next) const {
+                if (type == Vertex::lightVertex) {
+                    return pdfLight(scene, next);
+                }
+                Vec3f wp, wn;
+                wn = (next.ref - ref).normalized();
+                if (prev) {
+                    wp = (prev->ref - ref).normalized();
+                } else {
+                    CHECK(type == Vertex::cameraVertex);
+                }
+                Float pdf;
+                if (type == Vertex::surfaceVertex) {
+                    auto e = *event;
+                    e.wo = event->worldToLocal(wp);
+                    e.wi = event->worldToLocal(wn);
+                    pdf = event->bsdf->pdf(e);
+
+                } else {
+                    assert(type == Vertex::cameraVertex);
+                    Float _;
+                    camera->pdfWe(Ray{ref, wn}, &_, &pdf);
+                }
+                return convertDensity(pdf, next);
+            }
+
+            Float pdfLightOrigin(Scene &scene, const Vertex &v) const;
 
         };
 
@@ -126,15 +175,16 @@ namespace Miyuki {
             v.primitive = event->getIntersection()->primitive;
             v.event = event;
             v.beta = beta;
-            v.pdfFwd = prev.convertDensity(pdf, v);
             v.light = event->getIntersection()->primitive->light;
             v.Ns = event->Ns();
             v.Ng = event->Ng();
             v.ref = event->getIntersection()->ref;
+            v.pdfFwd = prev.convertDensity(pdf, v);
             return std::move(v);
         }
 
-        inline Vertex CreateLightVertex(const Light *light, const Ray &ray, const Vec3f &normal, Float pdf, Spectrum beta) {
+        inline Vertex
+        CreateLightVertex(const Light *light, const Ray &ray, const Vec3f &normal, Float pdf, Spectrum beta) {
             Vertex v;
             v.type = Vertex::lightVertex;
             v.primitive = light->getPrimitive();
@@ -154,7 +204,7 @@ namespace Miyuki {
             v.beta = beta;
             v.pdfFwd = pdf;
             v.raster = raster;
-            v.Ns = v.Ng = ray.d; // TODO
+            v.Ns = v.Ng = camera->cameraToWorld(Vec3f{0, 0, 1}); // TODO
             v.ref = ray.o;
             return v;
         }
@@ -195,6 +245,38 @@ namespace Miyuki {
         RandomWalk(Vertex *, Ray ray,
                    Spectrum beta, Float pdf, Scene &scene,
                    RenderContext &ctx, int minDepth, int maxDepth, TransportMode);
+
+
     }
+    template<typename T>
+    class ScopedAssignment {
+        T *target;
+        T backup;
+    public:
+        ScopedAssignment(T *target = nullptr, T value = T()) : target(target) {
+            if (target) {
+                backup = *target;
+                *target = value;
+            }
+        }
+
+        ScopedAssignment(const ScopedAssignment &) = delete;
+
+        ScopedAssignment &operator=(const ScopedAssignment &) = delete;
+
+        ScopedAssignment &operator=(ScopedAssignment &&rhs) noexcept {
+            if (target) {
+                *target = backup;
+            }
+            target = rhs.target;
+            backup = rhs.backup;
+            rhs.target = nullptr;
+            return *this;
+        }
+
+        ~ScopedAssignment() {
+            if (target)*target = backup;
+        }
+    };
 }
 #endif //MIYUKI_VERTEX_H

@@ -17,8 +17,8 @@ namespace Miyuki {
     Spectrum BufferElement::eval() const {
         auto w = filterWeightSum == 0 ? 1 : filterWeightSum;
         auto c = value;
-        c += Spectrum{splatXYZ[0], splatXYZ[1], splatXYZ[2]};
         c /= w;
+        c += Spectrum{splatXYZ[0], splatXYZ[1], splatXYZ[2]} * splatWeight;
         return c;
     }
 
@@ -30,7 +30,7 @@ namespace Miyuki {
 
     void BufferElement::scale(Float k) {
         for (int i = 0; i < 3; i++) {
-            splatXYZ[i] = splatXYZ[i] * k;
+            splatWeight *= k;
         }
         value *= k;
     }

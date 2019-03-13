@@ -18,6 +18,18 @@ namespace Miyuki {
         factory = std::make_unique<MaterialFactory>();
         updateFunc = [](Scene &x) {};
         processContinueFunc = [](Scene &x) { return true; };
+        readImageFunc = [&](std::vector<uint8_t> &pixelData){
+            for (int i = 0; i < film->width(); i++) {
+                for (int j = 0; j < film->height(); j++) {
+                    auto out = film->getPixel(i, j).color.toInt();
+                    auto idx = i + film->width() * (film->height() - j - 1);
+                    pixelData[4 * idx] = out.x();
+                    pixelData[4 * idx + 1] = out.y();
+                    pixelData[4 * idx + 2] = out.z();
+                    pixelData[4 * idx + 3] = 255;
+                }
+            }
+        };
     }
 
     void Scene::setFilmDimension(const Point2i &dim) {
@@ -131,16 +143,7 @@ namespace Miyuki {
     void Scene::readImage(std::vector<uint8_t> &pixelData) {
         if (pixelData.size() != film->width() * film->height() * 4)
             pixelData.resize(film->width() * film->height() * 4);
-        for (int i = 0; i < film->width(); i++) {
-            for (int j = 0; j < film->height(); j++) {
-                auto out = film->getPixel(i, j).color.toInt();
-                auto idx = i + film->width() * (film->height() - j - 1);
-                pixelData[4 * idx] = out.x();
-                pixelData[4 * idx + 1] = out.y();
-                pixelData[4 * idx + 2] = out.z();
-                pixelData[4 * idx + 3] = 255;
-            }
-        }
+        readImageFunc(pixelData);
     }
 
     void Scene::update() {

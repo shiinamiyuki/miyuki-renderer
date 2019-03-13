@@ -55,6 +55,8 @@ namespace Miyuki {
         sampleWi(const ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf, Point2i *pRaster,
                  VisibilityTester *) = 0;
 
+        virtual void pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const = 0;
+
         Vec3f cameraToWorld(Vec3f w) const {
             w.w() = 1;
             w = rotationMatrix.mult(w);
@@ -66,6 +68,7 @@ namespace Miyuki {
             w = invMatrix.mult(w);
             return w;
         }
+
         virtual bool rasterize(const Vec3f &p, Point2i *rasterPos) const = 0;
 
     };
@@ -94,6 +97,8 @@ namespace Miyuki {
         Spectrum
         sampleWi(const ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf, Point2i *pRaster,
                  VisibilityTester *tester) override;
+
+        void pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const override;
 
         bool rasterize(const Vec3f &p, Point2i *rasterPos) const override;
     };

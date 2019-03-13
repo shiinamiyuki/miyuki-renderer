@@ -9,19 +9,24 @@ namespace Miyuki {
     Spectrum BDPT::L(RenderContext &ctx, Scene &scene) {
         ctx.sampler->startDimension(0);
         auto lightSubPath = generateLightSubPath(scene, ctx, minDepth, maxDepth);
-        int dim = 4 + 4 * maxDepth;
+        // ohh!
+        int dim = 6 + 4 * maxDepth;
         ctx.sampler->startDimension(dim);
         auto cameraSubPath = generateCameraSubPath(scene, ctx, minDepth + 1, maxDepth + 1);
         dim += 4 + 4 * maxDepth;
         ctx.sampler->startDimension(dim);
-        for (int i = 0; i < lightSubPath.N; i++)
+        for (int i = 0; i < lightSubPath.N; i++) {
             CHECK(!std::isnan(lightSubPath[i].pdfFwd) && !std::isnan(lightSubPath[i].pdfRev));
-        for (int i = 0; i < cameraSubPath.N; i++)
+            //   fmt::print("q{}:{},{}\n", i, lightSubPath[i].pdfFwd, lightSubPath[i].pdfRev);
+        }
+        for (int i = 0; i < cameraSubPath.N; i++) {
             CHECK(!std::isnan(cameraSubPath[i].pdfFwd) && !std::isnan(cameraSubPath[i].pdfRev));
+            //    fmt::print("p{}:{},{}\n", i, cameraSubPath[i].pdfFwd, cameraSubPath[i].pdfRev);
+        }
         auto &film = *scene.film;
         Spectrum LPath;
-        for (int t = 1; t < cameraSubPath.N; t++) {
-            for (int s = 0; s < lightSubPath.N; s++) {
+        for (int t = 1; t <= cameraSubPath.N; t++) {
+            for (int s = 0; s <= lightSubPath.N; s++) {
                 int depth = t + s - 2;
                 if ((s == 1 && t == 1) || depth < 0 || depth > maxDepth)
                     continue;
@@ -90,8 +95,7 @@ namespace Miyuki {
                       scene.pdfLightChoice(light);
                 if (Li.isBlack())return {};
                 if (!tester.visible(scene))return {};
-                // TODO:
-                // sampled.pdfFwd =
+                sampled.pdfFwd = sampled.pdfLightOrigin(scene, E);
             } else {
                 if (L.connectable() && E.connectable()) {
                     Li = L.beta * E.beta * L.f(E, Bidir::TransportMode::importance) *
@@ -109,9 +113,76 @@ namespace Miyuki {
         }
         if (Li.isBlack())return {};
         if (s + t == 2)return Li;
-        Float naiveWeight = 1.0f / (s + t);
-        Li *= naiveWeight;
+        Float mis = MISWeight(scene, ctx, lightSubPath, cameraSubPath, s, t, sampled);
+        //  fmt::print("{}\n",mis);
+        Li *= mis;
         return Li;
+    }
+
+    Float BDPT::MISWeight(Scene &scene, RenderContext &ctx, Bidir::SubPath &lightSubPath, Bidir::SubPath &cameraSubPath,
+                          int s, int t, Bidir::Vertex &sampled) {
+        if (s + t == 2)
+            return 1;
+        // q...q_sp_t....p
+        Bidir::Vertex *qs = s > 0 ? &lightSubPath[s - 1] : nullptr,
+                *pt = t > 0 ? &cameraSubPath[t - 1] : nullptr,
+                *qsMinus = s > 1 ? &lightSubPath[s - 2] : nullptr,
+                *ptMinus = t > 1 ? &cameraSubPath[t - 2] : nullptr;
+        ScopedAssignment<Bidir::Vertex> a1;
+        if (s == 1) {
+            a1 = {qs, sampled};
+        } else if (t == 1) {
+            a1 = {pt, sampled};
+        }
+        ScopedAssignment<bool> a2, a3;
+        if (pt) {
+            a2 = {&pt->delta, false};
+        }
+        if (qs) {
+            a3 = {&qs->delta, false};
+        }
+        ScopedAssignment<Float> a4;
+        if (pt) {
+            // ptMinus  pt  qs   qsMinus
+            //        ->      <-
+            //            <-pt->pdfRev
+            a4 = {&pt->pdfRev, s > 0 ?
+                               qs->pdf(scene, qsMinus, *pt)
+                                     : pt->pdfLightOrigin(scene, *ptMinus)};
+        }
+
+        ScopedAssignment<Float> a5;
+        if (ptMinus) {
+            a5 = {&ptMinus->pdfRev, s > 0 ? pt->pdf(scene, qs, *ptMinus) : pt->pdfLight(scene, *ptMinus)};
+        }
+
+        ScopedAssignment<Float> a6;
+        if (qs) {
+            a6 = {&qs->pdfRev, pt->pdf(scene, ptMinus, *qs)};
+        }
+
+        ScopedAssignment<Float> a7;
+        if (qsMinus) {
+            a7 = {&qsMinus->pdfRev, qs->pdf(scene, pt, *qsMinus)};
+        }
+
+        // Remaps the delta pdf
+        auto remap0 = [](Float x) { return x != 0 ? x * x : 1; };
+        Float sumRi = 0;
+        Float ri = 1;
+        for (int i = t - 1; i > 0; i--) {
+            ri *= remap0(cameraSubPath[i].pdfRev) / remap0(cameraSubPath[i].pdfFwd);
+            if (!cameraSubPath[i].delta && !cameraSubPath[i - 1].delta)
+                sumRi += ri;
+        }
+        ri = 1;
+        for (int i = s - 1; i >= 0; i--) {
+            ri *= remap0(lightSubPath[i].pdfRev) / remap0(lightSubPath[i].pdfFwd);
+            bool delta = i > 0 ? lightSubPath[i - 1].delta : lightSubPath[0].light->isDeltaLight();
+            if (!lightSubPath[i].delta && !delta)
+                sumRi += ri;
+        }
+        return 1.0f / (1.0f + sumRi);
     }
 
     BDPT::BDPT(const ParameterSet &set) {
@@ -147,9 +218,23 @@ namespace Miyuki {
         auto vertices = ctx.arena->alloc<Bidir::Vertex>(size_t(maxDepth + 1));
         Spectrum beta(1, 1, 1);
         vertices[0] = Bidir::CreateCameraVertex(ctx.camera, ctx.raster, ctx.primary, 1.0f, beta);
+        Float pdfPos, pdfDir;
+        ctx.camera->pdfWe(ctx.primary, &pdfPos, &pdfDir);
         auto path = Bidir::RandomWalk(vertices + 1, ctx.primary, beta,
-                                      1.0f, scene, ctx, minDepth, maxDepth,
+                                      pdfDir, scene, ctx, minDepth, maxDepth,
                                       Bidir::TransportMode::importance);
         return Bidir::SubPath(vertices, 1 + path.N);
     }
+
+    void BDPT::render(Scene &scene) {
+        fmt::print("Integrator: Bidirectional Path Tracing\n");
+        for (int i = 0; i < scene.filmDimension().x(); i++) {
+            for (int j = 0; j < scene.filmDimension().y(); j++) {
+                scene.film->splatWeight({i, j}) = 1.0f / spp;
+            }
+        }
+        SamplerIntegrator::render(scene);
+    }
+
+
 }

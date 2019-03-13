@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
         std::thread renderThread([&]() {
             renderEngine.exec();
             {
-               std::exit(0);
+                std::exit(0);
             }
         });
         ImVec4 clear_color = ImVec4(0, 0, 0, 1.00f);
