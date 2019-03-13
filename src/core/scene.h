@@ -43,7 +43,7 @@ namespace Miyuki {
         std::unique_ptr<Film> film;
         std::vector<std::shared_ptr<Light>> lights;
         std::unique_ptr<Distribution1D> lightDistribution;
-        std::unordered_map<Light *, Float> lightPdfMap;
+        std::unordered_map<const Light *, Float> lightPdfMap;
         std::unique_ptr<MaterialFactory> factory;
         std::function<void(Scene &)> updateFunc;
         std::function<bool(Scene &)> processContinueFunc;
@@ -93,7 +93,7 @@ namespace Miyuki {
 
         Light *chooseOneLight(Sampler *, Float *pdf);
 
-        Float pdfLightChoice(Light *light) {
+        Float pdfLightChoice(const Light *light) {
             return lightPdfMap[light];
         }
 

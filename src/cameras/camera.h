@@ -66,6 +66,8 @@ namespace Miyuki {
             w = invMatrix.mult(w);
             return w;
         }
+        virtual bool rasterize(const Vec3f &p, Point2i *rasterPos) const = 0;
+
     };
 
     class PerspectiveCamera : public Camera {
@@ -87,9 +89,13 @@ namespace Miyuki {
 
         Spectrum We(const Ray &ray, Point2i *raster) const override;
 
+        void preprocess() override;
+
         Spectrum
         sampleWi(const ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf, Point2i *pRaster,
                  VisibilityTester *tester) override;
+
+        bool rasterize(const Vec3f &p, Point2i *rasterPos) const override;
     };
 
     std::unique_ptr<PerspectiveCamera> CreatePerspectiveCamera(const ParameterSet &);

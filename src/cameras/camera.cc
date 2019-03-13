@@ -58,6 +58,10 @@ namespace Miyuki {
 
         rd = cameraToWorld(rd).normalized();
         *ray = Ray{ro, rd};
+        Point2i pRaster;
+        rasterize(ro + 1 * rd, &pRaster);
+        Assert(abs(pRaster.x() - raster.x()) <= 1);
+        Assert(abs(pRaster.y() - raster.y()) <= 1);
         return 1;
     }
 
@@ -76,24 +80,27 @@ namespace Miyuki {
         }
         auto z0 = (Float) (2.0 / std::tan(fov / 2));
         Point2f raster(rd.x() / rd.z() * z0, rd.y() / rd.z() * z0);
+        auto w = (float) dimension.x() / dimension.y();
         // check if out of bound
-        if (fabs(raster.x()) > (float) dimension.x() / dimension.y() || fabs(raster.y()) > 1.0f) {
+        if (fabs(raster.x()) > w + 0.001f || fabs(raster.y()) > 1 + 0.001f) {
             return {};
         }
-        auto w = (float) dimension.x() / dimension.y();
+
         int x = lroundf(((-raster.x() + w) / (2 * w)) * dimension.x());
         int y = lroundf((1 - (raster.y() + 1.0f) / 2.0f) * dimension.y());
         *pRaster = {x, y};
         Float lensArea = lensRadius <= 0 ? 1 : PI * lensRadius * lensRadius;
         auto cosT2 = cosT * cosT;
+        Assert(A > 0);
         auto weight = 1.0f / (A * lensArea * cosT2 * cosT2);
+        CHECK(!std::isinf(weight));
         return {weight, weight, weight};
     }
 
-    Spectrum PerspectiveCamera::sampleWi(const  ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf,
+    Spectrum PerspectiveCamera::sampleWi(const ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf,
                                          Point2i *pRaster, VisibilityTester *tester) {
         Point2f pLens = Point2f(lensRadius, lensRadius) * ConcentricSampleDisk(u);
-        auto pLensWorld = cameraToWorld(Vec3f(pLens.x(), pLens.y(), 0));
+        auto pLensWorld = cameraToWorld(Vec3f(pLens.x(), pLens.y(), 0)) + viewpot;
         tester->primId = event.getIntersection()->primId;
         tester->geomId = event.getIntersection()->geomId;
         *wi = pLensWorld - event.getIntersection()->ref;
@@ -104,6 +111,32 @@ namespace Miyuki {
         Vec3f lensNormal = cameraToWorld(Vec3f(0, 0, 1)).normalized();
         *pdf = (dist * dist) / (Vec3f::absDot(*wi, lensNormal) * lensArea);
         return We(event.spawnRay(-1 * *wi), pRaster);
+    }
+
+    bool PerspectiveCamera::rasterize(const Vec3f &p, Point2i *rasterPos) const {
+
+        auto dir = worldToCamera((p - viewpot).normalized()).normalized();
+        auto cosT = Vec3f::dot(dir, Vec3f(0, 0, 1));
+        if (cosT < 0) {
+            return false;
+        }
+        auto z0 = (Float) (2.0 / tan(fov / 2));
+        Point2f raster(dir.x() / dir.z() * z0, dir.y() / dir.z() * z0);
+        auto w = (float) dimension.x() / dimension.y();
+        if (fabs(raster.x()) > w + 0.01f || fabs(raster.y()) > 1.01f) {
+            return false;
+        }
+        int x = lroundf(((-raster.x() + w) / (2 * w)) * dimension.x());
+        int y = lroundf((1 - (raster.y() + 1.0f) / 2.0f) * dimension.y());
+        *rasterPos = {x, y};
+        return true;
+
+    }
+
+    void PerspectiveCamera::preprocess() {
+        Camera::preprocess();
+        auto z0 = (Float) (2.0 / tan(fov / 2));
+        A = 2 * ((2.0f * dimension.x()) / dimension.y()) / (z0 * z0);
     }
 
 }

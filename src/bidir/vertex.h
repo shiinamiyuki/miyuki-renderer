@@ -19,6 +19,19 @@ namespace Miyuki {
             importance
         };
 
+        inline Float
+        CorrectShadingNormal(const ScatteringEvent &event, const Vec3f &wo, const Vec3f &wi, TransportMode mode) {
+            // TODO: we might need to implement this differently from pbrt
+            if (mode == TransportMode::importance) {
+                auto num = Vec3f::absDot(wo, event.Ns()) * Vec3f::absDot(wi, event.Ng());
+                auto denom = Vec3f::absDot(wo, event.Ng()) * Vec3f::absDot(wi, event.Ns());
+                if (denom == 0)return 0;
+                return num / denom;
+            } else {
+                return 1.0f;
+            }
+        }
+
         struct Vertex {
             enum Type {
                 invalidVertex,
@@ -36,7 +49,7 @@ namespace Miyuki {
             const Camera *camera = nullptr;
             const Light *light = nullptr;
             const Primitive *primitive = nullptr;
-            Float pdfFwd, pdfRev;
+            Float pdfFwd = -1, pdfRev = -1;
             bool delta = false;
 
             bool isInfiniteLight() const {
@@ -56,10 +69,11 @@ namespace Miyuki {
                     case cameraVertex:
                         break;
                     case surfaceVertex:
-                        break;
+                        return !delta;
                     case mediumVertex:
                         return true;;
                 }
+                Assert(false);
             }
 
             // area * cos / dist^2 = solid angle
@@ -82,6 +96,28 @@ namespace Miyuki {
                 }
                 return {};
             }
+
+            Spectrum Le(const Vertex &prev) const {
+                if (isInfiniteLight()) {
+                    return light->L();
+                }
+                auto wo = (prev.ref - ref).normalized();
+                return Le(wo);
+            }
+
+            Spectrum f(const Vertex &next, TransportMode mode) const {
+                auto wi = (next.ref - ref).normalized();
+                auto e = *event;
+                e.wiW = wi;
+                e.wi = e.worldToLocal(e.wiW);
+                switch (type) {
+                    case surfaceVertex:
+                        return (event->bsdf->f(e)
+                                * CorrectShadingNormal(e, e.woW, e.wiW, mode));
+                }
+                return {};
+            }
+
         };
 
         inline Vertex CreateSurfaceVertex(ScatteringEvent *event, Float pdf, Spectrum beta, const Vertex &prev) {
@@ -98,7 +134,7 @@ namespace Miyuki {
             return std::move(v);
         }
 
-        inline Vertex CreateLightVertex(Light *light, const Ray &ray, const Vec3f &normal, Float pdf, Spectrum beta) {
+        inline Vertex CreateLightVertex(const Light *light, const Ray &ray, const Vec3f &normal, Float pdf, Spectrum beta) {
             Vertex v;
             v.type = Vertex::lightVertex;
             v.primitive = light->getPrimitive();
@@ -111,7 +147,7 @@ namespace Miyuki {
         }
 
         inline Vertex
-        CreateCameraVertex(Camera *camera, const Point2i &raster, const Ray &ray, Float pdf, Spectrum beta) {
+        CreateCameraVertex(const Camera *camera, const Point2i &raster, const Ray &ray, Float pdf, Spectrum beta) {
             Vertex v;
             v.type = Vertex::cameraVertex;
             v.camera = camera;
@@ -153,15 +189,6 @@ namespace Miyuki {
             Vertex &operator[](int i) {
                 return vertices[i];
             }
-        };
-
-        struct Path {
-            SubPath cameraPath;
-            SubPath lightPath;
-
-            Float MISWeight() const;
-
-            Spectrum L() const;
         };
 
         SubPath

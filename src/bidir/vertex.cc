@@ -43,7 +43,6 @@ namespace Miyuki {
                 if (f.isBlack() || pdfFwd <= 0)
                     break;
                 beta *= f * Vec3f::absDot(event.Ns(), event.wiW) / event.pdf;
-                // TODO: correct shading normal
                 ray = event.spawnRay(event.wiW);
                 std::swap(event.wi, event.wo);
                 std::swap(event.wiW, event.woW);
@@ -54,6 +53,7 @@ namespace Miyuki {
                     vertex.delta = true;
                     pdfRev = pdfFwd = 0;
                 }
+                beta *= CorrectShadingNormal(event, event.woW, event.wiW, mode);
                 prev.pdfRev = vertex.convertDensity(pdfRev, prev);
                 if (depth >= minDepth) {
                     if (ctx.sampler->get1D() < beta.max() / R) {

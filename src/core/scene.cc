@@ -77,7 +77,7 @@ namespace Miyuki {
         setFilmDimension(Point2i{parameterSet.findInt("render.width", 500),
                                  parameterSet.findInt("render.height", 500)});
         embreeScene->commit();
-        camera->computeTransformMatrix();
+        camera->preprocess();
         fmt::print("Film dimension: {}x{}\n", film->width(), film->height());
         fmt::print("Output file: {}\n", parameterSet.findString("render.output", "scene.png"));
         computeLightDistribution();

@@ -4,8 +4,8 @@
 
 #include "renderengine.h"
 #include "integrators/volpath/volpath.h"
+#include <integrators/bdpt/bdpt.h>
 #include "core/film.h"
-#include <integrators/pathmlt/pathmlt.h>
 
 namespace Miyuki {
     namespace IO {
@@ -121,24 +121,24 @@ namespace Miyuki {
                         parameters.addInt("volpath.caustics", I["caustics"].getBool());
                     }
                     integrator = std::make_unique<VolPath>(parameters);
-                } else if (type == "pathmlt") {
-                    parameters.addString("integrator", "pathmlt");
+                } else if (type == "bdpt") {
+                    parameters.addString("integrator", "volpath");
                     if (I.hasKey("maxRayIntensity")) {
-                        parameters.addFloat("pathmlt.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
+                        parameters.addFloat("bdpt.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
                     }
                     if (I.hasKey("spp")) {
-                        parameters.addInt("pathmlt.spp", IO::deserialize<int>(I["spp"]));
+                        parameters.addInt("bdpt.spp", IO::deserialize<int>(I["spp"]));
                     }
                     if (I.hasKey("minDepth")) {
-                        parameters.addInt("pathmlt.minDepth", IO::deserialize<int>(I["minDepth"]));
+                        parameters.addInt("bdpt.minDepth", IO::deserialize<int>(I["minDepth"]));
                     }
                     if (I.hasKey("maxDepth")) {
-                        parameters.addInt("pathmlt.maxDepth", IO::deserialize<int>(I["maxDepth"]));
+                        parameters.addInt("bdpt.maxDepth", IO::deserialize<int>(I["maxDepth"]));
                     }
                     if (I.hasKey("caustics")) {
-                        parameters.addInt("pathmlt.caustics", I["caustics"].getBool());
+                        parameters.addInt("bdpt.caustics", I["caustics"].getBool());
                     }
-                    integrator = std::make_unique<PathMLT>(parameters);
+                    integrator = std::make_unique<BDPT>(parameters);
                 } else if (type == "direct") {
                     integrator = std::make_unique<DirectLightingIntegrator>(IO::deserialize<int>(I["spp"]));
                 } else {
