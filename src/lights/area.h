@@ -24,6 +24,11 @@ namespace Miyuki {
 
         Float pdfLi(const Intersection &intersection, const Vec3f &wi) const override;
 
+        Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
+                          Float *pdfDir) const override;
+
+        void pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const override;
+
         const Primitive *getPrimitive() const override {
             return primitive;
         }

@@ -43,4 +43,21 @@ namespace Miyuki {
         Float solidAngle = primitive->area * Vec3f::absDot(wi, primitive->Ng) * invDist2;
         return 1.0f / solidAngle;
     }
+
+    Spectrum AreaLight::sampleLe(const Point2f &u1, const Point2f &u2, Ray *ray, Vec3f *normal, Float *pdfPos,
+                                 Float *pdfDir) const {
+        auto p = UniformTriangleSampling(u1, primitive->v(0), primitive->v(1), primitive->v(2));
+        *pdfPos = 1.0f / primitive->area;
+        CoordinateSystem coordinateSystem(primitive->Ng);
+        *normal = primitive->Ng;
+        Vec3f wi = coordinateSystem.localToWorld(CosineWeightedHemisphereSampling(u2)).normalized();
+        *pdfDir = Vec3f::absDot(wi, *normal) * INVPI;
+        *ray = Ray(p, wi);
+        return L();
+    }
+
+    void AreaLight::pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const {
+        *pdfPos = 1.0f / primitive->area;
+        *pdfDir = std::max<Float>(0, Vec3f::dot(ray.d, normal) * INVPI);
+    }
 }

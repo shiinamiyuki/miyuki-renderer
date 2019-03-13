@@ -16,11 +16,30 @@
 namespace Miyuki {
     // Unidirectional Path Space MLT
     class PathMLT : public VolPath {
+    public:
+        struct MChain {
+            Bidir::SubPath path, pathBackup;
+            std::vector<Bidir::Vertex> data, dataBackup;
+
+            void restore() {
+                path = pathBackup;
+                data = dataBackup;
+            }
+
+            void backup() {
+                pathBackup = path;
+                dataBackup = data;
+            }
+        };
+
     protected:
         Float largeStepProbability;
         int luminanceSamples;
         int directSamples;
         int nChains;
+
+        std::vector<MChain> paths;
+
         class Bootstrapper : public MetropolisBootstrapper {
         public:
             Scene &scene;
@@ -33,6 +52,7 @@ namespace Miyuki {
 
         friend class Bootstrapper;
 
+        Float mutate(MChain &);// returns accept prob
     public:
         PathMLT(const ParameterSet &set);
 
@@ -40,7 +60,5 @@ namespace Miyuki {
 
     protected:
     };
-
-
 }
 #endif //MIYUKI_PATHMLT_H

@@ -14,7 +14,7 @@ namespace Miyuki {
         largeStepProbability = set.findFloat("pathmlt.largeStep", 0.3);
         luminanceSamples = set.findInt("pathmlt.luminanceSamples", 100000);
         directSamples = set.findInt("pathmlt.directSamples", 16);
-        nChains = set.findInt("pathmlt.nChains", 1000);
+        nChains = set.findInt("pathmlt.nChains", 256);
     }
 
     void PathMLT::render(Scene &scene) {
@@ -23,6 +23,10 @@ namespace Miyuki {
         fmt::print("Generate bootstrap samples\n");
         bootstrapper.generateBootstrapSamples(&bootstrapSample, luminanceSamples, nChains);
         fmt::print("b = {}\n", bootstrapSample.b);
+    }
+
+    Float PathMLT::mutate(PathMLT::MChain &mChain) {
+        return 0;
     }
 
     Float PathMLT::Bootstrapper::f(Seed *seed, MemoryArena *arena) {

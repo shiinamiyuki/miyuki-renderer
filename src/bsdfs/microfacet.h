@@ -8,7 +8,8 @@
 #include "bsdf.h"
 
 namespace Miyuki {
-
+    static Vec3f BeckmannSample(const Vec3f &wi, Float alpha_x, Float alpha_y,
+                                Float U1, Float U2);
     enum class MicrofacetModel {
         beckmann,
         ggx
@@ -65,7 +66,7 @@ namespace Miyuki {
         }
 
         Float pdf(const Vec3f &wo, const Vec3f &wh) const {
-            return D(wh) / AbsCosTheta(wh);
+            return  D(wh) * AbsCosTheta(wh);
         }
 
         Vec3f sampleWh(const Vec3f &wo, const Point2f &u) const {
@@ -73,15 +74,13 @@ namespace Miyuki {
                 case MicrofacetModel::beckmann: {
                     Float phi, tan2Theta;
                     if (alphaX == alphaY) {
-                        phi = u[0] * 2 * PI;
-                        Float logU = std::log(1 - u[1]);
-                        if (std::isinf(logU)) {
-                            logU = 0.0f;
-                        }
+                        phi = u[1] * 2 * PI;
+                        Float logU = std::log(1 - u[0]);
+                        CHECK(!std::isinf(logU));
                         tan2Theta = -alphaX * alphaX * logU;
                     } else {
                         // ???
-                        Float logSample = std::log(u[0]);
+                        Float logSample = std::log(1 - u[0]);
                         phi = std::atan(alphaY / alphaX *
                                         std::tan(2 * PI * u[1] + 0.5f * PI));
                         if (u[1] > 0.5f)
@@ -91,8 +90,8 @@ namespace Miyuki {
                         tan2Theta = -logSample /
                                     (cosPhi * cosPhi / alphaX2 + sinPhi * sinPhi / alphaY2);
                     }
-                    Float cosTheta = std::sqrt(1.0f / (1.0f + tan2Theta));
-                    Float sinTheta = std::max(0.0f, sqrtf(1.0f - cosTheta * cosTheta));
+                    Float cosTheta = 1 / std::sqrt(1 + tan2Theta);
+                    Float sinTheta = std::sqrt(std::max((Float) 0, 1 - cosTheta * cosTheta));
                     auto wh = Vec3f(std::cos(phi) * sinTheta, cosTheta, std::sin(phi) * sinTheta).normalized();
                     if (!SameHemisphere(wo, wh)) wh *= -1;
                     return wh;

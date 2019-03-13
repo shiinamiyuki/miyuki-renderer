@@ -69,3 +69,10 @@ add_executable(unittest
         ${integratorSRC}
         "src/unittests/parameter_test.cc"
         "src/unittests/unittest.cc")
+add_executable(verify
+        "src/miyuki.h"
+        ${thirdpartySRC}
+        ${utilsSRC}
+        ${coreSRC}
+        ${integratorSRC}
+        "src/tools/verify.cc")

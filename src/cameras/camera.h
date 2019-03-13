@@ -16,6 +16,9 @@ namespace Miyuki {
 
     class Sampler;
 
+    struct ScatteringEvent;
+    struct VisibilityTester;
+
     class Camera {
         friend class Scene;
 
@@ -45,6 +48,24 @@ namespace Miyuki {
         generateRayDifferential(Sampler &sampler, const Point2i &raster, RayDifferential *ray, Float *weight) = 0;
 
         virtual void preprocess() { computeTransformMatrix(); }
+
+        virtual Spectrum We(const Ray &ray, Point2i *raster) const = 0;
+
+        virtual Spectrum
+        sampleWi(const ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf, Point2i *pRaster,
+                 VisibilityTester *) = 0;
+
+        Vec3f cameraToWorld(Vec3f w) const {
+            w.w() = 1;
+            w = rotationMatrix.mult(w);
+            return w;
+        }
+
+        Vec3f worldToCamera(Vec3f w) const {
+            w.w() = 1;
+            w = invMatrix.mult(w);
+            return w;
+        }
     };
 
     class PerspectiveCamera : public Camera {
@@ -64,6 +85,11 @@ namespace Miyuki {
         Float generateRayDifferential(Sampler &sampler, const Point2i &raster,
                                       RayDifferential *ray, Float *weight) override;
 
+        Spectrum We(const Ray &ray, Point2i *raster) const override;
+
+        Spectrum
+        sampleWi(const ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf, Point2i *pRaster,
+                 VisibilityTester *tester) override;
     };
 
     std::unique_ptr<PerspectiveCamera> CreatePerspectiveCamera(const ParameterSet &);

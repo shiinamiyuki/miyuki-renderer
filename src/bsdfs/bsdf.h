@@ -43,12 +43,12 @@ namespace Miyuki {
 
     inline Float CosPhi(const Vec3f &w) {
         auto s = SinTheta(w);
-        return s == 0 ? 1.0f : clamp(w.x() / s, -1.0f, -1.0f);
+        return s == 0 ? 1.0f : clamp(w.x() / s, -1.0f, 1.0f);
     }
 
     inline Float SinPhi(const Vec3f &w) {
         auto s = SinTheta(w);
-        return s == 0 ? 1.0f : clamp(w.z() / s, -1.0f, -1.0f);
+        return s == 0 ? 0.0f : clamp(w.z() / s, -1.0f, 1.0f);
     }
 
     inline Float Cos2Phi(const Vec3f &w) {

@@ -5,6 +5,8 @@
 #include "camera.h"
 #include "samplers/sampler.h"
 #include "math/sampling.h"
+#include <lights/light.h>
+#include <core/scatteringevent.h>
 
 namespace Miyuki {
     void Camera::moveTo(const Vec3f &v) {
@@ -51,13 +53,10 @@ namespace Miyuki {
             ro = Vec3f(pLens.x(), pLens.y(), 0);
             rd = (pFocus - ro).normalized();
         }
-        ro.w() = 1;
-        ro = rotationMatrix.mult(ro);
+        ro = cameraToWorld(ro);
         ro += viewpot;
 
-        rd.w() = 1;
-        rd = rotationMatrix.mult(rd);
-        rd.normalize();
+        rd = cameraToWorld(rd).normalized();
         *ray = Ray{ro, rd};
         return 1;
     }
@@ -67,6 +66,44 @@ namespace Miyuki {
             RayDifferential *ray, Float *weight) {
         throw NotImplemented();
         return 0;
+    }
+
+    Spectrum PerspectiveCamera::We(const Ray &ray, Point2i *pRaster) const {
+        auto rd = worldToCamera(ray.d).normalized();
+        auto cosT = Vec3f::dot(rd, Vec3f(0, 0, 1));
+        if (cosT < 0) {
+            return {};
+        }
+        auto z0 = (Float) (2.0 / std::tan(fov / 2));
+        Point2f raster(rd.x() / rd.z() * z0, rd.y() / rd.z() * z0);
+        // check if out of bound
+        if (fabs(raster.x()) > (float) dimension.x() / dimension.y() || fabs(raster.y()) > 1.0f) {
+            return {};
+        }
+        auto w = (float) dimension.x() / dimension.y();
+        int x = lroundf(((-raster.x() + w) / (2 * w)) * dimension.x());
+        int y = lroundf((1 - (raster.y() + 1.0f) / 2.0f) * dimension.y());
+        *pRaster = {x, y};
+        Float lensArea = lensRadius <= 0 ? 1 : PI * lensRadius * lensRadius;
+        auto cosT2 = cosT * cosT;
+        auto weight = 1.0f / (A * lensArea * cosT2 * cosT2);
+        return {weight, weight, weight};
+    }
+
+    Spectrum PerspectiveCamera::sampleWi(const  ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf,
+                                         Point2i *pRaster, VisibilityTester *tester) {
+        Point2f pLens = Point2f(lensRadius, lensRadius) * ConcentricSampleDisk(u);
+        auto pLensWorld = cameraToWorld(Vec3f(pLens.x(), pLens.y(), 0));
+        tester->primId = event.getIntersection()->primId;
+        tester->geomId = event.getIntersection()->geomId;
+        *wi = pLensWorld - event.getIntersection()->ref;
+        auto dist = wi->length();
+        *wi /= dist;
+        tester->shadowRay = Ray(pLensWorld, -1 * *wi);
+        Float lensArea = lensRadius <= 0 ? 1 : PI * lensRadius * lensRadius;
+        Vec3f lensNormal = cameraToWorld(Vec3f(0, 0, 1)).normalized();
+        *pdf = (dist * dist) / (Vec3f::absDot(*wi, lensNormal) * lensArea);
+        return We(event.spawnRay(-1 * *wi), pRaster);
     }
 
 }

@@ -42,6 +42,15 @@ namespace Miyuki {
 
         virtual Float pdfLi(const Intersection &, const Vec3f &wi) const = 0;
 
+        virtual Spectrum sampleLe(const Point2f &u1,
+                                  const Point2f &u2,
+                                  Ray *ray,
+                                  Vec3f *normal,
+                                  Float *pdfPos,
+                                  Float *pdfDir) const = 0;
+
+        virtual void pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const = 0;
+
         virtual const Primitive *getPrimitive() const { return nullptr; }
     };
 }
