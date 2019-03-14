@@ -33,6 +33,14 @@ namespace Miyuki {
 
         MMLTSampler(Seed *seed, int nStream, Float largeStep, Point2i imageDimension, int depth)
                 : MLTSampler(seed, nStream, largeStep), imageDimension(imageDimension), depth(depth) {}
+
+        bool large() const {
+            return largeStep;
+        }
+
+        void setLarge(Float large) {
+            largeStepProbability = large;
+        }
     };
 
     inline Float AverageMutationPerPixel(int nPixels, int nChains, int nIterations) {

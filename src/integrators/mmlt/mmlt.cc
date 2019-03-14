@@ -11,8 +11,8 @@ namespace Miyuki {
 
     // special handling for image stratification
     void MMLTSampler::ensureReadyU1U2() {
-        mutate(u1, 2.0/(imageDimension.x()*imageDimension.y()), 0.1);
-        mutate(u2, 2.0/(imageDimension.x()*imageDimension.y()), 0.1);
+        mutate(u1, 2.0 / (imageDimension.x() * imageDimension.y()), 0.1);
+        mutate(u2, 2.0 / (imageDimension.x() * imageDimension.y()), 0.1);
     }
 
     void MMLTSampler::accept() {
@@ -32,12 +32,12 @@ namespace Miyuki {
     MultiplexedMLT::MultiplexedMLT(const ParameterSet &set) : BDPT(set) {
         nBootstrap = set.findInt("mlt.nBootstrap", 100000);
         nDirect = set.findInt("mlt.nDirect", 16);
-        nChains = set.findInt("mlt.nChains", 256);
+        nChains = set.findInt("mlt.nChains", 1000);
         minDepth = set.findInt("mlt.minDepth", 3);
         maxDepth = set.findInt("mlt.maxDepth", 5);
         spp = set.findInt("mlt.spp", 4);
         maxRayIntensity = set.findFloat("mlt.maxRayIntensity", 10000.0f);
-        largeStep = 0.4;
+        largeStep = 0.5;
         b = 0;
     }
 
@@ -133,6 +133,10 @@ namespace Miyuki {
         fmt::print("Start rendering\n");
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
         std::uniform_real_distribution<Float> dist;
+        DECLARE_STATS(uint32_t, nSmallCounter);
+        DECLARE_STATS(uint32_t, nLargeCounter);
+        DECLARE_STATS(uint32_t, nSmallAcceptCounter);
+        DECLARE_STATS(uint32_t, nLargeAcceptCounter);
         for (curIter = 0; curIter < nMutations && scene.processContinuable(); curIter++) {
             Thread::ParallelFor(0, nChains, [&](uint32_t idx, uint32_t threadId) {
                 auto sampler = samplers[idx].get();
@@ -147,16 +151,40 @@ namespace Miyuki {
                 }
                 film.addSplat(sampler->imageLocation, LOld);
                 UPDATE_STATS(mutationCounter, 1);
+                if (sampler->large()) {
+                    UPDATE_STATS(nLargeCounter, 1);
+                } else {
+                    UPDATE_STATS(nSmallCounter, 1);
+                }
                 if (dist(rd) < accept) {
                     sampler->L = LProposed;
                     sampler->imageLocation = pProposed;
                     sampler->accept();
                     UPDATE_STATS(acceptanceCounter, 1);
+                    if (sampler->large()) {
+                        UPDATE_STATS(nLargeAcceptCounter, 1);
+                    } else {
+                        UPDATE_STATS(nSmallAcceptCounter, 1);
+                    }
                 } else {
                     sampler->reject();
                 }
                 arenas[threadId].reset();
             }, 16);
+            if (curIter == 100) {
+                auto ns = nSmallAcceptCounter / (double) nSmallCounter;
+                auto nl = nLargeAcceptCounter / (double) nLargeCounter;
+                largeStep = ns / (2 * (ns - nl));
+                if (largeStep < 0 || largeStep > 1) {
+                    fmt::print(stderr, "auto-tuned large step is invalid {} {} {}\n", largeStep, ns, nl);
+                    largeStep = 0.5;
+                } else {
+                    for (int i = 0; i < nChains; i++) {
+                        samplers[i]->setLarge(largeStep);
+                    }
+                    fmt::print("Auto-tuned large step: {} {} {}\n", largeStep,ns,nl);
+                }
+            }
             reporter.update();
         }
         scene.update();
