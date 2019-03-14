@@ -5,6 +5,7 @@
 #include "renderengine.h"
 #include "integrators/volpath/volpath.h"
 #include <integrators/bdpt/bdpt.h>
+#include <integrators/mmlt/mmlt.h>
 #include "core/film.h"
 
 namespace Miyuki {
@@ -56,7 +57,6 @@ namespace Miyuki {
     }
 
     int RenderEngine::exec() {
-        scene.commit();
         if (integrator) {
             scene.processContinueFunc = [this](Scene &x) {
                 return renderContinue == true;
@@ -139,6 +139,33 @@ namespace Miyuki {
                         parameters.addInt("bdpt.caustics", I["caustics"].getBool());
                     }
                     integrator = std::make_unique<BDPT>(parameters);
+                } else if (type == "mlt") {
+                    parameters.addString("integrator", "volpath");
+                    if (I.hasKey("maxRayIntensity")) {
+                        parameters.addFloat("mlt.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
+                    }
+                    if (I.hasKey("spp")) {
+                        parameters.addInt("mlt.spp", IO::deserialize<int>(I["spp"]));
+                    }
+                    if (I.hasKey("minDepth")) {
+                        parameters.addInt("mlt.minDepth", IO::deserialize<int>(I["minDepth"]));
+                    }
+                    if (I.hasKey("maxDepth")) {
+                        parameters.addInt("mlt.maxDepth", IO::deserialize<int>(I["maxDepth"]));
+                    }
+                    if (I.hasKey("caustics")) {
+                        parameters.addInt("mlt.caustics", I["caustics"].getBool());
+                    }
+                    if (I.hasKey("nChains")) {
+                        parameters.addInt("mlt.nChains", IO::deserialize<int>(I["nChains"]));
+                    }
+                    if (I.hasKey("nDirect")) {
+                        parameters.addInt("mlt.nDirect", IO::deserialize<int>(I["nDirect"]));
+                    }
+                    if (I.hasKey("largeStep")) {
+                        parameters.addFloat("mlt.largeStep", IO::deserialize<Float>(I["largeStep"]));
+                    }
+                    integrator = std::make_unique<MultiplexedMLT>(parameters);
                 } else if (type == "direct") {
                     integrator = std::make_unique<DirectLightingIntegrator>(IO::deserialize<int>(I["spp"]));
                 } else {
@@ -205,6 +232,11 @@ namespace Miyuki {
 
     void RenderEngine::readPixelData(std::vector<uint8_t> &pixelData, int &width, int &height) {
         scene.readImage(pixelData);
+        width = scene.film->width();
+        height = scene.film->height();
+    }
+
+    void RenderEngine::imageSize(int &width, int &height) {
         width = scene.film->width();
         height = scene.film->height();
     }

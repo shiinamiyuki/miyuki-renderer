@@ -61,7 +61,7 @@ namespace Miyuki {
                                       Bidir::TransportMode::importance);
         Spectrum Li(0, 0, 0);
         bool specular = false;
-        ctx.sampler->startDimension(4 + 4 * maxDepth);
+        ctx.sampler->startDimension(4 + 3 * maxDepth);
         for (int depth = 0; depth < path.N; depth++) {
             if (specular || depth == 0) {
                 Vec3f wo = (path[depth - 1].ref - path[depth].ref).normalized();

@@ -5,29 +5,6 @@
 #include "mltsampler.h"
 
 namespace Miyuki {
-    inline Float mutate(Float random, Float value) {
-        const float S1 = 1.0f / 1024.0f;
-        const float S2 = 1.0f / 64.0f;
-        const float Factor = -std::log(S2 / S1);
-
-        bool negative = random < 0.5f;
-        random = negative ? random * 2.0f : (random - 0.5f) * 2.0f;
-
-        float delta = S2 * std::exp(Factor * random);
-        if (negative) {
-            value -= delta;
-            if (value < 0.0f)
-                value += 1.0f;
-        } else {
-            value += delta;
-            if (value >= 1.0f)
-                value -= 1.0f;
-        }
-        if (value == 1.0f)
-            value = 0.0f;
-        return value;
-    }
-
     void MLTSampler::accept() {
         if (largeStep) {
             lastLargeStepIteration = currentIteration;
@@ -47,12 +24,9 @@ namespace Miyuki {
         return streamIndex + nStream * sampleIndex++;
     }
 
-    void MLTSampler::ensureReady(int index) {
-        if (index >= X.size())
-            X.resize(index + 1u);
-        auto &Xi = X[index];
+    void MLTSampler::mutate(PrimarySample &Xi, Float s1, Float s2) {
         if (Xi.lastModificationIteration < lastLargeStepIteration) {
-            Xi.value = uniformInt32();
+            Xi.value = uniformFloat();
             Xi.lastModificationIteration = lastLargeStepIteration;
         }
 
@@ -66,15 +40,22 @@ namespace Miyuki {
                 auto x = Xi.value;
                 while (nSmallMinus > 0) {
                     nSmallMinus--;
-                    x = mutate(uniformFloat(), x);
+                    x = Mutate(uniformFloat(), x, s1, s2);
                 }
                 Xi.value = x;
                 Xi.lastModificationIteration = currentIteration - 1;
             }
             Xi.backup();
-            Xi.value = mutate(uniformFloat(), Xi.value);
+            Xi.value = Mutate(uniformFloat(), Xi.value, s1, s2);
         }
         Xi.lastModificationIteration = currentIteration;
+    }
+
+    void MLTSampler::ensureReady(int index) {
+        if (index >= X.size())
+            X.resize(index + 1u);
+        auto &Xi = X[index];
+        mutate(Xi, 1.0f / 1024.0f, 1.0f / 64.0f);
     }
 
     void MLTSampler::start() {
@@ -85,4 +66,6 @@ namespace Miyuki {
         currentIteration++;
         largeStep = uniformFloat() < largeStepProbability;
     }
+
+
 }

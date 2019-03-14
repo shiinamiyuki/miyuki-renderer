@@ -20,6 +20,7 @@ namespace Miyuki {
             Float R = beta.max();
             if (R <= 0)
                 return {nullptr, 0};
+            if (maxDepth == 0) {return { nullptr, 0 }; }
             while (true) {
                 auto &vertex = vertices[depth];
                 auto &prev = vertices[depth - 1];

@@ -46,7 +46,6 @@ namespace Miyuki {
             Spectrum beta;
             ScatteringEvent *event = nullptr;
             Point2i raster;
-            Float vc = 0, vcm = 0;
             const Camera *camera = nullptr;
             const Light *light = nullptr;
             const Primitive *primitive = nullptr;
@@ -74,7 +73,7 @@ namespace Miyuki {
                     case mediumVertex:
                         return true;;
                 }
-                Assert(false);
+                Assert(false);   return false;
             }
 
             // area * cos / dist^2 = solid angle

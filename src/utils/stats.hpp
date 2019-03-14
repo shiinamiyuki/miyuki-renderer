@@ -5,7 +5,7 @@
 #ifndef MIYUKI_STATS_HPP
 #define MIYUKI_STATS_HPP
 
-#include "util.h"
+#include "miyuki.h"
 #include <atomic>
 #define DECLARE_STATS(type,name) std::atomic<type> name(0)
 #define UPDATE_STATS(name, value) name += value

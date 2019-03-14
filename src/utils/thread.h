@@ -13,7 +13,7 @@ namespace Miyuki {
         using TaskFunc = std::function<void(uint32_t idx, uint32_t threadId)>;
         using TaskFunc2D = std::function<void(Point2i idx, uint32_t threadId)>;
 
-        void ParallelFor(uint32_t begin, uint32_t end, TaskFunc);
+        void ParallelFor(uint32_t begin, uint32_t end, TaskFunc, size_t workSize=1);
 
         void ParallelFor2D(Point2i N, TaskFunc2D);
 

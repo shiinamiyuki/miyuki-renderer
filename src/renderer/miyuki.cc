@@ -10,6 +10,7 @@ int main(int argc, char **argv) {
     RenderEngine engine;
     try {
         engine.processCommandLine(argc, argv);
+        engine.commitScene();
         return engine.exec();
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;

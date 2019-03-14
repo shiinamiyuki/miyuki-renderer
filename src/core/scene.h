@@ -27,7 +27,7 @@ namespace Miyuki {
 
     class BDPT;
 
-    class PathMLT;
+    class MultiplexedMLT;
 
     class Camera;
 
@@ -60,7 +60,7 @@ namespace Miyuki {
 
         friend class BDPT;
 
-        friend class PathMLT;
+        friend class MultiplexedMLT;;
 
         void computeLightDistribution();
 

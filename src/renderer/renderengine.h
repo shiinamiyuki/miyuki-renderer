@@ -39,6 +39,10 @@ namespace Miyuki {
         }
 
         void readPixelData(std::vector<uint8_t> &pixelData, int &width, int &height);
+        void imageSize(int &width, int &height);
+        void commitScene(){
+            scene.commit();
+        }
     };
 }
 

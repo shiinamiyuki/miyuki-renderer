@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
         glfwSetErrorCallback(glfw_error_callback);
         if (!glfwInit())
             return 1;
-        GLFWwindow *window = glfwCreateWindow(1280, 720, "Miyuki Renderer GUI", nullptr, nullptr);
+        GLFWwindow *window = glfwCreateWindow(width, height, "Miyuki Renderer GUI", nullptr, nullptr);
         if (window == nullptr)
             return 1;
 
@@ -69,6 +69,9 @@ int main(int argc, char **argv) {
         std::condition_variable mainThreadEnd;
         std::mutex mainThreadMutex;
         std::thread renderThread([&]() {
+            renderEngine.commitScene();
+            renderEngine.imageSize(width, height);
+            glfwSetWindowSize(window, width, height);
             renderEngine.exec();
             {
                 std::exit(0);
@@ -77,6 +80,7 @@ int main(int argc, char **argv) {
         ImVec4 clear_color = ImVec4(0, 0, 0, 1.00f);
         // Main loop
         while (!glfwWindowShouldClose(window)) {
+
             int display_w, display_h;
             glfwGetFramebufferSize(window, &display_w, &display_h);
             glViewport(0, 0, display_w, display_h);

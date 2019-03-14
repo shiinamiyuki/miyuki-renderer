@@ -1,5 +1,5 @@
 //
-// Created by xiaoc on 2019/3/12.
+// Created by Shiina Miyuki on 2019/3/12.
 //
 
 #include <bsdfs/bsdf.h>
