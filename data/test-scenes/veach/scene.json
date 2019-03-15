@@ -1,0 +1,338 @@
+{
+  "objects": [
+    {
+      "file": "veach.obj",
+      "transform": {
+        "scale": 10
+      }
+    }
+  ],
+  "camera": {
+    "translation": [
+      0,
+      40,
+      200
+    ],
+    "rotation": [
+      180,
+      0,
+      0
+    ]
+  },
+  "integrator": {
+    "type": "mlt",
+    "minDepth": 0,
+    "maxDepth": 5,
+    "spp": 256,
+    "nDirect": -1,
+    "caustics": false
+  },
+  "render": {
+    "resolution": "720p",
+    "output": "data/image/veach.png"
+  },
+  "materials": {
+    "Material.005": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          4,
+          4,
+          4
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "Material.009": {
+      "Tr": 0,
+      "roughness": 0.8,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          1,
+          1,
+          1
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "Material.004": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          4,
+          4,
+          4
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "Material.006": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "Material.008": {
+      "Tr": 0,
+      "roughness": 0.3,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          1,
+          1,
+          1
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "Material.002": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "Material.010": {
+      "Tr": 0,
+      "roughness": 0.5,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          1,
+          1,
+          1
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "Material.007": {
+      "Tr": 0,
+      "roughness": 0.1,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          1,
+          1,
+          1
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "Material.001": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          4,
+          4,
+          4
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "Material.003": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          4,
+          4,
+          4
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "shapes": {
+    "Sphere.001": "Material.003",
+    "Plane": "Material.002",
+    "Plane.001": "Material.006",
+    "Cube.002_Cube.003": "Material.009",
+    "Cube.001_Cube.002": "Material.008",
+    "Sphere": "Material.001",
+    "Sphere.002": "Material.004",
+    "Cube.003_Cube.004": "Material.010",
+    "Sphere.003": "Material.005",
+    "Cube_Cube.001": "Material.007"
+  }
+}

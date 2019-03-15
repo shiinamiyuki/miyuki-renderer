@@ -30,7 +30,7 @@ namespace Miyuki {
                 int depth = t + s - 2;
                 if ((s == 1 && t == 1) || depth < 0 || depth > maxDepth)
                     continue;
-                ctx.sampler->startDimension(dim + (depth) * (depth + 1) / 2 + s);
+                ctx.sampler->startDimension(dim + (depth) * (depth + 1) +  2 * s);
                 Point2i raster;
                 auto LConnect = connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, &raster, nullptr);
                 if (t != 1)

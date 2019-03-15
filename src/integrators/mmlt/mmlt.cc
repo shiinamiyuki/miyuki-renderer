@@ -11,8 +11,8 @@ namespace Miyuki {
 
     // special handling for image stratification
     void MMLTSampler::ensureReadyU1U2() {
-        mutate(u1, 2.0f / (imageDimension.x() * imageDimension.y()), 0.1f);
-        mutate(u2, 2.0f / (imageDimension.x() * imageDimension.y()), 0.1f);
+        mutate(u1, 2.0f / (imageDimension.x() + imageDimension.y()), 0.1f);
+        mutate(u2, 2.0f / (imageDimension.x() + imageDimension.y()), 0.1f);
     }
 
 
