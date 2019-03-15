@@ -10,8 +10,6 @@
 \/    \/_|\__, |\__,_|_|\_\_| \/ \_/\___|_| |_|\__,_|\___|_|  \___|_|
           |___/
 ```
-<b>抄书到此为止，接下来项目将按自己理解重写</b>
-<b>Currently under rewriting</b>
 
 Goal: a high performance pbrt-style renderer. 
 
@@ -21,9 +19,9 @@ Goal: a high performance pbrt-style renderer.
  Using embree delivers great performance but little achivement, so I' ll write a custom BVH too.
 
 ### Light transport algorithm:
-Volumetric path tracer (Unless volpath is completely implemented, I won't move on to others)</br>
+Volumetric path tracer </br>
 VCM (Unified path sampling)</br>
-Multiplexed MLT (It's just 100 lines of code, why not?)</br>
+Multiplexed MLT </br>
 Veach style MLT (and its variants)
 
 ### Miscellaneous 
