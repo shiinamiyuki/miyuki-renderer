@@ -4,6 +4,7 @@
 
 #include "mltsampler.h"
 
+
 namespace Miyuki {
     void MLTSampler::accept() {
         if (largeStep) {
@@ -24,32 +25,8 @@ namespace Miyuki {
         return streamIndex + nStream * sampleIndex++;
     }
 
-    void MLTSampler::mutate(PrimarySample &Xi, Float s1, Float s2) {
-        if (Xi.lastModificationIteration < lastLargeStepIteration) {
-            Xi.value = uniformFloat();
-            Xi.lastModificationIteration = lastLargeStepIteration;
-        }
 
-        if (largeStep) {
-            Xi.backup();
-            Xi.value = uniformFloat();
-        } else {
-            int64_t nSmall = currentIteration - Xi.lastModificationIteration;
-            auto nSmallMinus = nSmall - 1;
-            if (nSmallMinus > 0) {
-                auto x = Xi.value;
-                while (nSmallMinus > 0) {
-                    nSmallMinus--;
-                    x = Mutate(uniformFloat(), x, s1, s2);
-                }
-                Xi.value = x;
-                Xi.lastModificationIteration = currentIteration - 1;
-            }
-            Xi.backup();
-            Xi.value = Mutate(uniformFloat(), Xi.value, s1, s2);
-        }
-        Xi.lastModificationIteration = currentIteration;
-    }
+
 
     void MLTSampler::ensureReady(int index) {
         if (index >= X.size())

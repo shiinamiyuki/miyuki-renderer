@@ -13,6 +13,7 @@ namespace Miyuki {
         RandomWalk(Vertex *vertices, Ray ray, Spectrum beta, Float pdf, Scene &scene,
                    RenderContext &ctx, int minDepth, int maxDepth,
                    TransportMode mode) {
+            if (maxDepth == 0) {return { nullptr, 0 }; }
             Float pdfFwd = pdf, pdfRev = 0;
             int depth = 0;
             auto intersections = ctx.arena->alloc<Intersection>(size_t(maxDepth));
@@ -20,12 +21,11 @@ namespace Miyuki {
             Float R = beta.max();
             if (R <= 0)
                 return {nullptr, 0};
-            if (maxDepth == 0) {return { nullptr, 0 }; }
             while (true) {
                 auto &vertex = vertices[depth];
                 auto &prev = vertices[depth - 1];
                 if (!scene.intersect(ray, &intersections[depth])) {
-                    if (mode == TransportMode::importance) {
+                    if (mode == TransportMode::radiance) {
                         // TODO: infinite light
                     }
                     break;

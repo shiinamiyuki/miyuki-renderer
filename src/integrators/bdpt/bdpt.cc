@@ -30,6 +30,7 @@ namespace Miyuki {
                 int depth = t + s - 2;
                 if ((s == 1 && t == 1) || depth < 0 || depth > maxDepth)
                     continue;
+                ctx.sampler->startDimension(dim + (depth) * (depth + 1) / 2 + s);
                 Point2i raster;
                 auto LConnect = connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, &raster, nullptr);
                 if (t != 1)
@@ -37,6 +38,7 @@ namespace Miyuki {
                 else if (!LConnect.isBlack()) {
                     film.addSplat(raster, LConnect);
                 }
+
             }
         }
         return LPath;
@@ -211,7 +213,7 @@ namespace Miyuki {
         if (Le.isBlack() || beta.isBlack() || pdfDir == 0 || pdfPos == 0)
             return Bidir::SubPath(nullptr, 0);
         auto path = Bidir::RandomWalk(vertices + 1, ray, beta, pdfDir, scene, ctx, minDepth - 1, maxDepth - 1,
-                                      Bidir::TransportMode::radiance);
+                                      Bidir::TransportMode::importance);
         return Bidir::SubPath(vertices, 1 + path.N);
     }
 
@@ -224,7 +226,7 @@ namespace Miyuki {
         ctx.camera->pdfWe(ctx.primary, &pdfPos, &pdfDir);
         auto path = Bidir::RandomWalk(vertices + 1, ctx.primary, beta,
                                       pdfDir, scene, ctx, minDepth - 1, maxDepth - 1,
-                                      Bidir::TransportMode::importance);
+                                      Bidir::TransportMode::radiance);
         return Bidir::SubPath(vertices, 1 + path.N);
     }
 

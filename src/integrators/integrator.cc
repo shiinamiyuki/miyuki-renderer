@@ -104,6 +104,13 @@ namespace Miyuki {
             }
         });
         std::vector<Seed> seeds(Thread::pool->numThreads());
+        {
+            std::random_device rd;
+            std::uniform_int_distribution<Seed> dist;
+            for(auto& i:seeds){
+                i = dist(rd);
+            }
+        }
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
         Thread::ParallelFor(0u, hilbertMapping.size(), [&](uint32_t idx, uint32_t threadId) {
 
@@ -120,7 +127,7 @@ namespace Miyuki {
                     if (x >= film.width() || y >= film.height())
                         continue;
                     auto raster = Point2i{x, y};
-                    RandomSampler sampler(&seeds[threadId]);
+                    SobolSampler sampler(&seeds[threadId]);
 
                     for (int s = 0; s < spp; s++) {
                         // keeps minimum mem usage for cache efficiency

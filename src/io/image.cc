@@ -3,8 +3,12 @@
 //
 
 #include "image.h"
+
 #define STB_IMAGE_IMPLEMENTATION
+
 #include "thirdparty/stb/stb_image.h"
+
+#include <utils/thread.h>
 
 namespace Miyuki {
     namespace IO {
@@ -12,7 +16,7 @@ namespace Miyuki {
         Image::Image(const std::string &filename, ImageFormat format) : format(format) {
             int ch;
             auto data = stbi_load(filename.c_str(), &width, &height, &ch, 3);
-            if(!data){
+            if (!data) {
                 throw std::runtime_error(fmt::format("Cannot load {}\n", filename).c_str());
             }
             std::function<Float(uint8_t)> f;
@@ -27,11 +31,11 @@ namespace Miyuki {
                 };
             }
             pixelData.resize(width * height);
-            for (int i = 0; i < width * height; i++) {
+            Thread::ParallelFor(0u, width * height, [&](uint32_t i, uint32_t threadId) {
                 pixelData[i] = Spectrum(f(data[3 * i]),
                                         f(data[3 * i + 1]),
                                         f(data[3 * i + 2]));
-            }
+            }, 1024);
         }
     }
 }

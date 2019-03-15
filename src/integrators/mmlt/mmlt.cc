@@ -11,21 +11,8 @@ namespace Miyuki {
 
     // special handling for image stratification
     void MMLTSampler::ensureReadyU1U2() {
-        mutate(u1, 2.0 / (imageDimension.x() * imageDimension.y()), 0.1);
-        mutate(u2, 2.0 / (imageDimension.x() * imageDimension.y()), 0.1);
-    }
-
-    void MMLTSampler::accept() {
-        MLTSampler::accept();
-    }
-
-    void MMLTSampler::reject() {
-        if (u1.lastModificationIteration == currentIteration)
-            u1.restore();
-        if (u2.lastModificationIteration == currentIteration)
-            u2.restore();
-        MLTSampler::reject();
-
+        mutate(u1, 2.0f / (imageDimension.x() * imageDimension.y()), 0.1f);
+        mutate(u2, 2.0f / (imageDimension.x() * imageDimension.y()), 0.1f);
     }
 
 
@@ -37,7 +24,8 @@ namespace Miyuki {
         maxDepth = set.findInt("mlt.maxDepth", 5);
         spp = set.findInt("mlt.spp", 4);
         maxRayIntensity = set.findFloat("mlt.maxRayIntensity", 10000.0f);
-        largeStep = 0.5;
+        largeStep = set.findFloat("mlt.largeStep", 0.3f);
+        maxConsecutiveRejects = set.findInt("mlt.maxConsecutiveRejects", 256);
         b = 0;
     }
 
@@ -89,7 +77,7 @@ namespace Miyuki {
                 mltSeeds[i] = seeds[seedIndex];
 
                 samplers[i] = std::make_shared<MMLTSampler>(&mltSeeds[i], nStream, largeStep, scene.filmDimension(),
-                                                            depth);
+                                                            depth, maxConsecutiveRejects);
                 samplers[i]->depth = depth;
                 samplers[i]->L = radiance(scene, &arenas[0], samplers[i].get(), samplers[i]->depth,
                                           &samplers[i]->imageLocation);
@@ -98,8 +86,34 @@ namespace Miyuki {
         }
         handleDirect(scene);
         scene.update();
+
+        fmt::print("Start rendering\n");
+        DECLARE_STATS(int32_t, acceptanceCounter);
+        DECLARE_STATS(int32_t, mutationCounter);
+        std::vector<MemoryArena> arenas(Thread::pool->numThreads());
+        std::uniform_real_distribution<Float> dist;
+        std::mutex mutex;
+        ProgressReporter reporter(nMutations * nChains, [&](int cur, int total) {
+            static int last = -1;
+            int mpp = lround(cur / (double) nPixels);
+            if (mpp == 0)return;
+            if (mpp > 4)
+                mpp /= 4;
+            if (cur % mpp == 0 && mpp != last) {
+                std::lock_guard<std::mutex> lockGuard(mutex);
+                if (reporter.count() % mpp == 0 && mpp != last) {
+                    last = mpp;
+                    fmt::print("Mutations per pixel: {}/{} Acceptance rate: {} ,Elapsed:{} Remaining:{}\n",
+                               lround(cur / (double) nPixels),
+                               spp,
+                               acceptanceCounter / (double) mutationCounter,
+                               reporter.elapsedSeconds(), reporter.estimatedTimeToFinish());
+                    scene.update();
+                }
+            }
+        });
         scene.readImageFunc = [&](std::vector<uint8_t> &pixelData) {
-            auto mpp = AverageMutationPerPixel(nPixels, nChains, curIter);
+            auto mpp = reporter.count() / (double) nPixels;
             for (int i = 0; i < film.width(); i++) {
                 for (int j = 0; j < film.height(); j++) {
                     film.splatWeight({i, j}) = b / mpp;
@@ -112,83 +126,37 @@ namespace Miyuki {
                 }
             }
         };
-        DECLARE_STATS(int32_t, acceptanceCounter);
-        DECLARE_STATS(int32_t, mutationCounter);
-        ProgressReporter reporter(nMutations, [&](int cur, int total) {
-            static int last = -1;
-            int mpp = AverageMutationPerPixel(nPixels, nChains, cur);
-            if (mpp == 0)return;
-            if (mpp > 4)
-                mpp /= 4;
-            if (cur % mpp == 0 && mpp != last) {
-                last = mpp;
-                fmt::print("Mutations per pixel: {}/{} Acceptance rate: {} ,Elapsed:{} Remaining:{}\n",
-                           AverageMutationPerPixel(nPixels, nChains, cur),
-                           spp,
-                           acceptanceCounter / (double) mutationCounter,
-                           reporter.elapsedSeconds(), reporter.estimatedTimeToFinish());
-                scene.update();
-            }
-        });
-        fmt::print("Start rendering\n");
-        std::vector<MemoryArena> arenas(Thread::pool->numThreads());
-        std::uniform_real_distribution<Float> dist;
-        DECLARE_STATS(uint32_t, nSmallCounter);
-        DECLARE_STATS(uint32_t, nLargeCounter);
-        DECLARE_STATS(uint32_t, nSmallAcceptCounter);
-        DECLARE_STATS(uint32_t, nLargeAcceptCounter);
-        for (curIter = 0; curIter < nMutations && scene.processContinuable(); curIter++) {
-            Thread::ParallelFor(0, nChains, [&](uint32_t idx, uint32_t threadId) {
+        Thread::ParallelFor(0, nChains, [&](uint32_t idx, uint32_t threadId) {
+            for (int curIter = 0; curIter < nMutations && scene.processContinuable(); curIter++) {
                 auto sampler = samplers[idx].get();
                 sampler->startIteration();
                 Point2i pProposed;
                 auto LProposed = radiance(scene, &arenas[threadId], sampler, sampler->depth, &pProposed);
                 Float accept = clamp(LProposed.luminance() / sampler->L.luminance(), 0.0f, 1.0f);
-                auto LNew = removeNaNs(Spectrum(LProposed * accept / LProposed.luminance()));
-                auto LOld = removeNaNs(Spectrum(sampler->L * (1 - accept) / sampler->L.luminance()));
+                auto LNew = removeNaNs(Spectrum(
+                        LProposed * accept / LProposed.luminance()));
+                auto LOld = removeNaNs(Spectrum(
+                        sampler->L * (1 - accept) / sampler->L.luminance()));
                 if (accept > 0) {
                     film.addSplat(pProposed, LNew);
                 }
                 film.addSplat(sampler->imageLocation, LOld);
                 UPDATE_STATS(mutationCounter, 1);
-                if (sampler->large()) {
-                    UPDATE_STATS(nLargeCounter, 1);
-                } else {
-                    UPDATE_STATS(nSmallCounter, 1);
-                }
                 if (dist(rd) < accept) {
                     sampler->L = LProposed;
                     sampler->imageLocation = pProposed;
                     sampler->accept();
                     UPDATE_STATS(acceptanceCounter, 1);
-                    if (sampler->large()) {
-                        UPDATE_STATS(nLargeAcceptCounter, 1);
-                    } else {
-                        UPDATE_STATS(nSmallAcceptCounter, 1);
-                    }
                 } else {
                     sampler->reject();
                 }
-                arenas[threadId].reset();
-            }, 16);
-            if (curIter == 100) {
-                auto ns = nSmallAcceptCounter / (double) nSmallCounter;
-                auto nl = nLargeAcceptCounter / (double) nLargeCounter;
-                largeStep = ns / (2 * (ns - nl));
-                if (largeStep < 0 || largeStep > 1) {
-                    fmt::print(stderr, "auto-tuned large step is invalid {} {} {}\n", largeStep, ns, nl);
-                    largeStep = 0.5;
-                } else {
-                    for (int i = 0; i < nChains; i++) {
-                        samplers[i]->setLarge(largeStep);
-                    }
-                    fmt::print("Auto-tuned large step: {} {} {}\n", largeStep,ns,nl);
-                }
+                if (curIter % 16 == 0)
+                    arenas[threadId].reset();
+                reporter.update();
             }
-            reporter.update();
-        }
+        });
         scene.update();
-        Float mpp = AverageMutationPerPixel(nPixels, nChains, curIter);
+        auto mpp = reporter.count() / (double) nPixels;
         for (int i = 0; i < film.width(); i++) {
             for (int j = 0; j < film.height(); j++) {
                 film.splatWeight({i, j}) = b / mpp;
@@ -246,7 +214,9 @@ namespace Miyuki {
         }
         *raster = imageLoc;
         sampler->startStream(connectionStreamIndex);
-        return removeNaNs(connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, raster) * nStrategies);
+        return clampRadiance(
+                removeNaNs(connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, raster) * nStrategies),
+                maxRayIntensity);
     }
 
     void MultiplexedMLT::handleDirect(Scene &scene) {

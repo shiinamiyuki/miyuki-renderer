@@ -13,7 +13,7 @@ namespace Miyuki {
         Float p2 = pdf2 * pdf2;
         return p1 / (p1 + p2);
     }
-    inline Float erfInv(Float x) {
+    inline Float ErfInv(Float x) {
         Float w, p;
         x = clamp(x, -.99999f, .99999f);
         w = -std::log((1 - x) * (1 + x));
@@ -43,7 +43,7 @@ namespace Miyuki {
         return p * x;
     }
 
-    inline Float erf(Float x) {
+    inline Float Erf(Float x) {
         // constants
         Float a1 = 0.254829592f;
         Float a2 = -0.284496736f;

@@ -6,6 +6,9 @@
 #define MIYUKI_MLTSAMPLER_H
 
 #include "sampler.h"
+#include <math/func.h>
+
+#define USE_KELEMEN_MUTATION 1
 
 namespace Miyuki {
     // exponentially distributed between s1 and s2
@@ -76,7 +79,7 @@ namespace Miyuki {
 
         virtual void reject();
 
-        void mutate(PrimarySample &Xi, Float s1, Float s2);
+        inline void mutate(PrimarySample &Xi, Float s1, Float s2);
 
         void ensureReady(int index);
 
@@ -93,8 +96,47 @@ namespace Miyuki {
 
         void start() override;
 
-        void startIteration();
+        virtual void startIteration();
 
     };
+
+    inline void MLTSampler::mutate(PrimarySample &Xi, Float s1, Float s2) {
+        if (Xi.lastModificationIteration < lastLargeStepIteration) {
+            Xi.value = uniformFloat();
+            Xi.lastModificationIteration = lastLargeStepIteration;
+        }
+
+        if (largeStep) {
+            Xi.backup();
+            Xi.value = uniformFloat();
+        } else {
+            int64_t nSmall = currentIteration - Xi.lastModificationIteration;
+#if USE_KELEMEN_MUTATION == 1
+            auto nSmallMinus = nSmall - 1;
+            if (nSmallMinus > 0) {
+                auto x = Xi.value;
+                while (nSmallMinus > 0) {
+                    nSmallMinus--;
+                    x = Mutate(uniformFloat(), x, s1, s2);
+                }
+                Xi.value = x;
+                Xi.lastModificationIteration = currentIteration - 1;
+            }
+            Xi.backup();
+            Xi.value = Mutate(uniformFloat(), Xi.value, s1, s2);
+#else
+            Xi.backup();
+            // nSmall mutations is equivalent to normal distribution of n sigma^2
+            const Float sigma = 0.02f;
+            const Float sqrt2 = std::sqrt(2.0f);
+            // importance sample N(Xi, n sigma^2)
+            Float normalSample = sqrt2 * ErfInv(2 * uniformFloat() - 1);
+            Float effSigma = sigma * std::sqrt((Float) nSmall);
+            Xi.value += normalSample * effSigma;
+            Xi.value -= std::floor(Xi.value);
+#endif
+        }
+        Xi.lastModificationIteration = currentIteration;
+    }
 }
 #endif //MIYUKI_MLTSAMPLER_H
