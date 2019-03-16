@@ -13,16 +13,18 @@
 
 Goal: a high performance pbrt-style renderer. 
 
-## Features (will have after rewriting)
+## Features (WIP)
 ### Ray tracing kernels:
  Embree and custom SAH BVH.
- Using embree delivers great performance but little achivement, so I' ll write a custom BVH too.
 
 ### Light transport algorithm:
-Volumetric path tracer </br>
-VCM (Unified path sampling)</br>
-Multiplexed MLT </br>
-Veach style MLT (and its variants)
+Volumetric path tracer: Not yet supporting volume though. We also implemented an adaptive integration inspired by Mitsuba.</br>
+
+BDPT: Boring pbrt-style implementation.</br>
+
+Multiplexed MLT: We implemented some of the optimizations suggested by Eric Veach, Hachisuka and other open source MLT implementations like LuxCoreRender. More optimizations needed.
+
+All of these algorithms share the same code base, makes it easier to maintain the code.
 
 ### Miscellaneous 
 We'll have possibly a denoiser and unlikely a blender plugin.
@@ -34,6 +36,14 @@ Dependencies: Embree 3.0, boost filesystem(not required when on non-Windows).
 CMake everything.
 
 ## Gallery (Random test images)
+Rendered with MMLT.
+
+![](gallery/dof.png)
+
+![](gallery/cornell_box.png)
+
+### From previous version
+
 ![](gallery/living_room.png)
 
 ![](gallery/breakfast_room.png)
