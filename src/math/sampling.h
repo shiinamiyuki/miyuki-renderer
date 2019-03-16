@@ -25,6 +25,17 @@ namespace Miyuki {
         }
         return PointOnTriangle(v0, v1, v2, u, v);
     }
+
+    inline Vec3f UniformSampleSphere(const Point2f &u) {
+        Float z = 1 - 2 * u[0];
+        Float r = std::sqrt(std::max((Float) 0, (Float) 1 - z * z));
+        Float phi = 2 * PI * u[1];
+        return Vec3f(r * std::cos(phi), r * std::sin(phi), z);
+    }
+
+    inline Float UniformSpherePdf() {
+        return 1.0f / (PI * 4);
+    }
 }
 
 #endif //MIYUKI_SAMPLING_H

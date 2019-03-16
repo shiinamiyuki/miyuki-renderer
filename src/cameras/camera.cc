@@ -43,11 +43,11 @@ namespace Miyuki {
         Float ry = 2 * sampler.get1D() - 1;
         Vec3f jitter = Vec3f(dx * rx, dy * ry, 0);
         // tent filter
-        *weight = (1.0f - fabs(rx)) * (1.0f - fabs(ry));
+        *weight = (1.0f - fabs(rx)) + (1.0f - fabs(ry));
         Vec3f rd = Vec3f(x, y, 0) + jitter - Vec3f(0, 0, -z);
         rd.normalize();
         if (lensRadius > 0) {
-            Point2f pLens = Point2f(lensRadius, lensRadius) * ConcentricSampleDisk(sampler.uniformFloat());
+            Point2f pLens = Point2f(lensRadius, lensRadius) * ConcentricSampleDisk(sampler.get2D());
             Float ft = focalDistance / rd.z();
             auto pFocus = ro + ft * rd;
             ro = Vec3f(pLens.x(), pLens.y(), 0);
@@ -58,10 +58,10 @@ namespace Miyuki {
 
         rd = cameraToWorld(rd).normalized();
         *ray = Ray{ro, rd};
-        Point2i pRaster;
-        rasterize(ro + 1 * rd, &pRaster);
-        Assert(abs(pRaster.x() - raster.x()) <= 1);
-        Assert(abs(pRaster.y() - raster.y()) <= 1);
+//        Point2i pRaster;
+//        rasterize(ro + 1 * rd, &pRaster);
+//        Assert(abs(pRaster.x() - raster.x()) <= 1);
+//        Assert(abs(pRaster.y() - raster.y()) <= 1);
         return 1;
     }
 

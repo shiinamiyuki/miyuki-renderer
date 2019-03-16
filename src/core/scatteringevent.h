@@ -13,6 +13,13 @@
 namespace Miyuki {
     class BSDF;
 
+    enum class TransportMode {
+        radiance,
+        importance
+    };
+
+    class Medium;
+
     class ScatteringEvent {
         Intersection *intersection;
         CoordinateSystem coordinateSystem;
@@ -23,10 +30,11 @@ namespace Miyuki {
         Vec3f wiW, woW;
         Float pdf;
         BSDFLobe bsdfLobe;
+        TransportMode mode;
 
         ScatteringEvent() : bsdf(nullptr), intersection(nullptr) {}
 
-        ScatteringEvent(Sampler *, Intersection *, BSDF *);
+        ScatteringEvent(Sampler *, Intersection *, BSDF *, TransportMode mode);
 
         const Vec3f Ns() const {
             return intersection->Ns;
@@ -56,10 +64,12 @@ namespace Miyuki {
         Spectrum Le(const Vec3f &wi) const;
 
         Intersection *getIntersection() const { return intersection; }
-        const Point2f& uv()const{
+
+        const Point2f &uv() const {
             return intersection->uv;
         }
-        const Point2f textureUV()const;
+
+        const Point2f textureUV() const;
     };
 }
 #endif //MIYUKI_SCATTERINGEVENT_H

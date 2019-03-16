@@ -18,7 +18,7 @@ namespace Miyuki {
         factory = std::make_unique<MaterialFactory>();
         updateFunc = [](Scene &x) {};
         processContinueFunc = [](Scene &x) { return true; };
-        readImageFunc = [&](std::vector<uint8_t> &pixelData){
+        readImageFunc = [&](std::vector<uint8_t> &pixelData) {
             for (int i = 0; i < film->width(); i++) {
                 for (int j = 0; j < film->height(); j++) {
                     auto out = film->getPixel(i, j).color.toInt();
@@ -44,8 +44,9 @@ namespace Miyuki {
     }
 
     void Scene::loadObjMesh(const std::string &filename) {
+        if(meshes.find(filename) != meshes.end())
+            return;
         auto mesh = std::make_shared<Mesh>(filename);
-        CHECK(meshes.find(filename) == meshes.end());
         meshes[filename] = mesh;
     }
 
@@ -93,6 +94,13 @@ namespace Miyuki {
         fmt::print("Film dimension: {}x{}\n", film->width(), film->height());
         fmt::print("Output file: {}\n", parameterSet.findString("render.output", "scene.png"));
         computeLightDistribution();
+        RTCBounds bounds;
+        rtcGetSceneBounds(embreeScene->scene, &bounds);
+        Float worldRadius = (
+                                    Vec3f(bounds.lower_x, bounds.lower_y, bounds.lower_z)
+                                    - Vec3f(bounds.upper_x, bounds.upper_y, bounds.upper_z)).length() / 2;
+        auto ambient = parameterSet.findVec3f("ambientLight", Vec3f());
+        infiniteAreaLight = std::make_unique<InfiniteAreaLight>(worldRadius,Texture(ambient));
     }
 
     RenderContext Scene::getRenderContext(const Point2i &raster, MemoryArena *arena, Sampler *sampler) {

@@ -48,7 +48,8 @@ namespace Miyuki {
     BDPT::connectBDPT(Scene &scene, RenderContext &ctx,
                       Bidir::SubPath &lightSubPath, Bidir::SubPath &cameraSubPath,
                       int s, int t, Point2i *raster, Float *weight) {
-        // TODO: infinite light
+        if (t > 1 && s != 0 && cameraSubPath[t - 1].isInfiniteLight())
+            return {};
         auto &E = cameraSubPath[t - 1];
         Bidir::Vertex sampled;
         Spectrum Li;
@@ -73,7 +74,7 @@ namespace Miyuki {
                 if (pdf > 0 && !Wi.isBlack()) {
                     // ???
                     sampled = Bidir::CreateCameraVertex(ctx.camera, *raster, vis.shadowRay, pdf, Wi / pdf);
-                    Li = L.beta * L.f(sampled, Bidir::TransportMode::importance) * sampled.beta;
+                    Li = L.beta * L.f(sampled, TransportMode::importance) * sampled.beta;
                     if (L.onSurface()) {
                         Li *= Vec3f::absDot(wi, L.Ns);
                     }
@@ -93,15 +94,15 @@ namespace Miyuki {
                 Li = light->sampleLi(ctx.sampler->get2D(), *E.event->getIntersection(), &wi, &pdf, &tester);
                 if (Li.isBlack() || pdf <= 0)return {};
                 sampled = Bidir::CreateLightVertex(light, tester.shadowRay, L.Ng, pdf, Li / pdf);
-                Li *= E.beta * E.f(sampled, Bidir::TransportMode::radiance) / pdf * Vec3f::absDot(wi, E.Ns) /
+                Li *= E.beta * E.f(sampled, TransportMode::radiance) / pdf * Vec3f::absDot(wi, E.Ns) /
                       scene.pdfLightChoice(light);
                 if (Li.isBlack())return {};
                 if (!tester.visible(scene))return {};
                 sampled.pdfFwd = sampled.pdfLightOrigin(scene, E);
             } else {
                 if (L.connectable() && E.connectable()) {
-                    Li = L.beta * E.beta * L.f(E, Bidir::TransportMode::importance) *
-                         E.f(L, Bidir::TransportMode::radiance);
+                    Li = L.beta * E.beta * L.f(E, TransportMode::importance) *
+                         E.f(L, TransportMode::radiance);
                     if (Li.isBlack())return Li;
                     Li *= Bidir::G(L, E);
                     VisibilityTester tester;
@@ -213,7 +214,7 @@ namespace Miyuki {
         if (Le.isBlack() || beta.isBlack() || pdfDir == 0 || pdfPos == 0)
             return Bidir::SubPath(nullptr, 0);
         auto path = Bidir::RandomWalk(vertices + 1, ray, beta, pdfDir, scene, ctx, minDepth - 1, maxDepth - 1,
-                                      Bidir::TransportMode::importance);
+                                      TransportMode::importance);
         return Bidir::SubPath(vertices, 1 + path.N);
     }
 
@@ -226,7 +227,7 @@ namespace Miyuki {
         ctx.camera->pdfWe(ctx.primary, &pdfPos, &pdfDir);
         auto path = Bidir::RandomWalk(vertices + 1, ctx.primary, beta,
                                       pdfDir, scene, ctx, minDepth - 1, maxDepth - 1,
-                                      Bidir::TransportMode::radiance);
+                                      TransportMode::radiance);
         return Bidir::SubPath(vertices, 1 + path.N);
     }
 

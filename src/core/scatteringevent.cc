@@ -7,8 +7,8 @@
 #include "materials/material.h"
 
 namespace Miyuki {
-    ScatteringEvent::ScatteringEvent(Sampler *sampler, Intersection *isct, BSDF *bsdf)
-            : u(sampler->get2D()), intersection(isct), coordinateSystem(isct->Ns), bsdf(bsdf) {
+    ScatteringEvent::ScatteringEvent(Sampler *sampler, Intersection *isct, BSDF *bsdf, TransportMode mode)
+            : u(sampler->get2D()), intersection(isct), coordinateSystem(isct->Ns), bsdf(bsdf), mode(mode) {
         woW = isct->wo;
         wo = worldToLocal(woW);
     }

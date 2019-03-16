@@ -25,7 +25,9 @@ namespace Miyuki {
         Spectrum importanceSampleOneLight(Scene &scene, RenderContext &ctx, const ScatteringEvent &event);
 
     public:
-        static void makeScatteringEvent(ScatteringEvent *, RenderContext &ctx, Intersection *);
+        static void makeScatteringEvent(ScatteringEvent *,
+                                        RenderContext &ctx, Intersection *,
+                                        TransportMode mode);
 
         virtual void render(Scene &) = 0;
 
@@ -39,7 +41,8 @@ namespace Miyuki {
     public:
         void render(Scene &scene) override;
     };
-    class DirectLightingIntegrator : public SamplerIntegrator{
+
+    class DirectLightingIntegrator : public SamplerIntegrator {
     public:
     protected:
         Spectrum L(RenderContext &ctx, Scene &scene) override;
@@ -48,7 +51,7 @@ namespace Miyuki {
         void render(Scene &scene) override;
 
     public:
-        DirectLightingIntegrator(int spp){
+        DirectLightingIntegrator(int spp) {
             this->spp = spp;
             maxRayIntensity = 1000;
         }

@@ -151,16 +151,17 @@ namespace Miyuki {
         bool specular = false;
         for (int depth = 0; depth < maxDepth; depth++) {
             if (!scene.intersect(ray, &intersection)) {
+                Li += beta * scene.infiniteAreaLight->L();
                 break;
             }
-            makeScatteringEvent(&event, ctx, &intersection);
+            makeScatteringEvent(&event, ctx, &intersection, TransportMode::radiance);
             if ((caustics && specular) || depth == 0) {
                 Li += event.Le(-1 * ray.d) * beta;
             }
             Li += beta * importanceSampleOneLight(scene, ctx, event);
             auto f = event.bsdf->sample(event);
             specular = event.bsdfLobe.matchFlag(BSDFLobe::specular);
-            if (event.pdf <= 0) {
+            if (event.pdf <= 0 || f.isBlack()) {
                 break;
             }
             ray = event.spawnRay(event.wiW);
@@ -184,7 +185,7 @@ namespace Miyuki {
         vertices[0] = Bidir::CreateCameraVertex(ctx.camera, ctx.raster, ctx.primary, 1.0f, beta);
         auto path = Bidir::RandomWalk(vertices + 1, ctx.primary, beta,
                                       1.0f, scene, ctx, minDepth, maxDepth,
-                                      Bidir::TransportMode::importance);
+                                      TransportMode::radiance);
         Spectrum Li(0, 0, 0);
         bool specular = false;
         ctx.sampler->startDimension(4 + 3 * maxDepth);

@@ -15,7 +15,7 @@ namespace Miyuki {
             Vec3f r, t;
             Float s = 1;
             if (obj.hasKey("rotation")) {
-                r = deserialize<Vec3f>(obj["rotation"]);
+                r = deserialize<Vec3f>(obj["rotation"]) / 180 * PI;
             }
             if (obj.hasKey("translation")) {
                 t = deserialize<Vec3f>(obj["translation"]);
@@ -101,6 +101,9 @@ namespace Miyuki {
         }
         if (object.hasKey("integrator")) {
             auto &I = object["integrator"];
+            if (I.hasKey("ambientLight")) {
+                parameters.addVec3f("ambientLight", IO::deserialize<Vec3f>(I["ambientLight"]));
+            }
             if (I.hasKey("type")) {
                 auto type = I["type"].getString();
                 if (type == "volpath" || type == "path") {
@@ -180,6 +183,9 @@ namespace Miyuki {
                     }
                     if (I.hasKey("largeStep")) {
                         parameters.addFloat("mlt.largeStep", IO::deserialize<Float>(I["largeStep"]));
+                    }
+                    if (I.hasKey("progressive")) {
+                        parameters.addInt("mlt.progressive", I["progressive"].getBool());
                     }
                     integrator = std::make_unique<MultiplexedMLT>(parameters);
                 } else if (type == "direct") {

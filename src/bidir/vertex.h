@@ -14,10 +14,6 @@
 
 namespace Miyuki {
     namespace Bidir {
-        enum class TransportMode {
-            radiance,
-            importance
-        };
 
         inline Float
         CorrectShadingNormal(const ScatteringEvent &event, const Vec3f &wo, const Vec3f &wi, TransportMode mode) {
@@ -53,7 +49,7 @@ namespace Miyuki {
             bool delta = false;
 
             bool isInfiniteLight() const {
-                return false;
+                return light && ((light->type & (Light::infinite)) != 0);
             }
 
             bool onSurface() const {
@@ -73,7 +69,8 @@ namespace Miyuki {
                     case mediumVertex:
                         return true;;
                 }
-                Assert(false);   return false;
+                Assert(false);
+                return false;
             }
 
             // area * cos / dist^2 = solid angle
@@ -113,10 +110,11 @@ namespace Miyuki {
                 switch (type) {
                     case surfaceVertex:
                         return event->bsdf->f(e)
-                                * CorrectShadingNormal(e, e.woW, e.wiW, mode);
+                               * CorrectShadingNormal(e, e.woW, e.wiW, mode);
                 }
                 return {};
             }
+
             Float pdfLight(Scene &scene, const Vertex &v) const {
                 auto w = v.ref - ref;
                 Float invDist2 = 1 / w.lengthSquared();

@@ -12,8 +12,8 @@ namespace Miyuki {
         SubPath
         RandomWalk(Vertex *vertices, Ray ray, Spectrum beta, Float pdf, Scene &scene,
                    RenderContext &ctx, int minDepth, int maxDepth,
-                   TransportMode mode) {
-            if (maxDepth == 0) {return { nullptr, 0 }; }
+                   TransportMode mode) {                                                                                
+            if (maxDepth == 0) { return {nullptr, 0}; }
             Float pdfFwd = pdf, pdfRev = 0;
             int depth = 0;
             auto intersections = ctx.arena->alloc<Intersection>(size_t(maxDepth));
@@ -26,12 +26,13 @@ namespace Miyuki {
                 auto &prev = vertices[depth - 1];
                 if (!scene.intersect(ray, &intersections[depth])) {
                     if (mode == TransportMode::radiance) {
-                        // TODO: infinite light
+                        vertex = CreateLightVertex(scene.infiniteAreaLight.get(), ray, ray.d, pdf, beta);
+                        depth++;
                     }
                     break;
                 }
                 // TODO: medium
-                Integrator::makeScatteringEvent(&events[depth], ctx, &intersections[depth]);
+                Integrator::makeScatteringEvent(&events[depth], ctx, &intersections[depth], mode);
                 auto &event = events[depth];
                 vertex = CreateSurfaceVertex(&events[depth], pdfFwd, beta, prev);
                 if (++depth >= maxDepth) {

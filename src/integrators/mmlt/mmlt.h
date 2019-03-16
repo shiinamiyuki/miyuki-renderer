@@ -8,17 +8,21 @@
 #include <samplers/mltsampler.h>
 #include <integrators/integrator.h>
 #include <integrators/bdpt/bdpt.h>
+#include <utils/stats.hpp>
+#include <core/progress.h>
 
 namespace Miyuki {
     class MMLTSampler : public MLTSampler {
         PrimarySample u1, u2;// for image location
         void ensureReadyU1U2();
+
     public:
         Point2i imageLocation;
         Spectrum L;
         Point2i imageDimension;
         int depth;
         int rejectCount = 0;
+
         Point2i sampleImageLocation() {
             ensureReadyU1U2();
             int x = clamp<int>(lroundf(u1.value * imageDimension.x()), 0, imageDimension.x() - 1);
@@ -28,7 +32,7 @@ namespace Miyuki {
 
         MMLTSampler(Seed *seed, int nStream, Float largeStep, Point2i imageDimension, int depth)
                 : MLTSampler(seed, nStream, largeStep),
-                  imageDimension(imageDimension), depth(depth){}
+                  imageDimension(imageDimension), depth(depth) {}
 
         bool large() const {
             return largeStep;
@@ -72,16 +76,36 @@ namespace Miyuki {
         Float b;
         Float largeStep;
         int nDirect;
+        bool progressive;
         static const int cameraStreamIndex = 0;
         static const int lightStreamIndex = 1;
         static const int connectionStreamIndex = 2;
         static const int nStream = 3;
         int maxConsecutiveRejects;
+        DECLARE_STATS_MEMBER(int32_t, acceptanceCounter);
+        DECLARE_STATS_MEMBER(int32_t, mutationCounter);
+        std::unique_ptr<ProgressReporter<uint64_t>> reporter;
+        std::mutex mutex;
     protected:
+
+        std::vector<Seed> mltSeeds;
+        std::vector<std::shared_ptr<MMLTSampler>> samplers;
 
         Spectrum radiance(Scene &scene, MemoryArena *arena, MMLTSampler *sampler, int depth, Point2i *raster);
 
         void handleDirect(Scene &scene);
+
+        void generateBootstrapSamples(Scene &scene);
+
+        void runMC(Scene &scene, MMLTSampler *sampler, MemoryArena *arena);
+
+        // MLT is afterall a progressive algorithm
+        // The only difference is the order of MC being executed
+        void renderProgressive(Scene &scene);
+
+        void renderNonProgressive(Scene &scene);
+
+        void recoverImage(Scene &scene);
 
     public:
         void render(Scene &scene) override;

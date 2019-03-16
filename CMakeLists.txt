@@ -13,7 +13,8 @@ file(GLOB coreSRC
         "src/bsdfs/*.cc"
         "src/lights/*.cc"
         "src/materials/*.cc"
-        "src/bidir/*.cc")
+        "src/bidir/*.cc"
+        "src/media/*.cc")
 file(GLOB thirdpartySRC
         "src/thirdparty/lodepng/lodepng.cpp"
         "src/thirdparty/tiny_obj_loader/tiny_obj_loader.cc"

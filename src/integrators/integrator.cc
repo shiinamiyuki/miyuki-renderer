@@ -12,10 +12,12 @@
 #include "samplers/sobol.h"
 #include "utils/thread.h"
 #include <bidir/vertex.h>
+
 namespace Miyuki {
 
-    void Integrator::makeScatteringEvent(ScatteringEvent *event, RenderContext &ctx, Intersection *isct) {
-        *event = ScatteringEvent(ctx.sampler, isct, nullptr);
+    void Integrator::makeScatteringEvent(ScatteringEvent *event, RenderContext &ctx, Intersection *isct,
+                                         TransportMode mode) {
+        *event = ScatteringEvent(ctx.sampler, isct, nullptr, mode);
         isct->primitive->material()->computeScatteringFunction(ctx, *event);
     }
 
@@ -107,7 +109,7 @@ namespace Miyuki {
         {
             std::random_device rd;
             std::uniform_int_distribution<Seed> dist;
-            for(auto& i:seeds){
+            for (auto &i:seeds) {
                 i = dist(rd);
             }
         }
@@ -152,7 +154,7 @@ namespace Miyuki {
         vertices[0] = Bidir::CreateCameraVertex(ctx.camera, ctx.raster, ctx.primary, 1.0f, beta);
         auto path = Bidir::RandomWalk(vertices + 1, ctx.primary, beta,
                                       1.0f, scene, ctx, 1, 1,
-                                      Bidir::TransportMode::importance);
+                                      TransportMode::importance);
         Spectrum Li(0, 0, 0);
         bool specular = false;
         ctx.sampler->startDimension(4 + 4 * 1);

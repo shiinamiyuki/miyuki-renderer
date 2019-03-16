@@ -15,6 +15,7 @@
 #include "math/distribution.h"
 #include "parameter.h"
 #include "materials/materialfactory.h"
+#include <lights/infinite.h>
 
 namespace Miyuki {
     class EmbreeScene;
@@ -47,7 +48,7 @@ namespace Miyuki {
         std::unique_ptr<MaterialFactory> factory;
         std::function<void(Scene &)> updateFunc;
         std::function<bool(Scene &)> processContinueFunc;
-        std::function<void(std::vector<uint8_t>&)> readImageFunc;
+        std::function<void(std::vector<uint8_t> &)> readImageFunc;
         ParameterSet parameterSet;
 
         friend class Integrator;
@@ -66,6 +67,8 @@ namespace Miyuki {
 
         Json::JsonObject description;
     public:
+        std::unique_ptr<InfiniteAreaLight> infiniteAreaLight;
+
         Scene();
 
         void readImage(std::vector<uint8_t> &pixelData);
@@ -89,7 +92,9 @@ namespace Miyuki {
         bool intersect(const RayDifferential &ray, Intersection *);
 
         RenderContext getRenderContext(const Point2i &raster, MemoryArena *, Sampler *);
+
         RenderContext getRenderContext(const Point2f &raster, MemoryArena *, Sampler *);
+
         void saveImage();
 
         Light *chooseOneLight(Sampler *, Float *pdf);
