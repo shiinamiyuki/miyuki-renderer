@@ -13,15 +13,12 @@ namespace Miyuki {
     class MMLTSampler : public MLTSampler {
         PrimarySample u1, u2;// for image location
         void ensureReadyU1U2();
-
-        int rejectCount = 0;
-        int maxConsecutiveRejects;
     public:
         Point2i imageLocation;
         Spectrum L;
         Point2i imageDimension;
         int depth;
-
+        int rejectCount = 0;
         Point2i sampleImageLocation() {
             ensureReadyU1U2();
             int x = clamp<int>(lroundf(u1.value * imageDimension.x()), 0, imageDimension.x() - 1);
@@ -29,11 +26,9 @@ namespace Miyuki {
             return {x, y};
         }
 
-        MMLTSampler(Seed *seed, int nStream, Float largeStep, Point2i imageDimension, int depth,
-                    int maxConsecutiveRejects = 1024)
+        MMLTSampler(Seed *seed, int nStream, Float largeStep, Point2i imageDimension, int depth)
                 : MLTSampler(seed, nStream, largeStep),
-                  imageDimension(imageDimension), depth(depth),
-                  maxConsecutiveRejects(maxConsecutiveRejects) {}
+                  imageDimension(imageDimension), depth(depth){}
 
         bool large() const {
             return largeStep;
@@ -49,14 +44,6 @@ namespace Miyuki {
         }
 
         void startIteration() override {
-            if (rejectCount >= maxConsecutiveRejects) {
-                rejectCount = 0;
-                for (auto &Xi:X) {
-                    Xi.value = Xi.valueBackup = uniformFloat();
-                }
-                u1.value = u1.valueBackup = uniformFloat();
-                u2.value = u2.valueBackup = uniformFloat();
-            }
             MLTSampler::startIteration();
         }
 
@@ -70,18 +57,18 @@ namespace Miyuki {
         }
     };
 
-    inline Float AverageMutationPerPixel(int nPixels, int nChains, int nIterations) {
-        return nChains * nIterations / (Float) nPixels;
+    inline double AverageMutationPerPixel(int64_t nPixels, int64_t nChains, int64_t nIterations) {
+        return nChains * nIterations / (double) nPixels;
     }
 
-    inline int ChainsMutations(int nPixels, int nChains, int mpp) {
+    inline int64_t ChainsMutations(int64_t nPixels, int64_t nChains, double mpp) {
         return std::round(mpp * nPixels / nChains);
     }
 
     class MultiplexedMLT : public BDPT {
         int nBootstrap;
         int nChains;
-        int nMutations;
+        int64_t nMutations;
         Float b;
         Float largeStep;
         int nDirect;

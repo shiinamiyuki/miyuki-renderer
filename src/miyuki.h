@@ -45,9 +45,9 @@ namespace Miyuki {
         NotImplemented() : std::logic_error("Function not yet implemented") {};
     };
 
-    inline void Assert(bool expr) {
+    inline void __Assert(bool expr) {
         if (!expr) {
-            throw std::runtime_error("Assertion failed");
+            throw std::runtime_error(std::string("Assertion failed"));
         }
     }
 
@@ -58,7 +58,7 @@ namespace Miyuki {
 
     namespace cxx = boost;
 #define CHECK(expr) do{if(!(expr)){fmt::print(stderr, "{}:{} {} failed\n",__FILE__, __LINE__, #expr);}}while(0)
-
+#define Assert(expr) do{if(!(expr)){fmt::print(stderr, "{}:{} {} failed\n",__FILE__, __LINE__, #expr);__Assert(false);}}while(0)
     void Init();
 
     void Exit();

@@ -37,7 +37,7 @@ namespace Miyuki {
         std::vector<std::shared_ptr<MMLTSampler>> samplers(nChains);
 
         fmt::print("Integrator: Multiplexed Metropolis Light Transport!\n");
-        fmt::print("{} chains, {} mutations\n", nChains, nMutations);
+        fmt::print("{}mpp, {} chains, {} mutations\n", spp, nChains, nMutations);
         fmt::print("Generating bootstrap samples, nBootstrap={}\n", nBootstrap);
         std::random_device rd;
         {
@@ -77,7 +77,7 @@ namespace Miyuki {
                 mltSeeds[i] = seeds[seedIndex];
 
                 samplers[i] = std::make_shared<MMLTSampler>(&mltSeeds[i], nStream, largeStep, scene.filmDimension(),
-                                                            depth, maxConsecutiveRejects);
+                                                            depth);
                 samplers[i]->depth = depth;
                 samplers[i]->L = radiance(scene, &arenas[0], samplers[i].get(), samplers[i]->depth,
                                           &samplers[i]->imageLocation);
@@ -93,9 +93,9 @@ namespace Miyuki {
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
         std::uniform_real_distribution<Float> dist;
         std::mutex mutex;
-        ProgressReporter reporter(nMutations * nChains, [&](int cur, int total) {
+        ProgressReporter<int64_t> reporter(nMutations * nChains, [&](int64_t cur, int64_t total) {
             static int last = -1;
-            int mpp = lround(cur / (double) nPixels);
+            int64_t mpp = lround(cur / (double) nPixels);
             if (mpp == 0)return;
             if (mpp > 4)
                 mpp /= 4;
@@ -127,12 +127,16 @@ namespace Miyuki {
             }
         };
         Thread::ParallelFor(0, nChains, [&](uint32_t idx, uint32_t threadId) {
-            for (int curIter = 0; curIter < nMutations && scene.processContinuable(); curIter++) {
+            for (int64_t curIter = 0; curIter < nMutations && scene.processContinuable(); curIter++) {
                 auto sampler = samplers[idx].get();
                 sampler->startIteration();
                 Point2i pProposed;
                 auto LProposed = radiance(scene, &arenas[threadId], sampler, sampler->depth, &pProposed);
                 Float accept = clamp(LProposed.luminance() / sampler->L.luminance(), 0.0f, 1.0f);
+                // force accept mutation, this removes fireflies (somehow)
+                if (sampler->rejectCount >= maxConsecutiveRejects) {
+                    accept = 1;
+                }
                 auto LNew = removeNaNs(Spectrum(
                         LProposed * accept / LProposed.luminance()));
                 auto LOld = removeNaNs(Spectrum(
@@ -220,6 +224,8 @@ namespace Miyuki {
     }
 
     void MultiplexedMLT::handleDirect(Scene &scene) {
+        if (nDirect <= 0)
+            return;;
         std::unique_ptr<DirectLightingIntegrator> direct(new DirectLightingIntegrator(nDirect));
         fmt::print("Rendering direct lighting\n");
         direct->render(scene);

@@ -17,6 +17,12 @@ namespace Miyuki {
         int minDepth;
         int maxDepth;
         bool caustics;
+        bool adaptive;
+        int nLuminanceSample = 100000;
+        Float maxSampleFactor = 32;
+        Float requiredPValue = 0.05;
+        double maxError = 0.05;
+        Float heuristic;
     public:
         VolPath(const ParameterSet &set);
 

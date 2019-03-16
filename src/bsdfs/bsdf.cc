@@ -89,7 +89,7 @@ namespace Miyuki {
         }
 
         if (!bxdf->matchFlag(BSDFLobe::specular)) {
-            bool reflect = SameHemisphere(event.wo, event.wi);
+            bool reflect = Vec3f::dot(event.woW, event.Ng()) * Vec3f::dot(event.wiW, event.Ng()) > 0;
             bsdf = Spectrum{};
             for (int i = 0; i < nBxDFs; i++) {
                 if (bxdfs[i]->matchFlag(lobe) &&

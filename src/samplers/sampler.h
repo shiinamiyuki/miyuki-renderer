@@ -50,7 +50,7 @@ namespace Miyuki {
 
         virtual Point2f get2D() = 0;
 
-        int32_t uniformInt32() {
+        uint32_t uniformInt32() {
             return rng.uniformInt32();
         }
 

@@ -71,6 +71,28 @@ namespace Miyuki {
         return -1 * wo + 2 * Vec3f::dot(wo, n) * n;
     }
 
+    inline Float FrDielectric(Float cosThetaI, Float etaI, Float etaT) {
+        cosThetaI = clamp(cosThetaI, -1, 1);
+        bool entering = cosThetaI > 0.f;
+        if (!entering) {
+            std::swap(etaI, etaT);
+            cosThetaI = std::abs(cosThetaI);
+        }
+        Float sinThetaI = std::sqrt(std::max((Float) 0,
+                                             1 - cosThetaI * cosThetaI));
+        Float sinThetaT = etaI / etaT * sinThetaI;
+        if (sinThetaT >= 1)
+            return 1;
+        Float cosThetaT = std::sqrt(std::max((Float) 0,
+                                             1 - sinThetaT * sinThetaT));
+
+        Float Rparl = ((etaT * cosThetaI) - (etaI * cosThetaT)) /
+                      ((etaT * cosThetaI) + (etaI * cosThetaT));
+        Float Rperp = ((etaI * cosThetaI) - (etaT * cosThetaT)) /
+                      ((etaI * cosThetaI) + (etaT * cosThetaT));
+        return (Rparl * Rparl + Rperp * Rperp) / 2;
+    }
+
     struct BSDFLobe {
         static const uint32_t none = 0;
         static const uint32_t reflection = 1;
@@ -159,6 +181,30 @@ namespace Miyuki {
             return {1, 1, 1};
         }
     };
+
+    class FresnelDielectric : public Fresnel {
+        Float etaI, etaT;
+    public:
+        FresnelDielectric(Float etaI, Float etaT) : etaI(etaI), etaT(etaT) {}
+
+        Spectrum eval(Float cosI) const override {
+            auto x = FrDielectric(cosI, etaI, etaT);
+            return {x, x, x};
+        }
+    };
+
+    inline bool Refract(const Vec3f &wi, const Vec3f &n, Float eta,
+                        Vec3f *wt) {
+        Float cosThetaI = Vec3f::dot(n, wi);
+        Float sin2ThetaI = std::max(0.f, 1.f - cosThetaI * cosThetaI);
+        Float sin2ThetaT = eta * eta * sin2ThetaI;
+        if (sin2ThetaT >= 1) return false;
+
+        Float cosThetaT = std::sqrt(1 - sin2ThetaT);
+
+        *wt = -eta * wi + (eta * cosThetaI - cosThetaT) * Vec3f(n);
+        return true;
+    }
 }
 
 #endif //MIYUKI_BSDF_H

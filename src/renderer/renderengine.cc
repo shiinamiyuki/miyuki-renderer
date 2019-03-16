@@ -120,6 +120,22 @@ namespace Miyuki {
                     if (I.hasKey("caustics")) {
                         parameters.addInt("volpath.caustics", I["caustics"].getBool());
                     }
+                    if (I.hasKey("adaptive")) {
+                        parameters.addInt("volpath.adaptive", I["adaptive"].getBool());
+                    }
+                    if (I.hasKey("maxSampleFactor")) {
+                        parameters.addFloat("volpath.maxSampleFactor", IO::deserialize<Float>(I["maxSampleFactor"]));
+                    }
+                    if (I.hasKey("maxError")) {
+                        parameters.addFloat("volpath.maxError", IO::deserialize<Float>(I["maxError"]));
+                    }
+                    if (I.hasKey("heuristic")) {
+                        parameters.addFloat("volpath.heuristic", IO::deserialize<Float>(I["heuristic"]));
+                    }
+                    if (I.hasKey("pValue")) {
+                        parameters.addFloat("volpath.pValue", IO::deserialize<Float>(I["pValue"]));
+                    }
+
                     integrator = std::make_unique<VolPath>(parameters);
                 } else if (type == "bdpt") {
                     parameters.addString("integrator", "volpath");

@@ -42,6 +42,9 @@ namespace Miyuki {
         if (mtl.hasKey("Ni")) {
             info.Ni = mtl["Ni"].getFloat();
         }
+        if (mtl.hasKey("Tr")) {
+            info.Tr = mtl["Tr"].getFloat();
+        }
         if (mtl.hasKey("alphaX")) {
             info.alphaX = mtl["alphaX"].getFloat();
         }

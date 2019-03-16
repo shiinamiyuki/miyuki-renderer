@@ -90,7 +90,7 @@ namespace Miyuki {
             hilbertMapping.emplace_back(tx, ty);
         }
 
-        ProgressReporter reporter(hilbertMapping.size(), [&](int cur, int total) {
+        ProgressReporter<uint32_t> reporter(hilbertMapping.size(), [&](uint32_t cur, uint32_t total) {
             if (spp > 16) {
                 if (cur % 16 == 0) {
                     std::lock_guard<std::mutex> lockGuard(mutex);

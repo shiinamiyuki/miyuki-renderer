@@ -9,28 +9,35 @@
 #include "profile.h"
 
 namespace Miyuki {
+    template<typename T>
     class ProgressReporter {
-        std::function<void(int, int)> callback;
-        int total;
-        std::atomic<int> counter;
+        std::function<void(T, T)> callback;
+        T total;
+        std::atomic<T> counter;
         Profiler profiler;
     public:
-        ProgressReporter(int total, std::function<void(int, int)> callback)
+        ProgressReporter(T total, std::function<void(T, T)> callback)
                 : callback(std::move(callback)), counter(0), total(total) {}
 
-        void update();
-
-        Float percentage() const {
-            return (Float) counter / total;
+        double percentage() const {
+            return (double) counter / total;
         }
 
-        Float elapsedSeconds() const {
+        double elapsedSeconds() const {
             return profiler.elapsedSeconds();
         }
 
-        Float estimatedTimeToFinish() const;
-
         int count() const { return counter; }
+
+        void update() {
+            counter++;
+            T cnt = counter;
+            callback(cnt, total);
+        }
+
+        double estimatedTimeToFinish() const {
+            return elapsedSeconds() * (double(total) / counter - 1);
+        }
     };
 }
 #endif //MIYUKI_PROGRESS_H
