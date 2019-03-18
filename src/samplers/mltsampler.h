@@ -62,7 +62,6 @@ namespace Miyuki {
         bool largeStep = true;
         Float largeStepProbability;
 
-
         int getNextIndex();
 
     public:

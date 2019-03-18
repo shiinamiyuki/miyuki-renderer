@@ -27,7 +27,7 @@ namespace Miyuki {
             return profiler.elapsedSeconds();
         }
 
-        int count() const { return counter; }
+        T count() const { return counter; }
 
         void update() {
             counter++;

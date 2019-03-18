@@ -87,6 +87,17 @@ namespace Miyuki {
         getPixel(pos).color.addSplat(color);
     }
 
+    void Film::clear() {
+        for (auto &i:image) {
+            i.color.value = Spectrum{};
+            i.color.filterWeightSum = 0;
+            i.color.splatWeight = 1;
+            i.color.splatXYZ[0] = 0;
+            i.color.splatXYZ[1] = 0;
+            i.color.splatXYZ[2] = 0;
+        }
+    }
+
 
     void LightingComposition::scale(Float k) {
         direct.scale(k);

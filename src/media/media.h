@@ -15,5 +15,13 @@ namespace Miyuki {
 
         virtual Float sampleP(const Vec3f &wo, const Vec3f *wi, const Point2i &u) const = 0;
     };
+
+    inline Float PhaseHG(Float cosTheta, Float g) {
+        Float denominator = 1 + g * g + 2 * g * cosTheta;
+        return (1.0f / (PI * 4.0f)) * (1 - g * g) / (denominator * std::sqrt(denominator));
+    }
+    class HenyeyGreenstein : public PhaseFunction{
+    public:
+    };
 }
 #endif //MIYUKI_MEDIA_H

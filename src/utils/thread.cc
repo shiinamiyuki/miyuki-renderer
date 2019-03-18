@@ -50,13 +50,13 @@ namespace Miyuki {
             pool->waitForAll();
         }
 
-        void ParallelFor2D(Point2i N, TaskFunc2D taskFunc2D) {
+        void ParallelFor2D(Point2i N, TaskFunc2D taskFunc2D, size_t workSize) {
             ParallelFor(0u, N.x() * N.y(), [=](uint32_t id, uint32_t threadId) {
                 // id = x + N.x() * y
                 int x = id % N.x();
                 int y = id / N.y();
                 taskFunc2D(Point2i{x, y}, threadId);
-            });
+            }, workSize);
         }
 
         uint32_t ThreadPool::numThreads() const {

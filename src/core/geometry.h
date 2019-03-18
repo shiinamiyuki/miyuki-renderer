@@ -532,7 +532,7 @@ namespace Miyuki {
     using Point2f = Vec<Float, 2>;
     using Point3i = Vec<int32_t, 3>;
     using Point2i = Vec<int32_t, 2>;
-    const Float EPS = Float(0.001);
+    const Float EPS = Float(0.00001);
     const Float INF = 1e64;
 
     template<typename T, size_t N>

@@ -126,6 +126,9 @@ namespace Miyuki {
                     if (I.hasKey("adaptive")) {
                         parameters.addInt("volpath.adaptive", I["adaptive"].getBool());
                     }
+                    if (I.hasKey("progressive")) {
+                        parameters.addInt("volpath.progressive", I["progressive"].getBool());
+                    }
                     if (I.hasKey("maxSampleFactor")) {
                         parameters.addFloat("volpath.maxSampleFactor", IO::deserialize<Float>(I["maxSampleFactor"]));
                     }

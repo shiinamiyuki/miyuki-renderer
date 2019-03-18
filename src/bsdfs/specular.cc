@@ -36,32 +36,17 @@ namespace Miyuki {
             reflect = true;
         }
         auto reflective = dielectric.eval(CosTheta(wi));
-        Float p = 1;
         auto T = 1 - reflective.max();
-        if (event.u[0] < T) {
-            if (!reflect) {
-                p = T;
-            } else {
-                p = 1;
-            }
-        } else {
-            if (reflect) {
-                p = 1;
-            } else {
-                p = 1 - T;
-            }
-            reflect = true;
-        }
         if (!reflect) {
             event.setWi(wi);
-            event.pdf = p;
+            event.pdf = 1;
             Spectrum ft = T * R;
             ft /= AbsCosTheta(event.wi);
             event.bsdfLobe = BSDFLobe::transmission | BSDFLobe::specular;
             return ft;
         } else {
             event.setWi(Vec3f(-event.wo.x(), event.wo.y(), -event.wo.z()));
-            event.pdf = p;
+            event.pdf = 1;
             event.bsdfLobe = BSDFLobe::reflection | BSDFLobe::specular;
             return reflective * R / AbsCosTheta(event.wi);
         }

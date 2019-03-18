@@ -13,7 +13,7 @@ namespace Miyuki {
     struct Ray {
         Vec3f o, d;
         mutable Float near, far;
-
+        int excludePrimId = -1, excludeGeomId = -1;
         /*unused*/
         Float time;
 
@@ -50,6 +50,7 @@ namespace Miyuki {
     struct Intersection {
         RTCIntersectContext context;
         RTCRayHit rayHit;
+        Ray ray;
         Vec3f ref;
         Vec3f Ng;
         Vec3f Ns;
@@ -57,7 +58,7 @@ namespace Miyuki {
         int32_t primId = -1, geomId = -1;
         const Primitive *primitive = nullptr;
         Point2f uv;
-
+        int excludePrimId = -1, excludeGeomId = -1;
         Intersection(const Ray &ray = Ray());
 
         bool hit() const;

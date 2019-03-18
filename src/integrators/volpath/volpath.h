@@ -28,14 +28,13 @@ namespace Miyuki {
 
         void render(Scene &scene) override;
 
+        void renderAdaptive(Scene &scene);
+
+        Spectrum estimateDirect(Scene &scene,
+                                RenderContext &ctx, const ScatteringEvent &event);
+
     protected:
-        Spectrum L(RenderContext &ctx, Scene &scene) override {
-            return LRandomWalk(ctx, scene);
-        }
-
-        Spectrum LPathTraced(RenderContext &ctx, Scene &scene);
-
-        Spectrum LRandomWalk(RenderContext &ctx, Scene &scene);
+        Spectrum L(RenderContext &ctx, Scene &scene) override;
     };
 
 }

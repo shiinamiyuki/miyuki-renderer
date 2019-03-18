@@ -26,8 +26,6 @@ namespace Miyuki {
     }
 
 
-
-
     void MLTSampler::ensureReady(int index) {
         if (index >= X.size())
             X.resize(index + 1u);
@@ -42,6 +40,7 @@ namespace Miyuki {
     void MLTSampler::startIteration() {
         currentIteration++;
         largeStep = uniformFloat() < largeStepProbability;
+
     }
 
 

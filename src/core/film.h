@@ -76,6 +76,8 @@ namespace Miyuki {
         Film(int w = 0, int h = 0);
 
         void writePNG(const std::string &filename);
+
+        void clear();
     };
 }
 #endif //MIYUKI_FILM_H

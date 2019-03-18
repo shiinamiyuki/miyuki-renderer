@@ -22,6 +22,11 @@ namespace Miyuki {
         Point2i imageDimension;
         int depth;
         int rejectCount = 0;
+        uint64_t smallAcceptCount = 0;
+        uint64_t largeAcceptCount = 0;
+        uint64_t smallCount = 0;
+        uint64_t largeCount = 0;
+        uint64_t nonZeroCount = 0;
 
         Point2i sampleImageLocation() {
             ensureReadyU1U2();
@@ -44,11 +49,45 @@ namespace Miyuki {
 
         void accept() override {
             rejectCount = 0;
+            if (large()) {
+                largeAcceptCount++;
+            } else {
+                smallAcceptCount++;
+            }
             MLTSampler::accept();
         }
 
+        double ns() const {
+            return (double) smallAcceptCount / smallCount;
+        }
+
+        double nl() const {
+            return (double) largeAcceptCount / largeCount;
+        }
+
+        double n0() const {
+            return (double) nonZeroCount / largeCount;
+        }
+
+        double pl() const {
+            auto n = nl() / n0();
+            if (n < 0.1 || n0() == 0) {
+                return 0.25;
+            }
+            return std::max(0.01, ns() / (2 * (ns() - nl())));
+        }
+
         void startIteration() override {
+//            if (smallCount + largeCount == 4096) {
+//                largeStepProbability = (Float) pl();
+//            }
             MLTSampler::startIteration();
+            if (largeStep) {
+                largeCount++;
+            } else {
+                smallCount++;
+            }
+
         }
 
         void reject() override {
@@ -82,10 +121,14 @@ namespace Miyuki {
         static const int connectionStreamIndex = 2;
         static const int nStream = 3;
         int maxConsecutiveRejects;
+        static const int twoStageSampleFactor = 50;
         DECLARE_STATS_MEMBER(int32_t, acceptanceCounter);
         DECLARE_STATS_MEMBER(int32_t, mutationCounter);
         std::unique_ptr<ProgressReporter<uint64_t>> reporter;
         std::mutex mutex;
+        bool twoStage;
+        Point2i twoStageResolution;
+        std::vector<AtomicFloat> twoStageTestImage;
     protected:
 
         std::vector<Seed> mltSeeds;
@@ -95,17 +138,29 @@ namespace Miyuki {
 
         void handleDirect(Scene &scene);
 
+        void twoStageInit(Scene &scene);
+
         void generateBootstrapSamples(Scene &scene);
 
         void runMC(Scene &scene, MMLTSampler *sampler, MemoryArena *arena);
 
-        // MLT is afterall a progressive algorithm
+        // MLT is after all a progressive algorithm
         // The only difference is the order of MC being executed
         void renderProgressive(Scene &scene);
 
         void renderNonProgressive(Scene &scene);
 
         void recoverImage(Scene &scene);
+
+        Float approxLuminance(const Point2i &raster) {
+            int x = raster.x() / twoStageSampleFactor;
+            int y = raster.y() / twoStageSampleFactor;
+            Float lum = twoStageTestImage[x + twoStageResolution.x() * y];
+            lum = std::min(lum, 10.0f);
+            if (lum <= 0 || std::isnan(lum))
+                return 0.01;
+            return lum;
+        }
 
     public:
         void render(Scene &scene) override;

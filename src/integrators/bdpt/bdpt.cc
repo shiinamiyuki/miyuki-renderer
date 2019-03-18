@@ -107,6 +107,8 @@ namespace Miyuki {
                     Li *= Bidir::G(L, E);
                     VisibilityTester tester;
                     tester.shadowRay = Ray{L.ref, (E.ref - L.ref).normalized()};
+                    tester.shadowRay.excludePrimId = L.event->getIntersection()->primId;
+                    tester.shadowRay.excludeGeomId = L.event->getIntersection()->geomId;
                     Assert(E.event);
                     tester.primId = E.event->getIntersection()->primId;
                     tester.geomId = E.event->getIntersection()->geomId;

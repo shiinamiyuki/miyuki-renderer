@@ -25,9 +25,10 @@ namespace Miyuki {
         spp = set.findInt("mlt.spp", 4);
         maxRayIntensity = set.findFloat("mlt.maxRayIntensity", 10000.0f);
         largeStep = set.findFloat("mlt.largeStep", 0.3f);
-        maxConsecutiveRejects = set.findInt("mlt.maxConsecutiveRejects", 256);
+        maxConsecutiveRejects = set.findInt("mlt.maxConsecutiveRejects", 512);
         progressive = set.findInt("mlt.progressive", false);
         b = 0;
+        twoStage = set.findInt("mlt.twoStage", false);
     }
 
     void MultiplexedMLT::generateBootstrapSamples(Scene &scene) {
@@ -89,13 +90,21 @@ namespace Miyuki {
         if (sampler->rejectCount >= maxConsecutiveRejects) {
             accept = 1;
         }
+        if (sampler->large() && LProposed.luminance() > 0) {
+            sampler->nonZeroCount++;
+        }
         auto LNew = removeNaNs(Spectrum(
                 LProposed * accept / LProposed.luminance()));
         auto LOld = removeNaNs(Spectrum(
                 sampler->L * (1 - accept) / sampler->L.luminance()));
+        if (twoStage) {
+            LNew *= approxLuminance(pProposed);
+            LOld *= approxLuminance(sampler->imageLocation);
+        }
         if (accept > 0) {
             scene.film->addSplat(pProposed, LNew);
         }
+
         scene.film->addSplat(sampler->imageLocation, LOld);
         UPDATE_STATS(mutationCounter, 1);
         if (dist(rd) < accept) {
@@ -110,7 +119,6 @@ namespace Miyuki {
 
 
     void MultiplexedMLT::render(Scene &scene) {
-        std::random_device rd;
         auto &film = *scene.film;
         int nPixels = scene.filmDimension().x() * scene.filmDimension().y();
         nMutations = ChainsMutations(nPixels, nChains, spp);
@@ -119,6 +127,9 @@ namespace Miyuki {
 
         fmt::print("Integrator: Multiplexed Metropolis Light Transport!\n");
         fmt::print("{}mpp, {} chains, {} mutations\n", spp, nChains, nMutations);
+        if (twoStage) {
+            twoStageInit(scene);
+        }
         fmt::print("Generating bootstrap samples, nBootstrap={}\n", nBootstrap);
         generateBootstrapSamples(scene);
         handleDirect(scene);
@@ -248,12 +259,12 @@ namespace Miyuki {
         auto ctx = scene.getRenderContext(imageLoc, arena, sampler);
         CHECK(ctx.sampler == sampler);
         auto cameraSubPath = generateCameraSubPath(scene, ctx, t, t);
-        if (cameraSubPath.N != t) {
+        if (cameraSubPath.N < t) {
             return {};
         }
         sampler->startStream(lightStreamIndex);
         auto lightSubPath = generateLightSubPath(scene, ctx, s, s);
-        if (lightSubPath.N != s) {
+        if (lightSubPath.N < s) {
             return {};
         }
         if (nDirect > 0 && s + t == 3 && s == 0) {
@@ -262,20 +273,62 @@ namespace Miyuki {
         }
         *raster = imageLoc;
         sampler->startStream(connectionStreamIndex);
-        return clampRadiance(
+        auto Li = clampRadiance(
                 removeNaNs(connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, raster) * nStrategies),
                 maxRayIntensity);
+        if (twoStage) {
+            auto lum = approxLuminance(*raster);
+            Li /= lum;
+        }
+        return Li;
     }
 
     void MultiplexedMLT::handleDirect(Scene &scene) {
         if (nDirect <= 0)
-            return;;
+            return;
         std::unique_ptr<DirectLightingIntegrator> direct(new DirectLightingIntegrator(nDirect));
         fmt::print("Rendering direct lighting\n");
         direct->render(scene);
     }
 
-
+    void MultiplexedMLT::twoStageInit(Scene &scene) {
+        fmt::print("Two-stage MLT: test image\n");
+        int nPixels = scene.filmDimension().x() * scene.filmDimension().y();
+        twoStageResolution = scene.filmDimension() / twoStageSampleFactor + Point2i{1, 1};
+        std::vector<MemoryArena> arenas(Thread::pool->numThreads());
+        std::vector<Seed> seeds(Thread::pool->numThreads());
+        for (auto &i:seeds) {
+            i = rand();
+        }
+        twoStageTestImage.resize(twoStageResolution.x() * twoStageResolution.y());
+        for (auto &i: twoStageTestImage) {
+            i = 0;
+        }
+        ScopedAssignment<bool> a1(&twoStage, false);
+        Thread::ParallelFor(0u, nPixels, [&](uint32_t id, uint32_t threadId) {
+            RandomSampler rng(&seeds[threadId]);
+            Float lum = 0;
+            MMLTSampler sampler(&seeds[threadId], nStream, largeStep, scene.filmDimension(),
+                                rng.uniformInt32() % (maxDepth + 1));
+            Point2i raster;
+            Spectrum Li = radiance(scene, &arenas[threadId], &sampler, sampler.depth, &raster) * (maxDepth + 1);
+            Li = clampRadiance(Li, 10);
+            Li = removeNaNs(Li);
+            lum = Li.luminance();
+            int x = raster.x();
+            int y = raster.y();
+            x /= twoStageSampleFactor;
+            y /= twoStageSampleFactor;
+            twoStageTestImage[x + y * twoStageResolution.x()].add(lum / (twoStageSampleFactor * twoStageSampleFactor));
+        }, 2048);
+//        Film temp(scene.filmDimension().x(), scene.filmDimension().y());
+//        for (int i = 0; i < scene.filmDimension().x(); i++) {
+//            for (int j = 0; j < scene.filmDimension().y(); j++) {
+//                temp.addSample({i, j}, approxLuminance({i, j}));
+//            }
+//        }
+//        temp.writePNG("twostage.png");
+    }
 }
 
 

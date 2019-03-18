@@ -58,7 +58,10 @@ namespace Miyuki {
         }
 
         Ray spawnRay(const Vec3f &wi) const {
-            return Ray(intersection->ref, wi);
+             Ray ray(intersection->ref, wi);
+             ray.excludeGeomId = getIntersection()->geomId;
+             ray.excludePrimId = getIntersection()->primId;
+             return ray;
         }
 
         Spectrum Le(const Vec3f &wi) const;

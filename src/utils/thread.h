@@ -15,7 +15,7 @@ namespace Miyuki {
 
         void ParallelFor(uint32_t begin, uint32_t end, TaskFunc, size_t workSize=1);
 
-        void ParallelFor2D(Point2i N, TaskFunc2D);
+        void ParallelFor2D(Point2i N, TaskFunc2D, size_t workSize=1);
 
         class WorkGroup {
             uint32_t threadId;
