@@ -24,6 +24,7 @@ BDPT: Boring pbrt-style implementation.</br>
 
 Multiplexed MLT: We implemented some of the optimizations suggested by Eric Veach, Hachisuka and other open source MLT implementations like LuxCoreRender. More optimizations needed.
 
+Path Space MLT: Working on it.
 All of these algorithms share the same code base, makes it easier to maintain the code.
 
 ### Miscellaneous 
