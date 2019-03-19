@@ -17,7 +17,7 @@ namespace Miyuki {
 
         Float power() const override;
 
-        Spectrum L() const override;
+        Spectrum L(const Ray& ray) const override;
 
         Spectrum sampleLi(const Point2f &u, const Intersection &intersection, Vec3f *wi, Float *pdf,
                           VisibilityTester *tester) const override;

@@ -21,6 +21,11 @@ namespace Miyuki {
 
         Point2f get2D() override;
 
+        void startPass(uint32_t N) override {
+            Sampler::startPass(N);
+            numPass = N;
+        }
+
         void startDimension(int dimension) override;
     };
 }

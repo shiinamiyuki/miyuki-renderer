@@ -66,8 +66,8 @@ namespace Miyuki {
                 if (!f.isBlack() && scatteringPdf > 0 && !sampledSpecular) {
                     Ray ray = scatteringEvent.spawnRay(wi);
                     Intersection isct;
-                    if (scene.intersect(ray, &isct) && isct.primitive->light) {
-                        light = isct.primitive->light;
+                    if (scene.intersect(ray, &isct) && isct.primitive->light()) {
+                        light = isct.primitive->light();
                         Float lightPdf = light->pdfLi(*event.getIntersection(), wi) * scene.pdfLightChoice(light);
                         auto Li = isct.Le(-1 * wi);
                         if (lightPdf > 0) {

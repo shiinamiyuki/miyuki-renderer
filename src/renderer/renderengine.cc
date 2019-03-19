@@ -6,6 +6,7 @@
 #include "integrators/volpath/volpath.h"
 #include <integrators/bdpt/bdpt.h>
 #include <integrators/mmlt/mmlt.h>
+#include <integrators/mlt/mlt.h>
 #include "core/film.h"
 
 namespace Miyuki {
@@ -104,6 +105,9 @@ namespace Miyuki {
             if (I.hasKey("ambientLight")) {
                 parameters.addVec3f("ambientLight", IO::deserialize<Vec3f>(I["ambientLight"]));
             }
+            if (I.hasKey("envMap")) {
+                parameters.addString("envMap", (I["envMap"]).getString());
+            }
             if (I.hasKey("type")) {
                 auto type = I["type"].getString();
                 if (type == "volpath" || type == "path") {
@@ -143,10 +147,14 @@ namespace Miyuki {
                     }
 
                     integrator = std::make_unique<VolPath>(parameters);
-                } else if (type == "bdpt") {
+                }
+                else if (type == "bdpt") {
                     parameters.addString("integrator", "volpath");
                     if (I.hasKey("maxRayIntensity")) {
                         parameters.addFloat("bdpt.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
+                    }
+                    if (I.hasKey("progressive")) {
+                        parameters.addInt("bdpt.progressive", I["progressive"].getBool());
                     }
                     if (I.hasKey("spp")) {
                         parameters.addInt("bdpt.spp", IO::deserialize<int>(I["spp"]));
@@ -161,7 +169,8 @@ namespace Miyuki {
                         parameters.addInt("bdpt.caustics", I["caustics"].getBool());
                     }
                     integrator = std::make_unique<BDPT>(parameters);
-                } else if (type == "mlt") {
+                }
+                else if (type == "mlt") {
                     parameters.addString("integrator", "volpath");
                     if (I.hasKey("maxRayIntensity")) {
                         parameters.addFloat("mlt.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
@@ -190,10 +199,15 @@ namespace Miyuki {
                     if (I.hasKey("progressive")) {
                         parameters.addInt("mlt.progressive", I["progressive"].getBool());
                     }
+                    if (I.hasKey("twoStage")) {
+                        parameters.addInt("mlt.twoStage", I["twoStage"].getBool());
+                    }
                     integrator = std::make_unique<MultiplexedMLT>(parameters);
-                } else if (type == "direct") {
+                }
+                else if (type == "direct") {
                     integrator = std::make_unique<DirectLightingIntegrator>(IO::deserialize<int>(I["spp"]));
-                } else {
+                }
+                else {
                     fmt::print(stderr, "Unknown integrator type `{}`\n", type);
                 }
             }

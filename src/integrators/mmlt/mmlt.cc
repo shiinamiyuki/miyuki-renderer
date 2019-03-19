@@ -9,12 +9,11 @@
 
 namespace Miyuki {
 
-    // special handling for image stratification
-    void MMLTSampler::ensureReadyU1U2() {
-        mutate(u1, 2.0f / (imageDimension.x() + imageDimension.y()), 0.1f);
-        mutate(u2, 2.0f / (imageDimension.x() + imageDimension.y()), 0.1f);
-    }
-
+    const int MultiplexedMLT::cameraStreamIndex = 0;
+    const int MultiplexedMLT::lightStreamIndex = 1;
+    const int MultiplexedMLT::connectionStreamIndex = 2;
+    const int MultiplexedMLT::nStream = 3;
+    const int  MultiplexedMLT::twoStageSampleFactor = 20;
 
     MultiplexedMLT::MultiplexedMLT(const ParameterSet &set) : BDPT(set) {
         nBootstrap = set.findInt("mlt.nBootstrap", 100000);
@@ -24,8 +23,7 @@ namespace Miyuki {
         maxDepth = set.findInt("mlt.maxDepth", 5);
         spp = set.findInt("mlt.spp", 4);
         maxRayIntensity = set.findFloat("mlt.maxRayIntensity", 10000.0f);
-        largeStep = set.findFloat("mlt.largeStep", 0.3f);
-        maxConsecutiveRejects = set.findInt("mlt.maxConsecutiveRejects", 512);
+        largeStep = set.findFloat("mlt.largeStep", 0.25f);
         progressive = set.findInt("mlt.progressive", false);
         b = 0;
         twoStage = set.findInt("mlt.twoStage", false);
@@ -54,7 +52,7 @@ namespace Miyuki {
                 arenas[threadId].reset();
                 Point2i raster;
                 int seedIndex = i * (maxDepth + 1) + depth;
-                MMLTSampler sampler(&bootstrapSeeds[seedIndex], nStream, largeStep, scene.filmDimension(), depth);
+                MLTSampler sampler(&bootstrapSeeds[seedIndex], nStream, largeStep, scene.filmDimension(), depth);
                 bootstrapWeights[seedIndex] = radiance(scene, &arenas[threadId], &sampler, depth,
                                                        &raster).luminance();
             }
@@ -69,8 +67,8 @@ namespace Miyuki {
             auto depth = seedIndex % (maxDepth + 1);
             mltSeeds[i] = seeds[seedIndex];
 
-            samplers[i] = std::make_shared<MMLTSampler>(&mltSeeds[i], nStream, largeStep, scene.filmDimension(),
-                                                        depth);
+            samplers[i] = std::make_shared<MLTSampler>(&mltSeeds[i], nStream, largeStep, scene.filmDimension(),
+                                                       depth);
             samplers[i]->depth = depth;
             samplers[i]->L = radiance(scene, &arenas[0], samplers[i].get(), samplers[i]->depth,
                                       &samplers[i]->imageLocation);
@@ -79,15 +77,19 @@ namespace Miyuki {
 
     }
 
-    void MultiplexedMLT::runMC(Scene &scene, MMLTSampler *sampler, MemoryArena *arena) {
+    void MultiplexedMLT::runMC(Scene &scene, MLTSampler *sampler, MemoryArena *arena) {
         static std::random_device rd;
         static std::uniform_real_distribution<Float> dist;
         sampler->startIteration();
         Point2i pProposed;
         auto LProposed = radiance(scene, arena, sampler, sampler->depth, &pProposed);
-        Float accept = clamp(LProposed.luminance() / sampler->L.luminance(), 0.0f, 1.0f);
+        Float accept;
+        if (sampler->L.luminance() == 0)
+            accept = 1;
+        else
+            accept = clamp(LProposed.luminance() / sampler->L.luminance(), 0.0f, 1.0f);
         // force accept mutation, this removes fireflies (somehow)
-        if (sampler->rejectCount >= maxConsecutiveRejects) {
+        if (sampler->rejectCount >= MLTSampler::maxConsecutiveRejects) {
             accept = 1;
         }
         if (sampler->large() && LProposed.luminance() > 0) {
@@ -224,10 +226,11 @@ namespace Miyuki {
     }
 
     Spectrum
-    MultiplexedMLT::radiance(Scene &scene, MemoryArena *arena, MMLTSampler *sampler, int depth, Point2i *raster) {
+    MultiplexedMLT::radiance(Scene &scene, MemoryArena *arena, MLTSampler *sampler, int depth, Point2i *raster) {
         auto imageLoc = sampler->sampleImageLocation();
         int s, t, nStrategies;
         sampler->startStream(cameraStreamIndex);
+        auto u = sampler->get1D();
         if (nDirect <= 0) {
             if (depth == 0) {
                 nStrategies = 1;
@@ -235,7 +238,7 @@ namespace Miyuki {
                 t = 2;
             } else {
                 nStrategies = depth + 2;
-                s = std::min((int) (sampler->get1D() * nStrategies), nStrategies - 1);
+                s = std::min((int) (u * nStrategies), nStrategies - 1);
                 t = nStrategies - s;
             }
         } else {
@@ -251,7 +254,7 @@ namespace Miyuki {
                     nStrategies = 1;
                 } else {
                     nStrategies = depth + 2;
-                    s = std::min((int) (sampler->get1D() * nStrategies), nStrategies - 1);
+                    s = std::min((int) (u * nStrategies), nStrategies - 1);
                     t = nStrategies - s;
                 }
             }
@@ -274,8 +277,8 @@ namespace Miyuki {
         *raster = imageLoc;
         sampler->startStream(connectionStreamIndex);
         auto Li = clampRadiance(
-                removeNaNs(connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, raster) * nStrategies),
-                maxRayIntensity);
+                removeNaNs(connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, raster)),
+                maxRayIntensity) * nStrategies;
         if (twoStage) {
             auto lum = approxLuminance(*raster);
             Li /= lum;
@@ -305,22 +308,27 @@ namespace Miyuki {
             i = 0;
         }
         ScopedAssignment<bool> a1(&twoStage, false);
-        Thread::ParallelFor(0u, nPixels, [&](uint32_t id, uint32_t threadId) {
-            RandomSampler rng(&seeds[threadId]);
-            Float lum = 0;
-            MMLTSampler sampler(&seeds[threadId], nStream, largeStep, scene.filmDimension(),
-                                rng.uniformInt32() % (maxDepth + 1));
-            Point2i raster;
-            Spectrum Li = radiance(scene, &arenas[threadId], &sampler, sampler.depth, &raster) * (maxDepth + 1);
-            Li = clampRadiance(Li, 10);
-            Li = removeNaNs(Li);
-            lum = Li.luminance();
-            int x = raster.x();
-            int y = raster.y();
-            x /= twoStageSampleFactor;
-            y /= twoStageSampleFactor;
-            twoStageTestImage[x + y * twoStageResolution.x()].add(lum / (twoStageSampleFactor * twoStageSampleFactor));
-        }, 2048);
+        for (int pass = 0; pass < 16; pass++) {
+            fmt::print("Two stage test image pass {}\n", pass + 1);
+            Thread::ParallelFor(0u, nPixels, [&](uint32_t id, uint32_t threadId) {
+                RandomSampler rng(&seeds[threadId]);
+                Float lum = 0;
+                MLTSampler sampler(&seeds[threadId], nStream, largeStep, scene.filmDimension(),
+                                   rng.uniformInt32() % (maxDepth + 1));
+                Point2i raster;
+                Spectrum Li = radiance(scene, &arenas[threadId], &sampler, sampler.depth, &raster) * (maxDepth + 1);
+                Li = clampRadiance(Li, 10);
+                Li = removeNaNs(Li);
+                lum = Li.luminance();
+                int x = raster.x();
+                int y = raster.y();
+                x /= twoStageSampleFactor;
+                y /= twoStageSampleFactor;
+                twoStageTestImage[x + y * twoStageResolution.x()].add(
+                        lum / (twoStageSampleFactor * twoStageSampleFactor) / 16);
+                arenas[threadId].reset();
+            }, 2048);
+        }
 //        Film temp(scene.filmDimension().x(), scene.filmDimension().y());
 //        for (int i = 0; i < scene.filmDimension().x(); i++) {
 //            for (int j = 0; j < scene.filmDimension().y(); j++) {

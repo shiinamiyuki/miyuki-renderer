@@ -44,7 +44,7 @@ namespace Miyuki {
     }
 
     void Scene::loadObjMesh(const std::string &filename) {
-        if(meshes.find(filename) != meshes.end())
+        if (meshes.find(filename) != meshes.end())
             return;
         auto mesh = std::make_shared<Mesh>(filename);
         meshes[filename] = mesh;
@@ -69,7 +69,7 @@ namespace Miyuki {
             for (auto &p:mesh->primitives) {
                 if (p.material()->emission.albedo.max() > 0.0f) {
                     lights.emplace_back(std::make_shared<AreaLight>(&p));
-                    p.light = lights.back().get();
+                    p.setLight(lights.back().get());
                 }
             }
         }
@@ -96,11 +96,15 @@ namespace Miyuki {
         computeLightDistribution();
         RTCBounds bounds;
         rtcGetSceneBounds(embreeScene->scene, &bounds);
-        Float worldRadius = (
-                                    Vec3f(bounds.lower_x, bounds.lower_y, bounds.lower_z)
-                                    - Vec3f(bounds.upper_x, bounds.upper_y, bounds.upper_z)).length() / 2;
+        Float worldRadius = (Vec3f(bounds.lower_x, bounds.lower_y, bounds.lower_z)
+                             - Vec3f(bounds.upper_x, bounds.upper_y, bounds.upper_z)).length() / 2;
         auto ambient = parameterSet.findVec3f("ambientLight", Vec3f());
-        infiniteAreaLight = std::make_unique<InfiniteAreaLight>(worldRadius,Texture(ambient));
+        std::shared_ptr<IO::Image> envMap;
+        auto envMapName = parameterSet.findString("envMap", "");
+        if (!envMapName.empty()) {
+            envMap = factory->loader.load(envMapName);
+        }
+        infiniteAreaLight = std::make_unique<InfiniteAreaLight>(worldRadius, Texture(ambient, envMap));
     }
 
     RenderContext Scene::getRenderContext(const Point2i &raster, MemoryArena *arena, Sampler *sampler) {
@@ -114,8 +118,8 @@ namespace Miyuki {
     }
 
     RenderContext Scene::getRenderContext(const Point2f &raster, MemoryArena *arena, Sampler *sampler) {
-        Point2i r(clamp<int>(std::round(raster.x() * film->width()), 0, film->width() - 1),
-                  clamp<int>(std::round(raster.y() * film->height()), 0, film->height() - 1));
+        Point2i r(clamp<int>(std::floor(raster.x() * film->width()), 0, film->width() - 1),
+                  clamp<int>(std::floor(raster.y() * film->height()), 0, film->height() - 1));
         return getRenderContext(r, arena, sampler);
     }
 

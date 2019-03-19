@@ -10,32 +10,45 @@
 
 namespace Miyuki {
     namespace IO {
-        enum class ImageFormat{
+        enum class ImageFormat {
             none,
             raw,
             bump,
             normal,
         };
-        struct Image {
 
+        template<typename Texel>
+        struct GenericImage {
             int width = 0;
             int height = 0;
-            std::vector<Spectrum> pixelData;
+            std::vector<Texel> pixelData;
+
+            Texel &operator()(int x, int y) {
+                x = clamp(x, 0, width - 1);
+                y = clamp(y, 0, height - 1);
+                return pixelData[x + width * y];
+            }
+
+            const Texel &operator()(int x, int y) const {
+                x = clamp(x, 0, width - 1);
+                y = clamp(y, 0, height - 1);
+                return pixelData[x + width * y];
+            }
+
+            GenericImage() : width(0), height(0) {}
+
+            GenericImage(int width, int height) : width(width), height(height), pixelData(width * height) {}
+
+        };
+
+        struct Image : GenericImage<Spectrum> {
             ImageFormat format = ImageFormat::none;
-            Image(int width, int height) : pixelData(width, height) {}
 
-            Spectrum &operator()(int x, int y) {
-                x = clamp(x, 0, width);
-                y = clamp(y, 0, height);
-                return pixelData[x + width * y];
-            }
+            Image(int width, int height) : GenericImage<Spectrum>(width, height) {}
 
-            const Spectrum &operator()(int x, int y) const {
-                x = clamp(x, 0, width);
-                y = clamp(y, 0, height);
-                return pixelData[x + width * y];
-            }
-            Image(const std::string & filename, ImageFormat format = ImageFormat::none);
+            Image(const std::string &filename, ImageFormat format = ImageFormat::none);
+
+            void save(const std::string &filename);
         };
     }
 }

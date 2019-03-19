@@ -36,6 +36,8 @@ namespace Miyuki {
 
     class RenderEngine;
 
+    class MLT;
+    
     class Scene {
         std::unique_ptr<EmbreeScene> embreeScene;
         std::vector<std::shared_ptr<Mesh>> instances;
@@ -62,6 +64,8 @@ namespace Miyuki {
         friend class BDPT;
 
         friend class MultiplexedMLT;;
+
+        friend class MLT;
 
         void computeLightDistribution();
 

@@ -9,8 +9,9 @@
 
 namespace Miyuki {
     struct Mesh;
-
+    class Scene;
     class MaterialFactory {
+        friend class Scene;
         ImageLoader loader;
         std::unordered_map<std::string, std::shared_ptr<Material>> materials;
     public:

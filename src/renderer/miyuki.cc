@@ -4,6 +4,9 @@
 
 #include "miyuki.h"
 #include "renderengine.h"
+#include <io/image.h>
+#include <denoiser/nlm.h>
+
 using namespace Miyuki;
 
 int main(int argc, char **argv) {
@@ -15,4 +18,5 @@ int main(int argc, char **argv) {
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
+
 }

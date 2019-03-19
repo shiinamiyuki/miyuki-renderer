@@ -39,6 +39,10 @@ CMake everything.
 ## Gallery (Random test images)
 Rendered with MMLT.
 
+![](gallery/fireplace_room_mlt.png)
+
+![](gallery/fireplace_room.png)
+
 ![](gallery/dof.png)
 
 ![](gallery/cornell_box.png)

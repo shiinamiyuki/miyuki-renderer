@@ -11,7 +11,7 @@ namespace Miyuki {
         return envMap.albedo.max() * worldRadius * worldRadius * PI;
     }
 
-    Spectrum InfiniteAreaLight::L() const {
+    Spectrum InfiniteAreaLight::L(const Ray& ray) const {
         return envMap.albedo;
     }
 

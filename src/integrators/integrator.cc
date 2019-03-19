@@ -63,8 +63,8 @@ namespace Miyuki {
             if (!f.isBlack() && scatteringPdf > 0 && !sampledSpecular) {
                 Ray ray = scatteringEvent.spawnRay(wi);
                 Intersection isct;
-                if (scene.intersect(ray, &isct) && isct.primitive->light) {
-                    light = isct.primitive->light;
+                if (scene.intersect(ray, &isct) && isct.primitive->light()) {
+                    light = isct.primitive->light();
                     Float lightPdf = light->pdfLi(*event.getIntersection(), wi) * scene.pdfLightChoice(light);
                     auto Li = isct.Le(-1 * wi);
                     if (lightPdf > 0) {
@@ -78,6 +78,10 @@ namespace Miyuki {
     }
 
     void SamplerIntegrator::render(Scene &scene) {
+        if(progressive){
+            renderProgressive(scene);
+            return;
+        }
         auto &film = *scene.film;
         Point2i nTiles = film.imageDimension() / TileSize + Point2i{1, 1};
 
@@ -145,6 +149,36 @@ namespace Miyuki {
             reporter.update();
         });
         scene.update();
+    }
+
+    void SamplerIntegrator::renderProgressive(Scene &scene) {
+        ProgressReporter<uint32_t> reporter(spp, [&](int cur, int total) {
+            fmt::print("Rendered : {}/{}spp Elapsed:{} Remaining:{}\n",
+                       cur,
+                       total, reporter.elapsedSeconds(), reporter.estimatedTimeToFinish());
+            scene.update();
+        });
+        std::vector<Seed> seeds(Thread::pool->numThreads());
+        {
+            std::random_device rd;
+            std::uniform_int_distribution<Seed> dist;
+            for (auto &i:seeds) {
+                i = dist(rd);
+            }
+        }
+        std::vector<MemoryArena> arenas(Thread::pool->numThreads());
+        for (int i = 0; i < spp && scene.processContinuable(); i++) {
+            Thread::ParallelFor2D(scene.filmDimension(), [&](Point2i id, uint32_t threadId) {
+                SobolSampler sampler(&seeds[threadId]);
+                sampler.startPass(i);
+                auto ctx = scene.getRenderContext(id, &arenas[threadId], &sampler);
+                auto Li = L(ctx, scene);
+                Li = clampRadiance(removeNaNs(Li), maxRayIntensity);
+                scene.film->addSample(ctx.raster, Li, ctx.weight);
+                arenas[threadId].reset();
+            }, 4096);
+            reporter.update();
+        }
     }
 
     Spectrum DirectLightingIntegrator::L(RenderContext &ctx, Scene &scene) {

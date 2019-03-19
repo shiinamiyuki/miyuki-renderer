@@ -31,7 +31,7 @@ namespace Miyuki {
 
         virtual Float power() const = 0;
 
-        virtual Spectrum L() const = 0;
+        virtual Spectrum L(const Ray &ray) const = 0;
 
         Light(int type) : type(type) {}
 

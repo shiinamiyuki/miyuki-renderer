@@ -171,20 +171,23 @@ namespace Miyuki {
                     return asInt;
                 else return asFloat;
             }
-            void setInt(int v){
+
+            void setInt(int v) {
                 if (!isInt() && !isFloat()) {
                     throw BadElementType(std::string("Expected int but have ").append(typeStr()));
                 }
                 asInt = v;
                 type = Int;
             }
-            void setFloat(int v){
+
+            void setFloat(int v) {
                 if (!isInt() && !isFloat()) {
                     throw BadElementType(std::string("Expected int but have ").append(typeStr()));
                 }
                 asFloat = v;
-                type =Float;
+                type = Float;
             }
+
             bool getBool() const {
                 if (!isBool()) {
                     throw BadElementType(std::string("Expected bool but have ").append(typeStr()));
@@ -250,7 +253,11 @@ namespace Miyuki {
 
             const JsonObject &operator[](const std::string &key) const {
                 const auto &t = getObject();
-                return t.find(key)->second;
+                auto iter = t.find(key);
+                if (t.end() == iter) {
+                    std::cerr << "Cannot find key " << key << std::endl;
+                }
+                return iter->second;
             }
 
             JsonObject &operator[](const std::string &key) {

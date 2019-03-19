@@ -86,8 +86,8 @@ namespace Miyuki {
             return {};
         }
 
-        int x = lroundf(((-raster.x() + w) / (2 * w)) * dimension.x());
-        int y = lroundf((1 - (raster.y() + 1.0f) / 2.0f) * dimension.y());
+        int x = std::floor(((-raster.x() + w) / (2 * w)) * dimension.x());
+        int y = std::floor((1 - (raster.y() + 1.0f) / 2.0f) * dimension.y());
         *pRaster = {x, y};
         Float lensArea = lensRadius <= 0 ? 1 : PI * lensRadius * lensRadius;
         auto cosT2 = cosT * cosT;
@@ -126,8 +126,8 @@ namespace Miyuki {
         if (fabs(raster.x()) > w + 0.01f || fabs(raster.y()) > 1.01f) {
             return false;
         }
-        int x = lroundf(((-raster.x() + w) / (2 * w)) * dimension.x());
-        int y = lroundf((1 - (raster.y() + 1.0f) / 2.0f) * dimension.y());
+        int x = std::floor(((-raster.x() + w) / (2 * w)) * dimension.x());
+        int y = std::floor((1 - (raster.y() + 1.0f) / 2.0f) * dimension.y());
         *rasterPos = {x, y};
         return true;
 

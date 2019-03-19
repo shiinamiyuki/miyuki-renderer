@@ -30,9 +30,9 @@ namespace Miyuki {
                 int depth = t + s - 2;
                 if ((s == 1 && t == 1) || depth < 0 || depth > maxDepth)
                     continue;
-                ctx.sampler->startDimension(dim + (depth) * (depth + 1) +  2 * s);
+                ctx.sampler->startDimension(dim + (depth) * (depth + 1) + 2 * s);
                 Point2i raster;
-                auto LConnect = connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, &raster, nullptr);
+                auto LConnect = connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, &raster);
                 if (t != 1)
                     LPath += LConnect;
                 else if (!LConnect.isBlack()) {
@@ -47,7 +47,7 @@ namespace Miyuki {
     Spectrum
     BDPT::connectBDPT(Scene &scene, RenderContext &ctx,
                       Bidir::SubPath &lightSubPath, Bidir::SubPath &cameraSubPath,
-                      int s, int t, Point2i *raster, Float *weight) {
+                      int s, int t, Point2i *raster, bool useMIS, Float *weight) {
         if (t > 1 && s != 0 && cameraSubPath[t - 1].isInfiniteLight())
             return {};
         auto &E = cameraSubPath[t - 1];
@@ -118,8 +118,12 @@ namespace Miyuki {
         }
         if (Li.isBlack())return {};
         if (s + t == 2)return Li;
-        Float mis = MISWeight(scene, ctx, lightSubPath, cameraSubPath, s, t, sampled);
-        Li *= mis;
+        if (useMIS) {
+            Float mis = MISWeight(scene, ctx, lightSubPath, cameraSubPath, s, t, sampled);
+            Li *= mis;
+        } else {
+            Li *= 1.0 / (s + t);
+        }
         return Li;
     }
 
@@ -194,6 +198,7 @@ namespace Miyuki {
         maxDepth = set.findInt("bdpt.maxDepth", 5);
         spp = set.findInt("bdpt.spp", 4);
         maxRayIntensity = set.findFloat("bdpt.maxRayIntensity", 10000.0f);
+        progressive = set.findInt("bdpt.progressive", false);
     }
 
     Bidir::SubPath BDPT::generateLightSubPath(Scene &scene, RenderContext &ctx, int minDepth, int maxDepth) {

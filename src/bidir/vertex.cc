@@ -12,12 +12,30 @@ namespace Miyuki {
         SubPath
         RandomWalk(Vertex *vertices, Ray ray, Spectrum beta, Float pdf, Scene &scene,
                    RenderContext &ctx, int minDepth, int maxDepth,
-                   TransportMode mode) {                                                                                
+                   TransportMode mode) {
+            auto intersections = ctx.arena->alloc<Intersection>(size_t(maxDepth));
+            auto events = ctx.arena->alloc<ScatteringEvent>(size_t(maxDepth));
+            Float R = beta.max();
+            if (R <= 0)
+                return {nullptr, 0};
+            return RandomWalk(vertices, intersections, events, ray, beta, pdf, scene, ctx, minDepth, maxDepth, mode,
+                              [=](Spectrum _beta) -> float {
+                                  return 1 - R / beta.max();
+                              });
+        }
+
+        SubPath
+        RandomWalk(Vertex *vertices,
+                          Intersection *intersections,
+                          ScatteringEvent *events,
+                          Ray ray,
+                          Spectrum beta,
+                          Float pdf, Scene &scene, RenderContext &ctx,
+                          int minDepth, int maxDepth, TransportMode mode,
+                          const std::function<Float(Spectrum)> &terminationCallBack) {
             if (maxDepth == 0) { return {nullptr, 0}; }
             Float pdfFwd = pdf, pdfRev = 0;
             int depth = 0;
-            auto intersections = ctx.arena->alloc<Intersection>(size_t(maxDepth));
-            auto events = ctx.arena->alloc<ScatteringEvent>(size_t(maxDepth));
             Float R = beta.max();
             if (R <= 0)
                 return {nullptr, 0};
@@ -59,8 +77,9 @@ namespace Miyuki {
 
                 prev.pdfRev = vertex.convertDensity(pdfRev, prev);
                 if (depth >= minDepth) {
-                    if (ctx.sampler->get1D() < beta.max() / R) {
-                        beta *= R / beta.max();
+                    auto p = terminationCallBack(beta);
+                    if (ctx.sampler->get1D() < 1 - p) {
+                        beta *= 1 - p;
                     } else {
                         break;
                     }

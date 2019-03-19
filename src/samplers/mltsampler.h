@@ -64,9 +64,37 @@ namespace Miyuki {
 
         int getNextIndex();
 
+        PrimarySample u1, u2;// for image location
+        void ensureReadyU1U2() {
+            mutate(u1, 2.0f / (imageDimension.x() + imageDimension.y()), 0.1f);
+            mutate(u2, 2.0f / (imageDimension.x() + imageDimension.y()), 0.1f);
+        }
+
     public:
-        MLTSampler(Seed *seed, int nStream, Float largeStepProbability) : Sampler(seed), nStream(nStream),
-                                                                          largeStepProbability(largeStepProbability) {}
+        static const int maxConsecutiveRejects = 256;
+        Point2i imageLocation;
+        Spectrum L;
+        Point2i imageDimension;
+        int depth;
+        int rejectCount = 0;
+        uint64_t smallAcceptCount = 0;
+        uint64_t largeAcceptCount = 0;
+        uint64_t smallCount = 0;
+        uint64_t largeCount = 0;
+        uint64_t nonZeroCount = 0;
+
+        MLTSampler(Seed *seed, int nStream, Float largeStepProbability, Point2i imageDimension, int depth) :
+                Sampler(seed), nStream(nStream),
+                largeStepProbability(largeStepProbability),
+                imageDimension(imageDimension),
+                depth(depth) {}
+
+        Point2i sampleImageLocation() {
+            ensureReadyU1U2();
+            int x = clamp<int>(lroundf(u1.value * imageDimension.x()), 0, imageDimension.x() - 1);
+            int y = clamp<int>(lroundf(u2.value * imageDimension.y()), 0, imageDimension.y() - 1);
+            return {x, y};
+        }
 
         void startStream(int index) {
             Assert(index < nStream);
@@ -74,9 +102,9 @@ namespace Miyuki {
             sampleIndex = 0;
         }
 
-        virtual void accept();
+        void accept();
 
-        virtual void reject();
+        void reject();
 
         inline void mutate(PrimarySample &Xi, Float s1, Float s2);
 
@@ -85,7 +113,6 @@ namespace Miyuki {
         Float get1D() override {
             auto index = getNextIndex();
             ensureReady(index);
-            Assert(X[index].value >= 0 && X[index].value <= 1);
             return X[index].value;
         }
 
@@ -95,7 +122,23 @@ namespace Miyuki {
 
         void start() override;
 
-        virtual void startIteration();
+        bool large() const {
+            return largeStep;
+        }
+
+        double ns() const {
+            return (double) smallAcceptCount / smallCount;
+        }
+
+        double nl() const {
+            return (double) largeAcceptCount / largeCount;
+        }
+
+        double n0() const {
+            return (double) nonZeroCount / largeCount;
+        }
+
+        void startIteration();
 
     };
 
@@ -126,7 +169,7 @@ namespace Miyuki {
 #else
             Xi.backup();
             // nSmall mutations is equivalent to normal distribution of n sigma^2
-            const Float sigma = 0.02f;
+            const Float sigma = 0.01f;
             const Float sqrt2 = std::sqrt(2.0f);
             // importance sample N(Xi, n sigma^2)
             Float normalSample = sqrt2 * ErfInv(2 * uniformFloat() - 1);
@@ -135,6 +178,7 @@ namespace Miyuki {
             Xi.value -= std::floor(Xi.value);
 #endif
         }
+
         Xi.lastModificationIteration = currentIteration;
     }
 }

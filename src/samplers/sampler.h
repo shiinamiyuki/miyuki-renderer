@@ -11,16 +11,17 @@
 #include "core/geometry.h"
 
 namespace Miyuki {
-    typedef uint32_t Seed;
+    typedef uint64_t Seed;
 
-    inline Float LCRand(Seed *rng) {
-        *rng = (1103515245 * (*rng) + 12345);
-        return (float) *rng / (float) 0xFFFFFFFF;
+    inline uint64_t xorshift64star(uint64_t *state) {
+        uint64_t x = state[0];	/* The state must be seeded with a nonzero value. */
+        x ^= x >> 12; // a
+        x ^= x << 25; // b
+        x ^= x >> 27; // c
+        state[0] = x;
+        return x * 0x2545F4914F6CDD1D;
     }
-    inline uint32_t LCRandI(Seed *rng) {
-        *rng = (1103515245 * (*rng) + 12345);
-        return *rng;
-    }
+
     class RNG {
         Seed *seed;
     public:
@@ -35,6 +36,8 @@ namespace Miyuki {
         int32_t uniformInt32(Seed *seed);
 
         Float uniformFloat(Seed *seed);
+
+
     };
 
     class Sampler {
@@ -57,6 +60,8 @@ namespace Miyuki {
         Float uniformFloat() {
             return rng.uniformFloat();
         }
+
+        virtual void startPass(uint32_t N) {}
 
         virtual void startDimension(int dimension) {}
     };

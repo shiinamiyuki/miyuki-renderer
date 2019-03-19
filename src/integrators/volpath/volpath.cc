@@ -6,7 +6,6 @@
 #include <utils/thread.h>
 #include <core/scene.h>
 #include <math/sampling.h>
-#include <bidir/vertex.h>
 #include <samplers/sobol.h>
 #include <core/progress.h>
 #include <boost/math/distributions/normal.hpp>
@@ -156,7 +155,7 @@ namespace Miyuki {
         bool specular = false;
         for (int depth = 0; depth < maxDepth; depth++) {
             if (!scene.intersect(ray, &intersection)) {
-                Li += beta * scene.infiniteAreaLight->L();
+                Li += beta * scene.infiniteAreaLight->L(ray);
                 break;
             }
             makeScatteringEvent(&event, ctx, &intersection, TransportMode::radiance);
@@ -186,7 +185,7 @@ namespace Miyuki {
     Spectrum VolPath::estimateDirect(Scene &scene, RenderContext &ctx, const ScatteringEvent &event) {
         // TODO: when we have multiple lights, use a new distribution according to solid angle
         const auto &lights = scene.lights;
-        if(lights.size() == 0)
+        if (lights.size() == 0)
             return {};
         ImportanceLightSampler lightSampler(scene, lights);
         auto lightDistribution = scene.lightDistribution.get();
@@ -194,7 +193,7 @@ namespace Miyuki {
     }
 
     VolPath::VolPath(const ParameterSet &set) {
-        progressive = false;
+        progressive = set.findInt("volpath.progressive", false);
         minDepth = set.findInt("volpath.minDepth", 3);
         maxDepth = set.findInt("volpath.maxDepth", 5);
         spp = set.findInt("volpath.spp", 4);
@@ -206,6 +205,10 @@ namespace Miyuki {
         requiredPValue = set.findFloat("volpath.pValue", 0.05);
         maxSampleFactor = set.findFloat("volpath.maxSampleFactor", 32);
         heuristic = set.findFloat("volpath.heuristic", 0.1);
+    }
+
+    void VolPath::renderProgressive(Scene &scene) {
+        SamplerIntegrator::renderProgressive(scene);
     }
 
 

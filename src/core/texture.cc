@@ -11,8 +11,8 @@ namespace Miyuki {
         std::string fullPath = cxx::filesystem::absolute(file).string();
         auto temp = fullPath;
         fullPath.clear();
-        for(auto c: temp){
-            fullPath += c == '\\' ? '/' :c;
+        for (auto c: temp) {
+            fullPath += c == '\\' ? '/' : c;
         }
 
         if (images.find(fullPath) != images.end()) {
@@ -28,7 +28,7 @@ namespace Miyuki {
             return albedo;
         } else {
             int x = static_cast<int>(uv.x() * image->width);
-            int y = static_cast<int>(uv.y() * image->height);
+            int y = static_cast<int>((1 - uv.y()) * image->height);
             return albedo * image->operator()(x, y);
         }
     }

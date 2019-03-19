@@ -113,11 +113,16 @@ namespace Miyuki {
         return mesh;
     }
 
-    Primitive::Primitive() : light(nullptr), instance(nullptr), nameId(-1) {
+    Primitive::Primitive() : instance(nullptr), nameId(-1) {
 
     }
 
     const Vec3f &Primitive::v(int32_t i) const {
+//        auto vertices = (Float *) rtcGetGeometryBufferData(instance->rtcGeometry, RTC_BUFFER_TYPE_VERTEX, 0);
+//        return Vec3f{vertices[this->vertices[i] * 3],
+//                     vertices[this->vertices[i]* 3 + 1],
+//                     vertices[this->vertices[i]* 3 + 2]};
+
         return instance->vertices[vertices[i]];
     }
 
@@ -165,5 +170,16 @@ namespace Miyuki {
             return true;
         } else
             return false;
+    }
+
+    Light *Primitive::light()const {
+        auto iter = instance->lightMap.find(this);
+        if (iter == instance->lightMap.end())
+            return nullptr;
+        return iter->second;
+    }
+
+    void Primitive::setLight(Light *light) {
+        instance->lightMap[this] = light;
     }
 }

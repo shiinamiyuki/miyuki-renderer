@@ -89,14 +89,14 @@ namespace Miyuki {
                 if (type == surfaceVertex) {
                     return event->Le(wo);
                 } else if (type == lightVertex) {
-                    return light->L();
+                    return light->L(Ray{ref, wo});
                 }
                 return {};
             }
 
             Spectrum Le(const Vertex &prev) const {
                 if (isInfiniteLight()) {
-                    return light->L();
+                    return light->L(Ray{prev.ref, (ref - prev.ref).normalized()});
                 }
                 auto wo = (prev.ref - ref).normalized();
                 return Le(wo);
@@ -172,7 +172,7 @@ namespace Miyuki {
             v.primitive = event->getIntersection()->primitive;
             v.event = event;
             v.beta = beta;
-            v.light = event->getIntersection()->primitive->light;
+            v.light = event->getIntersection()->primitive->light();
             v.Ns = event->Ns();
             v.Ng = event->Ng();
             v.ref = event->getIntersection()->ref;
@@ -243,6 +243,11 @@ namespace Miyuki {
                    Spectrum beta, Float pdf, Scene &scene,
                    RenderContext &ctx, int minDepth, int maxDepth, TransportMode);
 
+        SubPath
+        RandomWalk(Vertex *, Intersection *intersections, ScatteringEvent *events, Ray ray,
+                   Spectrum beta, Float pdf, Scene &scene,
+                   RenderContext &ctx, int minDepth, int maxDepth,
+                   TransportMode, const std::function<Float(Spectrum)> &);
 
     }
     template<typename T>

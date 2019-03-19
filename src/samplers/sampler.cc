@@ -7,19 +7,19 @@
 namespace Miyuki {
 
     int32_t RNG::uniformInt32() {
-        return LCRandI(seed);
+        return xorshift64star(seed) & UINT32_MAX;
     }
 
     Float RNG::uniformFloat() {
-        return LCRand(seed);
+        return xorshift64star(seed) / (float) UINT64_MAX;
     }
 
     int32_t RNG::uniformInt32(Seed *seed) {
-        return LCRandI(seed);
+        return xorshift64star(seed) & UINT32_MAX;
     }
 
     Float RNG::uniformFloat(Seed *seed) {
-        return LCRand(seed);
+        return xorshift64star(seed) / (float) UINT64_MAX;
     }
 
     void RandomSampler::start() {

@@ -54,7 +54,7 @@ namespace Miyuki {
             ParallelFor(0u, N.x() * N.y(), [=](uint32_t id, uint32_t threadId) {
                 // id = x + N.x() * y
                 int x = id % N.x();
-                int y = id / N.y();
+                int y = id / N.x();
                 taskFunc2D(Point2i{x, y}, threadId);
             }, workSize);
         }

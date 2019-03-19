@@ -13,7 +13,7 @@
 namespace Miyuki {
     class VolPath : public SamplerIntegrator {
     protected:
-        bool progressive;
+
         int minDepth;
         int maxDepth;
         bool caustics;
@@ -29,6 +29,8 @@ namespace Miyuki {
         void render(Scene &scene) override;
 
         void renderAdaptive(Scene &scene);
+
+        void renderProgressive(Scene &scene) override;
 
         Spectrum estimateDirect(Scene &scene,
                                 RenderContext &ctx, const ScatteringEvent &event);

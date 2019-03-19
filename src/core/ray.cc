@@ -25,17 +25,15 @@ namespace Miyuki {
     }
 
     bool Intersection::intersect(RTCScene scene) {
-        while (true) {
+        for (int i = 0; i < 8; i++) {
             rtcIntersect1(scene, &context, &rayHit);
             if (rayHit.hit.primID == RTC_INVALID_GEOMETRY_ID || rayHit.hit.geomID == RTC_INVALID_GEOMETRY_ID)
                 return false;
             if (excludePrimId != rayHit.hit.primID || excludeGeomId != rayHit.hit.geomID) {
-                primId = rayHit.hit.primID;
-                geomId = rayHit.hit.geomID;
                 break;
             } else {
-                ray.o += hitDistance() * ray.d;
-                ray.far -= hitDistance();
+                ray.o += (EPS + hitDistance()) * ray.d;
+                ray.far -= (EPS + hitDistance());
                 rayHit.ray = ray.toRTCRay();
                 rayHit.ray.flags = 0;
                 rayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
@@ -44,6 +42,8 @@ namespace Miyuki {
                 rtcInitIntersectContext(&context);
             }
         }
+        primId = rayHit.hit.primID;
+        geomId = rayHit.hit.geomID;
         return hit();
     }
 

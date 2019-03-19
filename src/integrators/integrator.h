@@ -38,8 +38,11 @@ namespace Miyuki {
     protected:
         int spp;
         Float maxRayIntensity;
+        bool progressive;
     public:
         void render(Scene &scene) override;
+
+        virtual void renderProgressive(Scene &scene);
     };
 
     class DirectLightingIntegrator : public SamplerIntegrator {
