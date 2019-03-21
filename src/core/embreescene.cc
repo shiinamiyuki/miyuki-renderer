@@ -56,10 +56,12 @@ namespace Miyuki {
         rtcCommitGeometry(rtcMesh);
         rtcAttachGeometryByID(scene, rtcMesh, id);
         rtcReleaseGeometry(rtcMesh);
-//        mesh->rtcGeometry = rtcMesh;
-//        mesh->vertices.clear();
-//        decltype(mesh->vertices) dummy;
-//        std::swap(dummy, mesh->vertices);
+#if USE_EMBREE_GEOMETRY == 1
+        mesh->rtcGeometry = rtcMesh;
+        mesh->vertices.clear();
+        decltype(mesh->vertices) dummy;
+        std::swap(dummy, mesh->vertices);
+#endif
     }
 
     EmbreeScene::~EmbreeScene() {

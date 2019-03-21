@@ -13,7 +13,6 @@ file(GLOB coreSRC
         "src/bsdfs/*.cc"
         "src/lights/*.cc"
         "src/materials/*.cc"
-        "src/bidir/*.cc"
         "src/media/*.cc"
         "src/denoiser/*.cc")
 file(GLOB thirdpartySRC
@@ -37,9 +36,9 @@ file(GLOB guiSRC
 file(GLOB integratorSRC
         "src/integrators/*.cc"
         "src/integrators/volpath/*.cc"
-        "src/integrators/bdpt/*.cc"
-        "src/integrators/mlt/*.cc"
-        "src/integrators/mmlt/*.cc"
+        )
+file(GLOB editorSRC
+        "src/editor/*.cc"
         )
 add_executable(MiyukiGUI
         "src/miyuki.h"
@@ -58,13 +57,15 @@ add_executable(Miyuki
         ${integratorSRC}
         src/renderer/miyuki.cc
         src/renderer/renderengine.cc)
-add_executable(obj2json
-        "src/miyuki.h"
-        "src/tools/obj2json.cc"
-        "src/io/io.cc"
-        "src/io/serialize.cc"
+add_executable(editor
+        ${coreSRC}
         ${thirdpartySRC}
-        ${utilsSRC})
+        ${utilsSRC}
+        ${editorSRC}
+        ${guiSRC}
+        ${integratorSRC}
+        "src/integrators/integrator.cc"
+        "src/renderer/renderengine.cc")
 add_executable(unittest
         "src/miyuki.h"
         ${thirdpartySRC}

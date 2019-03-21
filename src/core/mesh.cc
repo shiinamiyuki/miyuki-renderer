@@ -76,12 +76,12 @@ namespace Miyuki {
                             primitive.textureCoord[v] = Point2f(tx, ty);
                         }
                     }
-                    primitive.Ng = Vec3f::cross(vertices[primitive.vertices[1]] - vertices[primitive.vertices[0]],
+                    auto Ng = Vec3f::cross(vertices[primitive.vertices[1]] - vertices[primitive.vertices[0]],
                                                 vertices[primitive.vertices[2]] - vertices[primitive.vertices[0]]);
-                    primitive.area = primitive.Ng.length() / 2;
-                    primitive.Ng.normalize();
+                    primitive.area = Ng.length() / 2;
+                    Ng.normalize();
                     if (!useNorm) {
-                        normals.emplace_back(primitive.Ng);
+                        normals.emplace_back(Ng);
                         for (int32_t i = 0; i < 3; i++) {
                             primitive.normals[i] = normals.size() - 1;
                         }
@@ -107,7 +107,6 @@ namespace Miyuki {
         }
         for (auto &p:mesh->primitives) {
             p.instance = mesh.get();
-            p.Ng = transform.applyRotation(p.Ng).normalized();
             p.area *= pow(transform.scale, 2);
         }
         return mesh;
@@ -117,13 +116,15 @@ namespace Miyuki {
 
     }
 
-    const Vec3f &Primitive::v(int32_t i) const {
-//        auto vertices = (Float *) rtcGetGeometryBufferData(instance->rtcGeometry, RTC_BUFFER_TYPE_VERTEX, 0);
-//        return Vec3f{vertices[this->vertices[i] * 3],
-//                     vertices[this->vertices[i]* 3 + 1],
-//                     vertices[this->vertices[i]* 3 + 2]};
-
+    Vec3f Primitive::v(int32_t i) const {
+#if USE_EMBREE_GEOMETRY == 1
+        auto vertices = (Float *) rtcGetGeometryBufferData(instance->rtcGeometry, RTC_BUFFER_TYPE_VERTEX, 0);
+        return Vec3f{vertices[this->vertices[i] * 3],
+                     vertices[this->vertices[i]* 3 + 1],
+                     vertices[this->vertices[i]* 3 + 2]};
+#else
         return instance->vertices[vertices[i]];
+#endif
     }
 
     const Vec3f &Primitive::n(int32_t i) const {
@@ -166,7 +167,7 @@ namespace Miyuki {
         {
             isct->rayHit.ray.tfar = t;
             isct->ref = ray.o + t * ray.d;
-            isct->Ng = Ng;
+            isct->Ng = Ng();
             return true;
         } else
             return false;

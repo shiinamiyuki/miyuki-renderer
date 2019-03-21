@@ -30,7 +30,7 @@ namespace Miyuki {
         auto wh = distribution.sampleWh(event.wo, event.u);
         event.setWi(Reflect(event.wo, wh).normalized());
         if (!SameHemisphere(event.wo, event.wi))
-            return 0.0f;
+            return {};
         event.pdf = pdf(event);
         return f(event);
     }

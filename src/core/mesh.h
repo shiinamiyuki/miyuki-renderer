@@ -9,6 +9,7 @@
 #include "math/transform.h"
 #include "core/geometry.h"
 
+#define USE_EMBREE_GEOMETRY 1
 namespace Miyuki {
     class Light;
 
@@ -23,16 +24,16 @@ namespace Miyuki {
         uint32_t vertices[3];
         uint32_t normals[3];
         Point2f textureCoord[3];
-        Vec3f Ng;
+
         Mesh *instance;
-        int32_t nameId;
+        uint16_t nameId;
         Float area;
 
         Primitive();
 
-        const Vec3f& v(int32_t) const;
+        Vec3f v(int32_t) const;
 
-        const Vec3f& n(int32_t) const;
+        const Vec3f &n(int32_t) const;
 
         Vec3f Ns(const Point2f &uv) const;
 
@@ -42,9 +43,15 @@ namespace Miyuki {
 
         bool intersect(const Ray &, Intersection *) const;
 
-        Light * light()const;
+        Light *light() const;
 
-        void setLight(Light * light);
+        void setLight(Light *light);
+
+        Vec3f Ng() const {
+            auto edge1 = v(1) - v(0);
+            auto edge2 = v(2) - v(0);
+            return Vec3f::cross(edge1, edge2).normalized();
+        }
     };
 
 
@@ -53,8 +60,14 @@ namespace Miyuki {
         std::vector<Primitive> primitives;
         std::vector<std::string> names;
         std::vector<std::shared_ptr<Material>> materials;
+#if USE_EMBREE_GEOMETRY == 1
+        RTCGeometry rtcGeometry = nullptr;
+#endif
+
         Mesh(const std::string &filename);
+
         std::shared_ptr<Mesh> instantiate(const Transform &transform = Transform()) const;
+
         std::unordered_map<const Primitive *, Light *> lightMap;
     };
 }

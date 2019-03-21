@@ -49,7 +49,7 @@ namespace Miyuki {
         auto mesh = std::make_shared<Mesh>(filename);
         meshes[filename] = mesh;
     }
-
+    
     void Scene::loadObjMeshAndInstantiate(const std::string &name, const Transform &T) {
         loadObjMesh(name);
         instantiateMesh(name, T);
@@ -94,6 +94,7 @@ namespace Miyuki {
         fmt::print("Film dimension: {}x{}\n", film->width(), film->height());
         fmt::print("Output file: {}\n", parameterSet.findString("render.output", "scene.png"));
         computeLightDistribution();
+        meshes.clear();
         RTCBounds bounds;
         rtcGetSceneBounds(embreeScene->scene, &bounds);
         Float worldRadius = (Vec3f(bounds.lower_x, bounds.lower_y, bounds.lower_z)
@@ -109,7 +110,6 @@ namespace Miyuki {
 
     RenderContext Scene::getRenderContext(const Point2i &raster, MemoryArena *arena, Sampler *sampler) {
         sampler->start();
-        int idx = raster.x() + raster.y() * film->width();
         Ray primary;
         Float weight;
 
@@ -132,7 +132,7 @@ namespace Miyuki {
         isct->wo = -1 * ray.d;
         auto p = isct->primitive;
         isct->Ns = p->Ns(isct->uv);
-        isct->Ng = p->Ng;
+        isct->Ng = p->Ng();
         isct->ref = ray.o + isct->hitDistance() * ray.d;
         return true;
     }

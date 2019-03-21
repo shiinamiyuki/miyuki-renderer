@@ -8,7 +8,7 @@
 
 namespace Miyuki {
     ScatteringEvent::ScatteringEvent(Sampler *sampler, Intersection *isct, BSDF *bsdf, TransportMode mode)
-            : u(sampler->get2D()), intersection(isct), coordinateSystem(isct->Ns), bsdf(bsdf), mode(mode) {
+            : u(sampler->get2D()), intersection(isct), coordinateSystem(isct->Ns), bsdf(bsdf), mode(mode),pdf(0) {
         woW = isct->wo;
         wo = worldToLocal(woW);
     }

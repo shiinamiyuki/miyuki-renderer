@@ -10,6 +10,7 @@
 #include "core/rendercontext.h"
 #include "core/scatteringevent.h"
 #include "core/texture.h"
+
 namespace Miyuki {
 
     struct MaterialInfo {
@@ -21,6 +22,7 @@ namespace Miyuki {
         Float Ni = 1.0f;
         Float Tr = 0.0f;
         Float sigma = 0.0f;
+
         MaterialInfo() {}
     };
 
@@ -34,6 +36,9 @@ namespace Miyuki {
 
         virtual void computeScatteringFunction(RenderContext &ctx, ScatteringEvent &event) const = 0;
 
+        // used for preview
+        virtual Spectrum albedo() const = 0;
+
         virtual ~Material() {}
     };
 
@@ -43,6 +48,10 @@ namespace Miyuki {
         PBRMaterial(const MaterialInfo &info) : info(info), Material(info.ka) {}
 
         void computeScatteringFunction(RenderContext &ctx, ScatteringEvent &event) const override;
+
+        Spectrum albedo() const override {
+            return info.ks.albedo + info.kd.albedo;
+        }
     };
 }
 #endif //MIYUKI_MATERIAL_H

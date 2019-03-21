@@ -44,20 +44,6 @@ namespace Miyuki {
 
         virtual void renderProgressive(Scene &scene);
     };
-
-    class DirectLightingIntegrator : public SamplerIntegrator {
-    public:
-    protected:
-        Spectrum L(RenderContext &ctx, Scene &scene) override;
-
-    public:
-        void render(Scene &scene) override;
-
-    public:
-        DirectLightingIntegrator(int spp) {
-            this->spp = spp;
-            maxRayIntensity = 1000;
-        }
-    };
+    
 }
 #endif //MIYUKI_INTEGRATOR_H

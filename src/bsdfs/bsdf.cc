@@ -83,6 +83,7 @@ namespace Miyuki {
         }
 
         CHECK(event.pdf >= 0);
+
         if (event.pdf == 0) {
             event.bsdfLobe = 0;
             return {};

@@ -4,9 +4,7 @@
 
 #include "renderengine.h"
 #include "integrators/volpath/volpath.h"
-#include <integrators/bdpt/bdpt.h>
-#include <integrators/mmlt/mmlt.h>
-#include <integrators/mlt/mlt.h>
+#include <utils/thread.h>
 #include "core/film.h"
 
 namespace Miyuki {
@@ -147,67 +145,7 @@ namespace Miyuki {
                     }
 
                     integrator = std::make_unique<VolPath>(parameters);
-                }
-                else if (type == "bdpt") {
-                    parameters.addString("integrator", "volpath");
-                    if (I.hasKey("maxRayIntensity")) {
-                        parameters.addFloat("bdpt.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
-                    }
-                    if (I.hasKey("progressive")) {
-                        parameters.addInt("bdpt.progressive", I["progressive"].getBool());
-                    }
-                    if (I.hasKey("spp")) {
-                        parameters.addInt("bdpt.spp", IO::deserialize<int>(I["spp"]));
-                    }
-                    if (I.hasKey("minDepth")) {
-                        parameters.addInt("bdpt.minDepth", IO::deserialize<int>(I["minDepth"]));
-                    }
-                    if (I.hasKey("maxDepth")) {
-                        parameters.addInt("bdpt.maxDepth", IO::deserialize<int>(I["maxDepth"]));
-                    }
-                    if (I.hasKey("caustics")) {
-                        parameters.addInt("bdpt.caustics", I["caustics"].getBool());
-                    }
-                    integrator = std::make_unique<BDPT>(parameters);
-                }
-                else if (type == "mlt") {
-                    parameters.addString("integrator", "volpath");
-                    if (I.hasKey("maxRayIntensity")) {
-                        parameters.addFloat("mlt.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
-                    }
-                    if (I.hasKey("spp")) {
-                        parameters.addInt("mlt.spp", IO::deserialize<int>(I["spp"]));
-                    }
-                    if (I.hasKey("minDepth")) {
-                        parameters.addInt("mlt.minDepth", IO::deserialize<int>(I["minDepth"]));
-                    }
-                    if (I.hasKey("maxDepth")) {
-                        parameters.addInt("mlt.maxDepth", IO::deserialize<int>(I["maxDepth"]));
-                    }
-                    if (I.hasKey("caustics")) {
-                        parameters.addInt("mlt.caustics", I["caustics"].getBool());
-                    }
-                    if (I.hasKey("nChains")) {
-                        parameters.addInt("mlt.nChains", IO::deserialize<int>(I["nChains"]));
-                    }
-                    if (I.hasKey("nDirect")) {
-                        parameters.addInt("mlt.nDirect", IO::deserialize<int>(I["nDirect"]));
-                    }
-                    if (I.hasKey("largeStep")) {
-                        parameters.addFloat("mlt.largeStep", IO::deserialize<Float>(I["largeStep"]));
-                    }
-                    if (I.hasKey("progressive")) {
-                        parameters.addInt("mlt.progressive", I["progressive"].getBool());
-                    }
-                    if (I.hasKey("twoStage")) {
-                        parameters.addInt("mlt.twoStage", I["twoStage"].getBool());
-                    }
-                    integrator = std::make_unique<MultiplexedMLT>(parameters);
-                }
-                else if (type == "direct") {
-                    integrator = std::make_unique<DirectLightingIntegrator>(IO::deserialize<int>(I["spp"]));
-                }
-                else {
+                } else {
                     fmt::print(stderr, "Unknown integrator type `{}`\n", type);
                 }
             }
@@ -278,5 +216,35 @@ namespace Miyuki {
     void RenderEngine::imageSize(int &width, int &height) {
         width = scene.film->width();
         height = scene.film->height();
+    }
+
+    void RenderEngine::renderPreview(std::vector<uint8_t> &pixelData, int &width, int &height) {
+
+        width = scene.film->width();
+        height = scene.film->height();
+        if (pixelData.size() != width * height * 4) {
+            pixelData.resize(width * height * 4);
+        }
+        const Vec3f lightDir = Vec3f(0.1, 1, 0.1).normalized();
+        Thread::ParallelFor(0u, width, [&](uint32_t i, uint32_t threadId) {
+            for (int j = 0; j < height; j++) {
+                Spectrum out(1, 1, 1);
+                Seed seed(rand());
+                RandomSampler sampler(&seed);
+                auto ctx = scene.getRenderContext(Point2i(i, j), nullptr, &sampler);
+                Intersection intersection;
+                if (scene.intersect(ctx.primary, &intersection)) {
+                    auto albedo = intersection.primitive->material()->albedo();
+                    auto lighting = std::max(0.2f, Vec3f::dot(lightDir, intersection.Ns));
+                    out *= albedo * lighting;
+                }
+                out = out.gammaCorrection();
+                auto idx = i + width * (height - j - 1);
+                pixelData[4 * idx] = out.x();
+                pixelData[4 * idx + 1] = out.y();
+                pixelData[4 * idx + 2] = out.z();
+                pixelData[4 * idx + 3] = 255;
+            }
+        });
     }
 }

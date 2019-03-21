@@ -43,6 +43,7 @@ namespace Miyuki {
         void commitScene(){
             scene.commit();
         }
+        void renderPreview(std::vector<uint8_t> &pixelData, int &width, int &height);
     };
 }
 

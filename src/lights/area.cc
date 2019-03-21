@@ -26,7 +26,7 @@ namespace Miyuki {
         tester->geomId = intersection.geomId;
         tester->primId = intersection.primId;
         // convert area to solid angle
-        Float solidAngle = primitive->area * -Vec3f::dot(w, primitive->Ng) * invDist2;
+        Float solidAngle = primitive->area * -Vec3f::dot(w, primitive->Ng()) * invDist2;
         *pdf = std::max<Float>(0.0f, 1.0f / solidAngle);
         *wi = w;
         return ka.albedo;
@@ -40,7 +40,7 @@ namespace Miyuki {
             return 0.0f;
         }
         Float invDist2 = 1.0f / (isct.hitDistance() * isct.hitDistance());
-        Float solidAngle = primitive->area * Vec3f::absDot(wi, primitive->Ng) * invDist2;
+        Float solidAngle = primitive->area * Vec3f::absDot(wi, primitive->Ng()) * invDist2;
         return 1.0f / solidAngle;
     }
 
@@ -48,8 +48,8 @@ namespace Miyuki {
                                  Float *pdfDir) const {
         auto p = UniformTriangleSampling(u1, primitive->v(0), primitive->v(1), primitive->v(2));
         *pdfPos = 1.0f / primitive->area;
-        CoordinateSystem coordinateSystem(primitive->Ng);
-        *normal = primitive->Ng;
+        CoordinateSystem coordinateSystem(primitive->Ng());
+        *normal = primitive->Ng();
         Vec3f wi = coordinateSystem.localToWorld(CosineWeightedHemisphereSampling(u2)).normalized();
         *pdfDir = Vec3f::absDot(wi, *normal) * INVPI;
         *ray = Ray(p, wi);
