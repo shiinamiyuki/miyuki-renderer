@@ -9,6 +9,7 @@
 #include "core/scene.h"
 #include "core/spectrum.h"
 #include "core/scatteringevent.h"
+#include <bidir/vertex.h>
 
 namespace Miyuki {
     class Scene;
@@ -17,7 +18,6 @@ namespace Miyuki {
 
     class Integrator {
     protected:
-        virtual Spectrum L(RenderContext &ctx, Scene &) = 0;
 
 
         // Importance sample one light according to its power
@@ -25,9 +25,12 @@ namespace Miyuki {
         Spectrum importanceSampleOneLight(Scene &scene, RenderContext &ctx, const ScatteringEvent &event);
 
     public:
-        static void makeScatteringEvent(ScatteringEvent *,
-                                        RenderContext &ctx, Intersection *,
-                                        TransportMode mode);
+        static void makeScatteringEvent(ScatteringEvent *event,
+                                        RenderContext &ctx, Intersection *isct,
+                                        TransportMode mode) {
+            *event = ScatteringEvent(ctx.sampler, isct, nullptr, mode);
+            isct->primitive->material()->computeScatteringFunction(ctx, *event);
+        }
 
         virtual void render(Scene &) = 0;
 
@@ -39,11 +42,46 @@ namespace Miyuki {
         int spp;
         Float maxRayIntensity;
         bool progressive;
+
+        virtual Spectrum Li(RenderContext &ctx, Scene &) = 0;
+
     public:
         void render(Scene &scene) override;
 
         virtual void renderProgressive(Scene &scene);
     };
-    
+
+    class DirectLightingIntegrator : public SamplerIntegrator {
+    public:
+    protected:
+        Spectrum Li(RenderContext &ctx, Scene &scene) override {
+            using Bidir::Vertex, Bidir::SubPath;
+            auto vertices = ctx.arena->alloc<Bidir::Vertex>(size_t(1 + 1));
+            Spectrum beta(1, 1, 1);
+            vertices[0] = Bidir::CreateCameraVertex(ctx.camera, ctx.raster, ctx.primary, 1.0f, beta);
+            auto path = Bidir::RandomWalk(vertices + 1, ctx.primary, beta,
+                                          1.0f, scene, ctx, 1, 1,
+                                          TransportMode::importance);
+            Spectrum Li(0, 0, 0);
+            bool specular = false;
+            ctx.sampler->startDimension(4 + 4 * 1);
+            for (int depth = 0; depth < path.N; depth++) {
+                if (specular || depth == 0) {
+                    Vec3f wo = (path[depth - 1].ref - path[depth].ref).normalized();
+                    Li += path[depth].beta * path[depth].Le(wo);
+                }
+                Li += path[depth].beta * importanceSampleOneLight(scene, ctx, *path[depth].event);
+                specular = path[depth].delta;
+            }
+            return Li;
+        }
+
+    public:
+        DirectLightingIntegrator(int spp) {
+            this->spp = spp;
+            maxRayIntensity = 1000;
+        }
+    };
+
 }
 #endif //MIYUKI_INTEGRATOR_H

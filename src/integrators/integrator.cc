@@ -13,13 +13,6 @@
 #include "utils/thread.h"
 
 namespace Miyuki {
-
-    void Integrator::makeScatteringEvent(ScatteringEvent *event, RenderContext &ctx, Intersection *isct,
-                                         TransportMode mode) {
-        *event = ScatteringEvent(ctx.sampler, isct, nullptr, mode);
-        isct->primitive->material()->computeScatteringFunction(ctx, *event);
-    }
-
     Spectrum Integrator::importanceSampleOneLight(Scene &scene, RenderContext &ctx, const ScatteringEvent &event) {
         Spectrum Ld(0, 0, 0);
         Float pdfLightChoice;
@@ -139,7 +132,7 @@ namespace Miyuki {
                         // should we do this?
                         arenas[threadId].reset();
                         auto ctx = scene.getRenderContext(raster, &arenas[threadId], &sampler);
-                        auto Li = removeNaNs(L(ctx, scene));
+                        auto Li = removeNaNs(this->Li(ctx, scene));
                         Li = clampRadiance(Li, maxRayIntensity);
                         film.addSample({x, y}, Li, ctx.weight);
                     }
@@ -171,7 +164,7 @@ namespace Miyuki {
                 SobolSampler sampler(&seeds[threadId]);
                 sampler.startPass(i);
                 auto ctx = scene.getRenderContext(id, &arenas[threadId], &sampler);
-                auto Li = L(ctx, scene);
+                auto Li = this->Li(ctx, scene);
                 Li = clampRadiance(removeNaNs(Li), maxRayIntensity);
                 scene.film->addSample(ctx.raster, Li, ctx.weight);
                 arenas[threadId].reset();

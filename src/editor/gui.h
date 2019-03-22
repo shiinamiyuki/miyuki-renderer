@@ -1,5 +1,5 @@
 //
-// Created by xiaoc on 2019/3/20.
+// Created by Shiina Miyuki on 2019/3/20.
 //
 
 #ifndef MIYUKI_GUI_H

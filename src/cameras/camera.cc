@@ -18,11 +18,11 @@ namespace Miyuki {
     }
 
     void Camera::rotate(const Vec3f &v) {
-        direction = v;
+        direction += v;
     }
 
     void Camera::rotateTo(const Vec3f &v) {
-        direction += v;
+        direction = v;
     }
 
     void Camera::computeTransformMatrix() {
@@ -43,7 +43,7 @@ namespace Miyuki {
         Float ry = 2 * sampler.get1D() - 1;
         Vec3f jitter = Vec3f(dx * rx, dy * ry, 0);
         // tent filter
-        *weight = (1.0f - fabs(rx)) + (1.0f - fabs(ry));
+        *weight = (1.0f - fabs(rx)) * (1.0f - fabs(ry));
         Vec3f rd = Vec3f(x, y, 0) + jitter - Vec3f(0, 0, -z);
         rd.normalize();
         if (lensRadius > 0) {

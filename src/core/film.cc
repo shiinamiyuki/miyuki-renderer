@@ -5,39 +5,20 @@
 #include "film.h"
 
 namespace Miyuki {
-    Spectrum BufferElement::toInt() const {
+    Spectrum Pixel::toInt() const {
         return eval().gammaCorrection();
     }
 
-    void BufferElement::add(const Spectrum &c, const Float &w) {
+    void Pixel::add(const Spectrum &c, const Float &w) {
         value += c;
         filterWeightSum += w;
     }
 
-    Spectrum BufferElement::eval() const {
+    Spectrum Pixel::eval() const {
         auto w = filterWeightSum == 0 ? 1 : filterWeightSum;
         auto c = value;
         c /= w;
-        c += Spectrum{splatXYZ[0], splatXYZ[1], splatXYZ[2]} * splatWeight;
-        return c;
-    }
-
-    void BufferElement::addSplat(const Spectrum &c) {
-        for (int i = 0; i < 3; i++) {
-            splatXYZ[i].add(c[i]);
-        }
-    }
-
-    void BufferElement::scale(Float k) {
-        for (int i = 0; i < 3; i++) {
-            splatWeight *= k;
-        }
-        value *= k;
-    }
-
-    void Pixel::scale(Float k) {
-        color.scale(k);
-
+        return c + Spectrum(splatXYZ[0], splatXYZ[1], splatXYZ[2]) * splatWeight;
     }
 
     Pixel &Film::getPixel(const Point2f &p) {
@@ -54,12 +35,6 @@ namespace Miyuki {
         return getPixel(p.x(), p.y());
     }
 
-    void Film::scaleImageColor(Float scale) {
-        for (auto &i:image) {
-            i.scale(scale);
-        }
-    }
-
     Film::Film(int32_t w, int32_t h)
             : imageBound(Point2i({0, 0}), Point2i({w, h})) {
         assert(w >= 0 && h >= 0);
@@ -69,7 +44,7 @@ namespace Miyuki {
     void Film::writePNG(const std::string &filename) {
         std::vector<unsigned char> pixelBuffer;
         for (const auto &i:image) {
-            auto out = i.color.toInt();
+            auto out = i.toInt();
             pixelBuffer.emplace_back(out.r());
             pixelBuffer.emplace_back(out.g());
             pixelBuffer.emplace_back(out.b());
@@ -79,28 +54,13 @@ namespace Miyuki {
     }
 
     void Film::addSample(const Point2i &pos, const Spectrum &c, Float weight) {
-        getPixel(pos).color.add(Spectrum(c * weight), weight);
-    }
-
-    void Film::addSplat(const Point2i &pos, const Spectrum &c) {
-        auto color = removeNaNs(c);
-        getPixel(pos).color.addSplat(color);
+        getPixel(pos).add(Spectrum(c * weight), weight);
     }
 
     void Film::clear() {
         for (auto &i:image) {
-            i.color.value = Spectrum{};
-            i.color.filterWeightSum = 0;
-            i.color.splatWeight = 1;
-            i.color.splatXYZ[0] = 0;
-            i.color.splatXYZ[1] = 0;
-            i.color.splatXYZ[2] = 0;
+            i.value = Spectrum{};
+            i.filterWeightSum = 0;
         }
-    }
-
-
-    void LightingComposition::scale(Float k) {
-        direct.scale(k);
-        indirect.scale(k);
     }
 }

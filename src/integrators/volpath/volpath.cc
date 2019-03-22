@@ -38,7 +38,7 @@ namespace Miyuki {
                 uint32_t x = sampler.uniformInt32() % scene.filmDimension().x();
                 uint32_t y = sampler.uniformInt32() % scene.filmDimension().y();
                 auto ctx = scene.getRenderContext(Point2i(x, y), &arena, &sampler);
-                auto Li = L(ctx, scene);
+                auto Li = this->Li(ctx, scene);
                 auto luminance = Li.luminance();
                 if (!std::isinf(luminance) && !std::isnan(luminance)) {
                     avgLuminance += luminance;
@@ -83,8 +83,6 @@ namespace Miyuki {
         });
         std::vector<Seed> seeds(Thread::pool->numThreads());
         {
-            std::random_device rd;
-            std::uniform_int_distribution<Seed> dist;
             for (auto &i:seeds) {
                 i = dist(rd);
             }
@@ -113,7 +111,7 @@ namespace Miyuki {
                         // should we do this?
                         arenas[threadId].reset();
                         auto ctx = scene.getRenderContext(raster, &arenas[threadId], &sampler);
-                        auto Li = removeNaNs(L(ctx, scene));
+                        auto Li = removeNaNs(this->Li(ctx, scene));
                         Li = clampRadiance(Li, maxRayIntensity);
                         auto sampleLuminance = Li.luminance();
                         sampleCount += 1;
@@ -131,7 +129,7 @@ namespace Miyuki {
                         if (sampleCount >= spp) {
                             auto variance = meanSqr / (sampleCount - 1);
                             auto stdError = std::sqrt(variance / sampleCount);
-                            auto error = std::max<double>(mean, avgLuminance * heuristic);
+                            auto error = std::abs(mean - sampleLuminance) * heuristic;
                             //fmt::print("{} {}\n",error * maxError, stdError * quantile);
                             if (error * maxError >= stdError * quantile) {
                                 //fmt::print("break after {} samples\n", sampleCount);
@@ -146,7 +144,7 @@ namespace Miyuki {
         scene.update();
     }
 
-    Spectrum VolPath::L(RenderContext &ctx, Scene &scene) {
+    Spectrum VolPath::Li(RenderContext &ctx, Scene &scene) {
         RayDifferential ray = ctx.primary;
         Intersection intersection;
         ScatteringEvent event;
@@ -158,11 +156,15 @@ namespace Miyuki {
                 Li += beta * scene.infiniteAreaLight->L(ray);
                 break;
             }
+            if (depth > 0 && !sampleIndirect) {
+                break;
+            }
             makeScatteringEvent(&event, ctx, &intersection, TransportMode::radiance);
             if ((caustics && specular) || depth == 0) {
                 Li += event.Le(-1 * ray.d) * beta;
             }
-            Li += beta * estimateDirect(scene, ctx, event);
+            if(depth > 0 || sampleDirect)
+                Li += beta * estimateDirect(scene, ctx, event);
             auto f = event.bsdf->sample(event);
             specular = event.bsdfLobe.matchFlag(BSDFLobe::specular);
             if (event.pdf <= 0 || f.isBlack()) {
@@ -170,8 +172,8 @@ namespace Miyuki {
             }
             ray = event.spawnRay(event.wiW);
             beta *= f * Vec3f::absDot(event.wiW, event.Ns()) / event.pdf;
-            if (depth >= minDepth) {
-                Float p = beta.max();
+            Float p = beta.max();
+            if (depth >= minDepth || p > 1) {
                 if (ctx.sampler->get1D() < p) {
                     beta /= p;
                 } else {
@@ -185,7 +187,7 @@ namespace Miyuki {
     Spectrum VolPath::estimateDirect(Scene &scene, RenderContext &ctx, const ScatteringEvent &event) {
         // TODO: when we have multiple lights, use a new distribution according to solid angle
         const auto &lights = scene.lights;
-        if (lights.size() == 0)
+        if (lights.empty())
             return {};
         ImportanceLightSampler lightSampler(scene, lights);
         auto lightDistribution = scene.lightDistribution.get();
@@ -193,18 +195,18 @@ namespace Miyuki {
     }
 
     VolPath::VolPath(const ParameterSet &set) {
-        progressive = set.findInt("volpath.progressive", false);
-        minDepth = set.findInt("volpath.minDepth", 3);
-        maxDepth = set.findInt("volpath.maxDepth", 5);
-        spp = set.findInt("volpath.spp", 4);
-        maxRayIntensity = set.findFloat("volpath.maxRayIntensity", 10000.0f);
-        caustics = set.findInt("volpath.caustics", true);
-        adaptive = set.findInt("volpath.adaptive", false);
-        nLuminanceSample = set.findInt("volpath.nLuminanceSample", 100000);
-        maxError = set.findFloat("volpath.maxError", 0.05);
-        requiredPValue = set.findFloat("volpath.pValue", 0.05);
-        maxSampleFactor = set.findFloat("volpath.maxSampleFactor", 32);
-        heuristic = set.findFloat("volpath.heuristic", 0.1);
+        progressive = set.findInt("integrator.progressive", false);
+        minDepth = set.findInt("integrator.minDepth", 3);
+        maxDepth = set.findInt("integrator.maxDepth", 5);
+        spp = set.findInt("integrator.spp", 4);
+        maxRayIntensity = set.findFloat("integrator.maxRayIntensity", 10000.0f);
+        caustics = set.findInt("integrator.caustics", true);
+        adaptive = set.findInt("integrator.adaptive", false);
+        nLuminanceSample = set.findInt("integrator.nLuminanceSample", 100000);
+        maxError = set.findFloat("integrator.maxError", 0.05);
+        requiredPValue = set.findFloat("integrator.pValue", 0.05);
+        maxSampleFactor = set.findFloat("integrator.maxSampleFactor", 32);
+        heuristic = set.findFloat("integrator.heuristic", 0.25);
     }
 
     void VolPath::renderProgressive(Scene &scene) {

@@ -23,6 +23,8 @@ namespace Miyuki {
         Float requiredPValue = 0.05;
         double maxError = 0.05;
         Float heuristic;
+        bool sampleDirect = true;
+        bool sampleIndirect = true;
     public:
         VolPath(const ParameterSet &set);
 
@@ -36,7 +38,7 @@ namespace Miyuki {
                                 RenderContext &ctx, const ScatteringEvent &event);
 
     protected:
-        Spectrum L(RenderContext &ctx, Scene &scene) override;
+        Spectrum Li(RenderContext &ctx, Scene &scene) override;
     };
 
 }

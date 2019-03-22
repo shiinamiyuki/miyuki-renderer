@@ -40,6 +40,7 @@ namespace Miyuki {
         int width = 1280, height = 720;
         std::vector<uint8_t> pixelData;
         GLFWwindow *window = nullptr;
+        Float scale = 1.0f;
     public:
         Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
             renderEngine.setGuiMode(true);
@@ -74,17 +75,62 @@ namespace Miyuki {
 
             renderEngine.imageSize(width, height);
             glfwSetWindowSize(window, width, height);
-            
+
+        }
+
+        void handleEvents() {
+            bool rerender = false;
+            if (ImGui::IsKeyPressed('A')) {
+                renderEngine.getMainCamera()->moveLocal(Vec3f{1, 0, 0} * scale);
+                rerender = true;
+            }
+            if (ImGui::IsKeyPressed('D')) {
+                renderEngine.getMainCamera()->moveLocal(Vec3f{-1, 0, 0} * scale);
+                rerender = true;
+            }
+            if (ImGui::IsKeyPressed('W')) {
+                renderEngine.getMainCamera()->moveLocal(Vec3f{0, 0, 1} * scale);
+                rerender = true;
+            }
+            if (ImGui::IsKeyPressed('S')) {
+                renderEngine.getMainCamera()->moveLocal(Vec3f{0, 0, -1} * scale);
+                rerender = true;
+            }
+            if (ImGui::IsKeyPressed('R')) {
+                renderEngine.getMainCamera()->moveLocal(Vec3f{0, 1, 0} * scale);
+                rerender = true;
+            }
+            if (ImGui::IsKeyPressed('F')) {
+                renderEngine.getMainCamera()->moveLocal(Vec3f{0, -1, 0} * scale);
+                rerender = true;
+            }
+            if (ImGui::IsMouseDown(0)) {
+                ImGuiIO &io = ImGui::GetIO();
+                Vec3f delta(-io.MouseDelta.x, -io.MouseDelta.y, 0);
+                delta *= PI / 2.0 / 1000;
+                rerender = true;
+                renderEngine.getMainCamera()->rotate(delta);
+            }
+            if (ImGui::IsKeyPressed('Z')) {
+                scale *= 0.5;
+            }
+            if (ImGui::IsKeyPressed('X')) {
+                scale *= 2;
+            }
+            if (rerender) {
+                renderEngine.updateCameraInfoToParameterSet();
+                update();
+            }
         }
 
         void render() override {
             glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixelData.data());
-            static bool b = true;
-            ImGui::ShowDemoWindow(&b);
-            
+//            static bool b = true;
+//            ImGui::ShowDemoWindow(&b);
         }
 
         void update() override {
+            renderEngine.commitScene();
             renderEngine.renderPreview(pixelData, width, height);
         }
 
@@ -101,6 +147,7 @@ namespace Miyuki {
                 glClear(GL_COLOR_BUFFER_BIT);
                 glfwPollEvents();
 
+                handleEvents();
                 // Start the Dear ImGui frame
                 ImGui_ImplOpenGL2_NewFrame();
                 ImGui_ImplGlfw_NewFrame();

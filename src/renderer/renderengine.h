@@ -19,6 +19,7 @@ namespace Miyuki {
         } mode;
     public:
         std::function<void(void)> updateFunc;
+
         RenderEngine();
 
         void processCommandLine(int argc, char **argv);
@@ -39,11 +40,30 @@ namespace Miyuki {
         }
 
         void readPixelData(std::vector<uint8_t> &pixelData, int &width, int &height);
+
         void imageSize(int &width, int &height);
-        void commitScene(){
+
+        void commitScene() {
             scene.commit();
         }
+
         void renderPreview(std::vector<uint8_t> &pixelData, int &width, int &height);
+
+        Camera *getMainCamera() const {
+            return scene.camera.get();
+        }
+
+        void updateCameraInfoToParameterSet() {
+            scene.parameterSet.addVec3f("camera.rotation", getMainCamera()->rotation() / PI * 180);
+            scene.parameterSet.addVec3f("camera.translation", getMainCamera()->translation());
+            fmt::print("Camera translation: {} {} {}\n", getMainCamera()->translation().x(),
+                       getMainCamera()->translation().y(),
+                       getMainCamera()->translation().z());
+            fmt::print("Camera rotation: {} {} {}\n",
+                       scene.parameterSet.findVec3f("camera.rotation",{}).x(),
+                       scene.parameterSet.findVec3f("camera.rotation",{}).y(),
+                       scene.parameterSet.findVec3f("camera.rotation",{}).z());
+        }
     };
 }
 

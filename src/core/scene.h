@@ -30,14 +30,16 @@ namespace Miyuki {
 
     class MultiplexedMLT;
 
+    class PSSMLT;
+
     class Camera;
 
     class Sampler;
 
     class RenderEngine;
 
-    class MLT;
-    
+    class ERPT;
+
     class Scene {
         std::unique_ptr<EmbreeScene> embreeScene;
         std::vector<std::shared_ptr<Mesh>> instances;
@@ -63,9 +65,11 @@ namespace Miyuki {
 
         friend class BDPT;
 
-        friend class MultiplexedMLT;;
+        friend class MultiplexedMLT;
 
-        friend class MLT;
+        friend class ERPT;
+
+        class PSSMLT;
 
         void computeLightDistribution();
 

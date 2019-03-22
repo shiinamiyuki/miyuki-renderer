@@ -37,7 +37,7 @@ namespace Miyuki {
         virtual void computeScatteringFunction(RenderContext &ctx, ScatteringEvent &event) const = 0;
 
         // used for preview
-        virtual Spectrum albedo() const = 0;
+        virtual Spectrum albedo(ScatteringEvent &event) const = 0;
 
         virtual ~Material() {}
     };
@@ -49,8 +49,8 @@ namespace Miyuki {
 
         void computeScatteringFunction(RenderContext &ctx, ScatteringEvent &event) const override;
 
-        Spectrum albedo() const override {
-            return info.ks.albedo + info.kd.albedo;
+        Spectrum albedo(ScatteringEvent &event) const override {
+            return info.ks.evalUV(event.textureUV()) + info.kd.evalUV(event.textureUV());
         }
     };
 }

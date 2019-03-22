@@ -10,36 +10,19 @@
 #include "utils/atomicfloat.h"
 
 namespace Miyuki {
-    struct BufferElement {
-        AtomicFloat splatXYZ[3];
+    struct Pixel {
         Spectrum value;
         Float filterWeightSum;
+        AtomicFloat splatXYZ[3];
         Float splatWeight = 1;
 
-        BufferElement() : value(0, 0, 0), filterWeightSum(0) {}
+        Pixel() : value(0, 0, 0), filterWeightSum(0) {}
 
         Spectrum toInt() const;
 
         Spectrum eval() const;
 
         void add(const Spectrum &c, const Float &w);
-
-        void addSplat(const Spectrum &c);
-
-        void scale(Float k);
-    };
-
-    struct LightingComposition {
-        BufferElement albedo, direct, indirect;
-
-        void scale(Float k);
-    };
-
-    struct Pixel {
-        BufferElement color;//, depth, pos, normal;
-        // LightingComposition diffuse, specular, glossy;
-
-        void scale(Float k);
     };
 
     class Film {
@@ -51,6 +34,7 @@ namespace Miyuki {
         Bound2i imageBound;
 
     public:
+
         const Point2i &imageDimension() const { return imageBound.pMax; }
 
         int height() const { return imageBound.pMax.y(); }
@@ -65,14 +49,15 @@ namespace Miyuki {
 
         void addSample(const Point2i &, const Spectrum &c, Float weight = 1);
 
-        void addSplat(const Point2i &, const Spectrum &c);
-
-        Float &splatWeight(const Point2i &pos) {
-            return getPixel(pos).color.splatWeight;
+        void addSplat(const Point2i &pos, const Spectrum &c) {
+            getPixel(pos).splatXYZ[0].add(c[0]);
+            getPixel(pos).splatXYZ[1].add(c[1]);
+            getPixel(pos).splatXYZ[2].add(c[2]);
         }
 
-        void scaleImageColor(Float scale);
-
+        Float & splatWeight(const Point2i &pos){
+            return getPixel(pos).splatWeight;
+        }
         Film(int w = 0, int h = 0);
 
         void writePNG(const std::string &filename);

@@ -32,10 +32,19 @@ namespace Miyuki {
     public:
         Camera(const Point2i &dim) : dimension(dim) {}
 
+        const Vec3f &translation()const{
+            return viewpot;
+        }
+        const Vec3f & rotation()const{
+            return direction;
+        }
         void moveTo(const Vec3f &v);
 
         void move(const Vec3f &v);
 
+        void moveLocal(const Vec3f &v){
+            move(cameraToWorld(v));
+        }
         void rotate(const Vec3f &v);
 
         void rotateTo(const Vec3f &v);

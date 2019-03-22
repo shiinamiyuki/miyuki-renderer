@@ -21,7 +21,7 @@ namespace Miyuki {
         readImageFunc = [&](std::vector<uint8_t> &pixelData) {
             for (int i = 0; i < film->width(); i++) {
                 for (int j = 0; j < film->height(); j++) {
-                    auto out = film->getPixel(i, j).color.toInt();
+                    auto out = film->getPixel(i, j).toInt();
                     auto idx = i + film->width() * (film->height() - j - 1);
                     pixelData[4 * idx] = out.x();
                     pixelData[4 * idx + 1] = out.y();
@@ -41,6 +41,7 @@ namespace Miyuki {
                 parameterSet.findFloat("camera.focalDistance", 0.0f));
         camera->rotateTo(parameterSet.findVec3f("camera.rotation", {}) / 180.0f * PI);
         camera->moveTo(parameterSet.findVec3f("camera.translation", {}));
+        camera->preprocess();
     }
 
     void Scene::loadObjMesh(const std::string &filename) {

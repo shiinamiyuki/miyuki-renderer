@@ -4,6 +4,9 @@
 
 #include "renderengine.h"
 #include "integrators/volpath/volpath.h"
+#include <integrators/bdpt/bdpt.h>
+#include <integrators/mmlt/mmlt.h>
+#include <integrators/pssmlt/pssmlt.h>
 #include <utils/thread.h>
 #include "core/film.h"
 
@@ -111,40 +114,97 @@ namespace Miyuki {
                 if (type == "volpath" || type == "path") {
                     parameters.addString("integrator", "volpath");
                     if (I.hasKey("maxRayIntensity")) {
-                        parameters.addFloat("volpath.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
+                        parameters.addFloat("integrator.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
                     }
                     if (I.hasKey("spp")) {
-                        parameters.addInt("volpath.spp", IO::deserialize<int>(I["spp"]));
+                        parameters.addInt("integrator.spp", IO::deserialize<int>(I["spp"]));
                     }
                     if (I.hasKey("minDepth")) {
-                        parameters.addInt("volpath.minDepth", IO::deserialize<int>(I["minDepth"]));
+                        parameters.addInt("integrator.minDepth", IO::deserialize<int>(I["minDepth"]));
                     }
                     if (I.hasKey("maxDepth")) {
-                        parameters.addInt("volpath.maxDepth", IO::deserialize<int>(I["maxDepth"]));
+                        parameters.addInt("integrator.maxDepth", IO::deserialize<int>(I["maxDepth"]));
                     }
                     if (I.hasKey("caustics")) {
-                        parameters.addInt("volpath.caustics", I["caustics"].getBool());
+                        parameters.addInt("integrator.caustics", I["caustics"].getBool());
                     }
                     if (I.hasKey("adaptive")) {
-                        parameters.addInt("volpath.adaptive", I["adaptive"].getBool());
+                        parameters.addInt("integrator.adaptive", I["adaptive"].getBool());
                     }
                     if (I.hasKey("progressive")) {
-                        parameters.addInt("volpath.progressive", I["progressive"].getBool());
+                        parameters.addInt("integrator.progressive", I["progressive"].getBool());
                     }
                     if (I.hasKey("maxSampleFactor")) {
-                        parameters.addFloat("volpath.maxSampleFactor", IO::deserialize<Float>(I["maxSampleFactor"]));
+                        parameters.addFloat("integrator.maxSampleFactor", IO::deserialize<Float>(I["maxSampleFactor"]));
                     }
                     if (I.hasKey("maxError")) {
-                        parameters.addFloat("volpath.maxError", IO::deserialize<Float>(I["maxError"]));
+                        parameters.addFloat("integrator.maxError", IO::deserialize<Float>(I["maxError"]));
                     }
                     if (I.hasKey("heuristic")) {
-                        parameters.addFloat("volpath.heuristic", IO::deserialize<Float>(I["heuristic"]));
+                        parameters.addFloat("integrator.heuristic", IO::deserialize<Float>(I["heuristic"]));
                     }
                     if (I.hasKey("pValue")) {
-                        parameters.addFloat("volpath.pValue", IO::deserialize<Float>(I["pValue"]));
+                        parameters.addFloat("integrator.pValue", IO::deserialize<Float>(I["pValue"]));
                     }
 
                     integrator = std::make_unique<VolPath>(parameters);
+                } else if (type == "bdpt") {
+                    parameters.addString("integrator", "volpath");
+                    if (I.hasKey("maxRayIntensity")) {
+                        parameters.addFloat("integrator.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
+                    }
+                    if (I.hasKey("progressive")) {
+                        parameters.addInt("integrator.progressive", I["progressive"].getBool());
+                    }
+                    if (I.hasKey("spp")) {
+                        parameters.addInt("integrator.spp", IO::deserialize<int>(I["spp"]));
+                    }
+                    if (I.hasKey("minDepth")) {
+                        parameters.addInt("integrator.minDepth", IO::deserialize<int>(I["minDepth"]));
+                    }
+                    if (I.hasKey("maxDepth")) {
+                        parameters.addInt("integrator.maxDepth", IO::deserialize<int>(I["maxDepth"]));
+                    }
+                    if (I.hasKey("caustics")) {
+                        parameters.addInt("integrator.caustics", I["caustics"].getBool());
+                    }
+                    integrator = std::make_unique<BDPT>(parameters);
+                } else if (type == "mlt" || type == "pssmlt") {
+                    parameters.addString("integrator", "volpath");
+                    if (I.hasKey("maxRayIntensity")) {
+                        parameters.addFloat("integrator.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
+                    }
+                    if (I.hasKey("spp")) {
+                        parameters.addInt("integrator.spp", IO::deserialize<int>(I["spp"]));
+                    }
+                    if (I.hasKey("minDepth")) {
+                        parameters.addInt("integrator.minDepth", IO::deserialize<int>(I["minDepth"]));
+                    }
+                    if (I.hasKey("maxDepth")) {
+                        parameters.addInt("integrator.maxDepth", IO::deserialize<int>(I["maxDepth"]));
+                    }
+                    if (I.hasKey("caustics")) {
+                        parameters.addInt("integrator.caustics", I["caustics"].getBool());
+                    }
+                    if (I.hasKey("nChains")) {
+                        parameters.addInt("integrator.nChains", IO::deserialize<int>(I["nChains"]));
+                    }
+                    if (I.hasKey("nDirect")) {
+                        parameters.addInt("integrator.nDirect", IO::deserialize<int>(I["nDirect"]));
+                    }
+                    if (I.hasKey("largeStep")) {
+                        parameters.addFloat("integrator.largeStep", IO::deserialize<Float>(I["largeStep"]));
+                    }
+                    if (I.hasKey("progressive")) {
+                        parameters.addInt("integrator.progressive", I["progressive"].getBool());
+                    }
+                    if (I.hasKey("twoStage")) {
+                        parameters.addInt("integrator.twoStage", I["twoStage"].getBool());
+                    }
+                    if (type == "mlt")
+                        integrator = std::make_unique<MultiplexedMLT>(parameters);
+                    else
+                        integrator = std::make_unique<PSSMLT>(parameters);
                 } else {
                     fmt::print(stderr, "Unknown integrator type `{}`\n", type);
                 }
@@ -218,6 +278,8 @@ namespace Miyuki {
         height = scene.film->height();
     }
 
+    std::vector<MemoryArena> _arena(Thread::pool->numThreads());
+
     void RenderEngine::renderPreview(std::vector<uint8_t> &pixelData, int &width, int &height) {
 
         width = scene.film->width();
@@ -226,15 +288,18 @@ namespace Miyuki {
             pixelData.resize(width * height * 4);
         }
         const Vec3f lightDir = Vec3f(0.1, 1, 0.1).normalized();
+
         Thread::ParallelFor(0u, width, [&](uint32_t i, uint32_t threadId) {
             for (int j = 0; j < height; j++) {
                 Spectrum out(1, 1, 1);
                 Seed seed(rand());
                 RandomSampler sampler(&seed);
-                auto ctx = scene.getRenderContext(Point2i(i, j), nullptr, &sampler);
+                auto ctx = scene.getRenderContext(Point2i(i, j), &_arena[threadId], &sampler);
                 Intersection intersection;
+                ScatteringEvent event;
                 if (scene.intersect(ctx.primary, &intersection)) {
-                    auto albedo = intersection.primitive->material()->albedo();
+                    Integrator::makeScatteringEvent(&event, ctx, &intersection, TransportMode::radiance);
+                    auto albedo = intersection.primitive->material()->albedo(event);
                     auto lighting = std::max(0.2f, Vec3f::dot(lightDir, intersection.Ns));
                     out *= albedo * lighting;
                 }
@@ -244,6 +309,7 @@ namespace Miyuki {
                 pixelData[4 * idx + 1] = out.y();
                 pixelData[4 * idx + 2] = out.z();
                 pixelData[4 * idx + 3] = 255;
+                _arena[threadId].reset();
             }
         });
     }
