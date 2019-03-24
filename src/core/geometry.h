@@ -526,6 +526,10 @@ namespace Miyuki {
         const T &operator[](int32_t i) const { return v[i]; }
 
         size_t size() const { return N; }
+
+        bool operator == (const Vec3f & rhs)const{
+            return x() == rhs.x() && y() == rhs.y() && z() == rhs.z();
+        }
     };
 
     using Point3f = Vec<Float, 3>;

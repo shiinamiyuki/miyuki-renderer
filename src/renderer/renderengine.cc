@@ -53,8 +53,8 @@ namespace Miyuki {
                 std::ifstream in(name);
                 std::string content((std::istreambuf_iterator<char>(in)),
                                     (std::istreambuf_iterator<char>()));
-                auto object = Json::parse(content);
-                readDescription(object);
+                description = Json::parse(content);
+                readDescription();
             });
         }
     }
@@ -81,11 +81,11 @@ namespace Miyuki {
         return 0;
     }
 
-    void RenderEngine::readDescription(Json::JsonObject object) {
+    void RenderEngine::readDescription() {
         auto &parameters = scene.parameters();
-        scene.description = object;
-        if (object.hasKey("camera")) {
-            auto &camera = object["camera"];
+        scene.description = description;
+        if (description.hasKey("camera")) {
+            auto &camera = description["camera"];
             if (camera.hasKey("translation")) {
                 parameters.addVec3f("camera.translation", IO::deserialize<Vec3f>(camera["translation"]));
             }
@@ -102,8 +102,8 @@ namespace Miyuki {
                 parameters.addFloat("camera.focalDistance", IO::deserialize<Float>(camera["focalDistance"]));
             }
         }
-        if (object.hasKey("integrator")) {
-            auto &I = object["integrator"];
+        if (description.hasKey("integrator")) {
+            auto &I = description["integrator"];
             if (I.hasKey("ambientLight")) {
                 parameters.addVec3f("ambientLight", IO::deserialize<Vec3f>(I["ambientLight"]));
             }
@@ -241,8 +241,8 @@ namespace Miyuki {
                 }
             }
         }
-        if (object.hasKey("render")) {
-            auto &render = object["render"];
+        if (description.hasKey("render")) {
+            auto &render = description["render"];
             int w = 0, h = 0;
             if (render.hasKey("resolution")) {
                 auto &res = render["resolution"];
@@ -278,8 +278,8 @@ namespace Miyuki {
                 parameters.addString("render.output", IO::deserialize<std::string>(render["output"]));
             }
         }
-        if (object.hasKey("objects")) {
-            for (const auto &obj : object["objects"].getArray()) {
+        if (description.hasKey("objects")) {
+            for (const auto &obj : description["objects"].getArray()) {
                 scene.loadObjMeshAndInstantiate(obj["file"].getString(),
                                                 IO::deserialize<Transform>(obj["transform"]));
             }
@@ -315,7 +315,7 @@ namespace Miyuki {
 
         width = scene.film->width();
         height = scene.film->height();
-        if (pixelData.size() != width * height * 4) {
+        if (pixelData.size() < width * height * 4) {
             pixelData.resize(width * height * 4);
         }
         const Vec3f lightDir = Vec3f(0.1, 1, 0.1).normalized();

@@ -9,6 +9,8 @@
 #include "integrators/integrator.h"
 
 namespace Miyuki {
+    class Editor;
+
     class RenderEngine {
         Scene scene;
         std::unique_ptr<Integrator> integrator;
@@ -17,6 +19,10 @@ namespace Miyuki {
             commandLine,
             gui
         } mode;
+        Json::JsonObject description;
+
+        friend class Editor;
+
     public:
         std::function<void(void)> updateFunc;
 
@@ -24,7 +30,7 @@ namespace Miyuki {
 
         void processCommandLine(int argc, char **argv);
 
-        void readDescription(Json::JsonObject object);
+        void readDescription();
 
         int exec();
 
@@ -60,9 +66,13 @@ namespace Miyuki {
                        getMainCamera()->translation().y(),
                        getMainCamera()->translation().z());
             fmt::print("Camera rotation: {} {} {}\n",
-                       scene.parameterSet.findVec3f("camera.rotation",{}).x(),
-                       scene.parameterSet.findVec3f("camera.rotation",{}).y(),
-                       scene.parameterSet.findVec3f("camera.rotation",{}).z());
+                       scene.parameterSet.findVec3f("camera.rotation", {}).x(),
+                       scene.parameterSet.findVec3f("camera.rotation", {}).y(),
+                       scene.parameterSet.findVec3f("camera.rotation", {}).z());
+        }
+
+        Scene *getScene() {
+            return &scene;
         }
     };
 }

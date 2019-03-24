@@ -65,5 +65,13 @@ namespace Miyuki {
 
         return sign * y;
     }
+    template<typename T>
+    inline T RadiansToDegrees(const T & x){
+        return x * INVPI * 180.0;
+    }
+    template<typename T>
+    inline T DegressToRadians(const T & x){
+        return x / 180.0 * PI;
+    }
 }
 #endif //MIYUKI_FUNC_H

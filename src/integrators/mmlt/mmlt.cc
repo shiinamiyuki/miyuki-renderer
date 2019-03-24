@@ -20,7 +20,7 @@ namespace Miyuki {
         nDirect = set.findInt("integrator.nDirect", 16);
         nChains = set.findInt("integrator.nChains", 8);
         largeStep = set.findFloat("integrator.largeStep", 0.25f);
-        MLTSampler::maxConsecutiveRejects = set.findInt("sampler.maxConsecutiveRejects", 256);
+        MLTSampler::maxConsecutiveRejects = set.findInt("sampler.maxConsecutiveRejects", 20);
         useKelemenWeight = true;
     }
 
