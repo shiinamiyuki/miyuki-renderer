@@ -10,6 +10,7 @@
 namespace Miyuki {
     static Vec3f BeckmannSample(const Vec3f &wi, Float alpha_x, Float alpha_y,
                                 Float U1, Float U2);
+
     enum class MicrofacetModel {
         beckmann,
         ggx
@@ -66,7 +67,7 @@ namespace Miyuki {
         }
 
         Float pdf(const Vec3f &wo, const Vec3f &wh) const {
-            return  D(wh) * AbsCosTheta(wh);
+            return D(wh) * AbsCosTheta(wh);
         }
 
         Vec3f sampleWh(const Vec3f &wo, const Point2f &u) const {
@@ -100,6 +101,31 @@ namespace Miyuki {
                     throw NotImplemented();
             }
         }
+
+        Point2f invertWh(const Vec3f &wo, const Vec3f &wh) const {
+            throw NotImplemented();
+            switch (model) {
+                case MicrofacetModel::beckmann: {
+                    Float cosTheta = wh.y();
+                    Float cosPhiSinTheta = wh.x();
+                    Float sinPhiSinTheta = wh.z();
+                    Float phi = std::atan2(sinPhiSinTheta, cosPhiSinTheta);
+                    if (phi < 0) {
+                        phi += PI;
+                    }
+                    // TODO:
+                    if (alphaX == alphaY) {
+
+                    } else {
+
+                    }
+                }
+                default:
+                    break;
+
+            }
+        }
+
     };
 
     class MicrofacetReflection : public BxDF {
@@ -115,6 +141,8 @@ namespace Miyuki {
                        | BSDFLobe::reflection) {}
 
         Float pdf(const ScatteringEvent &event) const override;
+
+        Point2f invert(const Vec3f &wo, const Vec3f &wi) const override;
 
         Spectrum sample(ScatteringEvent &event) const override;
 

@@ -17,6 +17,18 @@ namespace Miyuki {
         return Vec3f(sin(theta) * r, sqrt(1 - r * r), cos(theta) * r);
     }
 
+    inline Point2f InvertCosineWeightedHemisphereSampling(const Vec3f &v) {
+        // makes CLion happy
+        auto y = v.x();
+        auto x = v.z();
+        auto r = x * x + y * y;
+        Float theta = std::atan2(y, x);
+        if(theta < 0){
+            theta += PI;
+        }
+        return {theta / (2 * PI), r};
+    }
+
     inline Vec3f UniformTriangleSampling(const Point2f &u0, const Vec3f &v0, const Vec3f &v1, const Vec3f &v2) {
         Float u = u0[0], v = u0[1];
         if (u + v >= 1) {

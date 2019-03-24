@@ -6,6 +6,7 @@
 
 
 namespace Miyuki {
+    int MLTSampler::maxConsecutiveRejects = 256;
     void MLTSampler::accept() {
         if (large()) {
             largeAcceptCount++;
@@ -51,8 +52,6 @@ namespace Miyuki {
     void MLTSampler::startIteration() {
         currentIteration++;
         largeStep = uniformFloat() < largeStepProbability;
-        if(rejectCount >= maxConsecutiveRejects)
-            largeStep = true;
         if (largeStep) {
             largeCount++;
         } else {

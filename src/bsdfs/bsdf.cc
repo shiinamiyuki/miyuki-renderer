@@ -102,4 +102,20 @@ namespace Miyuki {
         }
         return bsdf;
     }
+
+    void BSDF::invert(const ScatteringEvent &event, Point2f *u, Float *pdf) const {
+        static std::random_device rd;
+        static std::uniform_real_distribution<Float> dist;
+        auto wo = event.wo;
+        auto wi = event.wi;
+        *pdf = 1.0f / nBxDFs;
+        Float v = dist(rd) * nBxDFs;
+        for (int i = 1; i <= nBxDFs; i++) {
+            if (v < i || i == nBxDFs - 1) {
+                *u = bxdfs[i]->invert(wo, wi);
+                return;
+            }
+        }
+        throw std::runtime_error("Shouldn't reach here");
+    }
 }

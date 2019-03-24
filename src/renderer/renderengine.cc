@@ -7,6 +7,7 @@
 #include <integrators/bdpt/bdpt.h>
 #include <integrators/mmlt/mmlt.h>
 #include <integrators/pssmlt/pssmlt.h>
+#include <integrators/erpt/erpt.h>
 #include <utils/thread.h>
 #include "core/film.h"
 
@@ -205,6 +206,36 @@ namespace Miyuki {
                         integrator = std::make_unique<MultiplexedMLT>(parameters);
                     else
                         integrator = std::make_unique<PSSMLT>(parameters);
+                } else if (type == "erpt") {
+                    parameters.addString("integrator", "volpath");
+                    if (I.hasKey("maxRayIntensity")) {
+                        parameters.addFloat("integrator.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
+                    }
+                    if (I.hasKey("spp")) {
+                        parameters.addInt("integrator.spp", IO::deserialize<int>(I["spp"]));
+                    }
+                    if (I.hasKey("minDepth")) {
+                        parameters.addInt("integrator.minDepth", IO::deserialize<int>(I["minDepth"]));
+                    }
+                    if (I.hasKey("maxDepth")) {
+                        parameters.addInt("integrator.maxDepth", IO::deserialize<int>(I["maxDepth"]));
+                    }
+                    if (I.hasKey("caustics")) {
+                        parameters.addInt("integrator.caustics", I["caustics"].getBool());
+                    }
+                    if (I.hasKey("nMutations")) {
+                        parameters.addInt("integrator.nMutations", IO::deserialize<int>(I["nMutations"]));
+                    }
+                    if (I.hasKey("nDirect")) {
+                        parameters.addInt("integrator.nDirect", IO::deserialize<int>(I["nDirect"]));
+                    }
+                    if (I.hasKey("largeStep")) {
+                        parameters.addFloat("integrator.largeStep", IO::deserialize<Float>(I["largeStep"]));
+                    }
+                    if (I.hasKey("progressive")) {
+                        parameters.addInt("integrator.progressive", I["progressive"].getBool());
+                    }
+                    integrator = std::make_unique<ERPT>(parameters);
                 } else {
                     fmt::print(stderr, "Unknown integrator type `{}`\n", type);
                 }

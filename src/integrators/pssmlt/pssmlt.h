@@ -10,6 +10,7 @@
 #include <integrators/mmlt/mmlt.h>
 
 namespace Miyuki {
+    // Unidirectional PSSMLT only makes things worse
     class PSSMLT : public VolPath {
     protected:
         int nBootstrap;

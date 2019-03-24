@@ -53,7 +53,7 @@ namespace Miyuki {
     };
 
     class MLTSampler : public Sampler {
-    protected:
+
         int nStream;
         int streamIndex;
         int sampleIndex;
@@ -61,17 +61,19 @@ namespace Miyuki {
         int64_t currentIteration = 0, lastLargeStepIteration = 0;
         bool largeStep = true;
         Float largeStepProbability;
+    public:
+        Float maxImagePlaneStratification = 0.1f;
 
         int getNextIndex();
 
         PrimarySample u1, u2;// for image location
         void ensureReadyU1U2() {
-            mutate(u1, 2.0f / (imageDimension.x() + imageDimension.y()), 0.1f);
-            mutate(u2, 2.0f / (imageDimension.x() + imageDimension.y()), 0.1f);
+            mutate(u1, 2.0f / (imageDimension.x() + imageDimension.y()), maxImagePlaneStratification);
+            mutate(u2, 2.0f / (imageDimension.x() + imageDimension.y()), maxImagePlaneStratification);
         }
 
-    public:
-        static const int maxConsecutiveRejects = 256;
+
+        static int maxConsecutiveRejects;
         Point2i imageLocation;
         Spectrum L;
         Point2i imageDimension;

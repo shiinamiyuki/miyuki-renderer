@@ -39,13 +39,27 @@ namespace Miyuki {
         }
     };
 
+    struct MarkovChain {
+        // seeds.size() = sampler.size() = maxDepth + 1
+        std::vector<Seed> seeds;
+        std::vector<std::shared_ptr<MLTSampler>> samplers;
+        Distribution1D pathLengthDistribution;
+
+        MarkovChain(const std::vector<Float> &b) :
+                seeds(b.size() + 1u), samplers(b.size() + 1u),
+                pathLengthDistribution(&b[0], b.size()) {}
+
+        MarkovChain &operator=(const MarkovChain &) = delete;
+
+    };
+
     class MultiplexedMLT : public BDPT {
         int nBootstrap;
         int nChains;
         int64_t nMutations;
-        Float b;
         Float largeStep;
         int nDirect;
+        bool useKelemenWeight;
         static const int cameraStreamIndex;
         static const int lightStreamIndex;
         static const int connectionStreamIndex;
@@ -56,41 +70,21 @@ namespace Miyuki {
         DECLARE_STATS_MEMBER(uint64_t, mutationCounter);
         std::unique_ptr<ProgressReporter<uint64_t>> reporter;
         std::mutex mutex;
-        bool twoStage;
-        Point2i twoStageResolution;
-        std::vector<AtomicFloat> twoStageTestImage;
     protected:
-
-        std::vector<Seed> mltSeeds;
-        std::vector<std::shared_ptr<MLTSampler>> samplers;
+        std::vector<Float> b;
+        std::vector<std::shared_ptr<MarkovChain>> chains;
 
         Spectrum radiance(Scene &scene, MemoryArena *arena, MLTSampler *sampler, int depth, Point2i *raster);
 
         void handleDirect(Scene &scene);
 
-        void twoStageInit(Scene &scene);
-
         void generateBootstrapSamples(Scene &scene);
 
-        void runMC(Scene &scene, MLTSampler *sampler, MemoryArena *arena);
+        void run(MarkovChain & markovChain,Scene &scene, MemoryArena *arena);
 
-        // MLT is after all a progressive algorithm
-        // The only difference is the order of MC being executed
-        void renderProgressive(Scene &scene);
-
-        void renderNonProgressive(Scene &scene);
 
         void recoverImage(Scene &scene);
 
-        Float approxLuminance(const Point2i &raster) {
-            int x = raster.x() / twoStageSampleFactor;
-            int y = raster.y() / twoStageSampleFactor;
-            Float lum = twoStageTestImage[x + twoStageResolution.x() * y];
-            lum = std::min(lum, 10.0f);
-            if (lum <= 0 || std::isnan(lum))
-                return 0.01;
-            return lum;
-        }
 
     public:
         void render(Scene &scene) override;

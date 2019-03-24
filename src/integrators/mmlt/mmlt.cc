@@ -13,15 +13,15 @@ namespace Miyuki {
     const int MultiplexedMLT::lightStreamIndex = 1;
     const int MultiplexedMLT::connectionStreamIndex = 2;
     const int MultiplexedMLT::nStream = 3;
-    const int  MultiplexedMLT::twoStageSampleFactor = 20;
+    const int MultiplexedMLT::twoStageSampleFactor = 20;
 
     MultiplexedMLT::MultiplexedMLT(const ParameterSet &set) : BDPT(set) {
         nBootstrap = set.findInt("integrator.nBootstrap", 100000);
         nDirect = set.findInt("integrator.nDirect", 16);
-        nChains = set.findInt("integrator.nChains", 1000);
+        nChains = set.findInt("integrator.nChains", 8);
         largeStep = set.findFloat("integrator.largeStep", 0.25f);
-        b = 0;
-        twoStage = set.findInt("integrator.twoStage", false);
+        MLTSampler::maxConsecutiveRejects = set.findInt("sampler.maxConsecutiveRejects", 256);
+        useKelemenWeight = true;
     }
 
     void MultiplexedMLT::generateBootstrapSamples(Scene &scene) {
@@ -29,56 +29,73 @@ namespace Miyuki {
 
         // compute bootstrap samples
         uint64_t nBootstrapSamples = nBootstrap * (maxDepth + 1);
-        std::vector<Seed> seeds(nBootstrapSamples);
-        std::vector<Seed> bootstrapSeeds(nBootstrapSamples);
-        std::vector<Float> bootstrapWeights(nBootstrapSamples);
-
+        std::vector<std::vector<Seed>> seeds(maxDepth + 1);
+        std::vector<std::vector<Seed>> bootstrapSeeds(maxDepth + 1);
+        std::vector<std::vector<Float>> bootstrapWeights(maxDepth + 1);
+        for (auto &i : bootstrapWeights) {
+            i.resize(nBootstrap);
+        }
         {
             std::uniform_int_distribution<unsigned short> dist;
-            for (int i = 0; i < seeds.size(); i++) {
-                seeds[i] = dist(rd);
-                bootstrapSeeds[i] = seeds[i];
+            for (int k = 0; k <= maxDepth; k++) {
+                bootstrapSeeds[k].resize(nBootstrap);
+                seeds[k].resize(nBootstrap);
+                for (int i = 0; i < nBootstrap; i++) {
+                    bootstrapSeeds[k][i] = seeds[k][i] = dist(rd);
+                }
             }
         }
-
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
         Thread::ParallelFor(0u, nBootstrap, [&](uint32_t i, uint32_t threadId) {
-            for (int depth = 0; depth <= maxDepth; depth++) {
+            for (int k = 0; k <= maxDepth; k++) {
                 arenas[threadId].reset();
                 Point2i raster;
-                int seedIndex = i * (maxDepth + 1) + depth;
-                MLTSampler sampler(&bootstrapSeeds[seedIndex], nStream, largeStep, scene.filmDimension(), depth);
-                bootstrapWeights[seedIndex] = radiance(scene, &arenas[threadId], &sampler, depth,
-                                                       &raster).luminance();
+                MLTSampler sampler(&bootstrapSeeds[k][i], nStream, largeStep, scene.filmDimension(), k);
+                bootstrapWeights[k][i] = radiance(scene, &arenas[threadId], &sampler, k,
+                                                  &raster).luminance();
             }
         }, 4096);
-        Distribution1D bootstrap(bootstrapWeights.data(), nBootstrapSamples);
-        b = bootstrap.funcInt * (maxDepth + 1) / nBootstrapSamples;
-        fmt::print("b: {}\n", b);
-        // Selecting seeds according to distribution
-        std::uniform_real_distribution<Float> dist;
-        std::uniform_int_distribution<Seed> dist2;
-        for (int i = 0; i < nChains; i++) {
-            auto seedIndex = bootstrap.sampleInt(dist(rd));
-            auto depth = seedIndex % (maxDepth + 1);
-            mltSeeds[i] = seeds[seedIndex];
-
-            samplers[i] = std::make_shared<MLTSampler>(&mltSeeds[i], nStream, largeStep, scene.filmDimension(),
-                                                       depth);
-            samplers[i]->depth = depth;
-            samplers[i]->L = radiance(scene, &arenas[0], samplers[i].get(), samplers[i]->depth,
-                                      &samplers[i]->imageLocation);
-            do {
-                mltSeeds[i] = dist2(rd);
-            } while (mltSeeds[i] == 0);
+        b.resize(maxDepth + 1u);
+        chains.clear();
+        std::vector<Distribution1D> distributions;
+        for (int k = 0; k <= maxDepth; k++) {
+            distributions.emplace_back(&bootstrapWeights[k][0], nBootstrap);
+            b[k] = distributions.back().funcInt / nBootstrap;
         }
-        // Let RAII auto clean up temporary vectors
-
+        for (int i = 0; i < b.size(); i++) {
+            fmt::print("b[{}] = {}\n", i, b[i]);
+        }
+        std::uniform_real_distribution<Float> dist;
+        std::uniform_int_distribution<Seed> uniformIntDistribution(1, UINT64_MAX);
+        for (int i = 0; i < nChains; i++) {
+            std::shared_ptr<MarkovChain> markovChain(new MarkovChain(b));
+            for (int k = 0; k <= maxDepth; k++) {
+                Distribution1D &distribution1D = distributions[k];
+                int idx = distribution1D.sampleInt(dist(rd));
+                Seed seed = seeds[k][idx];
+                auto sampler = std::make_shared<MLTSampler>(
+                        &seed, nStream,
+                        largeStep, scene.filmDimension(), k);
+                sampler->depth = k;
+                sampler->L = radiance(scene, &arenas[0], sampler.get(), sampler->depth,
+                                      &sampler->imageLocation);
+                markovChain->seeds[k] = uniformIntDistribution(rd);
+                sampler->reseed(&markovChain->seeds[k]);
+                markovChain->samplers[k] = sampler;
+            }
+            chains.emplace_back(markovChain);
+        }
     }
 
-    void MultiplexedMLT::runMC(Scene &scene, MLTSampler *sampler, MemoryArena *arena) {
+    void MultiplexedMLT::run(MarkovChain &markovChain, Scene &scene, MemoryArena *arena) {
         static std::random_device rd;
         static std::uniform_real_distribution<Float> dist;
+
+        int k = markovChain.pathLengthDistribution.sampleInt(dist(rd));
+
+        Float pdfBk = markovChain.pathLengthDistribution.pdf(k);
+        auto sampler = markovChain.samplers[k].get();
+
         sampler->startIteration();
         Point2i pProposed;
         auto LProposed = radiance(scene, arena, sampler, sampler->depth, &pProposed);
@@ -87,28 +104,37 @@ namespace Miyuki {
             accept = 1;
         else
             accept = clamp(LProposed.luminance() / sampler->L.luminance(), 0.0f, 1.0f);
-        // force accept mutation, this removes fireflies (somehow)
-        if (sampler->rejectCount >= MLTSampler::maxConsecutiveRejects) {
-            accept = 1;
-        }
+
         if (sampler->large() && LProposed.luminance() > 0) {
             sampler->nonZeroCount++;
         }
-        auto LNew = removeNaNs(Spectrum(
-                LProposed * accept / LProposed.luminance()));
-        auto LOld = removeNaNs(Spectrum(
-                sampler->L * (1 - accept) / sampler->L.luminance()));
-        if (twoStage) {
-            LNew *= approxLuminance(pProposed);
-            LOld *= approxLuminance(sampler->imageLocation);
-        }
-        if (accept > 0) {
-            scene.film->addSplat(pProposed, LNew);
+        Float weightNew;
+        Float weightOld;
+        if (useKelemenWeight) {
+            weightNew = 1.0f / pdfBk *
+                        (accept + (sampler->large() ? 1.0f : 0.0f)) / (LProposed.luminance() / b[k] + largeStep);
+            weightOld = 1.0f / pdfBk *
+                        (1 - accept) / (sampler->L.luminance() / b[k] + largeStep);
+        } else {
+            weightNew = 1.0f / pdfBk * accept / LProposed.luminance() * b[k];
+            weightOld = 1.0f / pdfBk * (1 - accept) / sampler->L.luminance() * b[k];
         }
 
-        scene.film->addSplat(sampler->imageLocation, LOld);
+        if (!std::isnormal(weightNew)) {
+            weightNew = 0.0f;
+        }
+        if (!std::isnormal(weightOld)) {
+            weightOld = 0.0f;
+        }
+        if (weightNew > 0) {
+            scene.film->addSplat(pProposed, LProposed * weightNew);
+        }
+        // Consecutive sample filtering from ERPT
+        if (weightOld > 0 && sampler->rejectCount < MLTSampler::maxConsecutiveRejects) {
+            scene.film->addSplat(sampler->imageLocation, sampler->L * weightOld);
+        }
         UPDATE_STATS(mutationCounter, 1);
-        if (dist(rd) < accept) {
+        if (accept == 1 || dist(rd) < accept) {
             sampler->L = LProposed;
             sampler->imageLocation = pProposed;
             sampler->accept();
@@ -122,16 +148,12 @@ namespace Miyuki {
     void MultiplexedMLT::render(Scene &scene) {
         auto &film = *scene.film;
         int nPixels = scene.filmDimension().x() * scene.filmDimension().y();
-        nMutations = ChainsMutations(nPixels, nChains, spp);
-        mltSeeds.resize(nChains);
-        samplers.resize(nChains);
 
         fmt::print("Integrator: Multiplexed Metropolis Light Transport!\n");
+
+        fmt::print("Generating bootstrap samples, nBootstrap = {}\n", nBootstrap);
+        nMutations = ChainsMutations(nPixels, nChains, spp);
         fmt::print("{}mpp, {} chains, {} mutations\n", spp, nChains, nMutations);
-        if (twoStage) {
-            twoStageInit(scene);
-        }
-        fmt::print("Generating bootstrap samples, nBootstrap={}\n", nBootstrap);
         generateBootstrapSamples(scene);
         handleDirect(scene);
         scene.update();
@@ -159,7 +181,7 @@ namespace Miyuki {
             auto mpp = reporter->count() / (double) nPixels;
             for (int i = 0; i < film.width(); i++) {
                 for (int j = 0; j < film.height(); j++) {
-                    film.splatWeight({i, j}) = b / mpp;
+                    film.splatWeight({i, j}) = 1.0f / mpp;
                     auto out = film.getPixel(i, j).toInt();
                     auto idx = i + film.width() * (film.height() - j - 1);
                     pixelData[4 * idx] = out.x();
@@ -169,44 +191,14 @@ namespace Miyuki {
                 }
             }
         };
-        fmt::print("Start rendering; progressive = {}\n", progressive);
+        fmt::print("Start rendering\n");
         acceptanceCounter = 0;
         mutationCounter = 0;
-        if (progressive) {
-            renderProgressive(scene);
-        } else {
-            renderNonProgressive(scene);
-        }
-
-    }
-
-    void MultiplexedMLT::renderProgressive(Scene &scene) {
-        auto &film = *scene.film;
-        int nPixels = scene.filmDimension().x() * scene.filmDimension().y();
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
-
-        for (int64_t curIter = 0; curIter < nMutations && scene.processContinuable(); curIter++) {
-            Thread::ParallelFor(0, nChains, [&](uint32_t idx, uint32_t threadId) {
-                auto sampler = samplers[idx].get();
-                runMC(scene, sampler, &arenas[threadId]);
+        Thread::ParallelFor(0u, chains.size(), [&](uint32_t idx, uint32_t threadId) {
+            for (int64_t i = 0; i < nMutations && scene.processContinuable(); i++) {
+                run(*chains[idx], scene, &arenas[threadId]);
                 arenas[threadId].reset();
-                reporter->update();
-            }, 64);
-        }
-        scene.update();
-        recoverImage(scene);
-    }
-
-    void MultiplexedMLT::renderNonProgressive(Scene &scene) {
-        auto &film = *scene.film;
-        int nPixels = scene.filmDimension().x() * scene.filmDimension().y();
-        std::vector<MemoryArena> arenas(Thread::pool->numThreads());
-        Thread::ParallelFor(0, nChains, [&](uint32_t idx, uint32_t threadId) {
-            for (int64_t curIter = 0; curIter < nMutations && scene.processContinuable(); curIter++) {
-                auto sampler = samplers[idx].get();
-                runMC(scene, sampler, &arenas[threadId]);
-                if (curIter % 16 == 0)
-                    arenas[threadId].reset();
                 reporter->update();
             }
         });
@@ -214,12 +206,13 @@ namespace Miyuki {
         recoverImage(scene);
     }
 
+
     void MultiplexedMLT::recoverImage(Scene &scene) {
         int nPixels = scene.filmDimension().x() * scene.filmDimension().y();
         auto mpp = reporter->count() / (double) nPixels;
         for (int i = 0; i < scene.film->width(); i++) {
             for (int j = 0; j < scene.film->height(); j++) {
-                scene.film->splatWeight({i, j}) = b / mpp;
+                scene.film->splatWeight({i, j}) = 1.0f / mpp;
             }
         }
     }
@@ -227,7 +220,6 @@ namespace Miyuki {
     Spectrum
     MultiplexedMLT::radiance(Scene &scene, MemoryArena *arena, MLTSampler *sampler, int depth, Point2i *raster) {
         auto imageLoc = sampler->sampleImageLocation();
-
         int s, t, nStrategies;
         sampler->startStream(cameraStreamIndex);
         auto u = sampler->get1D();
@@ -279,10 +271,6 @@ namespace Miyuki {
         auto Li = clampRadiance(
                 removeNaNs(connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, raster)),
                 maxRayIntensity) * nStrategies;
-        if (twoStage) {
-            auto lum = approxLuminance(*raster);
-            Li /= lum;
-        }
         return Li;
 
     }
@@ -295,49 +283,7 @@ namespace Miyuki {
         direct->render(scene);
     }
 
-    void MultiplexedMLT::twoStageInit(Scene &scene) {
-        fmt::print("Two-stage MLT: test image\n");
-        int nPixels = scene.filmDimension().x() * scene.filmDimension().y();
-        twoStageResolution = scene.filmDimension() / twoStageSampleFactor + Point2i{1, 1};
-        std::vector<MemoryArena> arenas(Thread::pool->numThreads());
-        std::vector<Seed> seeds(Thread::pool->numThreads());
-        for (auto &i:seeds) {
-            i = rand();
-        }
-        twoStageTestImage.resize(twoStageResolution.x() * twoStageResolution.y());
-        for (auto &i: twoStageTestImage) {
-            i = 0;
-        }
-        ScopedAssignment<bool> a1(&twoStage, false);
-        for (int pass = 0; pass < 16; pass++) {
-            fmt::print("Two stage test image pass {}\n", pass + 1);
-            Thread::ParallelFor(0u, nPixels, [&](uint32_t id, uint32_t threadId) {
-                RandomSampler rng(&seeds[threadId]);
-                Float lum = 0;
-                MLTSampler sampler(&seeds[threadId], nStream, largeStep, scene.filmDimension(),
-                                   rng.uniformInt32() % (maxDepth + 1));
-                Point2i raster;
-                Spectrum Li = radiance(scene, &arenas[threadId], &sampler, sampler.depth, &raster) * (maxDepth + 1);
-                Li = clampRadiance(Li, 10);
-                Li = removeNaNs(Li);
-                lum = Li.luminance();
-                int x = raster.x();
-                int y = raster.y();
-                x /= twoStageSampleFactor;
-                y /= twoStageSampleFactor;
-                twoStageTestImage[x + y * twoStageResolution.x()].add(
-                        lum / (twoStageSampleFactor * twoStageSampleFactor) / 16);
-                arenas[threadId].reset();
-            }, 2048);
-        }
-//        Film temp(scene.filmDimension().x(), scene.filmDimension().y());
-//        for (int i = 0; i < scene.filmDimension().x(); i++) {
-//            for (int j = 0; j < scene.filmDimension().y(); j++) {
-//                temp.addSample({i, j}, approxLuminance({i, j}));
-//            }
-//        }
-//        temp.writePNG("twostage.png");
-    }
+
 }
 
 

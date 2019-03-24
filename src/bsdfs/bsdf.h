@@ -135,6 +135,8 @@ namespace Miyuki {
 
         virtual Spectrum sample(ScatteringEvent &event) const;
 
+        virtual Point2f invert(const Vec3f &wo, const Vec3f &wi) const = 0;
+
         virtual ~BxDF() {}
 
         bool matchFlag(const BSDFLobe &rhs) const {
@@ -160,6 +162,8 @@ namespace Miyuki {
         Float pdf(const ScatteringEvent &event, BSDFLobe lobe = BSDFLobe::all) const;
 
         Spectrum sample(ScatteringEvent &event, BSDFLobe lobe = BSDFLobe::all) const;
+
+        void invert(const ScatteringEvent &event, Point2f* u,Float * pdf) const;
 
         int numComponents(BSDFLobe lobe) const {
             int n = 0;

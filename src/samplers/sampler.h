@@ -14,7 +14,7 @@ namespace Miyuki {
     typedef uint64_t Seed;
 
     inline uint64_t xorshift64star(uint64_t *state) {
-        uint64_t x = state[0];	/* The state must be seeded with a nonzero value. */
+        uint64_t x = state[0];    /* The state must be seeded with a nonzero value. */
         x ^= x >> 12; // a
         x ^= x << 25; // b
         x ^= x >> 27; // c
@@ -45,7 +45,15 @@ namespace Miyuki {
         Seed *seed;
         RNG rng;
     public:
+
+        Seed *getSeed() { return seed; }
+
         Sampler(Seed *seed) : seed(seed), rng(seed) {}
+
+        void reseed(Seed *seed) {
+            this->seed = seed;
+            rng = RNG(seed);
+        }
 
         virtual void start() = 0;
 

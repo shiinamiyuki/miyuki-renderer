@@ -174,23 +174,23 @@ namespace Miyuki {
             a7 = {&qsMinus->pdfRev, qs->pdf(scene, pt, *qsMinus)};
         }
 
-        // Remaps the delta pdf, hardcoded power heuristics
-        auto remap0 = [](Float x) { return x != 0 ? x * x : 1; };
+
+        auto remap0 = [](Float x) -> Float { return x != 0 ? x: 1; };
         Float sumRi = 0;
         Float ri = 1;
         for (int i = t - 1; i > 0; i--) {
-            ri *= remap0(cameraSubPath[i].pdfRev) / remap0(cameraSubPath[i].pdfFwd);
+            ri *= std::abs(remap0(cameraSubPath[i].pdfRev) / remap0(cameraSubPath[i].pdfFwd));
             if (!cameraSubPath[i].delta && !cameraSubPath[i - 1].delta)
                 sumRi += ri;
         }
         ri = 1;
         for (int i = s - 1; i >= 0; i--) {
-            ri *= remap0(lightSubPath[i].pdfRev) / remap0(lightSubPath[i].pdfFwd);
+            ri *= std::abs(remap0(lightSubPath[i].pdfRev) / remap0(lightSubPath[i].pdfFwd));
             bool delta = i > 0 ? lightSubPath[i - 1].delta : lightSubPath[0].light->isDeltaLight();
             if (!lightSubPath[i].delta && !delta)
                 sumRi += ri;
         }
-        return 1.0f / (1.0f + sumRi);
+        return clamp(1.0f / (1.0f + sumRi), 0.0f, 1.0f);
     }
 
     BDPT::BDPT(const ParameterSet &set) {

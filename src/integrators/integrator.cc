@@ -51,8 +51,7 @@ namespace Miyuki {
             const auto wi = scatteringEvent.wiW;
             f *= Vec3f::absDot(scatteringEvent.Ns(), wi);
             Float scatteringPdf = scatteringEvent.pdf;
-            bool sampledSpecular = scatteringEvent.bsdfLobe.matchFlag(BSDFLobe::specular);
-            if (!f.isBlack() && scatteringPdf > 0 && !sampledSpecular) {
+            if (!f.isBlack() && scatteringPdf > 0) {
                 Ray ray = scatteringEvent.spawnRay(wi);
                 Intersection isct;
                 if (scene.intersect(ray, &isct) && isct.primitive->light()) {

@@ -19,6 +19,8 @@ namespace Miyuki {
     void PSSMLT::handleDirect(Scene &scene) {
         if (nDirect <= 0)
             return;
+        sampleDirect = false;
+
         std::unique_ptr<DirectLightingIntegrator> direct(new DirectLightingIntegrator(nDirect));
         fmt::print("Rendering direct lighting\n");
         direct->render(scene);
@@ -117,14 +119,13 @@ namespace Miyuki {
         nMutations = ChainsMutations(nPixels, nChains, spp);
         mltSeeds.resize(nChains);
         samplers.resize(nChains);
-        if (nDirect > 0) {
-            sampleDirect = false;
-        }
+
         fmt::print("Integrator: Unidirectional Primary Sample Space Metropolis Light Transport!\n");
         fmt::print("{}mpp, {} chains, {} mutations\n", spp, nChains, nMutations);
+        handleDirect(scene);
         fmt::print("Generating bootstrap samples, nBootstrap={}\n", nBootstrap);
         generateBootstrapSamples(scene);
-        handleDirect(scene);
+
         scene.update();
 
         reporter = std::make_unique<ProgressReporter<uint64_t>>(nMutations * nChains, [&](int64_t cur, int64_t total) {

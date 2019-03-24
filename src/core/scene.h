@@ -69,7 +69,7 @@ namespace Miyuki {
 
         friend class ERPT;
 
-        class PSSMLT;
+        friend class PSSMLT;
 
         void computeLightDistribution();
 
@@ -83,6 +83,10 @@ namespace Miyuki {
 
         ParameterSet &parameters() {
             return parameterSet;
+        }
+
+        Film * getFilm(){
+            return film.get();
         }
 
         void setFilmDimension(const Point2i &);

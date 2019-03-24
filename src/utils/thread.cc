@@ -86,6 +86,8 @@ namespace Miyuki {
         }
 
         void ThreadPool::waitForAll() {
+            if(mainWaiting)
+                return;
             std::unique_lock lock(mainMutex);
             mainWaiting = true;
             mainCondition.wait(lock);
