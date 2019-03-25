@@ -36,7 +36,12 @@ Dependencies: Embree 3.0, boost filesystem(not required when on non-Windows).
 
 CMake everything.
 
-## Gallery (Random test images)
+## Gallery 
+### Editor
+
+![](gallery/editor.png)
+
+### Random test images
 Rendered with MMLT.
 
 ![](gallery/fireplace_room_mlt.png)
