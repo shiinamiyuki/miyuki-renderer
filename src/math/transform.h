@@ -7,6 +7,7 @@
 
 #include "miyuki.h"
 #include "core/geometry.h"
+#include <io/serialize.h>
 
 namespace Miyuki {
     struct Matrix4x4 {
@@ -61,10 +62,35 @@ namespace Miyuki {
         Transform(const Vec3f &t, const Vec3f &r, Float s);
 
         //rotation then translation
-        Vec3f apply(const Vec3f &) const;
+        Vec3f apply(const Vec3f &, bool inverse = false) const;
 
-        Vec3f applyRotation(const Vec3f &) const;
+        Vec3f applyRotation(const Vec3f &, bool inverse = false) const;
     };
+    namespace IO {
+        template<>
+        inline Transform deserialize<Transform>(const Json::JsonObject &obj) {
+            Vec3f r, t;
+            Float s = 1;
+            if (obj.hasKey("rotation")) {
+                r = deserialize<Vec3f>(obj["rotation"]) / 180 * PI;
+            }
+            if (obj.hasKey("translation")) {
+                t = deserialize<Vec3f>(obj["translation"]);
+            }
+            if (obj.hasKey("scale")) {
+                s = deserialize<Float>(obj["scale"]);
+            }
+            return Transform(t, r, s);
+        }
+        template<>
+        inline Json::JsonObject serialize<Transform>(const Transform & T) {
+            auto obj = Json::JsonObject::makeObject();
+            obj["scale"] = serialize(T.scale);
+            obj["translation"] = serialize(T.translation);
+            obj["rotation"] = serialize(T.rotation);
+            return obj;
+        }
+    }
 
     class CoordinateSystem {
         Vec3f localX, localZ, normal;

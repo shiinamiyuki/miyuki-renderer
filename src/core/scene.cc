@@ -98,7 +98,6 @@ namespace Miyuki {
         Log::log("Film dimension: {}x{}\n", film->width(), film->height());
         Log::log("Output file: {}\n", parameterSet.findString("render.output", "scene.png"));
         computeLightDistribution();
-        meshes.clear();
         RTCBounds bounds;
         rtcGetSceneBounds(embreeScene->scene, &bounds);
         Float worldRadius = (Vec3f(bounds.lower_x, bounds.lower_y, bounds.lower_z)

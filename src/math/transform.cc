@@ -271,19 +271,35 @@ Transform::Transform(const Vec3f &t, const Vec3f &r, Float s) : translation(t), 
 
 }
 
-Vec3f Transform::apply(const Vec3f &_v) const {
-    auto v = _v * scale;
-    v = rotate(v, Vec3f(1, 0, 0), -rotation.y());
-    v = rotate(v, Vec3f(0, 1, 0), rotation.x());
-    v = rotate(v, Vec3f(0, 0, 1), rotation.z());
-    return v + translation;
+Vec3f Transform::apply(const Vec3f &_v, bool inverse) const {
+    if (!inverse) {
+        auto v = _v * scale;
+        v = rotate(v, Vec3f(1, 0, 0), -rotation.y());
+        v = rotate(v, Vec3f(0, 1, 0), rotation.x());
+        v = rotate(v, Vec3f(0, 0, 1), rotation.z());
+        return v + translation;
+    } else {
+        auto v = _v - translation;
+        v = rotate(v, Vec3f(0, 0, 1), -rotation.z());
+        v = rotate(v, Vec3f(0, 1, 0), -rotation.x());
+        v = rotate(v, Vec3f(1, 0, 0), rotation.y());
+        return v / scale;
+    }
 }
 
-Vec3f Transform::applyRotation(const Vec3f &_v) const {
-    auto v = _v;
-    v = rotate(v, Vec3f(1, 0, 0), -rotation.y());
-    v = rotate(v, Vec3f(0, 1, 0), rotation.x());
-    v = rotate(v, Vec3f(0, 0, 1), rotation.z());
-    return v;
+Vec3f Transform::applyRotation(const Vec3f &_v, bool inverse) const {
+    if (!inverse) {
+        auto v = _v;
+        v = rotate(v, Vec3f(1, 0, 0), -rotation.y());
+        v = rotate(v, Vec3f(0, 1, 0), rotation.x());
+        v = rotate(v, Vec3f(0, 0, 1), rotation.z());
+        return v;
+    } else {
+        auto v = _v;
+        v = rotate(v, Vec3f(0, 0, 1), -rotation.z());
+        v = rotate(v, Vec3f(0, 1, 0), -rotation.x());
+        v = rotate(v, Vec3f(1, 0, 0), rotation.y());
+        return v;
+    }
 }
 

@@ -77,7 +77,7 @@ namespace Miyuki {
                         }
                     }
                     auto Ng = Vec3f::cross(vertices[primitive.vertices[1]] - vertices[primitive.vertices[0]],
-                                                vertices[primitive.vertices[2]] - vertices[primitive.vertices[0]]);
+                                           vertices[primitive.vertices[2]] - vertices[primitive.vertices[0]]);
                     primitive.area = Ng.length() / 2;
                     Ng.normalize();
                     if (!useNorm) {
@@ -99,6 +99,7 @@ namespace Miyuki {
 
     std::shared_ptr<Mesh> Mesh::instantiate(const Transform &transform) const {
         auto mesh = std::make_shared<Mesh>(*this);
+        mesh->transform = transform;
         for (auto &v:mesh->vertices) {
             v = transform.apply(v);
         }
@@ -112,6 +113,28 @@ namespace Miyuki {
         return mesh;
     }
 
+    void Mesh::resetTransform(const Transform &T) {
+        for (auto &i:this->vertices) {
+            i = transform.apply(i, true);
+            i = T.apply(i);
+        }
+        for (auto &i:normals) {
+            i = transform.applyRotation(i, false);
+            i = T.applyRotation(i).normalized();
+        }
+        for (auto &p: primitives) {
+            p.area /= pow(transform.scale, 2);
+            p.area *= pow(T.scale, 2);
+        }
+        transform = T;
+        auto vertices = (Float *) rtcGetGeometryBufferData(rtcGeometry, RTC_BUFFER_TYPE_VERTEX, 0);
+        for (int32_t i = 0; i < this->vertices.size(); i++) {
+            auto &v = this->vertices[i];
+            for (int32_t j = 0; j < 3; j++)
+                vertices[3 * i + j] = v[j];
+        }
+    }
+
     Primitive::Primitive() : instance(nullptr), nameId(-1) {
 
     }
@@ -120,8 +143,8 @@ namespace Miyuki {
 #if USE_EMBREE_GEOMETRY == 1
         auto vertices = (Float *) rtcGetGeometryBufferData(instance->rtcGeometry, RTC_BUFFER_TYPE_VERTEX, 0);
         return Vec3f{vertices[this->vertices[i] * 3],
-                     vertices[this->vertices[i]* 3 + 1],
-                     vertices[this->vertices[i]* 3 + 2]};
+                     vertices[this->vertices[i] * 3 + 1],
+                     vertices[this->vertices[i] * 3 + 2]};
 #else
         return instance->vertices[vertices[i]];
 #endif
@@ -173,7 +196,7 @@ namespace Miyuki {
             return false;
     }
 
-    Light *Primitive::light()const {
+    Light *Primitive::light() const {
         auto iter = instance->lightMap.find(this);
         if (iter == instance->lightMap.end())
             return nullptr;

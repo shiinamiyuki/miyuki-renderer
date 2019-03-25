@@ -12,23 +12,6 @@
 #include "core/film.h"
 
 namespace Miyuki {
-    namespace IO {
-        template<>
-        Transform deserialize<Transform>(const Json::JsonObject &obj) {
-            Vec3f r, t;
-            Float s = 1;
-            if (obj.hasKey("rotation")) {
-                r = deserialize<Vec3f>(obj["rotation"]) / 180 * PI;
-            }
-            if (obj.hasKey("translation")) {
-                t = deserialize<Vec3f>(obj["translation"]);
-            }
-            if (obj.hasKey("scale")) {
-                s = deserialize<Float>(obj["scale"]);
-            }
-            return Transform(t, r, s);
-        }
-    }
 
     void printWelcome() {
         const char *welcome = R"(

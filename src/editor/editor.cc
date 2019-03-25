@@ -117,7 +117,6 @@ void Editor::integratorWindow() {
     ImGui::SetNextWindowPos(ImVec2(250, 20), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("Integrator Menu", nullptr, 0)) {
-        ImGui::End();
         return;
     }
     if (ImGui::TreeNode("Integrator")) {
@@ -170,6 +169,20 @@ void Editor::integratorWindow() {
     }
 }
 
+bool InputTransform(const char *prompt, Transform *transform) {
+    Vec3f translation = transform->translation,
+            rotation = transform->rotation;
+    Float scale = transform->scale;
+    rotation = RadiansToDegrees(rotation);
+    if (InputVec3f("Translation", &translation)
+        || InputVec3f("Rotation", &rotation)
+        || InputFloat("Scale", &scale)) {
+        rotation = DegressToRadians(rotation);
+        *transform = Transform(translation, rotation, scale);
+        return true;
+    }
+    return false;
+}
 
 void Editor::treeNodeCameras() {
     if (ImGui::TreeNode("Camera")) {
@@ -296,14 +309,25 @@ void Editor::treeNodeMaterials() {
 }
 
 void Editor::treeNodeObject() {
-    if (ImGui::TreeNode("Object")) {
+    if (ImGui::TreeNode("Selcted Object")) {
         if (pickedObject.valid()) {
-            ImGui::Text(fmt::format("Geometry id:{}, Primitive id:{}",
+            ImGui::Text("%s", fmt::format("Geometry id:{}, Primitive id:{}",
                                     pickedObject.geomId, pickedObject.primId).c_str());
-            ImGui::Text(fmt::format("Object name: {}",
+            ImGui::Text("%s", fmt::format("Object name: {}",
                                     pickedObject.primitive->name()).c_str());
-            ImGui::Text(fmt::format("Material name: {}",
+            ImGui::Text("%s", fmt::format("Material name: {}",
                                     renderEngine.description["shapes"][pickedObject.primitive->name()].getString()).c_str());
+        }
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Objects")) {
+        for (auto &object : renderEngine.description["objects"].getArray()) {
+            if (ImGui::TreeNode(object["file"].getString().c_str())) {
+                auto transform = IO::deserialize<Transform>(object["transform"]);
+                if (InputTransform("Transform", &transform)) {
+                    object["transform"] = IO::serialize(transform);
+                }
+            }
         }
         ImGui::TreePop();
     }
@@ -312,24 +336,21 @@ void Editor::treeNodeObject() {
 void Editor::mainEditorWindow() {
     ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Editor Menu", nullptr, 0)) {
-        ImGui::End();
-        return;
+    if (ImGui::Begin("Editor Menu", nullptr, 0)) {
+        treeNodeCameras();
+        treeNodeObject();
+        treeNodeShapes();
+        treeNodeMaterials();
+        showDebug();
+        objectPicker();
     }
 
-    treeNodeCameras();
-    treeNodeObject();
-    treeNodeShapes();
-    treeNodeMaterials();
-
-    showDebug();
-    objectPicker();
     integratorWindow();
 }
 
 void Editor::objectPicker() {
     static MemoryArena arena;
-    if (!ImGui::IsMouseHoveringWindow()) {
+    if (!ImGui::IsMouseHoveringAnyWindow()) {
         auto &io = ImGui::GetIO();
         if (io.MouseClicked[0]) {
             Seed seed(rand());
@@ -508,7 +529,6 @@ void Editor::startRenderThread() {
         renderEngine.commitScene();
         renderEngine.startRender();
         renderEngine.imageSize(width, height);
-        glfwSetWindowSize(window, width, height);
         renderEngine.exec();
     });
 }
