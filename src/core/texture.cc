@@ -15,11 +15,11 @@ namespace Miyuki {
             fullPath += c == '\\' ? '/' : c;
         }
 
-        if (images.find(fullPath) != images.end()) {
-            return images[fullPath];
+        if (images.find(filename) != images.end()) {
+            return images[filename];
         }
         fmt::print("Loading {}\n", fullPath);
-        auto ptr = std::make_shared<IO::Image>(fullPath, format);
+        auto ptr = std::make_shared<IO::Image>(filename, format);
         return ptr;
     }
 

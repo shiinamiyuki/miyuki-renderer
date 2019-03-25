@@ -33,6 +33,12 @@ Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
     renderEngine.processCommandLine(argc, argv);
     renderEngine.commitScene();
     pixelData.reserve(1920 * 1080 * 4);
+    pixelDataBuffer.resize(1920 * 1080 * 4);
+    renderEngine.updateFunc = [&]() {
+        renderEngine.readPixelData(pixelDataBuffer, width, height);
+        std::swap(pixelDataBuffer, pixelData);
+    };
+    Log::SetLogLevel(Log::silent);
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         std::exit(1);
@@ -67,23 +73,105 @@ Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
 bool InputVec3f(const char *prompt, Vec3f *v) {
     if (ImGui::TreeNode(prompt)) {
         bool ret = false;
-        ret |= ImGui::InputFloat("x ", &v->x(), 0.01f, 1.0f, "%.3f");
-        ret |= ImGui::InputFloat("y ", &v->y(), 0.01f, 1.0f, "%.3f");
-        ret |= ImGui::InputFloat("z ", &v->z(), 0.01f, 1.0f, "%.3f");
+        ret |= ImGui::InputFloat("x ", &v->x(), 0.01f, 1.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+        ret |= ImGui::InputFloat("y ", &v->y(), 0.01f, 1.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+        ret |= ImGui::InputFloat("z ", &v->z(), 0.01f, 1.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
         ImGui::TreePop();
         return ret;
     }
     return false;
 }
 
-void Editor::mainEditorWindow() {
+bool InputSpectrum(const char *prompt, Spectrum *color) {
+    return ImGui::ColorEdit3(prompt, &color->r(), ImGuiColorEditFlags_Float);
+}
 
-    ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Editor Menu", nullptr, 0)) {
+bool InputFloat(const char *prompt, Float *v) {
+    return ImGui::InputFloat(prompt, v, 0, 0, "%.6f", ImGuiInputTextFlags_EnterReturnsTrue);
+}
+
+// Not thread safe!
+bool InputString(const char *prompt, std::string &s) {
+    static char text[1024];
+    for (int i = 0; i < s.length(); i++) {
+        text[i] = s[i];
+    }
+    text[s.length()] = 0;
+    if (ImGui::InputText(prompt, text, 1024, ImGuiInputTextFlags_EnterReturnsTrue)) {
+        s = text;
+        return true;
+    }
+    return false;
+}
+
+static const char *integratorName[] = {
+        "Volumetric Path Tracer",
+        "Bidirectional Path Tracer",
+        "Multiplexed Metropolis Light Transport"
+};
+#define VOLPATH 0
+#define BDPT 1
+#define MMLT 2
+
+void Editor::integratorWindow() {
+    ImGui::SetNextWindowPos(ImVec2(250, 20), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("Integrator Menu", nullptr, 0)) {
         ImGui::End();
         return;
     }
+    if (ImGui::TreeNode("Integrator")) {
+        static int selected = MMLT;
+        for (int n = 0; n < 3; n++) {
+            if (ImGui::Selectable(integratorName[n], selected == n))
+                selected = n;
+        }
+
+        if (ImGui::TreeNode("Settings")) {
+            Float minDepth, maxDepth;
+            Float spp;
+            minDepth = IO::deserialize<Float>(renderEngine.description["integrator"]["minDepth"]);
+            maxDepth = IO::deserialize<Float>(renderEngine.description["integrator"]["maxDepth"]);
+            spp = IO::deserialize<Float>(renderEngine.description["integrator"]["spp"]);
+            bool modified = false;
+            if (InputFloat("spp", &spp)) {
+                renderEngine.description["integrator"]["spp"] = IO::serialize(spp);
+                modified = true;
+            }
+            if (InputFloat("minDepth", &minDepth)) {
+                renderEngine.description["integrator"]["minDepth"] = IO::serialize(minDepth);
+                modified = true;
+            }
+            if (InputFloat("maxDepth", &maxDepth)) {
+                renderEngine.description["integrator"]["maxDepth"] = IO::serialize(maxDepth);
+                modified = true;
+            }
+
+            if (modified) {
+                renderEngine.loadIntegrator();
+            }
+            ImGui::TreePop();
+        }
+
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("View")) {
+        if (ImGui::Checkbox("Rendered", &runIntegrator)) {
+            if (runIntegrator) {
+                startRenderThread();
+            } else {
+                stopRenderThread();
+            }
+        }
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Render Setting")) {
+        ImGui::TreePop();
+    }
+}
+
+
+void Editor::treeNodeCameras() {
     if (ImGui::TreeNode("Camera")) {
 
         Vec3f translation = renderEngine.getMainCamera()->translation(),
@@ -99,6 +187,115 @@ void Editor::mainEditorWindow() {
 
         ImGui::TreePop();
     }
+}
+
+void Editor::treeNodeShapes() {
+    if (ImGui::TreeNode("Shapes")) {
+        static char search[1024];
+        if (ImGui::InputText("search: ", search, 1024)) {
+            shapeSearch.match(search);
+        }
+        bool modified = false;
+        for (const auto &i:shapeSearch.matched) {
+            if (ImGui::TreeNode(i.c_str())) {
+                auto &s = renderEngine.description["shapes"][i].getString();
+                static char input[1024];
+                for (int k = 0; k < s.length(); k++) {
+                    input[k] = s[k];
+                }
+                input[s.length()] = 0;
+
+                if (ImGui::InputText("material", input, 1024, ImGuiInputTextFlags_EnterReturnsTrue)) {
+                    if (renderEngine.description["shapes"].hasKey(input)) {
+                        modified = true;
+                        renderEngine.description["shapes"] = Json::JsonObject(std::string(input));
+                    } else {
+                        Log::log(Log::error, "Does not have material named {}\n", input);
+                    }
+                }
+                if (modified) {
+                    renderEngine.updateMaterials();
+                    rerender = true;
+                }
+                ImGui::TreePop();
+            }
+        }
+        ImGui::TreePop();
+    }
+}
+
+void Editor::treeNodeMaterials() {
+    if (ImGui::TreeNode("Materials")) {
+        static char search[1024];
+        if (ImGui::InputText("search: ", search, 1024)) {
+            materialSearch.match(search);
+        }
+
+        for (const auto &i:materialSearch.matched) {
+            auto factory = renderEngine.scene.getMaterialFactory();
+            if (ImGui::TreeNode(i.c_str())) {
+                bool modified = false;
+                auto material = factory->getMaterialByName(i);
+                Assert(material);
+                auto json = material->toJson();
+                Spectrum ka, kd, ks;
+                ka = IO::deserialize<Spectrum>(json["ka"]["albedo"]);
+                kd = IO::deserialize<Spectrum>(json["kd"]["albedo"]);
+                ks = IO::deserialize<Spectrum>(json["ks"]["albedo"]);
+                Float Tr, Ni, roughness;
+                Tr = IO::deserialize<Float>(json["Tr"]);
+                Ni = IO::deserialize<Float>(json["Ni"]);
+                roughness = IO::deserialize<Float>(json["roughness"]);
+                if (InputSpectrum("ka", &ka)) {
+                    modified = true;
+                }
+                if (InputSpectrum("kd", &kd)) {
+                    modified = true;
+                }
+                if (InputSpectrum("ks", &ks)) {
+                    modified = true;
+                }
+                if (InputFloat("Tr", &Tr)) {
+                    modified = true;
+                }
+                if (InputFloat("Ni", &Ni)) {
+                    modified = true;
+                }
+                if (InputFloat("roughness", &roughness)) {
+                    modified = true;
+                }
+                if (ImGui::TreeNode("Textures")) {
+                    if (InputString("ka.texture", json["ka"]["texture"].getString())) {
+                        modified = true;
+                    }
+                    if (InputString("kd.texture", json["kd"]["texture"].getString())) {
+                        modified = true;
+                    }
+                    if (InputString("ks.texture", json["ks"]["texture"].getString())) {
+                        modified = true;
+                    }
+                    ImGui::TreePop();
+                }
+                if (modified) {
+                    json["ka"]["albedo"] = IO::serialize(ka);
+                    json["kd"]["albedo"] = IO::serialize(kd);
+                    json["ks"]["albedo"] = IO::serialize(ks);
+                    json["Tr"] = IO::serialize(Tr);
+                    json["Ni"] = IO::serialize(Ni);
+                    json["roughness"] = IO::serialize(roughness);
+                    factory->modifyMaterialByNameFromJson(i, json);
+                    renderEngine.updateMaterials();
+                    rerender = true;
+                }
+
+                ImGui::TreePop();
+            }
+        }
+        ImGui::TreePop();
+    }
+}
+
+void Editor::treeNodeObject() {
     if (ImGui::TreeNode("Object")) {
         if (pickedObject.valid()) {
             ImGui::Text(fmt::format("Geometry id:{}, Primitive id:{}",
@@ -110,24 +307,29 @@ void Editor::mainEditorWindow() {
         }
         ImGui::TreePop();
     }
-    if (ImGui::TreeNode("Shapes")) {
+}
 
-        ImGui::TreePop();
+void Editor::mainEditorWindow() {
+    ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("Editor Menu", nullptr, 0)) {
+        ImGui::End();
+        return;
     }
-    if (ImGui::TreeNode("Materials")) {
 
-        ImGui::TreePop();
-    }
+    treeNodeCameras();
+    treeNodeObject();
+    treeNodeShapes();
+    treeNodeMaterials();
+
     showDebug();
     objectPicker();
-
+    integratorWindow();
 }
 
 void Editor::objectPicker() {
     static MemoryArena arena;
     if (!ImGui::IsMouseHoveringWindow()) {
-
-
         auto &io = ImGui::GetIO();
         if (io.MouseClicked[0]) {
             Seed seed(rand());
@@ -152,6 +354,8 @@ void Editor::objectPicker() {
 
 void Editor::show() {
     update();
+    updateMaterial();
+    updateShape();
     ImVec4 clear_color = ImVec4(0, 0, 0, 1.00f);
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -178,6 +382,9 @@ void Editor::show() {
 
         glfwMakeContextCurrent(window);
         glfwSwapBuffers(window);
+    }
+    if (runIntegrator) {
+        stopRenderThread();
     }
 
 }
@@ -275,3 +482,60 @@ void Editor::showDebug() {
 
 }
 
+void Editor::updateMaterial() {
+    materialSearch.all.clear();
+    for (const auto &i: renderEngine.description["materials"].getObject()) {
+        materialSearch.all.emplace_back(i.first);
+    }
+    materialSearch.match("");
+
+}
+
+void Editor::updateShape() {
+    shapeSearch.all.clear();
+    for (const auto &i: renderEngine.description["shapes"].getObject()) {
+        shapeSearch.all.emplace_back(i.first);
+    }
+    shapeSearch.match("");
+}
+
+void Editor::startRenderThread() {
+    if (!renderEngine.integrator) {
+        renderEngine.loadIntegrator();
+        renderEngine.scene.getFilm()->clear();
+    }
+    renderThread = std::make_unique<std::thread>([&]() {
+        renderEngine.commitScene();
+        renderEngine.startRender();
+        renderEngine.imageSize(width, height);
+        glfwSetWindowSize(window, width, height);
+        renderEngine.exec();
+    });
+}
+
+void Editor::stopRenderThread() {
+    renderEngine.stopRender();
+    renderThread->join();
+    renderEngine.integrator = nullptr;
+}
+
+static inline bool containsCaseInsensitive(const std::string &s, const std::string &p) {
+    auto it = std::search(
+            p.begin(), p.end(),
+            s.begin(), s.end(),
+            [](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); }
+    );
+    return it != p.end();
+}
+
+std::vector<std::string> &StringSearch::match(const std::string &s) {
+    matched.clear();
+    for (const auto &i: all) {
+        if (s.empty() || containsCaseInsensitive(s, i)) {
+            matched.emplace_back(i);
+        }
+    }
+    selected.clear();
+    selected.resize(matched.size());
+    return matched;
+}

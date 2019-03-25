@@ -16,6 +16,7 @@
 #include "parameter.h"
 #include "materials/materialfactory.h"
 #include <lights/infinite.h>
+#include <utils/log.h>
 
 namespace Miyuki {
     class EmbreeScene;
@@ -77,8 +78,13 @@ namespace Miyuki {
     public:
         std::unique_ptr<InfiniteAreaLight> infiniteAreaLight;
 
+        std::vector<std::shared_ptr<Mesh>>& allInstances(){
+            return instances;
+        }
         Scene();
-
+        MaterialFactory * getMaterialFactory(){
+            return factory.get();
+        }
         void readImage(std::vector<uint8_t> &pixelData);
 
         ParameterSet &parameters() {
@@ -89,6 +95,7 @@ namespace Miyuki {
             return film.get();
         }
 
+        void useDefaultReadImageFunc();
         void setFilmDimension(const Point2i &);
 
         Point2i filmDimension() const { return {film->width(), film->height()}; }

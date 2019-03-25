@@ -148,7 +148,7 @@ namespace Miyuki {
     void MultiplexedMLT::render(Scene &scene) {
         auto &film = *scene.film;
         int nPixels = scene.filmDimension().x() * scene.filmDimension().y();
-
+        scene.useDefaultReadImageFunc();
         fmt::print("Integrator: Multiplexed Metropolis Light Transport!\n");
 
         fmt::print("Generating bootstrap samples, nBootstrap = {}\n", nBootstrap);

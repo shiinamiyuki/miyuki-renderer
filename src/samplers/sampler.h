@@ -84,6 +84,18 @@ namespace Miyuki {
 
         Point2f get2D() override;
     };
+
+    class NullSampler : public Sampler {
+    public:
+        NullSampler(Seed *seed) : Sampler(seed) {}
+
+        void start() override {}
+
+        Float get1D() override { return 0.0f; }
+
+        Point2f get2D() override { return {}; }
+    };
+
 }
 
 #endif //MIYUKI_SAMPLER_H

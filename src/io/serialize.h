@@ -41,7 +41,7 @@ namespace Miyuki {
         }
         template<>
         Json::JsonObject serialize<Vec3f>(const Vec3f &v);
-
+        
         template<>
         Json::JsonObject serialize<Point2f>(const Point2f &v);
 

@@ -6,6 +6,7 @@
 #define MIYUKI_SPECTRUM_H
 
 #include "geometry.h"
+#include <io/serialize.h>
 
 namespace Miyuki {
     template<size_t N>
@@ -77,7 +78,16 @@ namespace Miyuki {
     RGBSpectrum removeNaNs(const RGBSpectrum &);
 
     using Spectrum = RGBSpectrum;
-
+    namespace IO {
+        template<>
+        inline Json::JsonObject serialize<Spectrum>(const Spectrum &v) {
+            return serialize<Vec3f>(v);
+        }
+        template<>
+        inline Spectrum deserialize<Spectrum>(const Json::JsonObject &v) {
+            return deserialize<Vec3f>(v);
+        }
+    }
     inline Spectrum clampRadiance(const Spectrum &s, Float maxR) {
         return {clamp<Float>(s.r(), 0, maxR), clamp<Float>(s.g(), 0, maxR), clamp<Float>(s.b(), 0, maxR)};
     }

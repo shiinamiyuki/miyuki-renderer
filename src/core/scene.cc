@@ -12,12 +12,7 @@
 #include "lights/area.h"
 
 namespace Miyuki {
-
-    Scene::Scene() : embreeScene(new EmbreeScene()) {
-        setFilmDimension({1000, 1000});
-        factory = std::make_unique<MaterialFactory>();
-        updateFunc = [](Scene &x) {};
-        processContinueFunc = [](Scene &x) { return true; };
+    void Scene::useDefaultReadImageFunc() {
         readImageFunc = [&](std::vector<uint8_t> &pixelData) {
             for (int i = 0; i < film->width(); i++) {
                 for (int j = 0; j < film->height(); j++) {
@@ -30,6 +25,14 @@ namespace Miyuki {
                 }
             }
         };
+    }
+
+    Scene::Scene() : embreeScene(new EmbreeScene()) {
+        setFilmDimension({1000, 1000});
+        factory = std::make_unique<MaterialFactory>();
+        updateFunc = [](Scene &x) {};
+        processContinueFunc = [](Scene &x) { return true; };
+        useDefaultReadImageFunc();
     }
 
     void Scene::setFilmDimension(const Point2i &dim) {
@@ -50,7 +53,7 @@ namespace Miyuki {
         auto mesh = std::make_shared<Mesh>(filename);
         meshes[filename] = mesh;
     }
-    
+
     void Scene::loadObjMeshAndInstantiate(const std::string &name, const Transform &T) {
         loadObjMesh(name);
         instantiateMesh(name, T);
@@ -84,7 +87,7 @@ namespace Miyuki {
             lightPdfMap[lights[i].get()] = lightDistribution->pdf(i);
         }
         delete[] power;
-        fmt::print("Important lights: {} Total power: {}\n", lights.size(), lightDistribution->funcInt);
+        Log::log("Important lights: {} Total power: {}\n", lights.size(), lightDistribution->funcInt);
     }
 
     void Scene::commit() {
@@ -92,8 +95,8 @@ namespace Miyuki {
                                  parameterSet.findInt("render.height", 500)});
         embreeScene->commit();
         camera->preprocess();
-        fmt::print("Film dimension: {}x{}\n", film->width(), film->height());
-        fmt::print("Output file: {}\n", parameterSet.findString("render.output", "scene.png"));
+        Log::log("Film dimension: {}x{}\n", film->width(), film->height());
+        Log::log("Output file: {}\n", parameterSet.findString("render.output", "scene.png"));
         computeLightDistribution();
         meshes.clear();
         RTCBounds bounds;
@@ -162,4 +165,6 @@ namespace Miyuki {
     void Scene::update() {
         updateFunc(*this);
     }
+
+
 }

@@ -28,6 +28,10 @@ namespace Miyuki {
 
         RenderEngine();
 
+        void loadCamera();
+
+        void loadIntegrator();
+
         void processCommandLine(int argc, char **argv);
 
         void readDescription();
@@ -62,18 +66,20 @@ namespace Miyuki {
         void updateCameraInfoToParameterSet() {
             scene.parameterSet.addVec3f("camera.rotation", getMainCamera()->rotation() / PI * 180);
             scene.parameterSet.addVec3f("camera.translation", getMainCamera()->translation());
-            fmt::print("Camera translation: {} {} {}\n", getMainCamera()->translation().x(),
-                       getMainCamera()->translation().y(),
-                       getMainCamera()->translation().z());
-            fmt::print("Camera rotation: {} {} {}\n",
-                       scene.parameterSet.findVec3f("camera.rotation", {}).x(),
-                       scene.parameterSet.findVec3f("camera.rotation", {}).y(),
-                       scene.parameterSet.findVec3f("camera.rotation", {}).z());
+            Log::log("Camera translation: {} {} {}\n", getMainCamera()->translation().x(),
+                     getMainCamera()->translation().y(),
+                     getMainCamera()->translation().z());
+            Log::log("Camera rotation: {} {} {}\n",
+                     scene.parameterSet.findVec3f("camera.rotation", {}).x(),
+                     scene.parameterSet.findVec3f("camera.rotation", {}).y(),
+                     scene.parameterSet.findVec3f("camera.rotation", {}).z());
         }
 
         Scene *getScene() {
             return &scene;
         }
+
+        void updateMaterials();
     };
 }
 

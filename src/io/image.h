@@ -43,6 +43,7 @@ namespace Miyuki {
 
         struct Image : GenericImage<Spectrum> {
             ImageFormat format = ImageFormat::none;
+            std::string filename;
 
             Image(int width, int height) : GenericImage<Spectrum>(width, height) {}
 

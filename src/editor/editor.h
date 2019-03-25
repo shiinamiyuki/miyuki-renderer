@@ -27,13 +27,22 @@ using namespace Miyuki;
 
 
 namespace Miyuki {
+    struct StringSearch {
+        std::vector<std::string> all;
+        std::vector<std::string> matched;
+        std::vector<bool> selected;
+
+        std::vector<std::string> &match(const std::string &s);
+
+    };
+
     class Editor : public GenericGUIWindow {
         RenderEngine renderEngine;
         int width = 1980, height = 1080;
-        std::vector<uint8_t> pixelData;
+        std::vector<uint8_t> pixelData, pixelDataBuffer;
         GLFWwindow *window = nullptr;
         Float scale = 1.0f;
-
+        std::unique_ptr<std::thread> renderThread;
         struct PickedObject {
             int geomId = -1, primId = -1;
             const Primitive *primitive = nullptr;
@@ -49,12 +58,29 @@ namespace Miyuki {
         };
 
         PickedObject pickedObject;
+        StringSearch materialSearch, shapeSearch;
+
+        bool runIntegrator = false;
+
+        void treeNodeShapes();
+
+        void treeNodeCameras();
+
+        void treeNodeMaterials();
+
+        void treeNodeObject();
+
+        void startRenderThread();
+
+        void stopRenderThread();
     public:
         Editor(int argc, char **argv);
 
         bool rerender = false;
 
         void mainEditorWindow();
+
+        void integratorWindow();
 
         void objectPicker();
 
@@ -72,11 +98,18 @@ namespace Miyuki {
 
         void render() override {
             glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixelData.data());
+//              ImGui::ShowDemoWindow(nullptr);
         }
 
+        void updateMaterial();
+
+        void updateShape();
+
         void update() override {
-            renderEngine.commitScene();
-            renderEngine.renderPreview(pixelData, width, height);
+            if(!runIntegrator) {
+                renderEngine.commitScene();
+                renderEngine.renderPreview(pixelData, width, height);
+            }
         }
 
         void show() override;

@@ -27,11 +27,7 @@ namespace Miyuki {
                        texture.empty() ? nullptr : loader.load(texture));
     }
 
-    std::shared_ptr<Material> MaterialFactory::createMaterial(const std::string &name, Json::JsonObject mtl) {
-        auto iter = materials.find(name);
-        if (iter != materials.end()) {
-            return iter->second;
-        }
+    std::shared_ptr<Material> MaterialFactory::_createMaterial(const std::string &name, Json::JsonObject mtl) {
         MaterialInfo info;
         info.ka = deserialize(mtl["ka"]);
         info.kd = deserialize(mtl["kd"]);
@@ -57,5 +53,24 @@ namespace Miyuki {
         return std::make_shared<PBRMaterial>(info);
     }
 
+    std::shared_ptr<Material> MaterialFactory::createMaterial(const std::string &name, Json::JsonObject mtl) {
+        auto iter = materials.find(name);
+        if (iter != materials.end()) {
+            return iter->second;
+        }
+        auto mat = _createMaterial(name, std::move(mtl));
+        materials[name] = mat;
+        return mat;
+    }
 
+    void MaterialFactory::modifyMaterialByNameFromJson(const std::string &name, Json::JsonObject obj) {
+        materials[name] = _createMaterial(name, std::move(obj));
+    }
+
+    std::shared_ptr<Material> MaterialFactory::getMaterialByName(const std::string &name) {
+        auto iter = materials.find(name);
+        if (iter == materials.end())
+            return nullptr;
+        return iter->second;
+    }
 }

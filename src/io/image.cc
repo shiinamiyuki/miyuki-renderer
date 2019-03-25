@@ -13,7 +13,8 @@
 namespace Miyuki {
     namespace IO {
 
-        Image::Image(const std::string &filename, ImageFormat format) : GenericImage<Spectrum>(), format(format) {
+        Image::Image(const std::string &filename, ImageFormat format)
+        : GenericImage<Spectrum>(), format(format), filename(filename) {
             int ch;
             auto data = stbi_load(filename.c_str(), &width, &height, &ch, 3);
             if (!data) {

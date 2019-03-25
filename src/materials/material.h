@@ -10,6 +10,7 @@
 #include "core/rendercontext.h"
 #include "core/scatteringevent.h"
 #include "core/texture.h"
+#include <io/serialize.h>
 
 namespace Miyuki {
 
@@ -26,6 +27,29 @@ namespace Miyuki {
         MaterialInfo() {}
     };
 
+    namespace IO {
+        template<>
+        inline Json::JsonObject serialize<Texture>(const Texture &texture) {
+            auto result = Json::JsonObject::makeObject();
+            result["albedo"] = serialize<Spectrum>(texture.albedo);
+            result["texture"] = texture.image ? texture.image->filename : "";
+            return result;
+        }
+
+        template<>
+        inline Json::JsonObject serialize<MaterialInfo>(const MaterialInfo &info) {
+            auto result = Json::JsonObject::makeObject();
+            result["ka"] = serialize(info.ka);
+            result["kd"] = serialize(info.kd);
+            result["ks"] = serialize(info.ks);
+            result["Tr"] = serialize(info.Tr);
+            result["roughness"] = serialize(info.roughness);
+            result["alphaX"] = serialize(info.alphaX);
+            result["alphaY"] = serialize(info.alphaY);
+            result["Ni"] = serialize(info.Ni);
+            return result;
+        }
+    }
     class Material {
     public:
         Texture emission;
@@ -40,6 +64,8 @@ namespace Miyuki {
         virtual Spectrum albedo(ScatteringEvent &event) const = 0;
 
         virtual ~Material() {}
+
+        virtual Json::JsonObject toJson() const = 0;
     };
 
     class PBRMaterial : public Material {
@@ -48,6 +74,8 @@ namespace Miyuki {
         PBRMaterial(const MaterialInfo &info) : info(info), Material(info.ka) {}
 
         void computeScatteringFunction(RenderContext &ctx, ScatteringEvent &event) const override;
+
+        Json::JsonObject toJson() const override;
 
         Spectrum albedo(ScatteringEvent &event) const override {
             return info.ks.evalUV(event.textureUV()) + info.kd.evalUV(event.textureUV());
