@@ -10,7 +10,7 @@
 namespace Miyuki {
 
     Float Material::emissionStrength() const {
-        return emission.albedo.max();
+        return emission.albedo.max() * emission.multiplier;
     }
 
     void PBRMaterial::computeScatteringFunction(RenderContext &ctx, ScatteringEvent &event) const {

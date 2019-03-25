@@ -12,6 +12,7 @@ namespace Miyuki {
     struct Texture {
         Spectrum albedo;
         std::shared_ptr<IO::Image> image;
+        Float multiplier = 1;
 
         Texture() {}
 
@@ -21,6 +22,10 @@ namespace Miyuki {
         Spectrum evalUV(const Point2f &uv) const;
 
         Spectrum evalPixel(const Point2i &pos) const;
+
+        Spectrum evalAlbedo()const{
+            return albedo * multiplier;
+        }
     };
 
     class ImageLoader {

@@ -9,11 +9,11 @@
 namespace Miyuki {
 
     Float AreaLight::power() const {
-        return ka.albedo.max() * primitive->area;
+        return ka.evalAlbedo().max() * primitive->area;
     }
 
-    Spectrum AreaLight::L(const Ray& ray) const {
-        return ka.albedo;
+    Spectrum AreaLight::L(const Ray &ray) const {
+        return ka.evalAlbedo();
     }
 
     Spectrum AreaLight::sampleLi(const Point2f &u, const Intersection &intersection, Vec3f *wi, Float *pdf,
@@ -29,7 +29,7 @@ namespace Miyuki {
         Float solidAngle = primitive->area * -Vec3f::dot(w, primitive->Ng()) * invDist2;
         *pdf = std::max<Float>(0.0f, 1.0f / solidAngle);
         *wi = w;
-        return ka.albedo;
+        return ka.evalAlbedo();
 
     }
 
@@ -53,7 +53,7 @@ namespace Miyuki {
         Vec3f wi = coordinateSystem.localToWorld(CosineWeightedHemisphereSampling(u2)).normalized();
         *pdfDir = Vec3f::absDot(wi, *normal) * INVPI;
         *ray = Ray(p, wi);
-        return ka.albedo;
+        return ka.albedo * ka.multiplier;
     }
 
     void AreaLight::pdfLe(const Ray &ray, const Vec3f &normal, Float *pdfPos, Float *pdfDir) const {

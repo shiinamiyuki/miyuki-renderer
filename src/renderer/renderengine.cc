@@ -113,7 +113,7 @@ namespace Miyuki {
         }
         if (description.hasKey("objects")) {
             for (const auto &obj : description["objects"].getArray()) {
-                scene.loadObjMeshAndInstantiate(obj["file"].getString(),
+                scene.loadObjMeshAndInstantiate(obj["file"].getString(), obj["name"].getString(),
                                                 IO::deserialize<Transform>(obj["transform"]));
             }
         }
@@ -345,7 +345,7 @@ namespace Miyuki {
 
     void RenderEngine::updateMaterials() {
         for (auto i: scene.instances) {
-            scene.factory->applyMaterial(description["shapes"], description["materials"], *i);
+            scene.factory->applyMaterial(description["shapes"][i->name], description["materials"], *i);
         }
 
     }

@@ -12,6 +12,7 @@ namespace Miyuki {
     Mesh::Mesh(const std::string &filename) {
         Profiler profiler;
         IO::readUnderPath(filename, [&](const std::string &file) {
+            name = file;
             tinyobj::attrib_t attrib;
             std::vector<tinyobj::shape_t> shapes;
             std::vector<tinyobj::material_t> materials;
@@ -97,8 +98,9 @@ namespace Miyuki {
                    profiler.elapsedSeconds(), vertices.size(), normals.size(), primitives.size());
     }
 
-    std::shared_ptr<Mesh> Mesh::instantiate(const Transform &transform) const {
+    std::shared_ptr<Mesh> Mesh::instantiate(const std::string& name, const Transform &transform) const {
         auto mesh = std::make_shared<Mesh>(*this);
+        mesh->name = name;
         mesh->transform = transform;
         for (auto &v:mesh->vertices) {
             v = transform.apply(v);

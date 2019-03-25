@@ -54,16 +54,17 @@ namespace Miyuki {
         meshes[filename] = mesh;
     }
 
-    void Scene::loadObjMeshAndInstantiate(const std::string &name, const Transform &T) {
-        loadObjMesh(name);
-        instantiateMesh(name, T);
+    void
+    Scene::loadObjMeshAndInstantiate(const std::string &filename, const std::string &meshName, const Transform &T) {
+        loadObjMesh(filename);
+        instantiateMesh(filename, meshName, T);
     }
 
-    void Scene::instantiateMesh(const std::string &name, const Transform &T) {
-        CHECK(meshes.find(name) != meshes.end());
-        auto mesh = meshes[name]->instantiate(T);
+    void Scene::instantiateMesh(const std::string &filename, const std::string &meshName, const Transform &T) {
+        CHECK(meshes.find(filename) != meshes.end());
+        auto mesh = meshes[filename]->instantiate(meshName, T);
         embreeScene->addMesh(mesh, instances.size());
-        factory->applyMaterial(description["shapes"], description["materials"], *mesh);
+        factory->applyMaterial(description["shapes"][meshName], description["materials"], *mesh);
         instances.emplace_back(mesh);
     }
 
@@ -71,18 +72,24 @@ namespace Miyuki {
         lights.clear();
         for (const auto &mesh:instances) {
             for (auto &p:mesh->primitives) {
-                if (p.material()->emission.albedo.max() > 0.0f) {
+                p.setLight(nullptr);
+                if (p.material()->emissionStrength() > 0.0f) {
                     lights.emplace_back(std::make_shared<AreaLight>(&p));
                     p.setLight(lights.back().get());
                 }
             }
         }
-        Float *power = new Float[lights.size()];
+        lightPdfMap.clear();
+        lightDistribution = nullptr;
+        if (lights.empty()) {
+            return;
+        }
+        auto power = new Float[lights.size()];
         for (int i = 0; i < lights.size(); i++) {
             power[i] = lights[i]->power();
         }
         lightDistribution = std::make_unique<Distribution1D>(power, lights.size());
-        lightPdfMap.clear();
+
         for (int i = 0; i < lights.size(); i++) {
             lightPdfMap[lights[i].get()] = lightDistribution->pdf(i);
         }

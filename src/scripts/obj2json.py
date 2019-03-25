@@ -153,6 +153,7 @@ def add_obj_to_scene(obj_file, scene_file):
     shapes, shape_mat, materials = load_obj(mesh_name, obj_file, mesh_name)
     scene['objects'].append({
         "file": mesh_name,
+        "name": 'mesh' + str(mesh_count),
         "transform": {
             "rotation": [0, 0, 0],
             "translation": [0, 0, 0],

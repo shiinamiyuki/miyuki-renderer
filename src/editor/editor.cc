@@ -206,29 +206,37 @@ void Editor::treeNodeShapes() {
     if (ImGui::TreeNode("Shapes")) {
         static char search[1024];
         if (ImGui::InputText("search: ", search, 1024)) {
-            shapeSearch.match(search);
+            for (auto &i: shapeSearch)
+                i.second.match(search);
         }
         bool modified = false;
-        for (const auto &i:shapeSearch.matched) {
-            if (ImGui::TreeNode(i.c_str())) {
-                auto &s = renderEngine.description["shapes"][i].getString();
-                static char input[1024];
-                for (int k = 0; k < s.length(); k++) {
-                    input[k] = s[k];
-                }
-                input[s.length()] = 0;
+        for (const auto &mesh:renderEngine.description["shapes"].getObject()) {
+            if (ImGui::TreeNode(mesh.first.c_str())) {
+                for (auto &i: shapeSearch[mesh.first].matched) {
+                    if (ImGui::TreeNode(i.c_str())) {
+                        auto &s = renderEngine.description["shapes"][mesh.first][i].getString();
+                        static char input[1024];
+                        for (int k = 0; k < s.length(); k++) {
+                            input[k] = s[k];
+                        }
+                        input[s.length()] = 0;
 
-                if (ImGui::InputText("material", input, 1024, ImGuiInputTextFlags_EnterReturnsTrue)) {
-                    if (renderEngine.description["shapes"].hasKey(input)) {
-                        modified = true;
-                        renderEngine.description["shapes"] = Json::JsonObject(std::string(input));
-                    } else {
-                        Log::log(Log::error, "Does not have material named {}\n", input);
+                        if (ImGui::InputText("material", input, 1024, ImGuiInputTextFlags_EnterReturnsTrue)) {
+                            if (renderEngine.description["materials"].hasKey(input)) {
+                                modified = true;
+                                renderEngine.description["shapes"][mesh.first][i] = Json::JsonObject(
+                                        std::string(input));
+                            } else {
+                                Log::log(Log::error, "Does not have material named {}\n", input);
+                            }
+                        }
+                        if (modified) {
+                            renderEngine.updateMaterials();
+                            updateShape();
+                            rerender = true;
+                        }
+                        ImGui::TreePop();
                     }
-                }
-                if (modified) {
-                    renderEngine.updateMaterials();
-                    rerender = true;
                 }
                 ImGui::TreePop();
             }
@@ -255,10 +263,11 @@ void Editor::treeNodeMaterials() {
                 ka = IO::deserialize<Spectrum>(json["ka"]["albedo"]);
                 kd = IO::deserialize<Spectrum>(json["kd"]["albedo"]);
                 ks = IO::deserialize<Spectrum>(json["ks"]["albedo"]);
-                Float Tr, Ni, roughness;
+                Float Tr, Ni, roughness, emission;
                 Tr = IO::deserialize<Float>(json["Tr"]);
                 Ni = IO::deserialize<Float>(json["Ni"]);
                 roughness = IO::deserialize<Float>(json["roughness"]);
+                emission = IO::deserialize<Float>(json["emission"]);
                 if (InputSpectrum("ka", &ka)) {
                     modified = true;
                 }
@@ -275,6 +284,9 @@ void Editor::treeNodeMaterials() {
                     modified = true;
                 }
                 if (InputFloat("roughness", &roughness)) {
+                    modified = true;
+                }
+                if (InputFloat("emission", &emission)) {
                     modified = true;
                 }
                 if (ImGui::TreeNode("Textures")) {
@@ -296,6 +308,7 @@ void Editor::treeNodeMaterials() {
                     json["Tr"] = IO::serialize(Tr);
                     json["Ni"] = IO::serialize(Ni);
                     json["roughness"] = IO::serialize(roughness);
+                    json["emission"] = IO::serialize(emission);
                     factory->modifyMaterialByNameFromJson(i, json);
                     renderEngine.updateMaterials();
                     rerender = true;
@@ -309,14 +322,18 @@ void Editor::treeNodeMaterials() {
 }
 
 void Editor::treeNodeObject() {
-    if (ImGui::TreeNode("Selcted Object")) {
+    if (ImGui::TreeNode("Selected Object")) {
         if (pickedObject.valid()) {
             ImGui::Text("%s", fmt::format("Geometry id:{}, Primitive id:{}",
-                                    pickedObject.geomId, pickedObject.primId).c_str());
+                                          pickedObject.geomId, pickedObject.primId).c_str());
+            ImGui::Text("%s", fmt::format("Mesh name: {}",
+                                          pickedObject.primitive->instance->name).c_str());
             ImGui::Text("%s", fmt::format("Object name: {}",
-                                    pickedObject.primitive->name()).c_str());
+                                          pickedObject.primitive->name()).c_str());
             ImGui::Text("%s", fmt::format("Material name: {}",
-                                    renderEngine.description["shapes"][pickedObject.primitive->name()].getString()).c_str());
+                                          renderEngine.description["shapes"]
+                                          [pickedObject.primitive->instance->name]
+                                          [pickedObject.primitive->name()].getString()).c_str());
         }
         ImGui::TreePop();
     }
@@ -513,11 +530,14 @@ void Editor::updateMaterial() {
 }
 
 void Editor::updateShape() {
-    shapeSearch.all.clear();
-    for (const auto &i: renderEngine.description["shapes"].getObject()) {
-        shapeSearch.all.emplace_back(i.first);
+    for (const auto &mesh : renderEngine.description["shapes"].getObject()) {
+        auto &name = mesh.first;
+        shapeSearch[name] = StringSearch();
+        for (const auto &i: mesh.second.getObject()) {
+            shapeSearch[name].all.emplace_back(i.first);
+        }
+        shapeSearch[name].match("");
     }
-    shapeSearch.match("");
 }
 
 void Editor::startRenderThread() {

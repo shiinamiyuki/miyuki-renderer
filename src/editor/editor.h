@@ -58,7 +58,8 @@ namespace Miyuki {
         };
 
         PickedObject pickedObject;
-        StringSearch materialSearch, shapeSearch;
+        StringSearch materialSearch;
+        std::unordered_map<std::string, StringSearch> shapeSearch;
 
         bool runIntegrator = false;
 

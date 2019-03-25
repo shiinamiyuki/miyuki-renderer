@@ -25,19 +25,19 @@ namespace Miyuki {
 
     Spectrum Texture::evalUV(const Point2f &uv) const {
         if (!image) {
-            return albedo;
+            return evalAlbedo();
         } else {
             int x = static_cast<int>(uv.x() * image->width);
             int y = static_cast<int>((1 - uv.y()) * image->height);
-            return albedo * image->operator()(x, y);
+            return evalAlbedo() * image->operator()(x, y);
         }
     }
 
     Spectrum Texture::evalPixel(const Point2i &pos) const {
         if (!image) {
-            return albedo;
+            return evalAlbedo();
         } else {
-            return albedo * image->operator()(pos.x(), pos.y());
+            return evalAlbedo() * image->operator()(pos.x(), pos.y());
         }
     }
 }

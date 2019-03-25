@@ -56,6 +56,7 @@ namespace Miyuki {
 
 
     struct Mesh {
+        std::string name;
         Transform transform;
         std::vector<Vec3f> vertices, normals;
         std::vector<Primitive> primitives;
@@ -67,7 +68,7 @@ namespace Miyuki {
 
         Mesh(const std::string &filename);
 
-        std::shared_ptr<Mesh> instantiate(const Transform &transform = Transform()) const;
+        std::shared_ptr<Mesh> instantiate(const std::string& name, const Transform &transform = Transform()) const;
 
         void resetTransform(const Transform & T);
 

@@ -78,33 +78,38 @@ namespace Miyuki {
     public:
         std::unique_ptr<InfiniteAreaLight> infiniteAreaLight;
 
-        std::vector<std::shared_ptr<Mesh>>& allInstances(){
+        std::vector<std::shared_ptr<Mesh>> &allInstances() {
             return instances;
         }
+
         Scene();
-        MaterialFactory * getMaterialFactory(){
+
+        MaterialFactory *getMaterialFactory() {
             return factory.get();
         }
+
         void readImage(std::vector<uint8_t> &pixelData);
 
         ParameterSet &parameters() {
             return parameterSet;
         }
 
-        Film * getFilm(){
+        Film *getFilm() {
             return film.get();
         }
 
         void useDefaultReadImageFunc();
+
         void setFilmDimension(const Point2i &);
 
         Point2i filmDimension() const { return {film->width(), film->height()}; }
 
         void loadObjMesh(const std::string &filename);
 
-        void loadObjMeshAndInstantiate(const std::string &name, const Transform &T = Transform());
+        void loadObjMeshAndInstantiate(const std::string &filename, const std::string &meshName,
+                                       const Transform &T = Transform());
 
-        void instantiateMesh(const std::string &name, const Transform &);
+        void instantiateMesh(const std::string &filename, const std::string &meshName, const Transform &);
 
         void commit();
 

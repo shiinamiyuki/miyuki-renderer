@@ -23,7 +23,7 @@ namespace Miyuki {
         Float Ni = 1.0f;
         Float Tr = 0.0f;
         Float sigma = 0.0f;
-
+        Float emission = 1;// emission strength
         MaterialInfo() {}
     };
 
@@ -47,6 +47,7 @@ namespace Miyuki {
             result["alphaX"] = serialize(info.alphaX);
             result["alphaY"] = serialize(info.alphaY);
             result["Ni"] = serialize(info.Ni);
+            result["emission"] = serialize(info.emission);
             return result;
         }
     }

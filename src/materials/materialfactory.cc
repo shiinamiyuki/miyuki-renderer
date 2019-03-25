@@ -32,6 +32,9 @@ namespace Miyuki {
         info.ka = deserialize(mtl["ka"]);
         info.kd = deserialize(mtl["kd"]);
         info.ks = deserialize(mtl["ks"]);
+        if (mtl.hasKey("emission")) {
+            info.emission = mtl["emission"].getFloat();
+        }
         if (mtl.hasKey("sigma")) {
             info.sigma = mtl["sigma"].getFloat();
         }
@@ -50,6 +53,7 @@ namespace Miyuki {
         if (mtl.hasKey("roughness")) {
             info.roughness = mtl["roughness"].getFloat();
         }
+        info.ka.multiplier = info.emission;
         return std::make_shared<PBRMaterial>(info);
     }
 

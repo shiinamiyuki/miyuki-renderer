@@ -49,7 +49,7 @@ namespace Miyuki {
 
     Spectrum Intersection::Le(const Vec3f &wi) const {
         if (Vec3f::dot(wi, Ns) > 0)
-            return primitive->material()->emission.albedo;
+            return primitive->material()->emission.evalAlbedo();
         return {};
     }
 
