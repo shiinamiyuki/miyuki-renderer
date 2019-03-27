@@ -43,6 +43,7 @@ namespace Miyuki {
         GLFWwindow *window = nullptr;
         Float scale = 1.0f;
         std::unique_ptr<std::thread> renderThread;
+
         struct PickedObject {
             int geomId = -1, primId = -1;
             const Primitive *primitive = nullptr;
@@ -74,6 +75,7 @@ namespace Miyuki {
         void startRenderThread();
 
         void stopRenderThread();
+
     public:
         Editor(int argc, char **argv);
 
@@ -89,10 +91,8 @@ namespace Miyuki {
             rerender = false;
             mainEditorWindow();
             if (rerender) {
-                renderEngine.updateCameraInfoToParameterSet();
                 update();
             }
-
         }
 
         void showDebug();
@@ -107,12 +107,12 @@ namespace Miyuki {
         void updateShape();
 
         void update() override {
-            if(!runIntegrator) {
+            if (!runIntegrator) {
                 renderEngine.commitScene();
                 renderEngine.renderPreview(pixelData, width, height);
             }
         }
-
+        
         void show() override;
 
         ~Editor() override {

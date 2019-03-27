@@ -54,6 +54,7 @@ namespace Miyuki {
         }
     };
 
+    class EmbreeScene;
 
     struct Mesh {
         std::string name;
@@ -62,6 +63,9 @@ namespace Miyuki {
         std::vector<Primitive> primitives;
         std::vector<std::string> names;
         std::vector<std::shared_ptr<Material>> materials;
+        int geomId = -1;
+        EmbreeScene * embreeScene;
+        uint32_t vertexCount = 0;
 #if USE_EMBREE_GEOMETRY == 1
         RTCGeometry rtcGeometry = nullptr;
 #endif
@@ -73,6 +77,8 @@ namespace Miyuki {
         void resetTransform(const Transform & T);
 
         std::unordered_map<const Primitive *, Light *> lightMap;
+
+        ~Mesh();
     };
 }
 #endif //MIYUKI_MESH_H

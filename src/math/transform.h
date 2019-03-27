@@ -7,6 +7,7 @@
 
 #include "miyuki.h"
 #include "core/geometry.h"
+#include "func.h"
 #include <io/serialize.h>
 
 namespace Miyuki {
@@ -87,7 +88,7 @@ namespace Miyuki {
             auto obj = Json::JsonObject::makeObject();
             obj["scale"] = serialize(T.scale);
             obj["translation"] = serialize(T.translation);
-            obj["rotation"] = serialize(T.rotation);
+            obj["rotation"] = serialize(RadiansToDegrees(T.rotation));
             return obj;
         }
     }

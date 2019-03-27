@@ -90,6 +90,10 @@ bool InputFloat(const char *prompt, Float *v) {
     return ImGui::InputFloat(prompt, v, 0, 0, "%.6f", ImGuiInputTextFlags_EnterReturnsTrue);
 }
 
+bool InputBool(const char *prompt, bool *b) {
+    return ImGui::Checkbox(prompt, b);
+}
+
 // Not thread safe!
 bool InputString(const char *prompt, std::string &s) {
     static char text[1024];
@@ -119,11 +123,14 @@ void Editor::integratorWindow() {
     if (!ImGui::Begin("Integrator Menu", nullptr, 0)) {
         return;
     }
+    bool modified = false;
     if (ImGui::TreeNode("Integrator")) {
         static int selected = MMLT;
         for (int n = 0; n < 3; n++) {
-            if (ImGui::Selectable(integratorName[n], selected == n))
+            if (ImGui::Selectable(integratorName[n], selected == n)) {
                 selected = n;
+                modified = true;
+            }
         }
 
         if (ImGui::TreeNode("Settings")) {
@@ -132,7 +139,7 @@ void Editor::integratorWindow() {
             minDepth = IO::deserialize<Float>(renderEngine.description["integrator"]["minDepth"]);
             maxDepth = IO::deserialize<Float>(renderEngine.description["integrator"]["maxDepth"]);
             spp = IO::deserialize<Float>(renderEngine.description["integrator"]["spp"]);
-            bool modified = false;
+
             if (InputFloat("spp", &spp)) {
                 renderEngine.description["integrator"]["spp"] = IO::serialize(spp);
                 modified = true;
@@ -145,13 +152,42 @@ void Editor::integratorWindow() {
                 renderEngine.description["integrator"]["maxDepth"] = IO::serialize(maxDepth);
                 modified = true;
             }
-
-            if (modified) {
-                renderEngine.loadIntegrator();
+            if (selected == MMLT) {
+                Float nChains, nDirect;
+                nChains = IO::deserialize<Float>(renderEngine.description["integrator"]["nChains"]);
+                nDirect = IO::deserialize<Float>(renderEngine.description["integrator"]["nDirect"]);
+                if (InputFloat("nChains", &nChains)) {
+                    renderEngine.description["integrator"]["nChains"] = IO::serialize(nChains);
+                    modified = true;
+                }
+                if (InputFloat("nDirect", &nDirect)) {
+                    renderEngine.description["integrator"]["nDirect"] = IO::serialize(nDirect);
+                    modified = true;
+                }
+            } else {
+                bool progressive = renderEngine.description["integrator"].get("progressive").getBool();
+                if (InputBool("progressive", &progressive)) {
+                    renderEngine.description["integrator"]["progressive"] = progressive;
+                    modified = true;
+                }
             }
+
             ImGui::TreePop();
         }
-
+        if (modified) {
+            try {
+                if (selected == MMLT) {
+                    renderEngine.description["integrator"]["type"] = std::string("mlt");
+                } else if (selected == VOLPATH) {
+                    renderEngine.description["integrator"]["type"] = std::string("volpath");
+                } else if (selected == BDPT) {
+                    renderEngine.description["integrator"]["type"] = std::string("bdpt");
+                }
+                renderEngine.loadIntegrator();
+            } catch (std::exception &e) {
+                std::cerr << e.what() << std::endl;
+            }
+        }
         ImGui::TreePop();
     }
     if (ImGui::TreeNode("View")) {
@@ -177,6 +213,10 @@ bool InputTransform(const char *prompt, Transform *transform) {
     if (InputVec3f("Translation", &translation)
         || InputVec3f("Rotation", &rotation)
         || InputFloat("Scale", &scale)) {
+        if (scale <= 0) {
+            Log::log(Log::error, "scale must be greater than 0\n");
+            return false;
+        }
         rotation = DegressToRadians(rotation);
         *transform = Transform(translation, rotation, scale);
         return true;
@@ -187,15 +227,13 @@ bool InputTransform(const char *prompt, Transform *transform) {
 void Editor::treeNodeCameras() {
     if (ImGui::TreeNode("Camera")) {
 
-        Vec3f translation = renderEngine.getMainCamera()->translation(),
-                rotation = renderEngine.getMainCamera()->rotation();
-        rotation = RadiansToDegrees(rotation);
+        Vec3f translation = IO::deserialize<Vec3f>(renderEngine.description["camera"]["translation"]),
+                rotation = IO::deserialize<Vec3f>(renderEngine.description["camera"]["rotation"]);
         if (InputVec3f("Translation", &translation) || InputVec3f("Rotation", &rotation)) {
             rerender = true;
-            rotation = DegressToRadians(rotation);
-            renderEngine.getMainCamera()->moveTo(translation);
-            renderEngine.getMainCamera()->rotateTo(rotation);
-            renderEngine.updateCameraInfoToParameterSet();
+            renderEngine.description["camera"]["translation"] = IO::serialize(translation);
+            renderEngine.description["camera"]["rotation"] = IO::serialize(rotation);
+            renderEngine.loadCamera();
         }
 
         ImGui::TreePop();
@@ -339,11 +377,18 @@ void Editor::treeNodeObject() {
     }
     if (ImGui::TreeNode("Objects")) {
         for (auto &object : renderEngine.description["objects"].getArray()) {
-            if (ImGui::TreeNode(object["file"].getString().c_str())) {
+            if (ImGui::TreeNode(object["name"].getString().c_str())) {
                 auto transform = IO::deserialize<Transform>(object["transform"]);
                 if (InputTransform("Transform", &transform)) {
                     object["transform"] = IO::serialize(transform);
+                    for (auto &i: renderEngine.scene.allInstances()) {
+                        if (i->name == object["name"].getString()) {
+                            i->resetTransform(transform);
+                            rerender = true;
+                        }
+                    }
                 }
+                ImGui::TreePop();
             }
         }
         ImGui::TreePop();

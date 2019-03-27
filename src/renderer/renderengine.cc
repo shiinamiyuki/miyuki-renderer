@@ -180,6 +180,7 @@ namespace Miyuki {
 
     void RenderEngine::loadIntegrator() {
         auto &parameters = scene.parameters();
+        scene.useDefaultReadImageFunc();
         if (description.hasKey("integrator")) {
             auto &I = description["integrator"];
             if (I.hasKey("ambientLight")) {
@@ -188,131 +189,48 @@ namespace Miyuki {
             if (I.hasKey("envMap")) {
                 parameters.addString("envMap", (I["envMap"]).getString());
             }
+            I.setIfHasNotKey("maxRayIntensity", 10000);
+            I.setIfHasNotKey("spp", 16);
+            I.setIfHasNotKey("minDepth", 0);
+            I.setIfHasNotKey("maxDepth", 5);
+            I.setIfHasNotKey("caustics", 1);
+            I.setIfHasNotKey("adaptive", Json::JsonObject(false));
+            I.setIfHasNotKey("progressive", Json::JsonObject(false));
+            I.setIfHasNotKey("nDirect", 16);
+            I.setIfHasNotKey("nChains", 8);
+            I.setIfHasNotKey("largeStep", Json::JsonObject(0.3f));
+
+            parameters.addFloat("integrator.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
+            parameters.addInt("integrator.spp", IO::deserialize<int>(I["spp"]));
+            parameters.addInt("integrator.minDepth", IO::deserialize<int>(I["minDepth"]));
+            parameters.addInt("integrator.maxDepth", IO::deserialize<int>(I["maxDepth"]));
+            parameters.addInt("integrator.caustics", I["caustics"].getBool());
+            parameters.addInt("integrator.adaptive", I["adaptive"].getBool());
+            parameters.addInt("integrator.progressive", I["progressive"].getBool());
+            parameters.addFloat("integrator.maxSampleFactor", IO::deserialize<Float>(I["maxSampleFactor"]));
+            parameters.addFloat("integrator.maxError", IO::deserialize<Float>(I["maxError"]));
+            parameters.addFloat("integrator.heuristic", IO::deserialize<Float>(I["heuristic"]));
+            parameters.addFloat("integrator.pValue", IO::deserialize<Float>(I["pValue"]));
+            parameters.addInt("integrator.nChains", IO::deserialize<int>(I["nChains"]));
+            parameters.addInt("integrator.nDirect", IO::deserialize<int>(I["nDirect"]));
+            parameters.addFloat("integrator.largeStep", IO::deserialize<Float>(I["largeStep"]));
+
             if (I.hasKey("type")) {
                 auto type = I["type"].getString();
                 if (type == "volpath" || type == "path") {
                     parameters.addString("integrator", "volpath");
-                    if (I.hasKey("maxRayIntensity")) {
-                        parameters.addFloat("integrator.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
-                    }
-                    if (I.hasKey("spp")) {
-                        parameters.addInt("integrator.spp", IO::deserialize<int>(I["spp"]));
-                    }
-                    if (I.hasKey("minDepth")) {
-                        parameters.addInt("integrator.minDepth", IO::deserialize<int>(I["minDepth"]));
-                    }
-                    if (I.hasKey("maxDepth")) {
-                        parameters.addInt("integrator.maxDepth", IO::deserialize<int>(I["maxDepth"]));
-                    }
-                    if (I.hasKey("caustics")) {
-                        parameters.addInt("integrator.caustics", I["caustics"].getBool());
-                    }
-                    if (I.hasKey("adaptive")) {
-                        parameters.addInt("integrator.adaptive", I["adaptive"].getBool());
-                    }
-                    if (I.hasKey("progressive")) {
-                        parameters.addInt("integrator.progressive", I["progressive"].getBool());
-                    }
-                    if (I.hasKey("maxSampleFactor")) {
-                        parameters.addFloat("integrator.maxSampleFactor", IO::deserialize<Float>(I["maxSampleFactor"]));
-                    }
-                    if (I.hasKey("maxError")) {
-                        parameters.addFloat("integrator.maxError", IO::deserialize<Float>(I["maxError"]));
-                    }
-                    if (I.hasKey("heuristic")) {
-                        parameters.addFloat("integrator.heuristic", IO::deserialize<Float>(I["heuristic"]));
-                    }
-                    if (I.hasKey("pValue")) {
-                        parameters.addFloat("integrator.pValue", IO::deserialize<Float>(I["pValue"]));
-                    }
-
                     integrator = std::make_unique<VolPath>(parameters);
                 } else if (type == "bdpt") {
-                    parameters.addString("integrator", "volpath");
-                    if (I.hasKey("maxRayIntensity")) {
-                        parameters.addFloat("integrator.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
-                    }
-                    if (I.hasKey("progressive")) {
-                        parameters.addInt("integrator.progressive", I["progressive"].getBool());
-                    }
-                    if (I.hasKey("spp")) {
-                        parameters.addInt("integrator.spp", IO::deserialize<int>(I["spp"]));
-                    }
-                    if (I.hasKey("minDepth")) {
-                        parameters.addInt("integrator.minDepth", IO::deserialize<int>(I["minDepth"]));
-                    }
-                    if (I.hasKey("maxDepth")) {
-                        parameters.addInt("integrator.maxDepth", IO::deserialize<int>(I["maxDepth"]));
-                    }
-                    if (I.hasKey("caustics")) {
-                        parameters.addInt("integrator.caustics", I["caustics"].getBool());
-                    }
+                    parameters.addString("integrator", "bdpt");
                     integrator = std::make_unique<BDPT>(parameters);
                 } else if (type == "mlt" || type == "pssmlt") {
-                    parameters.addString("integrator", "volpath");
-                    if (I.hasKey("maxRayIntensity")) {
-                        parameters.addFloat("integrator.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
-                    }
-                    if (I.hasKey("spp")) {
-                        parameters.addInt("integrator.spp", IO::deserialize<int>(I["spp"]));
-                    }
-                    if (I.hasKey("minDepth")) {
-                        parameters.addInt("integrator.minDepth", IO::deserialize<int>(I["minDepth"]));
-                    }
-                    if (I.hasKey("maxDepth")) {
-                        parameters.addInt("integrator.maxDepth", IO::deserialize<int>(I["maxDepth"]));
-                    }
-                    if (I.hasKey("caustics")) {
-                        parameters.addInt("integrator.caustics", I["caustics"].getBool());
-                    }
-                    if (I.hasKey("nChains")) {
-                        parameters.addInt("integrator.nChains", IO::deserialize<int>(I["nChains"]));
-                    }
-                    if (I.hasKey("nDirect")) {
-                        parameters.addInt("integrator.nDirect", IO::deserialize<int>(I["nDirect"]));
-                    }
-                    if (I.hasKey("largeStep")) {
-                        parameters.addFloat("integrator.largeStep", IO::deserialize<Float>(I["largeStep"]));
-                    }
-                    if (I.hasKey("progressive")) {
-                        parameters.addInt("integrator.progressive", I["progressive"].getBool());
-                    }
-                    if (I.hasKey("twoStage")) {
-                        parameters.addInt("integrator.twoStage", I["twoStage"].getBool());
-                    }
+                    parameters.addString("integrator", type);
                     if (type == "mlt")
                         integrator = std::make_unique<MultiplexedMLT>(parameters);
                     else
                         integrator = std::make_unique<PSSMLT>(parameters);
                 } else if (type == "erpt") {
-                    parameters.addString("integrator", "volpath");
-                    if (I.hasKey("maxRayIntensity")) {
-                        parameters.addFloat("integrator.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
-                    }
-                    if (I.hasKey("spp")) {
-                        parameters.addInt("integrator.spp", IO::deserialize<int>(I["spp"]));
-                    }
-                    if (I.hasKey("minDepth")) {
-                        parameters.addInt("integrator.minDepth", IO::deserialize<int>(I["minDepth"]));
-                    }
-                    if (I.hasKey("maxDepth")) {
-                        parameters.addInt("integrator.maxDepth", IO::deserialize<int>(I["maxDepth"]));
-                    }
-                    if (I.hasKey("caustics")) {
-                        parameters.addInt("integrator.caustics", I["caustics"].getBool());
-                    }
-                    if (I.hasKey("nMutations")) {
-                        parameters.addInt("integrator.nMutations", IO::deserialize<int>(I["nMutations"]));
-                    }
-                    if (I.hasKey("nDirect")) {
-                        parameters.addInt("integrator.nDirect", IO::deserialize<int>(I["nDirect"]));
-                    }
-                    if (I.hasKey("largeStep")) {
-                        parameters.addFloat("integrator.largeStep", IO::deserialize<Float>(I["largeStep"]));
-                    }
-                    if (I.hasKey("progressive")) {
-                        parameters.addInt("integrator.progressive", I["progressive"].getBool());
-                    }
+                    parameters.addString("integrator", "erpt");
                     integrator = std::make_unique<ERPT>(parameters);
                 } else {
                     fmt::print(stderr, "Unknown integrator type `{}`\n", type);

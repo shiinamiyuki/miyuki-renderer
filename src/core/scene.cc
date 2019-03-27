@@ -171,6 +171,4 @@ namespace Miyuki {
     void Scene::update() {
         updateFunc(*this);
     }
-
-
 }

@@ -25,7 +25,9 @@ namespace Miyuki {
         EmbreeScene();
 
         void addMesh(std::shared_ptr<Mesh> mesh, int id);
-
+        RTCScene getRTCScene(){
+            return scene;
+        }
         ~EmbreeScene();
     };
 }

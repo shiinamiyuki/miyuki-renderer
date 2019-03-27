@@ -55,10 +55,12 @@ namespace Miyuki {
         }
         rtcCommitGeometry(rtcMesh);
         rtcAttachGeometryByID(scene, rtcMesh, id);
-        rtcReleaseGeometry(rtcMesh);
+        //rtcReleaseGeometry(rtcMesh);
 #if USE_EMBREE_GEOMETRY == 1
         mesh->rtcGeometry = rtcMesh;
+        mesh->embreeScene = this;
         mesh->vertices.clear();
+        mesh->geomId = id;
         decltype(mesh->vertices) dummy;
         std::swap(dummy, mesh->vertices);
 #endif

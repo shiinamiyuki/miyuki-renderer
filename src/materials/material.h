@@ -79,7 +79,8 @@ namespace Miyuki {
         Json::JsonObject toJson() const override;
 
         Spectrum albedo(ScatteringEvent &event) const override {
-            return info.ks.evalUV(event.textureUV()) + info.kd.evalUV(event.textureUV());
+            return info.ks.evalUV(event.textureUV()) + info.kd.evalUV(event.textureUV())
+                + info.ka.evalUV(event.textureUV());
         }
     };
 }

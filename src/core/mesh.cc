@@ -7,6 +7,7 @@
 #include "profile.h"
 #include "materials/material.h"
 #include "ray.h"
+#include <core/embreescene.h>
 
 namespace Miyuki {
     Mesh::Mesh(const std::string &filename) {
@@ -94,11 +95,12 @@ namespace Miyuki {
                 }
             }
         });
+        vertexCount = vertices.size();
         fmt::print("Loaded {} in {}s, {} vertices, {} normals, {} triangles\n", filename,
                    profiler.elapsedSeconds(), vertices.size(), normals.size(), primitives.size());
     }
 
-    std::shared_ptr<Mesh> Mesh::instantiate(const std::string& name, const Transform &transform) const {
+    std::shared_ptr<Mesh> Mesh::instantiate(const std::string &name, const Transform &transform) const {
         auto mesh = std::make_shared<Mesh>(*this);
         mesh->name = name;
         mesh->transform = transform;
@@ -116,12 +118,19 @@ namespace Miyuki {
     }
 
     void Mesh::resetTransform(const Transform &T) {
-        for (auto &i:this->vertices) {
-            i = transform.apply(i, true);
-            i = T.apply(i);
+        Assert(embreeScene && geomId != -1 && rtcGeometry);
+        rtcDetachGeometry(embreeScene->getRTCScene(), geomId);
+        auto vertices = (Float *) rtcGetGeometryBufferData(rtcGeometry, RTC_BUFFER_TYPE_VERTEX, 0);
+        for (int32_t i = 0; i < vertexCount; i++) {
+            auto v = Vec3f(vertices[3 * i], vertices[3 * i + 1], vertices[3 * i + 2]);
+            v = transform.apply(v, true);
+            v = T.apply(v);
+            for (int32_t j = 0; j < 3; j++)
+                vertices[3 * i + j] = v[j];
         }
+
         for (auto &i:normals) {
-            i = transform.applyRotation(i, false);
+            i = transform.applyRotation(i, true);
             i = T.applyRotation(i).normalized();
         }
         for (auto &p: primitives) {
@@ -129,12 +138,17 @@ namespace Miyuki {
             p.area *= pow(T.scale, 2);
         }
         transform = T;
-        auto vertices = (Float *) rtcGetGeometryBufferData(rtcGeometry, RTC_BUFFER_TYPE_VERTEX, 0);
-        for (int32_t i = 0; i < this->vertices.size(); i++) {
-            auto &v = this->vertices[i];
-            for (int32_t j = 0; j < 3; j++)
-                vertices[3 * i + j] = v[j];
+
+        rtcCommitGeometry(rtcGeometry);
+        rtcAttachGeometryByID(embreeScene->getRTCScene(), rtcGeometry, geomId);
+        rtcCommitScene(embreeScene->getRTCScene());
+    }
+
+    Mesh::~Mesh() {
+        if (rtcGeometry) {
+            rtcReleaseGeometry(rtcGeometry);
         }
+
     }
 
     Primitive::Primitive() : instance(nullptr), nameId(-1) {

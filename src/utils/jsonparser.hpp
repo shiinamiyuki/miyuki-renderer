@@ -251,6 +251,31 @@ namespace Miyuki {
                 return map.find(key) != map.end();
             }
 
+            JsonObject &get(const std::string &key) {
+                auto &t = getObject();
+                auto iter = t.find(key);
+                if (t.end() == iter) {
+                    std::cerr << "Cannot find key " << key << std::endl;
+                }
+                return iter->second;
+            }
+
+            JsonObject getDefault(const std::string &key, const JsonObject &value) const {
+                auto iter = getObject().find(key);
+                if (iter != getObject().end()) {
+                    return std::move(iter->first);
+                }
+                return value;
+            }
+
+            void setIfHasNotKey(const std::string &key, const JsonObject &value) {
+                auto iter = getObject().find(key);
+                if (iter != getObject().end()) {
+                    return;
+                }
+                getObject()[key] = value;
+            }
+
             const JsonObject &operator[](const std::string &key) const {
                 const auto &t = getObject();
                 auto iter = t.find(key);
