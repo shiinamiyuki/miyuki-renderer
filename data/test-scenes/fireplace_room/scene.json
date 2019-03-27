@@ -1,0 +1,746 @@
+{
+  "render": {
+    "output": "data/image/fireplace_room.png",
+    "resolution": "720p"
+  },
+  "integrator": {
+    "type": "mlt",
+    "caustics": true,
+    "minDepth": 3,
+    "maxDepth": 8,
+    "spp": 1024,
+    "nDirect": 0,
+    "progressive": true,
+    "maxSampleFactor": -1,
+    "maxRayIntensity": 10,
+    "ambientLight": [
+      1,
+      1,
+      1
+    ]
+  },
+  "camera": {
+    "rotation": [
+      -65,
+      4,
+      0
+    ],
+    "translation": [
+      50,
+      8,
+      -30
+    ]
+  },
+  "objects": [
+    {
+      "file": "mesh0.obj",
+      "name": "mesh0",
+      "transform": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          0,
+          0
+        ],
+        "scale": 10
+      }
+    }
+  ],
+  "materials": {
+    "grey_and_white_room:BottleCap": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.46,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "grey_and_white_room:Branches": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.16,
+          0.08,
+          0.02
+        ]
+      }
+    },
+    "grey_and_white_room:BrushedStainlessSteel": {
+      "Tr": 0,
+      "roughness": 0.5345224838248488,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.85,
+          0.78,
+          0.55
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "grey_and_white_room:Dirt": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.1,
+          0.05,
+          0.04
+        ]
+      }
+    },
+    "grey_and_white_room:FireplaceGlass": {
+      "Tr": 0,
+      "roughness": 0.14002800840280097,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.1,
+          0.1,
+          0.1
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "grey_and_white_room:Floor": {
+      "Tr": 0,
+      "roughness": 0.408248290463863,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.1,
+          0.1,
+          0.1
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "textures/wood.png",
+        "albedo": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "grey_and_white_room:Glass": {
+      "Tr": 0,
+      "roughness": 0.044676705160877024,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "grey_and_white_room:Leaves": {
+      "Tr": 0,
+      "roughness": 0.9853292781642932,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "textures/leaf.png",
+        "albedo": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "grey_and_white_room:MattePaint": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.9,
+          0.9,
+          0.9
+        ]
+      }
+    },
+    "grey_and_white_room:Mirror": {
+      "Tr": 0,
+      "roughness": 0.004472091234310839,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.95,
+          0.95,
+          0.95
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "grey_and_white_room:Painting": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "textures/picture8.png",
+        "albedo": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "grey_and_white_room:PaintingBack": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.26,
+          0.25,
+          0.14
+        ]
+      }
+    },
+    "grey_and_white_room:Paneling": {
+      "Tr": 0,
+      "roughness": 0.5345224838248488,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.1,
+          0.1,
+          0.1
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.9,
+          0.9,
+          0.9
+        ]
+      }
+    },
+    "grey_and_white_room:PlantPot": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.1,
+          0.1,
+          0.1
+        ]
+      }
+    },
+    "grey_and_white_room:Sofa": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.9,
+          0.9,
+          0.88
+        ]
+      }
+    },
+    "grey_and_white_room:SofaLegs": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.1,
+          0.1,
+          0.1
+        ]
+      }
+    },
+    "grey_and_white_room:TableWood": {
+      "Tr": 0,
+      "roughness": 0.9853292781642932,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.2,
+          0.2,
+          0.2
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "textures/wood5.png",
+        "albedo": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "grey_and_white_room:Transluscent": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.3,
+          0.3,
+          0.3
+        ]
+      }
+    },
+    "grey_and_white_room:Walls": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.17,
+          0.132,
+          0.1
+        ]
+      }
+    },
+    "grey_and_white_room:initialShadingGroup": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    },
+    "grey_and_white_room:lambert2SG_light": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          4.0,
+          4.0,
+          4.0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "lambert3SG": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          4.0,
+          4.0,
+          4.0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  },
+  "shapes": {
+    "mesh0": {
+      "mesh0.obj.grey_and_white_room:TableWood.0": "grey_and_white_room:TableWood",
+      "mesh0.obj.grey_and_white_room:Glass.1": "grey_and_white_room:Glass",
+      "mesh0.obj.grey_and_white_room:BottleCap.2": "grey_and_white_room:BottleCap",
+      "mesh0.obj.grey_and_white_room:Glass.3": "grey_and_white_room:Glass",
+      "mesh0.obj.grey_and_white_room:TableWood.4": "grey_and_white_room:TableWood",
+      "mesh0.obj.grey_and_white_room:PaintingBack.5": "grey_and_white_room:PaintingBack",
+      "mesh0.obj.grey_and_white_room:MattePaint.6": "grey_and_white_room:MattePaint",
+      "mesh0.obj.grey_and_white_room:Painting.7": "grey_and_white_room:Painting",
+      "mesh0.obj.grey_and_white_room:Leaves.8": "grey_and_white_room:Leaves",
+      "mesh0.obj.grey_and_white_room:Branches.9": "grey_and_white_room:Branches",
+      "mesh0.obj.grey_and_white_room:Leaves.10": "grey_and_white_room:Leaves",
+      "mesh0.obj.grey_and_white_room:Branches.11": "grey_and_white_room:Branches",
+      "mesh0.obj.grey_and_white_room:Dirt.12": "grey_and_white_room:Dirt",
+      "mesh0.obj.grey_and_white_room:PlantPot.13": "grey_and_white_room:PlantPot",
+      "mesh0.obj.grey_and_white_room:MattePaint.14": "grey_and_white_room:MattePaint",
+      "mesh0.obj.grey_and_white_room:SofaLegs.15": "grey_and_white_room:SofaLegs",
+      "mesh0.obj.grey_and_white_room:Sofa.16": "grey_and_white_room:Sofa",
+      "mesh0.obj.grey_and_white_room:Paneling.17": "grey_and_white_room:Paneling",
+      "mesh0.obj.grey_and_white_room:MattePaint.18": "grey_and_white_room:MattePaint",
+      "mesh0.obj.grey_and_white_room:Walls.19": "grey_and_white_room:Walls",
+      "mesh0.obj.grey_and_white_room:Floor.20": "grey_and_white_room:Floor",
+      "mesh0.obj.grey_and_white_room:MattePaint.21": "grey_and_white_room:MattePaint",
+      "mesh0.obj.grey_and_white_room:Paneling.22": "grey_and_white_room:Paneling",
+      "mesh0.obj.grey_and_white_room:Mirror.23": "grey_and_white_room:Mirror",
+      "mesh0.obj.grey_and_white_room:FireplaceGlass.24": "grey_and_white_room:FireplaceGlass",
+      "mesh0.obj.grey_and_white_room:Paneling.25": "grey_and_white_room:Paneling",
+      "mesh0.obj.grey_and_white_room:Walls.26": "grey_and_white_room:Walls",
+      "mesh0.obj.grey_and_white_room:Paneling.27": "grey_and_white_room:Paneling",
+      "mesh0.obj.grey_and_white_room:BrushedStainlessSteel.28": "grey_and_white_room:BrushedStainlessSteel",
+      "mesh0.obj.grey_and_white_room:Paneling.29": "grey_and_white_room:Paneling",
+      "mesh0.obj.grey_and_white_room:BrushedStainlessSteel.30": "grey_and_white_room:BrushedStainlessSteel",
+      "mesh0.obj.grey_and_white_room:Paneling.31": "grey_and_white_room:Paneling",
+      "mesh0.obj.grey_and_white_room:BrushedStainlessSteel.32": "grey_and_white_room:BrushedStainlessSteel",
+      "mesh0.obj.grey_and_white_room:Leaves.33": "grey_and_white_room:Leaves",
+      "mesh0.obj.grey_and_white_room:Branches.34": "grey_and_white_room:Branches",
+      "mesh0.obj.grey_and_white_room:Leaves.35": "grey_and_white_room:Leaves",
+      "mesh0.obj.grey_and_white_room:Branches.36": "grey_and_white_room:Branches",
+      "mesh0.obj.grey_and_white_room:Dirt.37": "grey_and_white_room:Dirt",
+      "mesh0.obj.grey_and_white_room:PlantPot.38": "grey_and_white_room:PlantPot",
+      "mesh0.obj.grey_and_white_room:BrushedStainlessSteel.39": "grey_and_white_room:BrushedStainlessSteel",
+      "mesh0.obj.grey_and_white_room:MattePaint.40": "grey_and_white_room:MattePaint",
+      "mesh0.obj.grey_and_white_room:Transluscent.41": "grey_and_white_room:Transluscent",
+      "mesh0.obj.grey_and_white_room:BrushedStainlessSteel.42": "grey_and_white_room:BrushedStainlessSteel",
+      "mesh0.obj.grey_and_white_room:MattePaint.43": "grey_and_white_room:MattePaint",
+      "mesh0.obj.grey_and_white_room:Transluscent.44": "grey_and_white_room:Transluscent",
+      "mesh0.obj.grey_and_white_room:Paneling.45": "grey_and_white_room:Paneling",
+      "mesh0.obj.grey_and_white_room:initialShadingGroup.46": "grey_and_white_room:initialShadingGroup",
+      "mesh0.obj.lambert3SG.47": "lambert3SG",
+      "mesh0.obj.grey_and_white_room:lambert2SG_light.48": "grey_and_white_room:lambert2SG_light"
+    }
+  }
+}
