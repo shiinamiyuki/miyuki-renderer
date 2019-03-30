@@ -5,7 +5,6 @@
 #include "integrator.h"
 #include "math/func.h"
 #include "lights/light.h"
-#include "thirdparty/hilbert/hilbert_curve.hpp"
 #include "core/progress.h"
 #include "math/sampling.h"
 #include "core/scene.h"
@@ -51,7 +50,8 @@ namespace Miyuki {
             const auto wi = scatteringEvent.wiW;
             f *= Vec3f::absDot(scatteringEvent.Ns(), wi);
             Float scatteringPdf = scatteringEvent.pdf;
-            if (!f.isBlack() && scatteringPdf > 0) {
+            bool sampledSpecular = scatteringEvent.bsdfLobe.matchFlag(BSDFLobe::specular);
+            if (!f.isBlack() && scatteringPdf > 0 && !sampledSpecular) {
                 Ray ray = scatteringEvent.spawnRay(wi);
                 Intersection isct;
                 if (scene.intersect(ray, &isct) && isct.primitive->light()) {
@@ -65,27 +65,23 @@ namespace Miyuki {
                 }
             }
         }
+
         return Ld;
     }
 
+
     void SamplerIntegrator::render(Scene &scene) {
-        if(progressive){
+        if (progressive) {
             renderProgressive(scene);
             return;
         }
         auto &film = *scene.film;
         Point2i nTiles = film.imageDimension() / TileSize + Point2i{1, 1};
 
-        int M = std::ceil(std::log2(std::max(nTiles.x(), nTiles.y())));
+
         std::mutex mutex;
         std::vector<Point2f> hilbertMapping;
-        for (int i = 0; i < pow(2, M + M); i++) {
-            int tx, ty;
-            ::d2xy(M, i, tx, ty);
-            if (tx >= nTiles.x() || ty >= nTiles.y())
-                continue;
-            hilbertMapping.emplace_back(tx, ty);
-        }
+        HilbertMapping(nTiles, hilbertMapping);
 
         ProgressReporter<uint32_t> reporter(hilbertMapping.size(), [&](uint32_t cur, uint32_t total) {
             if (spp > 16) {
@@ -149,10 +145,10 @@ namespace Miyuki {
                        total, reporter.elapsedSeconds(), reporter.estimatedTimeToFinish());
             scene.update();
         });
-        std::vector<Seed> seeds(Thread::pool->numThreads());
+        std::vector<Seed> seeds(scene.filmDimension().x() * scene.filmDimension().y());
         {
             std::random_device rd;
-            std::uniform_int_distribution<Seed> dist;
+            std::uniform_int_distribution<Seed> dist(1, UINT64_MAX);
             for (auto &i:seeds) {
                 i = dist(rd);
             }
@@ -160,7 +156,10 @@ namespace Miyuki {
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
         for (int i = 0; i < spp && scene.processContinuable(); i++) {
             Thread::ParallelFor2D(scene.filmDimension(), [&](Point2i id, uint32_t threadId) {
-                SobolSampler sampler(&seeds[threadId]);
+                int idx = id.x() + id.y() * scene.filmDimension().x();
+                auto temp = seeds[idx];
+                SobolSampler sampler(&seeds[idx]);
+                seeds[idx] = temp;
                 sampler.startPass(i);
                 auto ctx = scene.getRenderContext(id, &arenas[threadId], &sampler);
                 auto Li = this->Li(ctx, scene);

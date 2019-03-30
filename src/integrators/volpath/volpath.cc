@@ -11,8 +11,6 @@
 #include <boost/math/distributions/normal.hpp>
 #include <thirdparty/hilbert/hilbert_curve.hpp>
 
-#include <integrators/volpath/importancesampling.hpp>
-
 namespace Miyuki {
     void VolPath::render(Scene &scene) {
         if (!adaptive) {
@@ -144,55 +142,68 @@ namespace Miyuki {
         scene.update();
     }
 
-    Spectrum VolPath::Li(RenderContext &ctx, Scene &scene) {
-        RayDifferential ray = ctx.primary;
-        Intersection intersection;
-        ScatteringEvent event;
-        Spectrum Li(0, 0, 0);
-        Spectrum beta(1, 1, 1);
-        bool specular = false;
-        for (int depth = 0; depth < maxDepth; depth++) {
-            if (!scene.intersect(ray, &intersection)) {
-                Li += beta * scene.infiniteAreaLight->L(ray);
-                break;
-            }
-            if (depth > 0 && !sampleIndirect) {
-                break;
-            }
-            makeScatteringEvent(&event, ctx, &intersection, TransportMode::radiance);
-            if ((caustics && specular) || depth == 0) {
-                Li += event.Le(-1 * ray.d) * beta;
-            }
-            if(depth > 0 || sampleDirect)
-                Li += beta * estimateDirect(scene, ctx, event);
-            auto f = event.bsdf->sample(event);
-            specular = event.bsdfLobe.matchFlag(BSDFLobe::specular);
-            if (event.pdf <= 0 || f.isBlack()) {
-                break;
-            }
-            ray = event.spawnRay(event.wiW);
-            beta *= f * Vec3f::absDot(event.wiW, event.Ns()) / event.pdf;
-            Float p = beta.max();
-            if (depth >= minDepth || p > 1) {
-                if (ctx.sampler->get1D() < p) {
-                    beta /= p;
-                } else {
-                    break;
-                }
-            }
-        }
-        return Li;
-    }
+//    Spectrum VolPath::Li(RenderContext &ctx, Scene &scene) {
+//        RayDifferential ray = ctx.primary;
+//        Intersection intersection;
+//        ScatteringEvent event;
+//        Spectrum Li(0, 0, 0);
+//        Spectrum beta(1, 1, 1);
+//        bool specular = false;
+//        for (int depth = 0; depth < maxDepth; depth++) {
+//            if (!scene.intersect(ray, &intersection)) {
+//                Li += beta * scene.infiniteAreaLight->L(ray);
+//                break;
+//            }
+//            if (depth > 0 && !sampleIndirect) {
+//                break;
+//            }
+//            makeScatteringEvent(&event, ctx, &intersection, TransportMode::radiance);
+//            if ((caustics && specular) || depth == 0) {
+//                Li += event.Le(-1 * ray.d) * beta;
+//            }
+//            if(depth > 0 || sampleDirect)
+//                Li += beta * estimateDirect(scene, ctx, event);
+//            auto f = event.bsdf->sample(event);
+//            specular = event.bsdfLobe.matchFlag(BSDFLobe::specular);
+//            if (event.pdf <= 0 || f.isBlack()) {
+//                break;
+//            }
+//            ray = event.spawnRay(event.wiW);
+//            beta *= f * Vec3f::absDot(event.wiW, event.Ns()) / event.pdf;
+//            Float p = beta.max();
+//            if (depth >= minDepth && p < 1) {
+//                if (ctx.sampler->get1D() < p) {
+//                    beta /= p;
+//                } else {
+//                    break;
+//                }
+//            }
+//        }
+//        return Li;
+//    }
 
-    Spectrum VolPath::estimateDirect(Scene &scene, RenderContext &ctx, const ScatteringEvent &event) {
-        // TODO: when we have multiple lights, use a new distribution according to solid angle
-        const auto &lights = scene.lights;
-        if (lights.empty())
-            return {};
-        ImportanceLightSampler lightSampler(scene, lights);
-        auto lightDistribution = scene.lightDistribution.get();
-        return lightSampler.estimateDirectLighting(*lightDistribution, ctx, event);
+
+    Spectrum VolPath::Li(RenderContext &ctx, Scene &scene) {
+        struct VolPathTracer : PathTracer<VolPathTracer> {
+            Float pdfEvent(ScatteringEvent &event) {
+                return event.bsdf->pdf(event);
+            }
+
+            Spectrum sampleEvent(ScatteringEvent &event) {
+                return event.bsdf->sample(event);
+            }
+
+            Spectrum nextEventEstimation(Scene &scene, RenderContext &ctx, const ScatteringEvent &event) {
+                const auto &lights = scene.lights;
+                if (lights.empty())
+                    return {};
+                auto lightDistribution = scene.lightDistribution.get();
+                return sampleOneLightMIS(scene, lights, *lightDistribution, ctx, event);
+            }
+        };
+        return VolPathTracer().Li(scene, ctx.primary, ctx, minDepth, maxDepth);
     }
+    
 
     VolPath::VolPath(const ParameterSet &set) {
         progressive = set.findInt("integrator.progressive", false);

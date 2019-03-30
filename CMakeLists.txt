@@ -41,6 +41,7 @@ file(GLOB integratorSRC
         "src/integrators/bdpt/*.cc"
         "src/integrators/pssmlt/*.cc"
         "src/integrators/erpt/*.cc"
+        "src/integrators/guided_path/*.cc"
         )
 file(GLOB editorSRC
         "src/editor/*.cc"

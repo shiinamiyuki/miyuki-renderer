@@ -18,11 +18,15 @@ namespace Miyuki {
 
     public:
         Float funcInt;
+
         Distribution1D(const Float *data, uint32_t N);
+
         int sampleInt(Float x) const;
 
         Float sampleFloat(Float x) const;
-        Float pdf(int x)const;
+
+        Float pdf(int x) const;
+
         Float cdf(Float x) const;
     };
 }

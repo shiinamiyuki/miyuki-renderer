@@ -10,8 +10,22 @@
 #include "core/spectrum.h"
 #include "core/scatteringevent.h"
 #include <bidir/vertex.h>
+#include "thirdparty/hilbert/hilbert_curve.hpp"
+#include "rendersession.hpp"
 
 namespace Miyuki {
+    inline void HilbertMapping(const Point2i &nTiles, std::vector<Point2f> &hilbertMapping) {
+        int M = std::ceil(std::log2(std::max(nTiles.x(), nTiles.y())));
+        for (int i = 0; i < pow(2, M + M); i++) {
+            int tx, ty;
+            ::d2xy(M, i, tx, ty);
+            if (tx >= nTiles.x() || ty >= nTiles.y())
+                continue;
+            hilbertMapping.emplace_back(tx, ty);
+        }
+    }
+
+
     class Scene;
 
     static const int TileSize = 16;
@@ -35,6 +49,10 @@ namespace Miyuki {
         virtual void render(Scene &) = 0;
 
         virtual ~Integrator() {}
+
+        virtual std::unique_ptr<RenderSession> saveSession() {return nullptr;}
+
+        virtual void loadSession(const RenderSession &) {}
     };
 
     class SamplerIntegrator : public Integrator {

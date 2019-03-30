@@ -20,7 +20,7 @@ namespace Miyuki {
             gui
         } mode;
         Json::JsonObject description;
-
+        std::string sceneFileName;
         friend class Editor;
 
     public:

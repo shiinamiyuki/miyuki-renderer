@@ -61,6 +61,7 @@ namespace Miyuki {
         int64_t currentIteration = 0, lastLargeStepIteration = 0;
         bool largeStep = true;
         Float largeStepProbability;
+
     public:
         Float maxImagePlaneStratification = 0.1f;
 
@@ -89,7 +90,7 @@ namespace Miyuki {
                 Sampler(seed), nStream(nStream),
                 largeStepProbability(largeStepProbability),
                 imageDimension(imageDimension),
-                depth(depth) {}
+                depth(depth){}
 
         Point2i sampleImageLocation() {
             ensureReadyU1U2();

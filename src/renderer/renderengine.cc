@@ -33,10 +33,10 @@ namespace Miyuki {
             auto filename = argv[1];
             fmt::print("Loading scene {}\n", filename);
             cxx::filesystem::path inputFile(filename);
-            auto name = inputFile.filename().string();
+            sceneFileName = inputFile.filename().string();
             auto parent = inputFile.parent_path();
             cxx::filesystem::current_path(parent);
-            std::ifstream in(name);
+            std::ifstream in(sceneFileName);
             std::string content((std::istreambuf_iterator<char>(in)),
                                 (std::istreambuf_iterator<char>()));
             description = Json::parse(content);
@@ -198,7 +198,7 @@ namespace Miyuki {
             I.setIfHasNotKey("progressive", Json::JsonObject(false));
             I.setIfHasNotKey("nDirect", 16);
             I.setIfHasNotKey("nChains", 8);
-            I.setIfHasNotKey("largeStep", Json::JsonObject(0.3f));
+            I.setIfHasNotKey("largeStep", Json::JsonObject(0.25f));
 
             parameters.addFloat("integrator.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
             parameters.addInt("integrator.spp", IO::deserialize<int>(I["spp"]));
@@ -249,6 +249,8 @@ namespace Miyuki {
             if (camera.hasKey("rotation")) {
                 parameters.addVec3f("camera.rotation", IO::deserialize<Vec3f>(camera["rotation"]));
             }
+            camera.setIfHasNotKey("lensRadius", 0);
+            camera.setIfHasNotKey("focalDistance", 0);
             if (camera.hasKey("fov")) {
                 parameters.addFloat("camera.fov", IO::deserialize<Float>(camera["fov"]));
             }

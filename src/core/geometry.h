@@ -527,7 +527,7 @@ namespace Miyuki {
 
         size_t size() const { return N; }
 
-        bool operator == (const Vec3f & rhs)const{
+        bool operator==(const Vec3f &rhs) const {
             return x() == rhs.x() && y() == rhs.y() && z() == rhs.z();
         }
     };
@@ -539,11 +539,21 @@ namespace Miyuki {
     const Float EPS = Float(0.00001);
     const Float INF = 1e64;
 
+    inline Point3f operator+(const Point3f &lhs, const Vec3f &rhs) {
+        return Point3f(lhs.x() + rhs.x(), lhs.y() + rhs.y(), lhs.z() + rhs.z());
+    }
+
+    inline Point3f operator-(const Point3f &lhs, const Vec3f &rhs) {
+        return Point3f(lhs.x() - rhs.x(), lhs.y() - rhs.y(), lhs.z() - rhs.z());
+    }
+
     template<typename T, size_t N>
     struct Bound {
         typedef Vec<T, N> Point;
         Point pMin, pMax;
-        Bound(){}
+
+        Bound() {}
+
         Bound(const Point &_min, const Point &_max) : pMin(_min), pMax(_max) {}
 
         bool contains(const Point &point) const {
@@ -558,6 +568,7 @@ namespace Miyuki {
             *radius = contains(*center) ? distance(*center, pMax) : 0;
         }
     };
+
     using Bound3f = Bound<Float, 3>;
     using Bound2f = Bound<Float, 2>;
     using Bound3i = Bound<int, 3>;
@@ -566,6 +577,9 @@ namespace Miyuki {
     template<typename T>
     T PointOnTriangle(const T &v1, const T &v2, const T &v3, Float u1, Float u2) {
         return v1 * (1 - u1 - u2) + v2 * u1 + v3 * u2;//v1 + u1*(v2 - v1) + u2 * (v3 - v1);
+    }
+    inline Vec3f fromPoint3f(const Point3f& rhs){
+        return Vec3f(rhs.x(), rhs.y(), rhs.z());
     }
 }
 #endif //MIYUKI_GEOMETRY_H

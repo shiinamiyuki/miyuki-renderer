@@ -20,7 +20,7 @@ namespace Miyuki {
         nDirect = set.findInt("integrator.nDirect", 16);
         nChains = set.findInt("integrator.nChains", 8);
         largeStep = set.findFloat("integrator.largeStep", 0.25f);
-        MLTSampler::maxConsecutiveRejects = set.findInt("sampler.maxConsecutiveRejects", 20);
+        MLTSampler::maxConsecutiveRejects = set.findInt("sampler.maxConsecutiveRejects", 512);
         useKelemenWeight = true;
     }
 
@@ -133,6 +133,7 @@ namespace Miyuki {
         if (weightOld > 0 && sampler->rejectCount < MLTSampler::maxConsecutiveRejects) {
             scene.film->addSplat(sampler->imageLocation, sampler->L * weightOld);
         }
+        
         UPDATE_STATS(mutationCounter, 1);
         if (accept == 1 || dist(rd) < accept) {
             sampler->L = LProposed;
@@ -263,7 +264,7 @@ namespace Miyuki {
             return {};
         }
         if (nDirect > 0 && s + t == 3 && s == 0) {
-            if (!cameraSubPath[t - 1].isInfiniteLight())
+            if (!cameraSubPath[t - 1].isInfiniteLight() && !cameraSubPath[t - 2].delta)
                 return {};
         }
         *raster = imageLoc;

@@ -25,7 +25,7 @@ namespace Miyuki {
         AtomicFloat(Float v = 0) { bits = floatToBits(v); }
 
         AtomicFloat(const AtomicFloat &rhs) {
-            bits = floatToBits(rhs);
+            bits.store(rhs.bits.load(std::memory_order_relaxed), std::memory_order_relaxed);
         }
 
         operator Float() const { return bitsToFloat(bits); }
@@ -34,7 +34,10 @@ namespace Miyuki {
             bits = floatToBits(v);
             return v;
         }
-
+        AtomicFloat& operator = (const AtomicFloat & rhs){
+            bits.store(rhs.bits.load(std::memory_order_relaxed), std::memory_order_relaxed);
+            return *this;
+        }
         void add(Float v) {
             uint32_t oldBits = bits, newBits;
             do {
@@ -42,6 +45,9 @@ namespace Miyuki {
             } while (!bits.compare_exchange_weak(oldBits, newBits));
         }
 
+        void store(Float v){
+            bits.store(floatToBits(v), std::memory_order_relaxed);
+        }
     private:
         std::atomic<uint32_t> bits;
 

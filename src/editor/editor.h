@@ -38,6 +38,7 @@ namespace Miyuki {
 
     class Editor : public GenericGUIWindow {
         RenderEngine renderEngine;
+        int selectedIntegrator;
         int width = 1980, height = 1080;
         std::vector<uint8_t> pixelData, pixelDataBuffer;
         GLFWwindow *window = nullptr;
@@ -71,6 +72,8 @@ namespace Miyuki {
         void treeNodeMaterials();
 
         void treeNodeObject();
+
+        void treeNodeFile();
 
         void startRenderThread();
 

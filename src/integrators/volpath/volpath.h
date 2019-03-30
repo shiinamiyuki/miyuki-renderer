@@ -9,8 +9,11 @@
 
 #include "integrators/integrator.h"
 #include "core/parameter.h"
+#include <integrators/pathtracer.hpp>
 
 namespace Miyuki {
+    class VolPath;
+
     class VolPath : public SamplerIntegrator {
     protected:
 
@@ -33,9 +36,6 @@ namespace Miyuki {
         void renderAdaptive(Scene &scene);
 
         void renderProgressive(Scene &scene) override;
-
-        Spectrum estimateDirect(Scene &scene,
-                                RenderContext &ctx, const ScatteringEvent &event);
 
     protected:
         Spectrum Li(RenderContext &ctx, Scene &scene) override;

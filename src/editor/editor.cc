@@ -4,6 +4,9 @@
 
 #include "editor.h"
 #include <math/func.h>
+#include <integrators/volpath/volpath.h>
+#include <integrators/mmlt/mmlt.h>
+#include <integrators/bdpt/bdpt.h>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -28,6 +31,10 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+#define _VOLPATH 0
+#define _BDPT 1
+#define _MMLT 2
+
 Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
     renderEngine.setGuiMode(true);
     renderEngine.processCommandLine(argc, argv);
@@ -38,6 +45,16 @@ Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
         renderEngine.readPixelData(pixelDataBuffer, width, height);
         std::swap(pixelDataBuffer, pixelData);
     };
+    Assert(renderEngine.integrator);
+    if (typeid(*renderEngine.integrator) == typeid(VolPath)) {
+        selectedIntegrator = _VOLPATH;
+    } else if (typeid(*renderEngine.integrator) == typeid(MultiplexedMLT)) {
+        selectedIntegrator = _MMLT;
+    } else if (typeid(*renderEngine.integrator) == typeid(BDPT)) {
+        selectedIntegrator = _BDPT;
+    }
+
+
     Log::SetLogLevel(Log::silent);
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -113,9 +130,7 @@ static const char *integratorName[] = {
         "Bidirectional Path Tracer",
         "Multiplexed Metropolis Light Transport"
 };
-#define VOLPATH 0
-#define BDPT 1
-#define MMLT 2
+
 
 void Editor::integratorWindow() {
     ImGui::SetNextWindowPos(ImVec2(250, 20), ImGuiCond_FirstUseEver);
@@ -125,10 +140,9 @@ void Editor::integratorWindow() {
     }
     bool modified = false;
     if (ImGui::TreeNode("Integrator")) {
-        static int selected = MMLT;
         for (int n = 0; n < 3; n++) {
-            if (ImGui::Selectable(integratorName[n], selected == n)) {
-                selected = n;
+            if (ImGui::Selectable(integratorName[n], selectedIntegrator == n)) {
+                selectedIntegrator = n;
                 modified = true;
             }
         }
@@ -152,7 +166,7 @@ void Editor::integratorWindow() {
                 renderEngine.description["integrator"]["maxDepth"] = IO::serialize(maxDepth);
                 modified = true;
             }
-            if (selected == MMLT) {
+            if (selectedIntegrator == _MMLT) {
                 Float nChains, nDirect;
                 nChains = IO::deserialize<Float>(renderEngine.description["integrator"]["nChains"]);
                 nDirect = IO::deserialize<Float>(renderEngine.description["integrator"]["nDirect"]);
@@ -176,11 +190,11 @@ void Editor::integratorWindow() {
         }
         if (modified) {
             try {
-                if (selected == MMLT) {
+                if (selectedIntegrator == _MMLT) {
                     renderEngine.description["integrator"]["type"] = std::string("mlt");
-                } else if (selected == VOLPATH) {
+                } else if (selectedIntegrator == _VOLPATH) {
                     renderEngine.description["integrator"]["type"] = std::string("volpath");
-                } else if (selected == BDPT) {
+                } else if (selectedIntegrator == _BDPT) {
                     renderEngine.description["integrator"]["type"] = std::string("bdpt");
                 }
                 renderEngine.loadIntegrator();
@@ -229,10 +243,17 @@ void Editor::treeNodeCameras() {
 
         Vec3f translation = IO::deserialize<Vec3f>(renderEngine.description["camera"]["translation"]),
                 rotation = IO::deserialize<Vec3f>(renderEngine.description["camera"]["rotation"]);
-        if (InputVec3f("Translation", &translation) || InputVec3f("Rotation", &rotation)) {
+        Float lensRadius = IO::deserialize<Float>(renderEngine.description["camera"]["lensRadius"]);
+        Float focalDistance = IO::deserialize<Float>(renderEngine.description["camera"]["focalDistance"]);
+        if (InputVec3f("Translation", &translation)
+            || InputVec3f("Rotation", &rotation)
+            || InputFloat("Lens Radius", &lensRadius)
+            || InputFloat("Focal Distance", &focalDistance)) {
             rerender = true;
             renderEngine.description["camera"]["translation"] = IO::serialize(translation);
             renderEngine.description["camera"]["rotation"] = IO::serialize(rotation);
+            renderEngine.description["camera"]["lensRadius"] = IO::serialize(lensRadius);
+            renderEngine.description["camera"]["focalDistance"] = IO::serialize(focalDistance);
             renderEngine.loadCamera();
         }
 
@@ -348,6 +369,7 @@ void Editor::treeNodeMaterials() {
                     json["roughness"] = IO::serialize(roughness);
                     json["emission"] = IO::serialize(emission);
                     factory->modifyMaterialByNameFromJson(i, json);
+                    renderEngine.description["materials"][i] = json;
                     renderEngine.updateMaterials();
                     rerender = true;
                 }
@@ -395,6 +417,24 @@ void Editor::treeNodeObject() {
     }
 }
 
+
+void Editor::treeNodeFile() {
+    if (ImGui::TreeNode("File")) {
+        if (ImGui::SmallButton("Save")) {
+            std::ofstream out(renderEngine.sceneFileName);
+            if (!out) {
+                Log::log(Log::error, "Cannot save {}\n", renderEngine.sceneFileName);
+            } else {
+                out << renderEngine.description.toString();
+                fmt::print("Saved {}\n", renderEngine.sceneFileName);
+            }
+        }
+        ImGui::TreePop();
+    }
+
+}
+
+
 void Editor::mainEditorWindow() {
     ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
@@ -403,6 +443,7 @@ void Editor::mainEditorWindow() {
         treeNodeObject();
         treeNodeShapes();
         treeNodeMaterials();
+        treeNodeFile();
         showDebug();
         objectPicker();
     }

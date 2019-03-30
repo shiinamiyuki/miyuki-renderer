@@ -26,6 +26,13 @@ namespace Miyuki {
         StatsVec accepts;
         StatsVec rejects;
 
+        MLTStats(int maxLength){
+            for(int i =0 ;i<maxLength;i++){
+                mutations[i] = std::make_shared<std::atomic<uint64_t>>(0);
+                accepts[i] = std::make_shared<std::atomic<uint64_t>>(0);
+                rejects[i] = std::make_shared<std::atomic<uint64_t>>(0);
+            }
+        }
         void mutate(int pathLength) {
             (*mutations[pathLength])++;
         }

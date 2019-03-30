@@ -12,6 +12,7 @@
 #include <iostream>
 #include <exception>
 #include <memory>
+#include <thirdparty/fmt/format.h>
 
 namespace Miyuki {
     namespace Json {
@@ -189,6 +190,12 @@ namespace Miyuki {
             }
 
             bool getBool() const {
+                if (isInt()) {
+                    return asInt != 0;
+                }
+                if (isFloat()) {
+                    return asFloat != 0;
+                }
                 if (!isBool()) {
                     throw BadElementType(std::string("Expected bool but have ").append(typeStr()));
                 }
@@ -306,6 +313,7 @@ namespace Miyuki {
         class JsonParser {
             const std::string &src;
             int pos;
+            int line = 1, col = 1;
 
             int get(int idx) { return idx >= src.length() ? 0 : src[idx]; }
 
@@ -313,7 +321,14 @@ namespace Miyuki {
 
             int next() { return get(pos + 1); }
 
-            void advance() { pos++; }
+            void advance() {
+                if (cur() == '\n') {
+                    line += 1;
+                    col = 1;
+                } else
+                    col++;
+                pos++;
+            }
 
         public:
             JsonParser(const std::string &source) : src(source), pos(0) {}
@@ -354,7 +369,7 @@ namespace Miyuki {
 
             JsonObject parseString() {
                 if (cur() != '\"') {
-                    throw ParserError("'\\\"' expected");
+                    throw ParserError(fmt::format("'\\\"' expected at {}:{}\n", line, col));
                 }
                 std::string s;
                 advance();
@@ -380,7 +395,7 @@ namespace Miyuki {
                     advance();
                 }
                 if (cur() != '\"') {
-                    throw ParserError("'\\\"' expected");
+                    throw ParserError(fmt::format("'\\\"' expected at {}:{}\n", line, col));
                 }
                 advance();
                 return JsonObject(s);
@@ -388,7 +403,7 @@ namespace Miyuki {
 
             JsonObject parseArray() {
                 if (cur() != '[') {
-                    throw ParserError("'[' expected");
+                    throw ParserError(fmt::format("'[' expected at {}:{}\n", line, col));
                 }
                 advance();
                 skipSpace();
@@ -402,7 +417,7 @@ namespace Miyuki {
                     skipSpace();
                 }
                 if (cur() != ']') {
-                    throw ParserError("']' expected");
+                    throw ParserError(fmt::format("']' expected at {}:{}\n", line, col));
                 }
                 advance();
                 return object;
@@ -410,7 +425,7 @@ namespace Miyuki {
 
             JsonObject parseObject() {
                 if (cur() != '{') {
-                    throw ParserError("'{' expected");
+                    throw ParserError(fmt::format("'{{' expected at {}:{}\n", line, col));
                 }
                 advance();
                 skipSpace();
@@ -420,7 +435,7 @@ namespace Miyuki {
                     auto key = parseString();
                     skipSpace();
                     if (cur() != ':') {
-                        throw ParserError("':' expected");
+                        throw ParserError(fmt::format("':' expected at {}:{}\n", line, col));
                     }
                     advance();
                     skipSpace();
@@ -434,7 +449,7 @@ namespace Miyuki {
                     skipSpace();
                 }
                 if (cur() != '}') {
-                    throw ParserError("'}' expected");
+                    throw ParserError(fmt::format("'}}' expected at {}:{}\n", line, col));
                 }
                 advance();
                 return object;
@@ -466,7 +481,7 @@ namespace Miyuki {
                 skipSpace();
                 if (cur() == '{')
                     return parseObject();
-                throw ParserError("'{' expected");
+                throw ParserError(fmt::format("'{{' expected at {}:{}", line, col));
             }
         };
 

@@ -38,6 +38,14 @@ namespace Miyuki {
                     return (1 - 1.259f * a + 0.396f * a * a) /
                            (3.535f * a + 2.181f * a * a);
                 }
+                case MicrofacetModel::ggx: {
+                    Float ax2 = alphaX * alphaX;
+                    Float ay2 = alphaY * alphaY;
+                    return (-1 + std::sqrt(1.0f +
+                                           (ax2 * w.x() * w.x() + ay2 * w.z() * w.z())
+                                           / (w.y() * w.y())))
+                           * 0.5f;
+                }
                 default:
                     throw NotImplemented();
             }
@@ -52,6 +60,13 @@ namespace Miyuki {
                     return std::exp(-tan2Theta * (Cos2Phi(wh) / (alphaX * alphaX) +
                                                   Sin2Phi(wh) / (alphaY * alphaY))) /
                            (PI * alphaX * alphaY * cos4Theta);
+                }
+                case MicrofacetModel::ggx: {
+                    Float ax2 = alphaX * alphaX;
+                    Float ay2 = alphaY * alphaY;
+                    Float p = (wh.x() * wh.x()) / ax2 + (wh.z() * wh.z()) / ay2 + wh.y() * wh.y();
+                    Float d = PI * alphaX * alphaY * p * p;
+                    return 1 / d;
                 }
                 default:
                     throw NotImplemented();
@@ -96,6 +111,9 @@ namespace Miyuki {
                     auto wh = Vec3f(std::cos(phi) * sinTheta, cosTheta, std::sin(phi) * sinTheta).normalized();
                     if (!SameHemisphere(wo, wh)) wh *= -1;
                     return wh;
+                }
+                case MicrofacetModel::ggx: {
+                    throw NotImplemented();
                 }
                 default:
                     throw NotImplemented();
