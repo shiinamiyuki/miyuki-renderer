@@ -150,9 +150,15 @@ namespace Miyuki {
     protected:
         int nBxDFs = 0;
         BxDF *bxdfs[maxBxDFs];
+        BSDFLobe lobe = BSDFLobe::none;
     public:
         void add(BxDF *bxdf) {
             bxdfs[nBxDFs++] = bxdf;
+            lobe = lobe | bxdf->lobe;
+        }
+
+        BSDFLobe getLobe() const {
+            return lobe;
         }
 
         BSDF() {}
@@ -163,7 +169,7 @@ namespace Miyuki {
 
         Spectrum sample(ScatteringEvent &event, BSDFLobe lobe = BSDFLobe::all) const;
 
-        void invert(const ScatteringEvent &event, Point2f* u,Float * pdf) const;
+        void invert(const ScatteringEvent &event, Point2f *u, Float *pdf) const;
 
         int numComponents(BSDFLobe lobe) const {
             int n = 0;

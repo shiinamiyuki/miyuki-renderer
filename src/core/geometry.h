@@ -581,5 +581,8 @@ namespace Miyuki {
     inline Vec3f fromPoint3f(const Point3f& rhs){
         return Vec3f(rhs.x(), rhs.y(), rhs.z());
     }
+    inline Point3f fromVec3f(const Vec3f& rhs){
+        return Point3f(rhs.x(), rhs.y(), rhs.z());
+    }
 }
 #endif //MIYUKI_GEOMETRY_H

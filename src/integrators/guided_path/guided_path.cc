@@ -6,6 +6,9 @@
 #include <utils/atomicfloat.h>
 #include <utils/thread.h>
 
+// See https://tom94.net/data/publications/mueller17practical/mueller17practical-author.pdf
+// And https://github.com/Tom94/practical-path-guiding
+
 namespace Miyuki {
     class QuadTreeNode {
         std::array<AtomicFloat, 4> means;
@@ -602,7 +605,7 @@ namespace Miyuki {
 
     class STree {
     private:
-        std::vector<STreeNode> m_nodes;
+        std::vector<STreeNode> nodes;
         Bound3f aabb;
     public:
         STree(const Bound3f &aabb) {
@@ -618,15 +621,15 @@ namespace Miyuki {
         }
 
         void clear() {
-            m_nodes.clear();
-            m_nodes.emplace_back();
+            nodes.clear();
+            nodes.emplace_back();
         }
 
         void subdivideAll() {
-            int nNodes = (int) m_nodes.size();
+            int nNodes = (int) nodes.size();
             for (int i = 0; i < nNodes; ++i) {
-                if (m_nodes[i].isLeaf) {
-                    subdivide(i, m_nodes);
+                if (nodes[i].isLeaf) {
+                    subdivide(i, nodes);
                 }
             }
         }
@@ -659,7 +662,7 @@ namespace Miyuki {
             p.y() /= size.y();
             p.z() /= size.z();
 
-            return m_nodes[0].dTreeWrapper(p, size, m_nodes);
+            return nodes[0].dTreeWrapper(p, size, nodes);
         }
 
         DTreeWrapper *dTreeWrapper(Point3f p) {
@@ -668,7 +671,7 @@ namespace Miyuki {
         }
 
         void forEachDTreeWrapperConst(std::function<void(const DTreeWrapper *)> func) const {
-            for (auto &node : m_nodes) {
+            for (auto &node : nodes) {
                 if (node.isLeaf) {
                     func(&node.dTree);
                 }
@@ -677,15 +680,15 @@ namespace Miyuki {
 
         void forEachDTreeWrapperConstP(
                 const std::function<void(const DTreeWrapper *, const Point3f &, const Vec3f &)> &func) const {
-            m_nodes[0].forEachLeaf(func, this->aabb.pMin, fromPoint3f(this->aabb.pMax - this->aabb.pMin), m_nodes);
+            nodes[0].forEachLeaf(func, this->aabb.pMin, fromPoint3f(this->aabb.pMax - this->aabb.pMin), nodes);
         }
 
         void forEachDTreeWrapperParallel(std::function<void(DTreeWrapper *)> func) {
-            int nDTreeWrappers = static_cast<int>(m_nodes.size());
+            int nDTreeWrappers = static_cast<int>(nodes.size());
 
             Thread::ParallelFor(0u, nDTreeWrappers, [&](uint32_t i, uint32_t) {
-                if (m_nodes[i].isLeaf) {
-                    func(&m_nodes[i].dTree);
+                if (nodes[i].isLeaf) {
+                    func(&nodes[i].dTree);
                 }
             }, nDTreeWrappers / 8 + 1);
         }
@@ -697,22 +700,22 @@ namespace Miyuki {
                 volume *= dTreeVoxelSize[i];
             }
 
-            m_nodes[0].recordRadiance(p - dTreeVoxelSize * 0.5f, p + dTreeVoxelSize * 0.5f, aabb.pMin,
-                                      fromPoint3f(aabb.pMax - aabb.pMin), d, radiance / volume,
-                                      statisticalWeight / volume,
-                                      doFilteredSplatting, m_nodes);
+            nodes[0].recordRadiance(p - dTreeVoxelSize * 0.5f, p + dTreeVoxelSize * 0.5f, aabb.pMin,
+                                    fromPoint3f(aabb.pMax - aabb.pMin), d, radiance / volume,
+                                    statisticalWeight / volume,
+                                    doFilteredSplatting, nodes);
         }
 
 
         bool shallSplit(const STreeNode &node, int depth, size_t samplesRequired) {
-            return m_nodes.size() < std::numeric_limits<uint32_t>::max() - 1 &&
+            return nodes.size() < std::numeric_limits<uint32_t>::max() - 1 &&
                    node.dTree.statisticalWeightBuilding() > samplesRequired;
         }
 
         void refine(size_t sTreeThreshold, int maxMB) {
             if (maxMB >= 0) {
                 size_t approxMemoryFootprint = 0;
-                for (const auto &node : m_nodes) {
+                for (const auto &node : nodes) {
                     approxMemoryFootprint += node.dTreeWrapper()->approxMemoryFootprint();
                 }
 
@@ -733,15 +736,15 @@ namespace Miyuki {
                 nodeIndices.pop();
 
                 // Subdivide if needed and leaf
-                if (m_nodes[sNode.index].isLeaf) {
-                    if (shallSplit(m_nodes[sNode.index], sNode.depth, sTreeThreshold)) {
-                        subdivide((int) sNode.index, m_nodes);
+                if (nodes[sNode.index].isLeaf) {
+                    if (shallSplit(nodes[sNode.index], sNode.depth, sTreeThreshold)) {
+                        subdivide((int) sNode.index, nodes);
                     }
                 }
 
                 // Add children to stack if we're not
-                if (!m_nodes[sNode.index].isLeaf) {
-                    const STreeNode &node = m_nodes[sNode.index];
+                if (!nodes[sNode.index].isLeaf) {
+                    const STreeNode &node = nodes[sNode.index];
                     for (int i = 0; i < 2; ++i) {
                         nodeIndices.push({node.children[i], sNode.depth + 1});
                     }
@@ -755,7 +758,94 @@ namespace Miyuki {
 
     };
 
+//    class GuidedScatteringEvent : public ScatteringEvent {
+//    public:
+//        DTreeWrapper *dTree = nullptr;
+//
+//        GuidedScatteringEvent() : ScatteringEvent() {}
+//
+//        GuidedScatteringEvent(Sampler *sampler,
+//                              Intersection *intersection,
+//                              BSDF *bsdf, TransportMode mode)
+//                : ScatteringEvent(sampler, intersection, bsdf, mode) {}
+//    };
+//
+//
+//    struct GuidedPathTracer : PathTracer<GuidedPathTracer, GuidedScatteringEvent> {
+//        Float bsdfSamplingFraction;
+//        std::unique_ptr<STree> sdTree;
+//        int minDepth, maxDepth;
+//
+//        void makeScatteringEventImpl(GuidedScatteringEvent *event, RenderContext &ctx, Intersection *intersection) {
+//            Integrator::makeScatteringEvent(event, ctx, intersection, TransportMode::radiance);
+//            event->dTree = sdTree->dTreeWrapper(fromVec3f(event->getIntersection()->ref));
+//        }
+//
+//        Float pdfImpl(GuidedScatteringEvent &event) {
+//            auto bsdf = event.bsdf;
+//            const auto dTree = event.dTree;
+//            if (!bsdf)return 0.0f;
+//            if ((bsdf->getLobe() & BSDFLobe::specular) == (BSDFLobe::all & BSDFLobe::specular)) {
+//                return bsdf->pdf(event);
+//            }
+//            auto pdf = bsdf->pdf(event);
+//            if (pdf == 0 || !std::isfinite(pdf)) {
+//                return 0.0f;
+//            }
+//            return bsdfSamplingFraction * pdf
+//                   + (1 - bsdfSamplingFraction) * dTree->samplePdf(event.wiW);
+//        }
+//
+//        Spectrum sampleImpl(GuidedScatteringEvent &event) {
+//            auto bsdf = event.bsdf;
+//            const auto dTree = event.dTree;
+//            if (!bsdf)return {};
+//            if (bsdf->numComponents(BSDFLobe::specular) == bsdf->numComponents(BSDFLobe::all)) {
+//                return bsdf->sample(event);
+//            }
+//            auto &sample = event.u;
+//            Spectrum f;
+//            if (sample.x() < bsdfSamplingFraction) {
+//                sample.x() /= bsdfSamplingFraction;
+//                f = bsdf->sample(event);
+//                // delta, no guiding
+//                if (event.bsdfLobe & BSDFLobe::specular) {
+//                    event.pdf *= bsdfSamplingFraction;
+//                    return f / bsdfSamplingFraction;
+//                }
+//            } else {
+//                sample.x() = (sample.x() - bsdfSamplingFraction) / (1 - bsdfSamplingFraction);
+//                auto wi = dTree->sampleDirection(sample);
+//                event.wiW = wi;
+//                event.wi = event.worldToLocal(wi);
+//                f = bsdf->f(event);
+//            }
+//            event.pdf = pdfImpl(event);
+//            CHECK(event.pdf >= 0);
+//            if (event.pdf == 0) {
+//                return {};
+//            }
+//            return f;
+//        }
+//
+//        Spectrum nextEventEstimation(Scene &scene, RenderContext &ctx, const GuidedScatteringEvent &event) {
+//            const auto &lights = scene.getLights();
+//            if (lights.empty())
+//                return {};
+//            auto &lightDistribution = scene.getLightDistribution();
+//            return sampleOneLightMIS(scene, lights, lightDistribution, ctx, event);
+//        }
+//    };
+
     Spectrum GuidedPath::Li(RenderContext &ctx, Scene &scene) {
         return Miyuki::Spectrum();
+    }
+
+    GuidedPath::GuidedPath(const ParameterSet &set) {
+        minDepth = set.findInt("integrator.minDepth", 3);
+        maxDepth = set.findInt("integrator.maxDepth", 5);
+        spp = set.findInt("integrator.spp", 4);
+        maxRayIntensity = set.findFloat("integrator.maxRayIntensity", 10000.0f);
+        bsdfSamplingFraction = 0.5f;
     }
 }

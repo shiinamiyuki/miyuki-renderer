@@ -21,6 +21,7 @@ namespace Miyuki {
     class Medium;
 
     class ScatteringEvent {
+    protected:
         Intersection *intersection;
         CoordinateSystem coordinateSystem;
     public:

@@ -10,29 +10,45 @@
 // WIP
 // Generic Path Tracer using CRTP to improve efficiency (maybe)
 namespace Miyuki {
-    template<typename IntegratorType>
+    template<typename IntegratorType, typename EventType>
     struct PathTracer {
         IntegratorType *getPointer() {
             return static_cast<IntegratorType *>(this);
         }
 
-        Spectrum sample(ScatteringEvent &event) {
-            return getPointer()->sampleEvent(event);
+        Spectrum sample(EventType &event) {
+            return getPointer()->sampleImpl(event);
         }
 
-        Float pdf(ScatteringEvent &event) {
-            return getPointer()->pdfEvent(event);
+        Float pdf(EventType &event) {
+            return getPointer()->pdfImpl(event);
         }
 
-        Spectrum estimateDirect(Scene &scene, RenderContext &ctx, const ScatteringEvent &event) {
-            return getPointer()->nextEventEstimation(scene, ctx, event);
+        /* The function has an ugly interface.
+         * When we are doing MIS, bsdf is also sampled. If the sampled ray doesn't hit a light source,
+         * we can use that information and skip next ray intersection
+         * */
+        Spectrum estimateDirect(Scene &scene,
+                                RenderContext &ctx,
+                                const EventType &event,
+                                Spectrum &sampledF,
+                                EventType *sampledEvent,
+                                Intersection *intersection,
+                                bool *sampleValid) {
+            return getPointer()->nextEventEstimation(scene, ctx, event,
+                                                     sampledF, sampledEvent, intersection,
+                                                     sampleValid);
         }
 
         Spectrum sampleOneLightMIS(Scene &scene,
                                    const std::vector<std::shared_ptr<Light>> &lights,
                                    const Distribution1D &lightDist,
-                                   RenderContext &ctx, const ScatteringEvent &event) {
-            Spectrum Ld(0, 0, 0);
+                                   RenderContext &ctx, const EventType &event,
+                                   Spectrum &sampledF,
+                                   EventType *sampledEvent,
+                                   Intersection *intersection,
+                                   bool *sampleValid) {
+            Spectrum Ld(0);
             Float pdfLightChoice;
             Point2f lightSample = ctx.sampler->get2D();
             Point2f bsdfSample = ctx.sampler->get2D();
@@ -43,7 +59,7 @@ namespace Miyuki {
                 return {};
             }
             auto bsdf = event.bsdf;
-            ScatteringEvent scatteringEvent = event;
+            EventType scatteringEvent = event;
             // sample light source
             {
                 Vec3f wi;
@@ -74,19 +90,29 @@ namespace Miyuki {
                 bool sampledSpecular = scatteringEvent.bsdfLobe.matchFlag(BSDFLobe::specular);
                 if (!f.isBlack() && scatteringPdf > 0 && !sampledSpecular) {
                     Ray ray = scatteringEvent.spawnRay(wi);
-                    Intersection isct;
-                    if (scene.intersect(ray, &isct) && isct.primitive->light()) {
-                        light = isct.primitive->light();
-                        Float lightPdf = light->pdfLi(*event.getIntersection(), wi) * scene.pdfLightChoice(light);
-                        auto Li = isct.Le(-1 * wi);
-                        if (lightPdf > 0) {
-                            Float weight = PowerHeuristics(scatteringPdf, lightPdf);
-                            Ld += f * Li * weight / scatteringPdf;
+                    Intersection &isct = *intersection;
+                    if (scene.intersect(ray, &isct)) {
+                        if (isct.primitive->light()) {
+                            light = isct.primitive->light();
+                            Float lightPdf = light->pdfLi(*event.getIntersection(), wi) * scene.pdfLightChoice(light);
+                            auto Li = isct.Le(-1 * wi);
+                            if (lightPdf > 0) {
+                                Float weight = PowerHeuristics(scatteringPdf, lightPdf);
+                                Ld += f * Li * weight / scatteringPdf;
+                            }
+                        } else {
+                            *sampledEvent = scatteringEvent;
+                            *sampleValid = true;
+                            sampledF = f;
                         }
                     }
                 }
             }
             return Ld;
+        }
+
+        void makeScatteringEvent(EventType *event, RenderContext &ctx, Intersection *intersection) {
+            getPointer()->makeScatteringEventImpl(event, ctx, intersection);
         }
 
         Spectrum Li(Scene &scene,
@@ -95,26 +121,40 @@ namespace Miyuki {
                     int minDepth,
                     int maxDepth) {
             int depth = 0;
-            ScatteringEvent event;
+            EventType event;
             Intersection intersection;
+            Intersection tempIsct;
             Spectrum Li(0), beta(1);
             bool specular = false;
+            bool valid = false;
             while (true) {
-                if (!scene.intersect(ray, &intersection)) {
+                if (valid) {
+                    intersection = tempIsct;
+                } else if (!scene.intersect(ray, &intersection)) {
                     Li += beta * scene.infiniteAreaLight->L(ray);
                     break;
                 }
-                Integrator::makeScatteringEvent(&event, ctx, &intersection, TransportMode::radiance);
+
+                makeScatteringEvent(&event, ctx, &intersection);
                 if (specular || depth == 0) {
                     Li += event.Le(-1 * ray.d) * beta;
                 }
                 if (++depth >= maxDepth) {
                     break;
                 }
+                ScatteringEvent temp;
+                valid = false;
+                Spectrum sampledF;
 
-                Li += beta * estimateDirect(scene, ctx, event);
+                Li += beta * estimateDirect(scene, ctx, event, sampledF, &temp, &tempIsct, &valid);
 
-                auto f = sample(event);
+                Spectrum f;
+                if (!valid) {
+                    f = sample(event);
+                } else {
+                    event = temp;
+                    f = sampledF;
+                }
                 if (event.pdf <= 0 || f.isBlack()) {
                     break;
                 }

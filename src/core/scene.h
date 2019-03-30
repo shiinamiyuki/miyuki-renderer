@@ -41,6 +41,8 @@ namespace Miyuki {
 
     class ERPT;
 
+    class GuidedPath;
+
     class Scene {
         std::unique_ptr<EmbreeScene> embreeScene;
         std::vector<std::shared_ptr<Mesh>> instances;
@@ -72,6 +74,8 @@ namespace Miyuki {
 
         friend class PSSMLT;
 
+        friend class GuidedPath;
+
         void computeLightDistribution();
 
         Json::JsonObject description;
@@ -81,6 +85,10 @@ namespace Miyuki {
         std::vector<std::shared_ptr<Mesh>> &allInstances() {
             return instances;
         }
+
+        std::vector<std::shared_ptr<Light>> &getLights() { return lights; }
+
+        const Distribution1D &getLightDistribution() const { return *lightDistribution; }
 
         Scene();
 
