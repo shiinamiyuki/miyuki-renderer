@@ -11,7 +11,7 @@
           |___/
 ```
 
-Goal: a high performance pbrt-style renderer. 
+Goal: a high performance pbrt-style renderer with low hardware requirements but renders great images quickly (sounds like the ultimate goal for computer graphics though :D)
 
 ## Features (WIP)
 ### Ray tracing kernels:
@@ -24,8 +24,12 @@ BDPT: Boring pbrt-style implementation.</br>
 
 Multiplexed MLT: We implemented some of the optimizations suggested by Eric Veach, Hachisuka and other open source MLT implementations like LuxCoreRender. More optimizations needed.
 
-Path Space MLT: Working on it.
-All of these algorithms share the same code base, makes it easier to maintain the code.
+~~Path Space MLT: Working on it.~~
+
+Path Guiding: Based on https://github.com/Tom94/practical-path-guiding.
+
+~~All of these algorithms share the same code base, makes it easier to maintain the code.~~ Path tracing is handled through an
+optimized generic interface.
 
 ### Miscellaneous 
 We'll have possibly a denoiser and unlikely a blender plugin.
