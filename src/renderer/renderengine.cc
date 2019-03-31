@@ -151,7 +151,7 @@ namespace Miyuki {
         if (pixelData.size() < width * height * 4) {
             pixelData.resize(width * height * 4);
         }
-        const Vec3f lightDir = Vec3f(0.1, 1, 0.1).normalized();
+        const Vec3f lightPos = scene.camera->translation();
         Seed seed(rand());
         Thread::ParallelFor(0u, width, [&](uint32_t i, uint32_t threadId) {
             for (int j = 0; j < height; j++) {
@@ -164,6 +164,7 @@ namespace Miyuki {
                 if (scene.intersect(ctx.primary, &intersection)) {
                     Integrator::makeScatteringEvent(&event, ctx, &intersection, TransportMode::radiance);
                     auto albedo = intersection.primitive->material()->albedo(event);
+                    auto lightDir = (lightPos - intersection.ref).normalized();
                     auto lighting = std::max(0.2f, Vec3f::dot(lightDir, intersection.Ns));
                     out *= albedo * lighting;
                 }

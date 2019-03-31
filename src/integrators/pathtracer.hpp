@@ -83,9 +83,9 @@ namespace Miyuki {
             // sample bsdf
             {
                 scatteringEvent.u = bsdfSample;
-                Spectrum f = sample(scatteringEvent);
+                Spectrum f0 = sample(scatteringEvent);
                 const auto wi = scatteringEvent.wiW;
-                f *= Vec3f::absDot(scatteringEvent.Ns(), wi);
+                Spectrum f = f0 * Vec3f::absDot(scatteringEvent.Ns(), wi);
                 Float scatteringPdf = scatteringEvent.pdf;
                 bool sampledSpecular = scatteringEvent.bsdfLobe.matchFlag(BSDFLobe::specular);
                 if (!f.isBlack() && scatteringPdf > 0 && !sampledSpecular) {
@@ -103,7 +103,7 @@ namespace Miyuki {
                         } else {
                             *sampledEvent = scatteringEvent;
                             *sampleValid = true;
-                            sampledF = f;
+                            sampledF = f0;
                         }
                     }
                 }
