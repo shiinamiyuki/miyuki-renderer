@@ -13,6 +13,12 @@
 
 Goal: a high performance pbrt-style renderer with low hardware requirements but renders great images quickly (sounds like the ultimate goal for computer graphics though :D)
 
+## Recent TODOs:
+1. Ray differentials
+2. Image Based lighting
+3. Path Guiding
+4. Anisotropic beckmann/ggx
+
 ## Features (WIP)
 ### Ray tracing kernels:
  Embree and custom SAH BVH.
