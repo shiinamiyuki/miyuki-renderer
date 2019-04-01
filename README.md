@@ -52,7 +52,7 @@ CMake everything.
 ![](gallery/editor.png)
 
 ### Random test images
-Rendered with MMLT.
+![](gallery/mc.png)
 
 ![](gallery/fireplace_room_mlt.png)
 
