@@ -5,8 +5,8 @@
 #include "editor.h"
 #include <math/func.h>
 #include <integrators/volpath/volpath.h>
-#include <integrators/mmlt/mmlt.h>
-#include <integrators/bdpt/bdpt.h>
+//#include <integrators/mmlt/mmlt.h>
+//#include <integrators/bdpt/bdpt.h>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -48,11 +48,12 @@ Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
     Assert(renderEngine.integrator);
     if (typeid(*renderEngine.integrator) == typeid(VolPath)) {
         selectedIntegrator = _VOLPATH;
-    } else if (typeid(*renderEngine.integrator) == typeid(MultiplexedMLT)) {
-        selectedIntegrator = _MMLT;
-    } else if (typeid(*renderEngine.integrator) == typeid(BDPT)) {
-        selectedIntegrator = _BDPT;
     }
+//    else if (typeid(*renderEngine.integrator) == typeid(MultiplexedMLT)) {
+//        selectedIntegrator = _MMLT;
+//    } else if (typeid(*renderEngine.integrator) == typeid(BDPT)) {
+//        selectedIntegrator = _BDPT;
+//    }
 
 
     Log::SetLogLevel(Log::silent);
@@ -127,8 +128,9 @@ bool InputString(const char *prompt, std::string &s) {
 
 static const char *integratorName[] = {
         "Volumetric Path Tracer",
-        "Bidirectional Path Tracer",
-        "Multiplexed Metropolis Light Transport"
+        "Guided Path Tracer",
+//        "Bidirectional Path Tracer",
+//        "Multiplexed Metropolis Light Transport"
 };
 
 
@@ -140,7 +142,7 @@ void Editor::integratorWindow() {
     }
     bool modified = false;
     if (ImGui::TreeNode("Integrator")) {
-        for (int n = 0; n < 3; n++) {
+        for (int n = 0; n < 2; n++) {
             if (ImGui::Selectable(integratorName[n], selectedIntegrator == n)) {
                 selectedIntegrator = n;
                 modified = true;
@@ -166,6 +168,7 @@ void Editor::integratorWindow() {
                 renderEngine.description["integrator"]["maxDepth"] = IO::serialize(maxDepth);
                 modified = true;
             }
+            
             if (selectedIntegrator == _MMLT) {
                 Float nChains, nDirect;
                 nChains = IO::deserialize<Float>(renderEngine.description["integrator"]["nChains"]);
@@ -231,7 +234,7 @@ bool InputTransform(const char *prompt, Transform *transform) {
             Log::log(Log::error, "scale must be greater than 0\n");
             return false;
         }
-        rotation = DegressToRadians(rotation);
+        rotation = DegreesToRadians(rotation);
         *transform = Transform(translation, rotation, scale);
         return true;
     }
@@ -434,11 +437,30 @@ void Editor::treeNodeFile() {
 
 }
 
+void Editor::treeNodeScene() {
+    if (ImGui::TreeNode("Scene")) {
+        Spectrum ambientLight = IO::deserialize<Spectrum>(renderEngine.description["integrator"]["ambientLight"]);
+        bool modified = false;
+        if (InputSpectrum("Ambient Light", &ambientLight)) {
+            renderEngine.description["integrator"]["ambientLight"] = IO::serialize<Spectrum>(ambientLight);
+            modified = true;
+        }
+        if (InputString("Environment Mapping", renderEngine.description["integrator"]["envMap"].getString())) {
+            modified = true;
+        }
+        if (modified) {
+            renderEngine.loadIntegrator();
+            rerender = true;
+        }
+        ImGui::TreePop();
+    }
+}
 
 void Editor::mainEditorWindow() {
     ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Editor Menu", nullptr, 0)) {
+        treeNodeScene();
         treeNodeCameras();
         treeNodeObject();
         treeNodeShapes();
@@ -644,6 +666,7 @@ void Editor::stopRenderThread() {
     renderThread->join();
     renderEngine.integrator = nullptr;
 }
+
 
 static inline bool containsCaseInsensitive(const std::string &s, const std::string &p) {
     auto it = std::search(

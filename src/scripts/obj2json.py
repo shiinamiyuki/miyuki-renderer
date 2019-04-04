@@ -103,7 +103,7 @@ def load_obj(mesh_name, filename, out_file) -> Tuple[List[str], Dict[str, str], 
     shapes = set()
     shape_mat = dict()
     materials = dict()
-    print('load obj file ' + filename + 'as ' + mesh_name)
+    print('load obj file ' + filename + ' as ' + mesh_name)
     with open(filename, 'r') as f:
         lines = f.readlines()
         part = 0
@@ -151,16 +151,17 @@ def add_obj_to_scene(obj_file, scene_file):
     mesh_count = len(scene['objects'])
     mesh_name = 'mesh' + str(mesh_count) + '.obj'
     shapes, shape_mat, materials = load_obj(mesh_name, obj_file, mesh_name)
+    mesh_mat_name = 'mesh' + str(mesh_count)
     scene['objects'].append({
         "file": mesh_name,
-        "name": 'mesh' + str(mesh_count),
+        "name": mesh_mat_name,
         "transform": {
             "rotation": [0, 0, 0],
             "translation": [0, 0, 0],
             "scale": 1
         }
     })
-    scene['shapes'] = {**scene['shapes'], **shape_mat}
+    scene['shapes'][mesh_mat_name] = {**scene['shapes'], **shape_mat}
     scene['materials'] = {**scene['materials'], **materials}
     f = open(scene_file, 'w')
     json.dump(scene, f)
@@ -170,4 +171,4 @@ def add_obj_to_scene(obj_file, scene_file):
 #     action = sys.argv[1]
 #     src = sys.argv[2]
 #     dst = sys.argv[3]
-add_obj_to_scene('data/test-scenes/fireplace_room/fireplace_room.obj', 'data/test-scenes/fireplace_room/scene.json')
+add_obj_to_scene('data/test-scenes/texture/text.obj', 'data/test-scenes/texture/scene.json')

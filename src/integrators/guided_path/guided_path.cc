@@ -758,84 +758,89 @@ namespace Miyuki {
 
     };
 
-//    class GuidedScatteringEvent : public ScatteringEvent {
-//    public:
-//        DTreeWrapper *dTree = nullptr;
-//
-//        GuidedScatteringEvent() : ScatteringEvent() {}
-//
-//        GuidedScatteringEvent(Sampler *sampler,
-//                              Intersection *intersection,
-//                              BSDF *bsdf, TransportMode mode)
-//                : ScatteringEvent(sampler, intersection, bsdf, mode) {}
-//    };
-//
-//
-//    struct GuidedPathTracer : PathTracer<GuidedPathTracer, GuidedScatteringEvent> {
-//        Float bsdfSamplingFraction;
-//        std::unique_ptr<STree> sdTree;
-//        int minDepth, maxDepth;
-//
-//        void makeScatteringEventImpl(GuidedScatteringEvent *event, RenderContext &ctx, Intersection *intersection) {
-//            Integrator::makeScatteringEvent(event, ctx, intersection, TransportMode::radiance);
-//            event->dTree = sdTree->dTreeWrapper(fromVec3f(event->getIntersection()->ref));
-//        }
-//
-//        Float pdfImpl(GuidedScatteringEvent &event) {
-//            auto bsdf = event.bsdf;
-//            const auto dTree = event.dTree;
-//            if (!bsdf)return 0.0f;
-//            if ((bsdf->getLobe() & BSDFLobe::specular) == (BSDFLobe::all & BSDFLobe::specular)) {
-//                return bsdf->pdf(event);
-//            }
-//            auto pdf = bsdf->pdf(event);
-//            if (pdf == 0 || !std::isfinite(pdf)) {
-//                return 0.0f;
-//            }
-//            return bsdfSamplingFraction * pdf
-//                   + (1 - bsdfSamplingFraction) * dTree->samplePdf(event.wiW);
-//        }
-//
-//        Spectrum sampleImpl(GuidedScatteringEvent &event) {
-//            auto bsdf = event.bsdf;
-//            const auto dTree = event.dTree;
-//            if (!bsdf)return {};
-//            if (bsdf->numComponents(BSDFLobe::specular) == bsdf->numComponents(BSDFLobe::all)) {
-//                return bsdf->sample(event);
-//            }
-//            auto &sample = event.u;
-//            Spectrum f;
-//            if (sample.x() < bsdfSamplingFraction) {
-//                sample.x() /= bsdfSamplingFraction;
-//                f = bsdf->sample(event);
-//                // delta, no guiding
-//                if (event.bsdfLobe & BSDFLobe::specular) {
-//                    event.pdf *= bsdfSamplingFraction;
-//                    return f / bsdfSamplingFraction;
-//                }
-//            } else {
-//                sample.x() = (sample.x() - bsdfSamplingFraction) / (1 - bsdfSamplingFraction);
-//                auto wi = dTree->sampleDirection(sample);
-//                event.wiW = wi;
-//                event.wi = event.worldToLocal(wi);
-//                f = bsdf->f(event);
-//            }
-//            event.pdf = pdfImpl(event);
-//            CHECK(event.pdf >= 0);
-//            if (event.pdf == 0) {
-//                return {};
-//            }
-//            return f;
-//        }
-//
-//        Spectrum nextEventEstimation(Scene &scene, RenderContext &ctx, const GuidedScatteringEvent &event) {
-//            const auto &lights = scene.getLights();
-//            if (lights.empty())
-//                return {};
-//            auto &lightDistribution = scene.getLightDistribution();
-//            return sampleOneLightMIS(scene, lights, lightDistribution, ctx, event);
-//        }
-//    };
+    class GuidedScatteringEvent : public ScatteringEvent {
+    public:
+        DTreeWrapper *dTree = nullptr;
+
+        GuidedScatteringEvent() : ScatteringEvent() {}
+
+        GuidedScatteringEvent(Sampler *sampler,
+                              Intersection *intersection,
+                              BSDF *bsdf, TransportMode mode)
+                : ScatteringEvent(sampler, intersection, bsdf, mode) {}
+    };
+
+
+    struct GuidedPathTracer : PathTracer<GuidedPathTracer, GuidedScatteringEvent> {
+        Float bsdfSamplingFraction;
+        std::unique_ptr<STree> sdTree;
+        int minDepth, maxDepth;
+
+        void makeScatteringEventImpl(GuidedScatteringEvent *event, RenderContext &ctx, Intersection *intersection) {
+            Integrator::makeScatteringEvent(event, ctx, intersection, TransportMode::radiance);
+            event->dTree = sdTree->dTreeWrapper(fromVec3f(event->getIntersection()->p));
+        }
+
+        Float pdfImpl(GuidedScatteringEvent &event) {
+            auto bsdf = event.bsdf;
+            const auto dTree = event.dTree;
+            if (!bsdf)return 0.0f;
+            if ((bsdf->getLobe() & BSDFLobe::specular) == (BSDFLobe::all & BSDFLobe::specular)) {
+                return bsdf->pdf(event);
+            }
+            auto pdf = bsdf->pdf(event);
+            if (pdf == 0 || !std::isfinite(pdf)) {
+                return 0.0f;
+            }
+            return bsdfSamplingFraction * pdf
+                   + (1 - bsdfSamplingFraction) * dTree->samplePdf(event.wiW);
+        }
+
+        Spectrum sampleImpl(GuidedScatteringEvent &event) {
+            auto bsdf = event.bsdf;
+            const auto dTree = event.dTree;
+            if (!bsdf)return {};
+            if (bsdf->numComponents(BSDFLobe::specular) == bsdf->numComponents(BSDFLobe::all)) {
+                return bsdf->sample(event);
+            }
+            auto &sample = event.u;
+            Spectrum f;
+            if (sample.x() < bsdfSamplingFraction) {
+                sample.x() /= bsdfSamplingFraction;
+                f = bsdf->sample(event);
+                // delta, no guiding
+                if (event.bsdfLobe & BSDFLobe::specular) {
+                    event.pdf *= bsdfSamplingFraction;
+                    return f / bsdfSamplingFraction;
+                }
+            } else {
+                sample.x() = (sample.x() - bsdfSamplingFraction) / (1 - bsdfSamplingFraction);
+                auto wi = dTree->sampleDirection(sample);
+                event.wiW = wi;
+                event.wi = event.worldToLocal(wi);
+                f = bsdf->f(event);
+            }
+            event.pdf = pdfImpl(event);
+            CHECK(event.pdf >= 0);
+            if (event.pdf == 0) {
+                return {};
+            }
+            return f;
+        }
+
+        Spectrum nextEventEstimation(Scene &scene, RenderContext &ctx, const GuidedScatteringEvent &event,
+                                     Spectrum &sampledF,
+                                     GuidedScatteringEvent *sampledEvent,
+                                     Intersection *intersection,
+                                     bool *sampleValid) {
+            const auto &lights = scene.getLights();
+            if (lights.empty())
+                return {};
+            const auto &lightDistribution = scene.getLightDistribution();
+            return sampleOneLightMIS(scene, lights, lightDistribution,
+                                     ctx, event, sampledF, sampledEvent, intersection, sampleValid);
+        }
+    };
 
     Spectrum GuidedPath::Li(RenderContext &ctx, Scene &scene) {
         return Miyuki::Spectrum();

@@ -1282,6 +1282,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 
       // names[0] must be 'g', so skip the 0th element.
       if (names.size() > 1) {
+        assert(names[0] == "g");
         name = names[1];
       } else {
         name = "";
@@ -1582,7 +1583,9 @@ bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
       assert(names.size() > 0);
 
       // names[0] must be 'g', so skip the 0th element.
+
       if (names.size() > 1) {
+        assert(names[0] == "g");
         name = names[1];
       } else {
         name.clear();

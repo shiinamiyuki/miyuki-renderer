@@ -51,6 +51,7 @@ namespace Miyuki {
 
             void save(const std::string &filename);
         };
+        void LoadHDR(const std::string &filename, Image &);
     }
 }
 #endif //MIYUKI_IMAGE_H

@@ -175,7 +175,7 @@ namespace Miyuki {
             v.light = event->getIntersection()->primitive->light();
             v.Ns = event->Ns();
             v.Ng = event->Ng();
-            v.ref = event->getIntersection()->ref;
+            v.ref = event->getIntersection()->p;
             v.pdfFwd = prev.convertDensity(pdf, v);
             return std::move(v);
         }

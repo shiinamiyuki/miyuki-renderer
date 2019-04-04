@@ -22,10 +22,6 @@ namespace Miyuki {
         return R / Vec3f::absDot(event.wiW, event.Ns());
     }
 
-    Point2f SpecularReflection::invert(const Vec3f &wo, const Vec3f &wi) const {
-        return Miyuki::Point2f();
-    }
-
     Spectrum SpecularTransmission::sample(ScatteringEvent &event) const {
         bool entering = CosTheta(event.wo) > 0;
         Float etaI = entering ? etaA : etaB;
@@ -54,9 +50,5 @@ namespace Miyuki {
             event.bsdfLobe = BSDFLobe::reflection | BSDFLobe::specular;
             return reflective * R / AbsCosTheta(event.wi);
         }
-    }
-
-    Point2f SpecularTransmission::invert(const Vec3f &wo, const Vec3f &wi) const {
-        return Miyuki::Point2f();
     }
 }

@@ -13,6 +13,7 @@ namespace Miyuki {
         Float p2 = pdf2 * pdf2;
         return p1 / (p1 + p2);
     }
+
     inline Float ErfInv(Float x) {
         Float w, p;
         x = clamp(x, -.99999f, .99999f);
@@ -65,13 +66,24 @@ namespace Miyuki {
 
         return sign * y;
     }
+
     template<typename T>
-    inline T RadiansToDegrees(const T & x){
+    inline T RadiansToDegrees(const T &x) {
         return x * INVPI * 180.0;
     }
+
     template<typename T>
-    inline T DegressToRadians(const T & x){
+    inline T DegreesToRadians(const T &x) {
         return x / 180.0 * PI;
+    }
+
+    inline bool SolveLinearSystem2x2(const Float A[2][2], const Float B[2], Float *x1, Float *x2) {
+        Float det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+        if (std::abs(det) < 1e-10f)
+            return false;
+        *x1 = (A[1][1] * B[0] - A[0][1] * B[1]) / det;
+        *x2 = (A[0][0] * B[1] - A[1][0] * B[0]) / det;
+        return !(std::isnan(*x1) || std::isnan(*x2));
     }
 }
 #endif //MIYUKI_FUNC_H

@@ -10,6 +10,7 @@
 #include <integrators/bdpt/bdpt.h>
 #include <utils/stats.hpp>
 #include <core/progress.h>
+#include <integrators/direct.hpp>
 
 namespace Miyuki {
     inline double AverageMutationPerPixel(int64_t nPixels, int64_t nChains, int64_t nIterations) {

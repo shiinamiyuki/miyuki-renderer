@@ -8,8 +8,12 @@
 #include "geometry.h"
 #include "spectrum.h"
 #include "utils/atomicfloat.h"
+#include <filters/filter.h>
 
 namespace Miyuki {
+    static constexpr int TileSize = 64;
+    static constexpr int FilterTableWidth = 16;
+
     struct Pixel {
         Spectrum value;
         Float filterWeightSum;
@@ -25,14 +29,29 @@ namespace Miyuki {
         void add(const Spectrum &c, const Float &w);
     };
 
+    struct TilePixel {
+        Spectrum value;
+        Float filterWeightSum = 0;
+    };
+
+    class FilmTile {
+        std::vector<TilePixel> pixels;
+        Bound2i pixelBounds;
+        const Float *filterTable = nullptr;
+    public:
+        FilmTile(const Bound2i &bound2i);
+
+        void addSample(const Point2i &raster, const Spectrum &sample, Float weight = 1);
+    };
+
     class Film {
     public:
-
         std::vector<Pixel> image;
-
+        std::unique_ptr<Filter> filter;
     private:
+        Float filterTable[FilterTableWidth * FilterTableWidth];
         Bound2i imageBound;
-
+        std::mutex lock;
     public:
 
         const Point2i &imageDimension() const { return imageBound.pMax; }
@@ -55,14 +74,19 @@ namespace Miyuki {
             getPixel(pos).splatXYZ[2].add(c[2]);
         }
 
-        Float & splatWeight(const Point2i &pos){
+        Float &splatWeight(const Point2i &pos) {
             return getPixel(pos).splatWeight;
         }
+
         Film(int w = 0, int h = 0);
 
         void writePNG(const std::string &filename);
 
         void clear();
+
+        void mergeFilmTile(const FilmTile &);
+
+        std::unique_ptr<FilmTile> getFilmTile(const Bound2i &bounds);
     };
 }
 #endif //MIYUKI_FILM_H

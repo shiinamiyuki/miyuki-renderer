@@ -13,8 +13,6 @@ namespace Miyuki {
     public:
         LambertianReflection(const Spectrum &R) : R(R), BxDF(BSDFLobe::diffuse | BSDFLobe::reflection) {}
 
-        Point2f invert(const Vec3f &wo, const Vec3f &wi) const override;
-
         Spectrum f(const ScatteringEvent &event) const override;
     };
 }

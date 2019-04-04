@@ -149,8 +149,8 @@ namespace Miyuki {
                 } else if (isString()) {
                     out << "\"";
                     for (auto i:asString) {
-                        if (i == '\'') {
-                            out << R"(\')";
+                        if (i == '\"') {
+                            out << R"(\")";
                         } else {
                             out << i;
                         }
@@ -263,6 +263,7 @@ namespace Miyuki {
                 auto iter = t.find(key);
                 if (t.end() == iter) {
                     std::cerr << "Cannot find key " << key << std::endl;
+                    throw std::runtime_error("Key error");
                 }
                 return iter->second;
             }
@@ -288,6 +289,7 @@ namespace Miyuki {
                 auto iter = t.find(key);
                 if (t.end() == iter) {
                     std::cerr << "Cannot find key " << key << std::endl;
+                    throw std::runtime_error("Key error");
                 }
                 return iter->second;
             }
@@ -361,6 +363,20 @@ namespace Miyuki {
                     }
                 }
                 x *= sign;
+                if(cur() == 'e'){
+                    advance();
+                    if(cur() == '-'){
+                        sign = -1;
+                        advance();
+                    } else
+                        sign = 1;
+                    int p = 0;
+                    while (isdigit(cur())) {
+                        p = 10 * p + cur() - '0';
+                        advance();
+                    }
+                    x = x * std::pow(10.0, sign * p);
+                }
                 if ((int) x == x) {
                     return JsonObject(int(x));
                 }
@@ -479,8 +495,17 @@ namespace Miyuki {
 
             JsonObject parseToplevel() {
                 skipSpace();
-                if (cur() == '{')
-                    return parseObject();
+                if (cur() == '{') {
+                    try {
+                        return parseObject();
+                    } catch (Json::BadElementType &e) {
+                        fmt::print(stderr, "Parser Internal Error when processing {}:{}\n", line, col);
+                        std::cerr << e.what() << std::endl;
+                    } catch (Json::ParserError &e) {
+                        fmt::print(stderr, "Parser Internal Error when processing {}:{}\n", line, col);
+                        std::cerr << e.what() << std::endl;
+                    }
+                }
                 throw ParserError(fmt::format("'{{' expected at {}:{}", line, col));
             }
         };

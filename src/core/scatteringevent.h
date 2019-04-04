@@ -33,6 +33,8 @@ namespace Miyuki {
         BSDFLobe bsdfLobe;
         TransportMode mode;
 
+        mutable Vec3f dpdx,dpdy;
+        mutable Float dudx = 0, dudy = 0, dvdx = 0,dvdy = 0;
         ScatteringEvent() : bsdf(nullptr), intersection(nullptr) {}
 
         ScatteringEvent(Sampler *, Intersection *, BSDF *, TransportMode mode);
@@ -59,7 +61,7 @@ namespace Miyuki {
         }
 
         Ray spawnRay(const Vec3f &wi) const {
-            Ray ray(intersection->ref, wi);
+            Ray ray(intersection->p, wi);
             ray.excludeGeomId = getIntersection()->geomId;
             ray.excludePrimId = getIntersection()->primId;
             return ray;
@@ -74,6 +76,8 @@ namespace Miyuki {
         }
 
         const Point2f textureUV() const;
+
+        void computeRayDifferentials(const RayDifferential &);
     };
 }
 #endif //MIYUKI_SCATTERINGEVENT_H

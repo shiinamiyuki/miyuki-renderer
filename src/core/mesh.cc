@@ -76,11 +76,12 @@ namespace Miyuki {
                             tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
                             tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
                             primitive.textureCoord[v] = Point2f(tx, ty);
+                        } else {
+                            primitive.textureCoord[v] = Point2f(v > 0, v > 1);
                         }
                     }
                     auto Ng = Vec3f::cross(vertices[primitive.vertices[1]] - vertices[primitive.vertices[0]],
                                            vertices[primitive.vertices[2]] - vertices[primitive.vertices[0]]);
-                    primitive.area = Ng.length() / 2;
                     Ng.normalize();
                     if (!useNorm) {
                         normals.emplace_back(Ng);
@@ -112,7 +113,6 @@ namespace Miyuki {
         }
         for (auto &p:mesh->primitives) {
             p.instance = mesh.get();
-            p.area *= pow(transform.scale, 2);
         }
         return mesh;
     }
@@ -132,10 +132,6 @@ namespace Miyuki {
         for (auto &i:normals) {
             i = transform.applyRotation(i, true);
             i = T.applyRotation(i).normalized();
-        }
-        for (auto &p: primitives) {
-            p.area /= pow(transform.scale, 2);
-            p.area *= pow(T.scale, 2);
         }
         transform = T;
 
@@ -205,7 +201,7 @@ namespace Miyuki {
         if (t > eps) // ray intersection
         {
             isct->rayHit.ray.tfar = t;
-            isct->ref = ray.o + t * ray.d;
+            isct->p = ray.o + t * ray.d;
             isct->Ng = Ng();
             return true;
         } else

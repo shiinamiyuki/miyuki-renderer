@@ -34,9 +34,4 @@ namespace Miyuki {
         event.pdf = pdf(event);
         return f(event);
     }
-
-    Point2f MicrofacetReflection::invert(const Vec3f &wo, const Vec3f &wi) const {
-        throw NotImplemented();
-        return Miyuki::Point2f();
-    }
 }

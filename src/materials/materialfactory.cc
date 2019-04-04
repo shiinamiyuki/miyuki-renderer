@@ -13,9 +13,19 @@ namespace Miyuki {
 
     void MaterialFactory::applyMaterial(Json::JsonObject shapes, Json::JsonObject mtl, Mesh &mesh) {
         mesh.materials.clear();
-        for (const auto &name:mesh.names) {
-            const auto &mtlName = shapes[name].getString();
-            mesh.materials.emplace_back(createMaterial(mtlName, mtl[mtlName]));
+        try {
+            for (const auto &name:mesh.names) {
+
+                const auto &mtlName = shapes.get(name).getString();
+                mesh.materials.emplace_back(createMaterial(mtlName, mtl[mtlName]));
+            }
+        } catch (std::runtime_error &e) {
+            std::cerr << e.what() << std::endl;
+            std::cerr << shapes.toString() << std::endl;
+            for(auto &name:mesh.names){
+                std::cerr <<name << std::endl;
+            }
+            std::exit(-1);
         }
     }
 

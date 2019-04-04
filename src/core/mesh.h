@@ -27,7 +27,9 @@ namespace Miyuki {
 
         Mesh *instance;
         uint16_t nameId;
-        Float area;
+        Float area()const{
+            return Vec3f::cross((v(1) - v(0)), v(2) - v(0)).length() / 2;
+        }
 
         Primitive();
 

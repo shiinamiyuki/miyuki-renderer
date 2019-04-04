@@ -12,6 +12,22 @@
 #include "utils/thread.h"
 
 namespace Miyuki {
+    void HilbertMapping(const Point2i &nTiles, std::vector<Point2f> &hilbertMapping) {
+        int M = std::ceil(std::log2(std::max(nTiles.x(), nTiles.y())));
+
+        for (int i = 0; i < pow(2, M + M); i++) {
+            int tx, ty;
+            ::d2xy(M, i, tx, ty);
+            if (tx >= nTiles.x() || ty >= nTiles.y())
+                continue;
+            hilbertMapping.emplace_back(tx, ty);
+        }
+        uint32_t mid = (hilbertMapping.size() / 2);
+        for (int i = 0; i < mid / 2; i++) {
+            std::swap(hilbertMapping[i], hilbertMapping[mid - i - 1]);
+        }
+    }
+
     Spectrum Integrator::importanceSampleOneLight(Scene &scene, RenderContext &ctx, const ScatteringEvent &event) {
         Spectrum Ld(0, 0, 0);
         Float pdfLightChoice;
@@ -85,28 +101,25 @@ namespace Miyuki {
 
         ProgressReporter<uint32_t> reporter(hilbertMapping.size(), [&](uint32_t cur, uint32_t total) {
             if (spp > 16) {
-                if (cur % 16 == 0) {
-                    std::lock_guard<std::mutex> lockGuard(mutex);
-                    if (reporter.count() % 16 == 0) {
-                        fmt::print("Rendered tiles: {}/{} Elapsed:{} Remaining:{}\n",
-                                   cur,
-                                   total, reporter.elapsedSeconds(), reporter.estimatedTimeToFinish());
-                        scene.update();
-                    }
-                }
+
+                fmt::print("Rendered tiles: {}/{} Elapsed:{} Remaining:{}\n",
+                           cur,
+                           total, reporter.elapsedSeconds(), reporter.estimatedTimeToFinish());
+                std::unique_lock<std::mutex> lockGuard(mutex, std::try_to_lock);
+                if (lockGuard.owns_lock())
+                    scene.update();
             }
         });
         std::vector<Seed> seeds(Thread::pool->numThreads());
         {
             std::random_device rd;
-            std::uniform_int_distribution<Seed> dist;
+            std::uniform_int_distribution<Seed> dist(1, UINT64_MAX);
             for (auto &i:seeds) {
                 i = dist(rd);
             }
         }
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
         Thread::ParallelFor(0u, hilbertMapping.size(), [&](uint32_t idx, uint32_t threadId) {
-
             int tx, ty;
             tx = hilbertMapping[idx].x();
             ty = hilbertMapping[idx].y();
@@ -136,6 +149,7 @@ namespace Miyuki {
             reporter.update();
         });
         scene.update();
+
     }
 
     void SamplerIntegrator::renderProgressive(Scene &scene) {
@@ -143,6 +157,11 @@ namespace Miyuki {
             fmt::print("Rendered : {}/{}spp Elapsed:{} Remaining:{}\n",
                        cur,
                        total, reporter.elapsedSeconds(), reporter.estimatedTimeToFinish());
+            for (int i = 0; i < scene.filmDimension().x(); i++) {
+                for (int j = 0; j < scene.filmDimension().y(); j++) {
+                    scene.film->splatWeight({i, j}) = 1.0f / cur;
+                }
+            }
             scene.update();
         });
         std::vector<Seed> seeds(scene.filmDimension().x() * scene.filmDimension().y());
@@ -169,6 +188,12 @@ namespace Miyuki {
             }, 4096);
             reporter.update();
         }
+        for (int i = 0; i < scene.filmDimension().x(); i++) {
+            for (int j = 0; j < scene.filmDimension().y(); j++) {
+                scene.film->splatWeight({i, j}) = 1.0f / reporter.count();
+            }
+        }
+        scene.update();
     }
 
 }

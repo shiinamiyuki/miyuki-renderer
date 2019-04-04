@@ -3,6 +3,9 @@
 //
 
 #include "image.h"
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -14,7 +17,11 @@ namespace Miyuki {
     namespace IO {
 
         Image::Image(const std::string &filename, ImageFormat format)
-        : GenericImage<Spectrum>(), format(format), filename(filename) {
+                : GenericImage<Spectrum>(), format(format), filename(filename) {
+            if (stbi_is_hdr(filename.c_str())) {
+                LoadHDR(filename, *this);
+                return;
+            }
             int ch;
             auto data = stbi_load(filename.c_str(), &width, &height, &ch, 3);
             if (!data) {
@@ -37,6 +44,7 @@ namespace Miyuki {
                                         f(data[3 * i + 1]),
                                         f(data[3 * i + 2]));
             }, 1024);
+            free(data);
         }
 
         void Image::save(const std::string &filename) {
@@ -49,6 +57,20 @@ namespace Miyuki {
                 pixelBuffer.emplace_back(255);
             }
             lodepng::encode(filename, pixelBuffer, (uint32_t) width, (uint32_t) height);
+        }
+
+        void LoadHDR(const std::string &filename, Image &image) {
+            int ch;
+            auto data = stbi_loadf(filename.c_str(), &image.width, &image.height, &ch, 3);
+            Assert(ch == 3);
+            image.pixelData.resize(image.width * image.height);
+            Thread::ParallelFor(0u, image.width * image.height, [&](uint32_t i, uint32_t threadId) {
+                image.pixelData[i] = Spectrum(data[3 * i],
+                        data[3 * i + 1],
+                        data[3 * i + 2]);
+            }, 1024);
+            free(data);
+
         }
     }
 }

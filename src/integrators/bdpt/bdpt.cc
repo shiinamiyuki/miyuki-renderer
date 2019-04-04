@@ -175,7 +175,7 @@ namespace Miyuki {
         }
 
 
-        auto remap0 = [](Float x) -> Float { return x != 0 ? x: 1; };
+        auto remap0 = [](Float x) -> Float { return x != 0 ? x * x : 1; };
         Float sumRi = 0;
         Float ri = 1;
         for (int i = t - 1; i > 0; i--) {

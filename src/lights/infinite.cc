@@ -8,11 +8,19 @@
 namespace Miyuki {
 
     Float InfiniteAreaLight::power() const {
-        return envMap.albedo.max() * worldRadius * worldRadius * PI;
+        return envMap.evalAlbedo().max() * worldRadius * worldRadius * PI;
     }
 
-    Spectrum InfiniteAreaLight::L(const Ray& ray) const {
-        return envMap.albedo;
+    Spectrum InfiniteAreaLight::L(const Ray &ray) const {
+        if (!envMap.image)
+            return envMap.evalAlbedo();
+        Float sinTheta = ray.d.y();
+        Float phi = std::atan2(ray.d.x(), ray.d.z()) + PI;
+
+        Float theta = std::asin(sinTheta) + PI / 2;
+
+        return envMap.evalUV({phi / (2 * PI), theta / PI}) * envMap.evalAlbedo();
+
     }
 
     Spectrum InfiniteAreaLight::sampleLi(const Point2f &u, const Intersection &intersection, Vec3f *wi, Float *pdf,

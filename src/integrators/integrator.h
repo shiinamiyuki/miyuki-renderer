@@ -9,26 +9,16 @@
 #include "core/scene.h"
 #include "core/spectrum.h"
 #include "core/scatteringevent.h"
-#include <bidir/vertex.h>
 #include "thirdparty/hilbert/hilbert_curve.hpp"
 #include "rendersession.hpp"
 
 namespace Miyuki {
-    inline void HilbertMapping(const Point2i &nTiles, std::vector<Point2f> &hilbertMapping) {
-        int M = std::ceil(std::log2(std::max(nTiles.x(), nTiles.y())));
-        for (int i = 0; i < pow(2, M + M); i++) {
-            int tx, ty;
-            ::d2xy(M, i, tx, ty);
-            if (tx >= nTiles.x() || ty >= nTiles.y())
-                continue;
-            hilbertMapping.emplace_back(tx, ty);
-        }
-    }
+    void HilbertMapping(const Point2i &nTiles, std::vector<Point2f> &hilbertMapping);
 
 
     class Scene;
 
-    static const int TileSize = 16;
+   
 
     class Integrator {
     protected:
@@ -50,7 +40,7 @@ namespace Miyuki {
 
         virtual ~Integrator() {}
 
-        virtual std::unique_ptr<RenderSession> saveSession() {return nullptr;}
+        virtual std::unique_ptr<RenderSession> saveSession() { return nullptr; }
 
         virtual void loadSession(const RenderSession &) {}
     };
@@ -69,37 +59,7 @@ namespace Miyuki {
         virtual void renderProgressive(Scene &scene);
     };
 
-    class DirectLightingIntegrator : public SamplerIntegrator {
-    public:
-    protected:
-        Spectrum Li(RenderContext &ctx, Scene &scene) override {
-            using Bidir::Vertex, Bidir::SubPath;
-            auto vertices = ctx.arena->alloc<Bidir::Vertex>(size_t(1 + 1));
-            Spectrum beta(1, 1, 1);
-            vertices[0] = Bidir::CreateCameraVertex(ctx.camera, ctx.raster, ctx.primary, 1.0f, beta);
-            auto path = Bidir::RandomWalk(vertices + 1, ctx.primary, beta,
-                                          1.0f, scene, ctx, 1, 1,
-                                          TransportMode::importance);
-            Spectrum Li(0, 0, 0);
-            bool specular = false;
-            ctx.sampler->startDimension(4 + 4 * 1);
-            for (int depth = 0; depth < path.N; depth++) {
-                if (specular || depth == 0) {
-                    Vec3f wo = (path[depth - 1].ref - path[depth].ref).normalized();
-                    Li += path[depth].beta * path[depth].Le(wo);
-                }
-                Li += path[depth].beta * importanceSampleOneLight(scene, ctx, *path[depth].event);
-                specular = path[depth].delta;
-            }
-            return Li;
-        }
 
-    public:
-        DirectLightingIntegrator(int spp) {
-            this->spp = spp;
-            maxRayIntensity = 1000;
-        }
-    };
 
 }
 #endif //MIYUKI_INTEGRATOR_H

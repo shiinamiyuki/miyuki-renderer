@@ -20,6 +20,7 @@ namespace Miyuki {
         }
         fmt::print("Loading {}\n", fullPath);
         auto ptr = std::make_shared<IO::Image>(filename, format);
+        images[filename] = ptr;
         return ptr;
     }
 

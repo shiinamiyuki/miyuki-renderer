@@ -11,9 +11,5 @@ namespace Miyuki {
     Spectrum LambertianReflection::f(const ScatteringEvent &event) const {
         return R * INVPI;
     }
-
-    Point2f LambertianReflection::invert(const Vec3f &wo, const Vec3f &wi) const {
-        return InvertCosineWeightedHemisphereSampling(wi);
-    }
     
 }

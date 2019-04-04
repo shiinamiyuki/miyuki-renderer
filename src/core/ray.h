@@ -41,7 +41,12 @@ namespace Miyuki {
                 : Ray(o, d, near, far) { hasDifferential = false; }
 
         // scale differentials according to estimated spacing s
-        void scaleDifferentials(Float s);
+        void scaleDifferentials(Float s) {
+            rxOrigin = o + (rxOrigin - o) * s;
+            ryOrigin = o + (ryOrigin - o) * s;
+            rxDirection = d + (rxDirection - d) * s;
+            ryDirection = d + (ryDirection - d) * s;
+        }
 
     };
 
@@ -51,13 +56,14 @@ namespace Miyuki {
         RTCIntersectContext context;
         RTCRayHit rayHit;
         Ray ray;
-        Vec3f ref;
+        Vec3f p;
         Vec3f Ng;
         Vec3f Ns;
         Vec3f wo;
         int32_t primId = -1, geomId = -1;
         const Primitive *primitive = nullptr;
         Point2f uv;
+        Vec3f dpdu, dpdv;
         int excludePrimId = -1, excludeGeomId = -1;
         Intersection(const Ray &ray = Ray());
 

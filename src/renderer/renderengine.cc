@@ -39,7 +39,11 @@ namespace Miyuki {
             std::ifstream in(sceneFileName);
             std::string content((std::istreambuf_iterator<char>(in)),
                                 (std::istreambuf_iterator<char>()));
-            description = Json::parse(content);
+            try {
+                description = Json::parse(content);
+            } catch (Json::ParserError &e) {
+                std::cerr << e.what() << std::endl;
+            }
             readDescription();
 
         }
@@ -164,9 +168,11 @@ namespace Miyuki {
                 if (scene.intersect(ctx.primary, &intersection)) {
                     Integrator::makeScatteringEvent(&event, ctx, &intersection, TransportMode::radiance);
                     auto albedo = intersection.primitive->material()->albedo(event);
-                    auto lightDir = (lightPos - intersection.ref).normalized();
+                    auto lightDir = (lightPos - intersection.p).normalized();
                     auto lighting = std::max(0.2f, Vec3f::dot(lightDir, intersection.Ns));
                     out *= albedo * lighting;
+                } else {
+                    out = scene.infiniteAreaLight->L(ctx.primary);
                 }
                 out = out.gammaCorrection();
                 auto idx = i + width * (height - j - 1);
@@ -186,9 +192,14 @@ namespace Miyuki {
             auto &I = description["integrator"];
             if (I.hasKey("ambientLight")) {
                 parameters.addVec3f("ambientLight", IO::deserialize<Vec3f>(I["ambientLight"]));
+            } else {
+                I["ambientLight"] = IO::serialize(Spectrum(0, 0, 0));
             }
+
             if (I.hasKey("envMap")) {
                 parameters.addString("envMap", (I["envMap"]).getString());
+            } else {
+                I["envMap"] = std::string("");
             }
             I.setIfHasNotKey("maxRayIntensity", 10000);
             I.setIfHasNotKey("spp", 16);
@@ -221,19 +232,21 @@ namespace Miyuki {
                 if (type == "volpath" || type == "path") {
                     parameters.addString("integrator", "volpath");
                     integrator = std::make_unique<VolPath>(parameters);
-                } else if (type == "bdpt") {
-                    parameters.addString("integrator", "bdpt");
-                    integrator = std::make_unique<BDPT>(parameters);
-                } else if (type == "mlt" || type == "pssmlt") {
-                    parameters.addString("integrator", type);
-                    if (type == "mlt")
-                        integrator = std::make_unique<MultiplexedMLT>(parameters);
-                    else
-                        integrator = std::make_unique<PSSMLT>(parameters);
-                } else if (type == "erpt") {
-                    parameters.addString("integrator", "erpt");
-                    integrator = std::make_unique<ERPT>(parameters);
-                } else {
+                }
+//                else if (type == "bdpt") {
+//                    parameters.addString("integrator", "bdpt");
+//                    integrator = std::make_unique<BDPT>(parameters);
+//                } else if (type == "mlt" || type == "pssmlt") {
+//                    parameters.addString("integrator", type);
+//                    if (type == "mlt")
+//                        integrator = std::make_unique<MultiplexedMLT>(parameters);
+//                    else
+//                        integrator = std::make_unique<PSSMLT>(parameters);
+//                } else if (type == "erpt") {
+//                    parameters.addString("integrator", "erpt");
+//                    integrator = std::make_unique<ERPT>(parameters);
+//                }
+                else {
                     fmt::print(stderr, "Unknown integrator type `{}`\n", type);
                 }
             }
@@ -266,7 +279,7 @@ namespace Miyuki {
 
     void RenderEngine::updateMaterials() {
         for (auto i: scene.instances) {
-            scene.factory->applyMaterial(description["shapes"][i->name], description["materials"], *i);
+            scene.factory->applyMaterial(description.get("shapes").get(i->name), description.get("materials"), *i);
         }
 
     }

@@ -75,6 +75,8 @@ namespace Miyuki {
 
         void treeNodeFile();
 
+        void treeNodeScene();
+        
         void startRenderThread();
 
         void stopRenderThread();
@@ -115,7 +117,7 @@ namespace Miyuki {
                 renderEngine.renderPreview(pixelData, width, height);
             }
         }
-        
+
         void show() override;
 
         ~Editor() override {

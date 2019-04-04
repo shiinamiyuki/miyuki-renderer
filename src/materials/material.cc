@@ -6,6 +6,7 @@
 #include "bsdfs/lambertian.h"
 #include "bsdfs/specular.h"
 #include "bsdfs/microfacet.h"
+#include <bsdfs/toon.h>
 
 namespace Miyuki {
 

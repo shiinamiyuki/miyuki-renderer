@@ -64,7 +64,7 @@ namespace Miyuki {
         CHECK(meshes.find(filename) != meshes.end());
         auto mesh = meshes[filename]->instantiate(meshName, T);
         embreeScene->addMesh(mesh, instances.size());
-        factory->applyMaterial(description["shapes"][meshName], description["materials"], *mesh);
+        factory->applyMaterial(description.get("shapes").get(meshName), description["materials"], *mesh);
         instances.emplace_back(mesh);
     }
 
@@ -143,7 +143,24 @@ namespace Miyuki {
         auto p = isct->primitive;
         isct->Ns = p->Ns(isct->uv);
         isct->Ng = p->Ng();
-        isct->ref = ray.o + isct->hitDistance() * ray.d;
+        isct->p = ray.o + isct->hitDistance() * ray.d;
+
+        // compute partial derivatives
+
+        const Point2f *uv = isct->primitive->textureCoord;
+        Point2f duv02 = uv[0] - uv[2], duv12 = uv[1] - uv[2];
+        Vec3f dp02 = isct->primitive->v(0) - isct->primitive->v(2);
+        Vec3f dp12 = isct->primitive->v(1) - isct->primitive->v(2);
+
+        Float determinant = duv02[0] * duv12[1] - duv02[1] * duv12[0];
+        if (determinant == 0) {
+//            throw NotImplemented();
+        } else {
+            Float invDet = 1.0f / determinant;
+            isct->dpdu = (duv12[1] * dp02 - duv02[1] * dp12) * invDet;
+            isct->dpdv = (-duv12[0] * dp02 + duv02[0] * dp12) * invDet;
+        }
+
         return true;
     }
 

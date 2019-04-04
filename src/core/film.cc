@@ -63,4 +63,38 @@ namespace Miyuki {
             i.filterWeightSum = 0;
         }
     }
+
+    Bound2i
+    Intersect(const Bound2i &b1, const Bound2i &b2) {
+        return Bound2i(Point2i(std::max(b1.pMin.x(), b2.pMin.x()),
+                               std::max(b1.pMin.y(), b2.pMin.y())),
+                       Point2i(std::min(b1.pMax.x(), b2.pMax.x()),
+                               std::min(b1.pMax.y(), b2.pMax.y())));
+    }
+
+    std::unique_ptr<FilmTile> Film::getFilmTile(const Bound2i &bounds) {
+        Point2f halfPixel = Point2f(0.5f, 0.5f);
+        auto floatBounds = (Bound2f) bounds;
+        Point2i p0 = (Point2i) Ceil(floatBounds.pMin - halfPixel -
+                                    filter->radius);
+        Point2i p1 = (Point2i) Floor(floatBounds.pMax - halfPixel +
+                                     filter->radius) + Point2i(1, 1);
+        Bound2i tilePixelBounds =
+                Intersect(Bound2i(p0, p1), imageBound);
+        return std::move(std::unique_ptr<FilmTile>(new FilmTile(bounds)));
+    }
+
+    void Film::mergeFilmTile(const FilmTile &) {
+
+    }
+
+    FilmTile::FilmTile(const Bound2i &bound2i) : pixelBounds(bound2i) {
+        int area = (pixelBounds.pMax.x() - pixelBounds.pMin.x())
+                   * (pixelBounds.pMax.y() - pixelBounds.pMin.y());
+        pixels.resize(area);
+    }
+
+    void FilmTile::addSample(const Point2i &raster, const Spectrum &sample, Float weight) {
+
+    }
 }

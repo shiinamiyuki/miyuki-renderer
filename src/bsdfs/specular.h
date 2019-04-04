@@ -19,7 +19,6 @@ namespace Miyuki {
 
         Spectrum sample(ScatteringEvent &event) const override;
 
-        Point2f invert(const Vec3f &wo, const Vec3f &wi) const override;
     };
 
     class SpecularTransmission : public BxDF {
@@ -40,8 +39,6 @@ namespace Miyuki {
         }
 
         Spectrum sample(ScatteringEvent &event) const override;
-
-        Point2f invert(const Vec3f &wo, const Vec3f &wi) const override;
     };
 }
 #endif //MIYUKI_SPECULAR_H

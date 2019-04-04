@@ -68,10 +68,5 @@ namespace Miyuki {
         return ray;
     }
 
-    void RayDifferential::scaleDifferentials(Float s) {
-        rxOrigin = o + (rxOrigin - o) * s;
-        ryOrigin = o + (ryOrigin - o) * s;
-        rxDirection = d + (rxDirection - d) * s;
-        ryDirection = d + (ryDirection - d) * s;
-    }
+
 }

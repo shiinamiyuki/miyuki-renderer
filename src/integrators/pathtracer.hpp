@@ -139,7 +139,7 @@ namespace Miyuki {
                 if (specular || depth == 0) {
                     Li += event.Le(-1 * ray.d) * beta;
                 }
-                if (++depth >= maxDepth) {
+                if (++depth > maxDepth) {
                     break;
                 }
                 ScatteringEvent temp;

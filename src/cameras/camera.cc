@@ -38,12 +38,12 @@ namespace Miyuki {
         Float y = 2 * (1 - (Float) raster.y() / dimension.y()) - 1;
         Float dx = 2.0f / dimension.y() / 2, dy = 2.0f / dimension.y() / 2;
         Vec3f ro(0, 0, 0);
-        auto z = (Float) (2.0 / tan(fov / 2));
+        auto z = (Float) (2.0 / std::tan(fov / 2));
         Float rx = 2 * sampler.get1D() - 1;
         Float ry = 2 * sampler.get1D() - 1;
         Vec3f jitter = Vec3f(dx * rx, dy * ry, 0);
-        // tent filter
-        *weight = (1.0f - fabs(rx)) * (1.0f - fabs(ry));
+
+        *weight = 1;
         Vec3f rd = Vec3f(x, y, 0) + jitter - Vec3f(0, 0, -z);
         rd.normalize();
         if (lensRadius > 0) {
@@ -58,10 +58,6 @@ namespace Miyuki {
 
         rd = cameraToWorld(rd).normalized();
         *ray = Ray{ro, rd};
-//        Point2i pRaster;
-//        rasterize(ro + 1 * rd, &pRaster);
-//        Assert(abs(pRaster.x() - raster.x()) <= 1);
-//        Assert(abs(pRaster.y() - raster.y()) <= 1);
         return 1;
     }
 
@@ -103,7 +99,7 @@ namespace Miyuki {
         auto pLensWorld = cameraToWorld(Vec3f(pLens.x(), pLens.y(), 0)) + viewpot;
         tester->primId = event.getIntersection()->primId;
         tester->geomId = event.getIntersection()->geomId;
-        *wi = pLensWorld - event.getIntersection()->ref;
+        *wi = pLensWorld - event.getIntersection()->p;
         auto dist = wi->length();
         *wi /= dist;
         tester->shadowRay = Ray(pLensWorld, -1 * *wi);
@@ -137,6 +133,7 @@ namespace Miyuki {
         Camera::preprocess();
         auto z0 = (Float) (2.0 / tan(fov / 2));
         A = 2 * ((2.0f * dimension.x()) / dimension.y()) / (z0 * z0);
+        Float dx = 2.0f / dimension.y() / 2, dy = 2.0f / dimension.y() / 2;
     }
 
     void PerspectiveCamera::pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const {

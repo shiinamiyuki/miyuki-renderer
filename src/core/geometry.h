@@ -434,6 +434,13 @@ namespace Miyuki {
 
         }
 
+        template<typename U>
+        explicit Vec(const Vec<U, N> &rhs) {
+            for (int32_t i = 0; i < N; i++)
+                v[i] = static_cast<T>(rhs.v[i]);
+
+        }
+
         Vec(const std::initializer_list<T> &list) {
             auto iter = list.begin();
             assert(list.size() == N);
@@ -556,6 +563,9 @@ namespace Miyuki {
 
         Bound(const Point &_min, const Point &_max) : pMin(_min), pMax(_max) {}
 
+        template<typename U>
+        Bound(const Bound<U, N> &rhs):pMin(rhs.pMin), pMax(rhs.pMax) {}
+
         bool contains(const Point &point) const {
             for (int32_t i = 0; i < pMax.size(); i++) {
                 if (point[i] < pMin[i] || point[i] > pMax[i])return false;
@@ -578,11 +588,22 @@ namespace Miyuki {
     T PointOnTriangle(const T &v1, const T &v2, const T &v3, Float u1, Float u2) {
         return v1 * (1 - u1 - u2) + v2 * u1 + v3 * u2;//v1 + u1*(v2 - v1) + u2 * (v3 - v1);
     }
-    inline Vec3f fromPoint3f(const Point3f& rhs){
+
+    inline Vec3f fromPoint3f(const Point3f &rhs) {
         return Vec3f(rhs.x(), rhs.y(), rhs.z());
     }
-    inline Point3f fromVec3f(const Vec3f& rhs){
+
+    inline Point3f fromVec3f(const Vec3f &rhs) {
         return Point3f(rhs.x(), rhs.y(), rhs.z());
     }
+
+    inline Point2f Ceil(const Point2f &x) {
+        return {std::ceil(x.x()), std::ceil(x.y())};
+    }
+
+    inline Point2f Floor(const Point2f &x) {
+        return {std::floor(x.x()), std::floor(x.y())};
+    }
 }
+
 #endif //MIYUKI_GEOMETRY_H
