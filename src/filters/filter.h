@@ -11,14 +11,17 @@ namespace Miyuki {
     class Filter {
     public:
         Point2f radius;
-        Filter(const Point2f &radius) : radius(radius) {}
+        Point2f invRadius;
+
+        Filter(const Point2f &radius) : radius(radius) { invRadius = Point2f(1, 1) / radius; }
 
         virtual Float eval(const Point2f &) const = 0;
     };
 
     class BoxFilter : public Filter {
     public:
-        BoxFilter(const Point2f &radius) : Filter(radius){}
+        BoxFilter(const Point2f &radius) : Filter(radius) {}
+
         Float eval(const Point2f &p) const override {
             return 1.0f;
         }
@@ -26,7 +29,8 @@ namespace Miyuki {
 
     class TriangleFilter : public Filter {
     public:
-        TriangleFilter(const Point2f &radius) : Filter(radius){}
+        TriangleFilter(const Point2f &radius) : Filter(radius) {}
+
         Float eval(const Point2f &p) const override {
             return std::max((Float) 0, radius.x() - std::abs(p.x())) *
                    std::max((Float) 0, radius.y() - std::abs(p.y()));
@@ -35,10 +39,10 @@ namespace Miyuki {
 
     class MitchellFilter : public Filter {
         Float B, C;
-        Point2f invRadius;
+
     public:
-        MitchellFilter(const Point2f &radius, Float B, Float C) : Filter(radius),B(B),C(C) {
-            invRadius = Point2f(1, 1) / radius;
+        MitchellFilter(const Point2f &radius, Float B, Float C) : Filter(radius), B(B), C(C) {
+
         }
 
         Float Mitchell1D(Float x) const {

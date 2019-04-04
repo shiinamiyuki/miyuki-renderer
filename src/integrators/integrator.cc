@@ -123,6 +123,10 @@ namespace Miyuki {
             int tx, ty;
             tx = hilbertMapping[idx].x();
             ty = hilbertMapping[idx].y();
+            Point2i tilePos(tx,ty);
+            tilePos *= TileSize;
+            Bound2i tileBound(tilePos, tilePos + Point2i{TileSize, TileSize});
+            auto tile = film.getFilmTile(tileBound);
             for (int i = 0; i < TileSize; i++) {
                 for (int j = 0; j < TileSize; j++) {
                     if (!scene.processContinuable()) {
@@ -142,10 +146,11 @@ namespace Miyuki {
                         auto ctx = scene.getRenderContext(raster, &arenas[threadId], &sampler);
                         auto Li = removeNaNs(this->Li(ctx, scene));
                         Li = clampRadiance(Li, maxRayIntensity);
-                        film.addSample(ctx.raster, Li, ctx.weight);
+                        tile->addSample(ctx.raster, Li, ctx.weight);
                     }
                 }
             }
+            film.mergeFilmTile(*tile);
             reporter.update();
         });
         scene.update();

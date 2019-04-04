@@ -117,7 +117,7 @@ namespace Miyuki {
                         mean += delta / sampleCount;
                         meanSqr += delta * (sampleLuminance - mean);
 
-                        film.addSample({x, y}, Li, ctx.weight);
+                        film.addSample(ctx.raster, Li, ctx.weight);
                         if (maxSampleFactor >= 0) {
                             if (sampleCount >= maxSampleFactor * spp) {
                                 //fmt::print("break after max spp {}\n", sampleCount);

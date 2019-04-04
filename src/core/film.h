@@ -34,12 +34,21 @@ namespace Miyuki {
         Float filterWeightSum = 0;
     };
 
+    class Film;
+
     class FilmTile {
+        friend class Film;
+
         std::vector<TilePixel> pixels;
         Bound2i pixelBounds;
         const Float *filterTable = nullptr;
+        const Filter * filter;
     public:
-        FilmTile(const Bound2i &bound2i);
+        FilmTile(const Bound2i &bound2i,const Float *filterTable, const Filter * filter);
+
+        TilePixel &getPixel(const Point2i &);
+
+        const TilePixel &getPixel(const Point2i &) const;
 
         void addSample(const Point2f &raster, const Spectrum &sample, Float weight = 1);
     };

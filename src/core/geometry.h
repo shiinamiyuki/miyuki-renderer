@@ -604,6 +604,18 @@ namespace Miyuki {
     inline Point2f Floor(const Point2f &x) {
         return {std::floor(x.x()), std::floor(x.y())};
     }
+
+    template<typename T>
+    Vec<T, 2> Max(const Vec<T, 2> &p1, const Vec<T, 2> &p2) {
+        return {std::max(p1[0], p2[0]),
+                std::max(p1[1], p2[1])};
+    }
+
+    template<typename T>
+    Vec<T, 2> Min(const Vec<T, 2> &p1, const Vec<T, 2> &p2) {
+        return {std::min(p1[0], p2[0]),
+                std::min(p1[1], p2[1])};
+    }
 }
 
 #endif //MIYUKI_GEOMETRY_H
