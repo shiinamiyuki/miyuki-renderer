@@ -41,7 +41,7 @@ namespace Miyuki {
     public:
         FilmTile(const Bound2i &bound2i);
 
-        void addSample(const Point2i &raster, const Spectrum &sample, Float weight = 1);
+        void addSample(const Point2f &raster, const Spectrum &sample, Float weight = 1);
     };
 
     class Film {
@@ -66,9 +66,9 @@ namespace Miyuki {
 
         Pixel &getPixel(int x, int y);
 
-        void addSample(const Point2i &, const Spectrum &c, Float weight = 1);
+        void addSample(const Point2f &, const Spectrum &c, Float weight = 1);
 
-        void addSplat(const Point2i &pos, const Spectrum &c) {
+        void addSplat(const Point2f &pos, const Spectrum &c) {
             getPixel(pos).splatXYZ[0].add(c[0]);
             getPixel(pos).splatXYZ[1].add(c[1]);
             getPixel(pos).splatXYZ[2].add(c[2]);

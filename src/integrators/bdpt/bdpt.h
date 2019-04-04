@@ -14,7 +14,7 @@ namespace Miyuki {
         Spectrum
         connectBDPT(Scene &scene, RenderContext &ctx, Bidir::SubPath &lightSubPath, Bidir::SubPath &cameraSubPath,
                     int s, int t,
-                    Point2i *raster, bool useMIS = true, Float *weight = nullptr);
+                    Point2f *raster, bool useMIS = true, Float *weight = nullptr);
 
         Bidir::SubPath generateLightSubPath(Scene &scene, RenderContext &ctx, int minDepth, int maxDepth);
 

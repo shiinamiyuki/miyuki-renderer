@@ -171,4 +171,4 @@ def add_obj_to_scene(obj_file, scene_file):
 #     action = sys.argv[1]
 #     src = sys.argv[2]
 #     dst = sys.argv[3]
-add_obj_to_scene('data/test-scenes/texture/text.obj', 'data/test-scenes/texture/scene.json')
+add_obj_to_scene('ajar.obj', 'scene.json')

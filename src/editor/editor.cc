@@ -5,8 +5,8 @@
 #include "editor.h"
 #include <math/func.h>
 #include <integrators/volpath/volpath.h>
-//#include <integrators/mmlt/mmlt.h>
-//#include <integrators/bdpt/bdpt.h>
+#include <integrators/mmlt/mmlt.h>
+#include <integrators/bdpt/bdpt.h>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -49,11 +49,11 @@ Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
     if (typeid(*renderEngine.integrator) == typeid(VolPath)) {
         selectedIntegrator = _VOLPATH;
     }
-//    else if (typeid(*renderEngine.integrator) == typeid(MultiplexedMLT)) {
-//        selectedIntegrator = _MMLT;
-//    } else if (typeid(*renderEngine.integrator) == typeid(BDPT)) {
-//        selectedIntegrator = _BDPT;
-//    }
+    else if (typeid(*renderEngine.integrator) == typeid(MultiplexedMLT)) {
+        selectedIntegrator = _MMLT;
+    } else if (typeid(*renderEngine.integrator) == typeid(BDPT)) {
+        selectedIntegrator = _BDPT;
+    }
 
 
     Log::SetLogLevel(Log::silent);
@@ -128,9 +128,8 @@ bool InputString(const char *prompt, std::string &s) {
 
 static const char *integratorName[] = {
         "Volumetric Path Tracer",
-        "Guided Path Tracer",
-//        "Bidirectional Path Tracer",
-//        "Multiplexed Metropolis Light Transport"
+        "Bidirectional Path Tracer",
+        "Multiplexed Metropolis Light Transport"
 };
 
 
@@ -142,7 +141,7 @@ void Editor::integratorWindow() {
     }
     bool modified = false;
     if (ImGui::TreeNode("Integrator")) {
-        for (int n = 0; n < 2; n++) {
+        for (int n = 0; n < 3; n++) {
             if (ImGui::Selectable(integratorName[n], selectedIntegrator == n)) {
                 selectedIntegrator = n;
                 modified = true;
@@ -168,7 +167,7 @@ void Editor::integratorWindow() {
                 renderEngine.description["integrator"]["maxDepth"] = IO::serialize(maxDepth);
                 modified = true;
             }
-            
+
             if (selectedIntegrator == _MMLT) {
                 Float nChains, nDirect;
                 nChains = IO::deserialize<Float>(renderEngine.description["integrator"]["nChains"]);

@@ -142,7 +142,7 @@ namespace Miyuki {
                         auto ctx = scene.getRenderContext(raster, &arenas[threadId], &sampler);
                         auto Li = removeNaNs(this->Li(ctx, scene));
                         Li = clampRadiance(Li, maxRayIntensity);
-                        film.addSample({x, y}, Li, ctx.weight);
+                        film.addSample(ctx.raster, Li, ctx.weight);
                     }
                 }
             }

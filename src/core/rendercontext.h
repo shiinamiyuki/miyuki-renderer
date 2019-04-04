@@ -17,10 +17,10 @@ namespace Miyuki {
         Camera *camera;
         MemoryArena *arena;
         Sampler *sampler;
-        Point2i raster;
+        Point2f raster;
         Float weight;
 
-        RenderContext(const Point2i &raster,
+        RenderContext(const Point2f &raster,
                       const RayDifferential &primary,
                       Camera *camera,
                       MemoryArena *arena,

@@ -31,7 +31,7 @@ namespace Miyuki {
                 if ((s == 1 && t == 1) || depth < 0 || depth > maxDepth)
                     continue;
                 ctx.sampler->startDimension(dim + (depth) * (depth + 1) + 2 * s);
-                Point2i raster;
+                Point2f raster;
                 auto LConnect = connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, &raster);
                 if (t != 1)
                     LPath += LConnect;
@@ -47,7 +47,7 @@ namespace Miyuki {
     Spectrum
     BDPT::connectBDPT(Scene &scene, RenderContext &ctx,
                       Bidir::SubPath &lightSubPath, Bidir::SubPath &cameraSubPath,
-                      int s, int t, Point2i *raster, bool useMIS, Float *weight) {
+                      int s, int t, Point2f *raster, bool useMIS, Float *weight) {
         if (t > 1 && s != 0 && cameraSubPath[t - 1].isInfiniteLight())
             return {};
         auto &E = cameraSubPath[t - 1];

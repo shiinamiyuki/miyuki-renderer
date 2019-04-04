@@ -32,19 +32,22 @@ namespace Miyuki {
         Matrix4x4::inverse(rotationMatrix, invMatrix);
     }
 
-    Float PerspectiveCamera::generateRay(Sampler &sampler, const Point2i &raster, Ray *ray, Float *weight) {
-        Float x = -(2 * (Float) raster.x() / dimension.x() - 1) * static_cast<Float>(dimension.x()) /
-                  dimension.y();
-        Float y = 2 * (1 - (Float) raster.y() / dimension.y()) - 1;
-        Float dx = 2.0f / dimension.y() / 2, dy = 2.0f / dimension.y() / 2;
+    Float PerspectiveCamera::generateRay(Sampler &sampler, const Point2i &raster, Ray *ray, CameraSample *sample) {
+        Float x = raster.x();
+        Float y = raster.y();
+        Float rx = 0.5f * (2 * sampler.get1D() - 1);
+        Float ry = 0.5f * (2 * sampler.get1D() - 1);
+        x += rx;
+        y += ry;
+        sample->pFilm = Point2f(x, y);
+        x = -(2 * x / dimension.x() - 1) * static_cast<Float>(dimension.x()) /
+            dimension.y();
+        y = 2 * (1 - y / dimension.y()) - 1;
+
         Vec3f ro(0, 0, 0);
         auto z = (Float) (2.0 / std::tan(fov / 2));
-        Float rx = 2 * sampler.get1D() - 1;
-        Float ry = 2 * sampler.get1D() - 1;
-        Vec3f jitter = Vec3f(dx * rx, dy * ry, 0);
-
-        *weight = 1;
-        Vec3f rd = Vec3f(x, y, 0) + jitter - Vec3f(0, 0, -z);
+        sample->weight = 1;
+        Vec3f rd = Vec3f(x, y, 0) - Vec3f(0, 0, -z);
         rd.normalize();
         if (lensRadius > 0) {
             Point2f pLens = Point2f(lensRadius, lensRadius) * ConcentricSampleDisk(sampler.get2D());
@@ -52,6 +55,9 @@ namespace Miyuki {
             auto pFocus = ro + ft * rd;
             ro = Vec3f(pLens.x(), pLens.y(), 0);
             rd = (pFocus - ro).normalized();
+            sample->pLens = pLens;
+        } else {
+            sample->pLens = {};
         }
         ro = cameraToWorld(ro);
         ro += viewpot;
@@ -68,7 +74,7 @@ namespace Miyuki {
         return 0;
     }
 
-    Spectrum PerspectiveCamera::We(const Ray &ray, Point2i *pRaster) const {
+    Spectrum PerspectiveCamera::We(const Ray &ray, Point2f *pRaster) const {
         auto rd = worldToCamera(ray.d).normalized();
         auto cosT = Vec3f::dot(rd, Vec3f(0, 0, 1));
         if (cosT < 0) {
@@ -82,8 +88,8 @@ namespace Miyuki {
             return {};
         }
 
-        int x = std::floor(((-raster.x() + w) / (2 * w)) * dimension.x());
-        int y = std::floor((1 - (raster.y() + 1.0f) / 2.0f) * dimension.y());
+        auto x = ((-raster.x() + w) / (2 * w)) * dimension.x();
+        auto y = (1 - (raster.y() + 1.0f) / 2.0f) * dimension.y();
         *pRaster = {x, y};
         Float lensArea = lensRadius <= 0 ? 1 : PI * lensRadius * lensRadius;
         auto cosT2 = cosT * cosT;
@@ -94,7 +100,7 @@ namespace Miyuki {
     }
 
     Spectrum PerspectiveCamera::sampleWi(const ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf,
-                                         Point2i *pRaster, VisibilityTester *tester) {
+                                         Point2f *pRaster, VisibilityTester *tester) {
         Point2f pLens = Point2f(lensRadius, lensRadius) * ConcentricSampleDisk(u);
         auto pLensWorld = cameraToWorld(Vec3f(pLens.x(), pLens.y(), 0)) + viewpot;
         tester->primId = event.getIntersection()->primId;

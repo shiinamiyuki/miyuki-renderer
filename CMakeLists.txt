@@ -15,7 +15,6 @@ file(GLOB coreSRC
         "src/materials/*.cc"
         "src/media/*.cc"
         "src/denoiser/*.cc"
-
         "src/filters/*.cc")
 file(GLOB thirdpartySRC
         "src/thirdparty/lodepng/lodepng.cpp"
@@ -38,9 +37,9 @@ file(GLOB guiSRC
 file(GLOB integratorSRC
         "src/integrators/*.cc"
         "src/integrators/volpath/*.cc"
-#        "src/bidir/*.cc"
-#        "src/integrators/mmlt/*.cc"
-#        "src/integrators/bdpt/*.cc"
+        "src/bidir/*.cc"
+        "src/integrators/mmlt/*.cc"
+        "src/integrators/bdpt/*.cc"
 #        "src/integrators/pssmlt/*.cc"
 #        "src/integrators/erpt/*.cc"
         "src/integrators/guided_path/*.cc"

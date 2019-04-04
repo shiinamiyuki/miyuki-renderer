@@ -20,7 +20,7 @@ namespace Miyuki {
         nDirect = set.findInt("integrator.nDirect", 16);
         nChains = set.findInt("integrator.nChains", 8);
         largeStep = set.findFloat("integrator.largeStep", 0.25f);
-        MLTSampler::maxConsecutiveRejects = set.findInt("sampler.maxConsecutiveRejects", 20);
+        MLTSampler::maxConsecutiveRejects = set.findInt("sampler.maxConsecutiveRejects", 512);
         useKelemenWeight = true;
     }
 
@@ -28,7 +28,6 @@ namespace Miyuki {
         std::random_device rd;
 
         // compute bootstrap samples
-        uint64_t nBootstrapSamples = nBootstrap * (maxDepth + 1);
         std::vector<std::vector<Seed>> seeds(maxDepth + 1);
         std::vector<std::vector<Seed>> bootstrapSeeds(maxDepth + 1);
         std::vector<std::vector<Float>> bootstrapWeights(maxDepth + 1);
@@ -49,7 +48,7 @@ namespace Miyuki {
         Thread::ParallelFor(0u, nBootstrap, [&](uint32_t i, uint32_t threadId) {
             for (int k = 0; k <= maxDepth; k++) {
                 arenas[threadId].reset();
-                Point2i raster;
+                Point2f raster;
                 MLTSampler sampler(&bootstrapSeeds[k][i], nStream, largeStep, scene.filmDimension(), k);
                 bootstrapWeights[k][i] = radiance(scene, &arenas[threadId], &sampler, k,
                                                   &raster).luminance();
@@ -97,7 +96,7 @@ namespace Miyuki {
         auto sampler = markovChain.samplers[k].get();
 
         sampler->startIteration();
-        Point2i pProposed;
+        Point2f pProposed;
         auto LProposed = radiance(scene, arena, sampler, sampler->depth, &pProposed);
         Float accept;
         if (sampler->L.luminance() == 0)
@@ -133,7 +132,7 @@ namespace Miyuki {
         if (weightOld > 0 && sampler->rejectCount < MLTSampler::maxConsecutiveRejects) {
             scene.film->addSplat(sampler->imageLocation, sampler->L * weightOld);
         }
-        
+
         UPDATE_STATS(mutationCounter, 1);
         if (accept == 1 || dist(rd) < accept) {
             sampler->L = LProposed;
@@ -219,7 +218,7 @@ namespace Miyuki {
     }
 
     Spectrum
-    MultiplexedMLT::radiance(Scene &scene, MemoryArena *arena, MLTSampler *sampler, int depth, Point2i *raster) {
+    MultiplexedMLT::radiance(Scene &scene, MemoryArena *arena, MLTSampler *sampler, int depth, Point2f *raster) {
         auto imageLoc = sampler->sampleImageLocation();
         int s, t, nStrategies;
         sampler->startStream(cameraStreamIndex);
@@ -267,7 +266,7 @@ namespace Miyuki {
             if (!cameraSubPath[t - 1].isInfiniteLight() && !cameraSubPath[t - 2].delta)
                 return {};
         }
-        *raster = imageLoc;
+        *raster = ctx.raster;
         sampler->startStream(connectionStreamIndex);
         auto Li = clampRadiance(
                 removeNaNs(connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, raster)),

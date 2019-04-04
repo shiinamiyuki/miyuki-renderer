@@ -121,14 +121,13 @@ namespace Miyuki {
     RenderContext Scene::getRenderContext(const Point2i &raster, MemoryArena *arena, Sampler *sampler) {
         sampler->start();
         Ray primary;
-        Float weight;
-
-        camera->generateRay(*sampler, raster, &primary, &weight);
-        return RenderContext(raster, primary, camera.get(), arena, sampler, weight);
+        CameraSample sample;
+        camera->generateRay(*sampler, raster, &primary, &sample);
+        return RenderContext(sample.pFilm, primary, camera.get(), arena, sampler, sample.weight);
     }
 
     RenderContext Scene::getRenderContext(const Point2f &raster, MemoryArena *arena, Sampler *sampler) {
-        Point2i r(clamp<int>(std::floor(raster.x() * film->width()), 0, film->width() - 1),
+        Point2i r(clamp<int>(std::lround(raster.x() * film->width()), 0, film->width() - 1),
                   clamp<int>(std::floor(raster.y() * film->height()), 0, film->height() - 1));
         return getRenderContext(r, arena, sampler);
     }

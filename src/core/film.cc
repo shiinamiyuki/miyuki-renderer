@@ -22,7 +22,7 @@ namespace Miyuki {
     }
 
     Pixel &Film::getPixel(const Point2f &p) {
-        return getPixel((int32_t) p.x(), (int32_t) p.y());
+        return getPixel(std::lround(p.x()), std::lround(p.y()));
     }
 
     Pixel &Film::getPixel(int32_t x, int32_t y) {
@@ -53,7 +53,7 @@ namespace Miyuki {
         lodepng::encode(filename, pixelBuffer, (uint32_t) width(), (uint32_t) height());
     }
 
-    void Film::addSample(const Point2i &pos, const Spectrum &c, Float weight) {
+    void Film::addSample(const Point2f &pos, const Spectrum &c, Float weight) {
         getPixel(pos).add(Spectrum(c * weight), weight);
     }
 
@@ -94,7 +94,7 @@ namespace Miyuki {
         pixels.resize(area);
     }
 
-    void FilmTile::addSample(const Point2i &raster, const Spectrum &sample, Float weight) {
+    void FilmTile::addSample(const Point2f &raster, const Spectrum &sample, Float weight) {
 
     }
 }

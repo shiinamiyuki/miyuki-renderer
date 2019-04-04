@@ -69,13 +69,13 @@ namespace Miyuki {
 
         PrimarySample u1, u2;// for image location
         void ensureReadyU1U2() {
-            mutate(u1, 2.0f / (imageDimension.x() + imageDimension.y()), maxImagePlaneStratification);
-            mutate(u2, 2.0f / (imageDimension.x() + imageDimension.y()), maxImagePlaneStratification);
+            mutate(u1, 1.0f / (imageDimension.x()), maxImagePlaneStratification);
+            mutate(u2, 1.0f / (imageDimension.y()), maxImagePlaneStratification);
         }
 
 
         static int maxConsecutiveRejects;
-        Point2i imageLocation;
+        Point2f imageLocation;
         Spectrum L;
         Point2i imageDimension;
         int depth;
@@ -90,7 +90,7 @@ namespace Miyuki {
                 Sampler(seed), nStream(nStream),
                 largeStepProbability(largeStepProbability),
                 imageDimension(imageDimension),
-                depth(depth){}
+                depth(depth) {}
 
         Point2i sampleImageLocation() {
             ensureReadyU1U2();

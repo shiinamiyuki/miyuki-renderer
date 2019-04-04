@@ -19,6 +19,11 @@ namespace Miyuki {
     struct ScatteringEvent;
     struct VisibilityTester;
 
+    struct CameraSample {
+        Point2f pFilm, pLens;
+        Float weight;
+    };
+
     class Camera {
         friend class Scene;
 
@@ -32,36 +37,41 @@ namespace Miyuki {
     public:
         Camera(const Point2i &dim) : dimension(dim) {}
 
-        const Vec3f &translation()const{
+        const Vec3f &translation() const {
             return viewpot;
         }
-        const Vec3f & rotation()const{
+
+        const Vec3f &rotation() const {
             return direction;
         }
+
         void moveTo(const Vec3f &v);
 
         void move(const Vec3f &v);
 
-        void moveLocal(const Vec3f &v){
+        void moveLocal(const Vec3f &v) {
             move(cameraToWorld(v));
         }
+
         void rotate(const Vec3f &v);
 
         void rotateTo(const Vec3f &v);
 
         void computeTransformMatrix();
 
-        virtual Float generateRay(Sampler &sampler, const Point2i &raster, Ray *ray, Float *weight) = 0;
+        virtual Float generateRay(Sampler &sampler,
+                const Point2i &raster,
+                Ray *ray, CameraSample*) = 0;
 
         virtual Float
         generateRayDifferential(Sampler &sampler, const Point2i &raster, RayDifferential *ray, Float *weight) = 0;
 
         virtual void preprocess() { computeTransformMatrix(); }
 
-        virtual Spectrum We(const Ray &ray, Point2i *raster) const = 0;
+        virtual Spectrum We(const Ray &ray, Point2f *raster) const = 0;
 
         virtual Spectrum
-        sampleWi(const ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf, Point2i *pRaster,
+        sampleWi(const ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf, Point2f *pRaster,
                  VisibilityTester *) = 0;
 
         virtual void pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const = 0;
@@ -94,17 +104,17 @@ namespace Miyuki {
                 : Camera(dim),
                   fov(fov), lensRadius(lensRadius), focalDistance(focalDistance) {}
 
-        Float generateRay(Sampler &sampler, const Point2i &raster, Ray *ray, Float *weight) override;
+        Float generateRay(Sampler &sampler, const Point2i &raster, Ray *ray, CameraSample*) override;
 
         Float generateRayDifferential(Sampler &sampler, const Point2i &raster,
                                       RayDifferential *ray, Float *weight) override;
 
-        Spectrum We(const Ray &ray, Point2i *raster) const override;
+        Spectrum We(const Ray &ray, Point2f *raster) const override;
 
         void preprocess() override;
 
         Spectrum
-        sampleWi(const ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf, Point2i *pRaster,
+        sampleWi(const ScatteringEvent &event, const Point2f &u, Vec3f *wi, Float *pdf, Point2f *pRaster,
                  VisibilityTester *tester) override;
 
         void pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const override;

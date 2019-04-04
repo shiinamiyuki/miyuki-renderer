@@ -41,7 +41,7 @@ namespace Miyuki {
             Vec3f ref;
             Spectrum beta;
             ScatteringEvent *event = nullptr;
-            Point2i raster;
+            Point2f raster;
             const Camera *camera = nullptr;
             const Light *light = nullptr;
             const Primitive *primitive = nullptr;
@@ -194,7 +194,7 @@ namespace Miyuki {
         }
 
         inline Vertex
-        CreateCameraVertex(const Camera *camera, const Point2i &raster, const Ray &ray, Float pdf, Spectrum beta) {
+        CreateCameraVertex(const Camera *camera, const Point2f &raster, const Ray &ray, Float pdf, Spectrum beta) {
             Vertex v;
             v.type = Vertex::cameraVertex;
             v.camera = camera;

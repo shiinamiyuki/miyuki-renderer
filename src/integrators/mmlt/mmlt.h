@@ -82,7 +82,7 @@ namespace Miyuki {
         std::vector<Float> b;
         std::vector<std::shared_ptr<MarkovChain>> chains;
 
-        Spectrum radiance(Scene &scene, MemoryArena *arena, MLTSampler *sampler, int depth, Point2i *raster);
+        Spectrum radiance(Scene &scene, MemoryArena *arena, MLTSampler *sampler, int depth, Point2f *raster);
 
         void handleDirect(Scene &scene);
 
