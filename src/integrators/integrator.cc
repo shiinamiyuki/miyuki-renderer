@@ -123,7 +123,7 @@ namespace Miyuki {
             int tx, ty;
             tx = hilbertMapping[idx].x();
             ty = hilbertMapping[idx].y();
-            Point2i tilePos(tx,ty);
+            Point2i tilePos(tx, ty);
             tilePos *= TileSize;
             Bound2i tileBound(tilePos, tilePos + Point2i{TileSize, TileSize});
             auto tile = film.getFilmTile(tileBound);

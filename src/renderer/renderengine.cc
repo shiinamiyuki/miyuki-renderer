@@ -4,8 +4,9 @@
 
 #include "renderengine.h"
 #include "integrators/volpath/volpath.h"
-#include <integrators/bdpt/bdpt.h>
-#include <integrators/mmlt/mmlt.h>
+#include <integrators/vpl/vpl.h>
+//#include <integrators/bdpt/bdpt.h>
+//#include <integrators/mmlt/mmlt.h>
 //#include <integrators/pssmlt/pssmlt.h>
 //#include <integrators/erpt/erpt.h>
 #include <utils/thread.h>
@@ -232,14 +233,22 @@ namespace Miyuki {
                 if (type == "volpath" || type == "path") {
                     parameters.addString("integrator", "volpath");
                     integrator = std::make_unique<VolPath>(parameters);
-                } else if (type == "bdpt") {
-                    parameters.addString("integrator", "bdpt");
-                    integrator = std::make_unique<BDPT>(parameters);
-                } else if (type == "mlt") {
-                    parameters.addString("integrator", type);
-                    integrator = std::make_unique<MultiplexedMLT>(parameters);
-                } else {
-                    fmt::print(stderr, "Unknown integrator type `{}`\n", type);
+                }
+//                else if (type == "bdpt") {
+//                    parameters.addString("integrator", "bdpt");
+//                    integrator = std::make_unique<BDPT>(parameters);
+//                } else if (type == "mlt") {
+//                    parameters.addString("integrator", type);
+//                    integrator = std::make_unique<MultiplexedMLT>(parameters);
+//                }
+                else if (type == "vpl") {
+                    parameters.addString("integrator", "vpl");
+                    integrator = std::make_unique<VPL>(parameters);
+                }
+                else {
+                    fmt::print(stderr, "Unknown integrator type `{}`\nUsing volpath as default\n", type);
+                    parameters.addString("integrator", "volpath");
+                    integrator = std::make_unique<VolPath>(parameters);
                 }
             }
         }

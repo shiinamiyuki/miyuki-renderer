@@ -11,10 +11,6 @@
 namespace Miyuki {
     class BDPT : public SamplerIntegrator {
     protected:
-        Spectrum
-        connectBDPT(Scene &scene, RenderContext &ctx, Bidir::SubPath &lightSubPath, Bidir::SubPath &cameraSubPath,
-                    int s, int t,
-                    Point2f *raster, bool useMIS = true, Float *weight = nullptr);
 
         Bidir::SubPath generateLightSubPath(Scene &scene, RenderContext &ctx, int minDepth, int maxDepth);
 
@@ -22,10 +18,6 @@ namespace Miyuki {
 
         Spectrum Li(RenderContext &ctx, Scene &scene) override;
 
-        Float
-        MISWeight(Scene &scene, RenderContext &ctx,
-                  Bidir::SubPath &lightSubPath, Bidir::SubPath &cameraSubPath,
-                  int s, int t, Bidir::Vertex &sampled);
 
         int minDepth;
         int maxDepth;

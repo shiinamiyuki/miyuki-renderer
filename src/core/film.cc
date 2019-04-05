@@ -41,7 +41,7 @@ namespace Miyuki {
             : imageBound(Point2i({0, 0}), Point2i({w, h})) {
         assert(w >= 0 && h >= 0);
         image.resize(w * h);
-        filter = std::make_unique<MitchellFilter>(Point2f{1.5f, 1.5f}, 1.0 / 3, 1.0 / 3);
+        filter = std::make_unique<MitchellFilter>(Point2f{1.0f, 1.0f}, 1.0 / 3, 1.0 / 3);
         int offset = 0;
         for (int y = 0; y < FilterTableWidth; y++) {
             for (int x = 0; x < FilterTableWidth; x++) {

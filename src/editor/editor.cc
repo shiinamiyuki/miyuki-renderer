@@ -5,8 +5,9 @@
 #include "editor.h"
 #include <math/func.h>
 #include <integrators/volpath/volpath.h>
-#include <integrators/mmlt/mmlt.h>
-#include <integrators/bdpt/bdpt.h>
+#include <integrators/vpl/vpl.h>
+//#include <integrators/mmlt/mmlt.h>
+//#include <integrators/bdpt/bdpt.h>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -32,8 +33,9 @@ int main(int argc, char **argv) {
 }
 
 #define _VOLPATH 0
-#define _BDPT 1
-#define _MMLT 2
+#define _VPL 1
+#define _BDPT 2
+#define _MMLT 3
 
 Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
     renderEngine.setGuiMode(true);
@@ -45,15 +47,19 @@ Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
         renderEngine.readPixelData(pixelDataBuffer, width, height);
         std::swap(pixelDataBuffer, pixelData);
     };
+    selectedIntegrator = _VOLPATH;
     Assert(renderEngine.integrator);
     if (typeid(*renderEngine.integrator) == typeid(VolPath)) {
         selectedIntegrator = _VOLPATH;
+    } else  if (typeid(*renderEngine.integrator) == typeid(VPL)) {
+        selectedIntegrator = _VPL;
     }
-    else if (typeid(*renderEngine.integrator) == typeid(MultiplexedMLT)) {
-        selectedIntegrator = _MMLT;
-    } else if (typeid(*renderEngine.integrator) == typeid(BDPT)) {
-        selectedIntegrator = _BDPT;
-    }
+//    else if (typeid(*renderEngine.integrator) == typeid(MultiplexedMLT)) {
+//        selectedIntegrator = _MMLT;
+//    } else if (typeid(*renderEngine.integrator) == typeid(BDPT)) {
+//        selectedIntegrator = _BDPT;
+//    }
+
 
 
     Log::SetLogLevel(Log::silent);
@@ -128,8 +134,7 @@ bool InputString(const char *prompt, std::string &s) {
 
 static const char *integratorName[] = {
         "Volumetric Path Tracer",
-        "Bidirectional Path Tracer",
-        "Multiplexed Metropolis Light Transport"
+       "Virtual Point Light"
 };
 
 
@@ -141,7 +146,7 @@ void Editor::integratorWindow() {
     }
     bool modified = false;
     if (ImGui::TreeNode("Integrator")) {
-        for (int n = 0; n < 3; n++) {
+        for (int n = 0; n < 2; n++) {
             if (ImGui::Selectable(integratorName[n], selectedIntegrator == n)) {
                 selectedIntegrator = n;
                 modified = true;
@@ -150,11 +155,11 @@ void Editor::integratorWindow() {
 
         if (ImGui::TreeNode("Settings")) {
             Float minDepth, maxDepth;
-            Float spp;
+            Float spp, maxRayIntensity;
             minDepth = IO::deserialize<Float>(renderEngine.description["integrator"]["minDepth"]);
             maxDepth = IO::deserialize<Float>(renderEngine.description["integrator"]["maxDepth"]);
             spp = IO::deserialize<Float>(renderEngine.description["integrator"]["spp"]);
-
+            maxRayIntensity = IO::deserialize<Float>(renderEngine.description["integrator"]["maxRayIntensity"]);
             if (InputFloat("spp", &spp)) {
                 renderEngine.description["integrator"]["spp"] = IO::serialize(spp);
                 modified = true;
@@ -165,6 +170,10 @@ void Editor::integratorWindow() {
             }
             if (InputFloat("maxDepth", &maxDepth)) {
                 renderEngine.description["integrator"]["maxDepth"] = IO::serialize(maxDepth);
+                modified = true;
+            }
+            if (InputFloat("clamp", &maxRayIntensity)) {
+                renderEngine.description["integrator"]["maxRayIntensity"] = IO::serialize(maxRayIntensity);
                 modified = true;
             }
 
@@ -198,6 +207,8 @@ void Editor::integratorWindow() {
                     renderEngine.description["integrator"]["type"] = std::string("volpath");
                 } else if (selectedIntegrator == _BDPT) {
                     renderEngine.description["integrator"]["type"] = std::string("bdpt");
+                } else if (selectedIntegrator == _VPL) {
+                    renderEngine.description["integrator"]["type"] = std::string("vpl");
                 }
                 renderEngine.loadIntegrator();
             } catch (std::exception &e) {

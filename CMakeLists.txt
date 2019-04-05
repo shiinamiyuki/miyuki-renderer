@@ -37,12 +37,13 @@ file(GLOB guiSRC
 file(GLOB integratorSRC
         "src/integrators/*.cc"
         "src/integrators/volpath/*.cc"
+        "src/integrators/vpl/*.cc"
         "src/bidir/*.cc"
-        "src/integrators/mmlt/*.cc"
-        "src/integrators/bdpt/*.cc"
+#        "src/integrators/mmlt/*.cc"
+#        "src/integrators/bdpt/*.cc"
 #        "src/integrators/pssmlt/*.cc"
 #        "src/integrators/erpt/*.cc"
-        "src/integrators/guided_path/*.cc"
+#        "src/integrators/guided_path/*.cc"
         )
 file(GLOB editorSRC
         "src/editor/*.cc"

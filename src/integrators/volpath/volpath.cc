@@ -175,7 +175,7 @@ namespace Miyuki {
 
     VolPath::VolPath(const ParameterSet &set) {
         progressive = set.findInt("integrator.progressive", false);
-        minDepth = set.findInt("integrator.minDepth", 3);
+        minDepth = set.findInt("integrator.minDepth", 1);
         maxDepth = set.findInt("integrator.maxDepth", 5);
         spp = set.findInt("integrator.spp", 4);
         maxRayIntensity = set.findFloat("integrator.maxRayIntensity", 10000.0f);
