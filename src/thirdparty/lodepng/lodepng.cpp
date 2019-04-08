@@ -6132,7 +6132,7 @@ unsigned encode(const std::string& filename,
                 LodePNGColorType colortype, unsigned bitdepth)
 {
   if(lodepng_get_raw_size_lct(w, h, colortype, bitdepth) > in.size()) return 84;
-  return encode(filename, in.empty() ? 0 : &in[0], w, h, colortype, bitdepth);
+  return encode(filename, in.empty() ? nullptr : &in[0], w, h, colortype, bitdepth);
 }
 #endif //LODEPNG_COMPILE_DISK
 #endif //LODEPNG_COMPILE_ENCODER

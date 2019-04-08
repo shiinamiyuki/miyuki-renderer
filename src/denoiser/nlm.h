@@ -10,14 +10,16 @@
 #include <utils/thread.h>
 
 namespace Miyuki {
-    inline Float EuclideanDistanceSqr(const Spectrum &a, const Spectrum &b) {
-        return (a - b).lengthSquared();
+    inline Float NLMDistanceSqr(const Spectrum &a, const Spectrum &b) {
+        return (std::pow(a.r() - b.r(), 2.0f)
+                + std::pow(a.g() - b.g(), 2.0f)
+                + std::pow(a.b() - b.b(), 2.0f)) / 3.0f;
     }
 
     template<typename Texel>
-    void NLMeansWeights(const IO::GenericImage<Texel> &in,
-                        IO::GenericImage<Texel> &out,
-                        int windowSize = 7) {
+    void BoxFilter(const IO::GenericImage<Texel> &in,
+                   IO::GenericImage<Texel> &out,
+                   int windowSize = 7) {
         IO::GenericImage<Texel> temp(in.width, in.height);
         for (int i = 0; i < in.height; i++) {
             Texel sum = Texel();
@@ -50,27 +52,54 @@ namespace Miyuki {
                  IO::GenericImage<Texel> &out,
                  int searchWindowSize = 21,
                  int blockSize = 7,
-                 Float h = 1.0f) {
-        IO::GenericImage<Texel> B(in.width, in.height);
+                 Float h = 1.0f,
+                 Float sigma = 2.0f) {
         out = IO::GenericImage<Texel>(in.width, in.height);
-        NLMeansWeights(in, B, blockSize);
-        int w = (searchWindowSize - 1) / 2;
-        Thread::ParallelFor(0u, in.width, [&](uint32_t i, uint32_t) {
-            for (int j = 0; j < in.height; j++) {
-                double weightSum = 0;
-                auto Bp = B(i, j);
-                Texel sum;
-                for (int dx = -w; dx <= w; dx++) {
-                    for (int dy = -w; dy <= w; dy++) {
-                        auto Bq = B(i + dx, j + dy);
-                        auto f = exp(-EuclideanDistanceSqr(Bp, Bq) / (h * h));
-                        sum += f * in(i + dx, j + dy);
-                        weightSum += f;
-                    }
-                }
-                out(i, j) = weightSum != 0 ? sum / weightSum : sum;
+        std::vector<IO::GenericImage<Float>> u;
+        std::vector<IO::GenericImage<Float>> v;
+        for (int i = 0; i < searchWindowSize * searchWindowSize; i++) {
+            u.emplace_back(in.width, in.height);
+            v.emplace_back(in.width, in.height);
+        }
+        auto mapS2 = [=](int i) {
+            const int S = (searchWindowSize - 1) / 2;
+            return Point2i(i % searchWindowSize, i / searchWindowSize) - Point2i(S, S);
+        };
+
+        auto mapU = [=](int i) {
+            return Point2i(i % in.width, i / in.width);
+        };
+
+        // u_n[k] = (y[k+n] - y[n])^2
+        Thread::ParallelFor(0u, in.width * in.height, [&](uint32_t k, uint32_t) {
+            auto p = mapU(k);
+            for (int n = 0; n < searchWindowSize * searchWindowSize; n++) {
+                auto offset = mapS2(n);
+                auto ykn = in(p + offset);
+                auto yk = in(p);
+                auto dist = (NLMDistanceSqr(ykn, yk));
+                u[n][k] = dist;
             }
+        }, 4096);
+        Thread::ParallelFor(0u, searchWindowSize * searchWindowSize, [&](uint32_t n, uint32_t) {
+            BoxFilter(u[n], v[n], blockSize);
         });
+        Thread::ParallelFor(0u, in.width * in.height, [&](uint32_t k, uint32_t) {
+            Float weightSum = 0;
+            Texel sum;
+            auto p = mapU(k);
+            for (int n = 0; n < searchWindowSize * searchWindowSize; n++) {
+                Float weight = std::exp(-v[n][k] / (h * h));
+                auto offset = mapS2(n);
+                auto yn = in(p + offset);
+                sum += in(p + offset) * weight;
+                weightSum += weight;
+            }
+            if (weightSum != 0) {
+                sum /= weightSum;
+            }
+            out[k] = sum;
+        }, 4096);
     }
 }
 

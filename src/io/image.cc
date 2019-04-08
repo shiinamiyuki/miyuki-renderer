@@ -8,8 +8,8 @@
 #include <boost/lexical_cast.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
-
-#include "thirdparty/stb/stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <thirdparty/stb/stb_image.h>
 #include <thirdparty/stb/stb_image_write.h>
 #include <utils/thread.h>
 
@@ -48,15 +48,16 @@ namespace Miyuki {
         }
 
         void Image::save(const std::string &filename) {
+
             std::vector<unsigned char> pixelBuffer;
             for (const auto &i:pixelData) {
-                auto out = i.gammaCorrection();
+                auto out = removeNaNs(i).gammaCorrection();
                 pixelBuffer.emplace_back(out.r());
                 pixelBuffer.emplace_back(out.g());
                 pixelBuffer.emplace_back(out.b());
                 pixelBuffer.emplace_back(255);
             }
-            lodepng::encode(filename, pixelBuffer, (uint32_t) width, (uint32_t) height);
+            stbi_write_png(filename.c_str(), width, height, 4, &pixelBuffer[0], width * 4);
         }
 
         void LoadHDR(const std::string &filename, Image &image) {
@@ -66,8 +67,8 @@ namespace Miyuki {
             image.pixelData.resize(image.width * image.height);
             Thread::ParallelFor(0u, image.width * image.height, [&](uint32_t i, uint32_t threadId) {
                 image.pixelData[i] = Spectrum(data[3 * i],
-                        data[3 * i + 1],
-                        data[3 * i + 2]);
+                                              data[3 * i + 1],
+                                              data[3 * i + 2]);
             }, 1024);
             free(data);
 

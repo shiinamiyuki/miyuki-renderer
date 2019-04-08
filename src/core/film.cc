@@ -105,6 +105,19 @@ namespace Miyuki {
         }
     }
 
+    void Film::enableAuxBuffer() {
+        auxBuffer = std::make_unique<IO::GenericImage<ShadingContext>>(width(), height());
+    }
+
+    void Film::addSample(const Point2f &p, const ShadingContext &context) {
+        if (auxBuffer) {
+            int x = clamp(lroundf(p.x()), 0, width() - 1);
+            int y = clamp(lroundf(p.y()), 0, height() - 1);
+            auto &pixel = (*auxBuffer)(x, y);
+            pixel.combineSamples(context);
+        }
+    }
+
     FilmTile::FilmTile(const Bound2i &bound2i, const Float *filterTable, const Filter *filter)
             : pixelBounds(bound2i), filterTable(filterTable), filter(filter) {
         int area = (pixelBounds.pMax.x() - pixelBounds.pMin.x())

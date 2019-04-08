@@ -4,6 +4,7 @@ project(Miyuki)
 set(CMAKE_CXX_STANDARD 17)
 include_directories("src/")
 link_libraries(embree3 boost_system boost_filesystem boost_unit_test_framework glfw3 opengl32)
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ")
 file(GLOB coreSRC
         "src/core/*.cc"
         "src/math/*.cc"
@@ -48,7 +49,7 @@ file(GLOB integratorSRC
 file(GLOB editorSRC
         "src/editor/*.cc"
         )
-add_executable(MiyukiGUI
+add_executable(_MiyukiGUI
         "src/miyuki.h"
         ${thirdpartySRC}
         ${utilsSRC}
@@ -65,7 +66,7 @@ add_executable(Miyuki
         ${integratorSRC}
         src/renderer/miyuki.cc
         src/renderer/renderengine.cc)
-add_executable(editor
+add_executable(myk-gui
         ${coreSRC}
         ${thirdpartySRC}
         ${utilsSRC}
@@ -89,3 +90,12 @@ add_executable(verify
         ${coreSRC}
         ${integratorSRC}
         "src/tools/verify.cc")
+
+add_executable(denoiser
+        ${utilsSRC}
+        ${thirdpartySRC}
+        "src/tools/nlmdenoiser.cc"
+        "src/io/image.cc"
+        "src/io/io.cc"
+        "src/core/spectrum.cc"
+        )

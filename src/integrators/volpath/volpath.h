@@ -35,10 +35,14 @@ namespace Miyuki {
 
         void renderAdaptive(Scene &scene);
 
+        void renderNonProgressive(Scene &scene);
+
         void renderProgressive(Scene &scene) override;
 
     protected:
         Spectrum Li(RenderContext &ctx, Scene &scene) override;
+
+        ShadingContext LiWithAuxBuffer(RenderContext &ctx, Scene &scene);
     };
 
 }

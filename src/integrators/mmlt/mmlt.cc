@@ -15,11 +15,14 @@ namespace Miyuki {
     const int MultiplexedMLT::nStream = 3;
     const int MultiplexedMLT::twoStageSampleFactor = 20;
 
-    MultiplexedMLT::MultiplexedMLT(const ParameterSet &set) : BDPT(set) {
+    MultiplexedMLT::MultiplexedMLT(const ParameterSet &set) {
         nBootstrap = set.findInt("integrator.nBootstrap", 100000);
         nDirect = set.findInt("integrator.nDirect", 16);
         nChains = set.findInt("integrator.nChains", 8);
         largeStep = set.findFloat("integrator.largeStep", 0.25f);
+        maxDepth = set.findInt("integrator.maxDepth", 5);
+        spp = set.findInt("integrator.spp", 16);
+        maxRayIntensity = set.findFloat("integrator.maxRayIntensity", 10000.0f);
         MLTSampler::maxConsecutiveRejects = set.findInt("sampler.maxConsecutiveRejects", 512);
         useKelemenWeight = true;
     }
@@ -253,12 +256,12 @@ namespace Miyuki {
         }
         auto ctx = scene.getRenderContext(imageLoc, arena, sampler);
         CHECK(ctx.sampler == sampler);
-        auto cameraSubPath = generateCameraSubPath(scene, ctx, t, t);
+        auto cameraSubPath = Bidir::GenerateCameraSubPath(scene, ctx, t, t);
         if (cameraSubPath.N < t) {
             return {};
         }
         sampler->startStream(lightStreamIndex);
-        auto lightSubPath = generateLightSubPath(scene, ctx, s, s);
+        auto lightSubPath = Bidir::GenerateLightSubPath(scene, ctx, s, s);
         if (lightSubPath.N < s) {
             return {};
         }
@@ -269,7 +272,7 @@ namespace Miyuki {
         *raster = ctx.raster;
         sampler->startStream(connectionStreamIndex);
         auto Li = clampRadiance(
-                removeNaNs(connectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, raster)),
+                removeNaNs(Bidir::ConnectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, raster, true, nullptr)),
                 maxRayIntensity) * nStrategies;
         return Li;
 

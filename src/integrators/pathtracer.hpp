@@ -6,6 +6,7 @@
 #define MIYUKI_PATHTRACER_HPP
 
 #include <integrators/integrator.h>
+#include <core/shadingcontext.hpp>
 
 // WIP
 // Generic Path Tracer using CRTP to improve efficiency (maybe)
@@ -115,11 +116,11 @@ namespace Miyuki {
             getPointer()->makeScatteringEventImpl(event, ctx, intersection);
         }
 
-        Spectrum Li(Scene &scene,
-                    RayDifferential ray,
-                    RenderContext &ctx,
-                    int minDepth,
-                    int maxDepth) {
+        ShadingContext Li(Scene &scene,
+                          RayDifferential ray,
+                          RenderContext &ctx,
+                          int minDepth,
+                          int maxDepth) {
             int depth = 0;
             EventType event;
             Intersection intersection;
@@ -127,17 +128,34 @@ namespace Miyuki {
             Spectrum Li(0), beta(1);
             bool specular = false;
             bool valid = false;
+            ShadingContext shadingContext;
+            Spectrum directLighting, indirectLighting;
             while (true) {
                 if (valid) {
                     intersection = tempIsct;
                 } else if (!scene.intersect(ray, &intersection)) {
-                    Li += beta * scene.infiniteAreaLight->L(ray);
+                    auto L = beta * scene.infiniteAreaLight->L(ray);
+                    if (depth == 0) {
+                        directLighting += L;
+                    }
+                    Li += L;
                     break;
                 }
 
                 makeScatteringEvent(&event, ctx, &intersection);
+
+                if (depth == 0) {
+                    shadingContext.depth = ShadingContextElement(Spectrum(intersection.hitDistance()), 1);
+                    shadingContext.normal = ShadingContextElement(intersection.Ns, 1);
+                    shadingContext.albedo = ShadingContextElement(
+                            intersection.primitive->material()->albedo(event), 1);
+                }
                 if (specular || depth == 0) {
-                    Li += event.Le(-1 * ray.d) * beta;
+                    auto L = event.Le(-1 * ray.d) * beta;
+                    Li += L;
+                    if (depth == 0) {
+                        directLighting += L;
+                    }
                 }
                 if (++depth > maxDepth) {
                     break;
@@ -146,8 +164,13 @@ namespace Miyuki {
                 valid = false;
                 Spectrum sampledF;
 
-                Li += beta * estimateDirect(scene, ctx, event, sampledF, &temp, &tempIsct, &valid);
+                auto Ld = beta * estimateDirect(scene, ctx, event, sampledF, &temp, &tempIsct, &valid);
 
+                if (depth == 1) {
+                    directLighting += Ld;
+                }
+
+                Li += Ld;
                 Spectrum f;
                 if (!valid) {
                     f = sample(event);
@@ -173,7 +196,11 @@ namespace Miyuki {
                     }
                 }
             }
-            return Li;
+            indirectLighting = Li - directLighting;
+            shadingContext.color = ShadingContextElement(Li, 1);
+            shadingContext.direct = ShadingContextElement(directLighting / shadingContext.albedo.eval(), 1);
+            shadingContext.indirect = ShadingContextElement(indirectLighting / shadingContext.albedo.eval(), 1);
+            return shadingContext;
         }
     };
 }

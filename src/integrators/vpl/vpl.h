@@ -9,10 +9,11 @@
 
 
 namespace Miyuki {
-    class VPL : public Integrator{
-        int minDepth,maxDepth;
+    class VPL : public Integrator {
+        int minDepth, maxDepth;
     public:
-        VPL(const ParameterSet&set);
+        VPL(const ParameterSet &set);
+
         void render(Scene &scene) override;
     };
 }

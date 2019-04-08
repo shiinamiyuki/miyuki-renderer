@@ -6,7 +6,7 @@
 #include <math/func.h>
 #include <integrators/volpath/volpath.h>
 #include <integrators/vpl/vpl.h>
-//#include <integrators/mmlt/mmlt.h>
+#include <integrators/mmlt/mmlt.h>
 //#include <integrators/bdpt/bdpt.h>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
@@ -20,12 +20,16 @@ static void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-
+#include <denoiser/nlm.h>
 int main(int argc, char **argv) {
     using namespace Miyuki;
     try {
         std::unique_ptr<Editor> editor(new Editor(argc, argv));
         editor->show();
+//        IO::Image image("data/test-scenes/fireplace_room/temp.png");
+//        IO::Image out(image.width,image.height);
+//        NLMeansWeights(image, out);
+//        out.save("data/test-scenes/fireplace_room/out.png");
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
@@ -34,8 +38,8 @@ int main(int argc, char **argv) {
 
 #define _VOLPATH 0
 #define _VPL 1
-#define _BDPT 2
-#define _MMLT 3
+#define _BDPT 3
+#define _MMLT 2
 
 Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
     renderEngine.setGuiMode(true);
@@ -51,12 +55,13 @@ Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
     Assert(renderEngine.integrator);
     if (typeid(*renderEngine.integrator) == typeid(VolPath)) {
         selectedIntegrator = _VOLPATH;
-    } else  if (typeid(*renderEngine.integrator) == typeid(VPL)) {
+    } else if (typeid(*renderEngine.integrator) == typeid(VPL)) {
         selectedIntegrator = _VPL;
     }
 //    else if (typeid(*renderEngine.integrator) == typeid(MultiplexedMLT)) {
 //        selectedIntegrator = _MMLT;
-//    } else if (typeid(*renderEngine.integrator) == typeid(BDPT)) {
+//    }
+//    else if (typeid(*renderEngine.integrator) == typeid(BDPT)) {
 //        selectedIntegrator = _BDPT;
 //    }
 
@@ -134,7 +139,8 @@ bool InputString(const char *prompt, std::string &s) {
 
 static const char *integratorName[] = {
         "Volumetric Path Tracer",
-       "Virtual Point Light"
+        "Virtual Point Light",
+        "MMLT"
 };
 
 
@@ -675,6 +681,18 @@ void Editor::stopRenderThread() {
     renderEngine.stopRender();
     renderThread->join();
     renderEngine.integrator = nullptr;
+}
+
+void Editor::handleEvents() {
+    rerender = false;
+    mainEditorWindow();
+    if (rerender) {
+        if(runIntegrator){
+            stopRenderThread();
+            startRenderThread();
+        } else
+            update();
+    }
 }
 
 

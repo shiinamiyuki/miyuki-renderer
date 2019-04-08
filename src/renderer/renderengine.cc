@@ -237,7 +237,8 @@ namespace Miyuki {
 //                else if (type == "bdpt") {
 //                    parameters.addString("integrator", "bdpt");
 //                    integrator = std::make_unique<BDPT>(parameters);
-//                } else if (type == "mlt") {
+//                }
+//                else if (type == "mlt") {
 //                    parameters.addString("integrator", type);
 //                    integrator = std::make_unique<MultiplexedMLT>(parameters);
 //                }

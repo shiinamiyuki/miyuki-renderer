@@ -9,10 +9,13 @@
 #include "spectrum.h"
 #include "utils/atomicfloat.h"
 #include <filters/filter.h>
+#include <core/shadingcontext.hpp>
+#include <io/image.h>
 
 namespace Miyuki {
     static constexpr int TileSize = 64;
     static constexpr int FilterTableWidth = 16;
+
 
     struct Pixel {
         Spectrum value;
@@ -42,9 +45,9 @@ namespace Miyuki {
         std::vector<TilePixel> pixels;
         Bound2i pixelBounds;
         const Float *filterTable = nullptr;
-        const Filter * filter;
+        const Filter *filter;
     public:
-        FilmTile(const Bound2i &bound2i,const Float *filterTable, const Filter * filter);
+        FilmTile(const Bound2i &bound2i, const Float *filterTable, const Filter *filter);
 
         TilePixel &getPixel(const Point2i &);
 
@@ -55,6 +58,7 @@ namespace Miyuki {
 
     class Film {
     public:
+        std::unique_ptr<IO::GenericImage<ShadingContext>> auxBuffer;
         std::vector<Pixel> image;
         std::unique_ptr<Filter> filter;
     private:
@@ -96,6 +100,10 @@ namespace Miyuki {
         void mergeFilmTile(const FilmTile &);
 
         std::unique_ptr<FilmTile> getFilmTile(const Bound2i &bounds);
+
+        void enableAuxBuffer();
+
+        void addSample(const Point2f &, const ShadingContext &);
     };
 }
 #endif //MIYUKI_FILM_H

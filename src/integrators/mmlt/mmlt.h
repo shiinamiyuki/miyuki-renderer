@@ -61,13 +61,16 @@ namespace Miyuki {
 
     };
 
-    class MultiplexedMLT : public BDPT {
+    class MultiplexedMLT : public Integrator {
         int nBootstrap;
         int nChains;
         int64_t nMutations;
         Float largeStep;
         int nDirect;
         bool useKelemenWeight;
+        int maxDepth;
+        int spp;
+        Float maxRayIntensity;
         static const int cameraStreamIndex;
         static const int lightStreamIndex;
         static const int connectionStreamIndex;

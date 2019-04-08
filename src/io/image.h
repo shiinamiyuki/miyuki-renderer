@@ -7,6 +7,7 @@
 
 #include "io.h"
 #include "core/spectrum.h"
+#include <core/geometry.h>
 
 namespace Miyuki {
     namespace IO {
@@ -35,6 +36,22 @@ namespace Miyuki {
                 return pixelData[x + width * y];
             }
 
+            Texel &operator()(const Point2i &p) {
+                return (*this)(p[0], p[1]);
+            }
+
+            const Texel &operator()(const Point2i &p) const {
+                return (*this)(p[0], p[1]);
+            }
+            Texel &operator[](int i) {
+                Assert(0 <= i && i < pixelData.size());
+                return pixelData[i];
+            }
+
+            const Texel &operator[](int i) const{
+                Assert(0 <= i && i < pixelData.size());
+                return pixelData[i];
+            }
             GenericImage() : width(0), height(0) {}
 
             GenericImage(int width, int height) : width(width), height(height), pixelData(width * height) {}
@@ -44,13 +61,14 @@ namespace Miyuki {
         struct Image : GenericImage<Spectrum> {
             ImageFormat format = ImageFormat::none;
             std::string filename;
-
+            Image():GenericImage<Spectrum>(){}
             Image(int width, int height) : GenericImage<Spectrum>(width, height) {}
 
             Image(const std::string &filename, ImageFormat format = ImageFormat::none);
 
             void save(const std::string &filename);
         };
+
         void LoadHDR(const std::string &filename, Image &);
     }
 }

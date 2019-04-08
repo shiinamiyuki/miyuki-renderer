@@ -92,13 +92,7 @@ namespace Miyuki {
 
         void objectPicker();
 
-        void handleEvents() {
-            rerender = false;
-            mainEditorWindow();
-            if (rerender) {
-                update();
-            }
-        }
+        void handleEvents();
 
         void showDebug();
 
