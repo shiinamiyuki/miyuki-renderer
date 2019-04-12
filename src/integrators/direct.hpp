@@ -19,18 +19,19 @@ namespace Miyuki {
             vertices[0] = Bidir::CreateCameraVertex(ctx.camera, ctx.raster, ctx.primary, 1.0f, beta);
             auto path = Bidir::RandomWalk(vertices + 1, ctx.primary, beta,
                                           1.0f, scene, ctx, 1, 1,
-                                          TransportMode::importance);
+                                          TransportMode::radiance);
             Spectrum Li(0, 0, 0);
             bool specular = false;
             ctx.sampler->startDimension(4 + 4 * 1);
-            for (int depth = 0; depth < path.N; depth++) {
-                if (specular || depth == 0) {
-                    Vec3f wo = (path[depth - 1].ref - path[depth].ref).normalized();
-                    Li += path[depth].beta * path[depth].Le(wo);
-                }
+            Assert(path.N == 1);
+            int depth = 0;
+
+            Li += path[depth].beta * path[depth].Le(path[depth - 1]);
+
+            if (!path[depth].isInfiniteLight())
                 Li += path[depth].beta * importanceSampleOneLight(scene, ctx, *path[depth].event);
-                specular = path[depth].delta;
-            }
+            specular = path[depth].delta;
+
             return Li;
         }
 

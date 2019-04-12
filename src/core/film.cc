@@ -115,6 +115,10 @@ namespace Miyuki {
             int y = clamp(lroundf(p.y()), 0, height() - 1);
             auto &pixel = (*auxBuffer)(x, y);
             pixel.combineSamples(context);
+            pixel.color.variance.addSample(context.color.eval());
+            pixel.depth.variance.addSample(context.depth.eval());
+            pixel.normal.variance.addSample(context.normal.eval());
+            pixel.albedo.variance.addSample(context.albedo.eval());
         }
     }
 

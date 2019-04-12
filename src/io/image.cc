@@ -8,10 +8,11 @@
 #include <boost/lexical_cast.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <thirdparty/stb/stb_image.h>
+
+#include "thirdparty/stb/stb_image.h"
 #include <thirdparty/stb/stb_image_write.h>
 #include <utils/thread.h>
+#include <utils/atomicfloat.h>
 
 namespace Miyuki {
     namespace IO {
@@ -48,16 +49,25 @@ namespace Miyuki {
         }
 
         void Image::save(const std::string &filename) {
+            switch (format) {
+                case ImageFormat::none: {
+                    std::vector<unsigned char> pixelBuffer;
+                    for (const auto &i:pixelData) {
+                        auto out = removeNaNs(i).gammaCorrection();
+                        pixelBuffer.emplace_back(out.r());
+                        pixelBuffer.emplace_back(out.g());
+                        pixelBuffer.emplace_back(out.b());
+                        pixelBuffer.emplace_back(255);
+                    }
+                    lodepng::encode(filename, pixelBuffer, (uint32_t) width, (uint32_t) height);
+                }
+                case ImageFormat::myk_binary: {
 
-            std::vector<unsigned char> pixelBuffer;
-            for (const auto &i:pixelData) {
-                auto out = removeNaNs(i).gammaCorrection();
-                pixelBuffer.emplace_back(out.r());
-                pixelBuffer.emplace_back(out.g());
-                pixelBuffer.emplace_back(out.b());
-                pixelBuffer.emplace_back(255);
+                }
+
+                default:
+                    throw NotImplemented();
             }
-            stbi_write_png(filename.c_str(), width, height, 4, &pixelBuffer[0], width * 4);
         }
 
         void LoadHDR(const std::string &filename, Image &image) {
@@ -73,5 +83,69 @@ namespace Miyuki {
             free(data);
 
         }
+
+        template<size_t N>
+        struct MYKBinaryImage : GenericImage<Vec<Float, N>> {
+        public:
+            MYKBinaryImage(const std::string &filename) {
+                std::ifstream input(filename, std::ios::binary);
+                std::vector<char> buffer(std::istreambuf_iterator<char>(input), {});
+                auto read = [&](std::vector<char>::iterator &iter) {
+                    return *iter++;
+                };
+                auto readInt = [&](std::vector<char>::iterator &iter) {
+                    char tmp[4];
+                    tmp[0] = read(iter);
+                    tmp[1] = read(iter);
+                    tmp[2] = read(iter);
+                    tmp[3] = read(iter);
+                    return *reinterpret_cast<uint32_t *>(tmp);
+                };
+                auto readFloat = [&](std::vector<char>::iterator &iter) {
+                    return bitsToFloat(readInt(iter));
+                };
+                auto iter = buffer.begin();
+                std::string s;
+                for (int i = 0; i < 3; i++)
+                    s += read(iter);
+                if (s != "MYK") {
+                    fmt::print(stderr, "Not a valid binary file\n");
+                    return;
+                }
+                this->width = readInt(iter);
+                this->height = readInt(iter);
+                int ch = readInt(iter);
+                if (ch != N) {
+                    fmt::print(stderr, "expected {} channels but have {}\n");
+                    return;
+                }
+            }
+
+            void save(const std::string &filename) {
+                std::vector<char> data;
+                auto write = [&](uint32_t x) {
+                    char tmp[4];
+                    *reinterpret_cast<uint32_t *>(tmp) = x;
+                    data.emplace_back(tmp[0]);
+                    data.emplace_back(tmp[1]);
+                    data.emplace_back(tmp[2]);
+                    data.emplace_back(tmp[3]);
+                };
+                for (auto &s: std::string("MYK")) {
+                    data.emplace_back(s);
+                }
+                write(this->width);
+                write(this->height);
+                write(N);
+                for (const auto &i:this->pixelData) {
+                    auto out = removeNaNs(i);
+                    for (int k = 0; k < N; k++)
+                        write(floatToBits(out[k]));
+
+                }
+                std::ofstream out(filename);
+                out.write(&data[0], data.size());
+            }
+        };
     }
 }

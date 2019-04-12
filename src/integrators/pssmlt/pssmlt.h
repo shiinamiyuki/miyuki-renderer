@@ -26,7 +26,7 @@ namespace Miyuki {
         std::unique_ptr<ProgressReporter<uint64_t>> reporter;
         std::mutex mutex;
 
-        Spectrum radiance(Scene &scene, MemoryArena *arena, MLTSampler *sampler, Point2i *raster);
+        Spectrum Li(Scene &scene, MemoryArena *arena, MLTSampler *sampler, Point2f *raster);
 
         void handleDirect(Scene &scene);
 
@@ -41,10 +41,6 @@ namespace Miyuki {
 
         void render(Scene &scene) override;
 
-
-        void renderProgressive(Scene &scene);
-
-        void renderNonProgressive(Scene &scene);
 
         void recoverImage(Scene &scene);
 

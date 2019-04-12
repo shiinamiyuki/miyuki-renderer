@@ -13,6 +13,8 @@
 namespace Miyuki {
     template<typename IntegratorType, typename EventType>
     struct PathTracer {
+        bool sampleDirect = true;
+
         IntegratorType *getPointer() {
             return static_cast<IntegratorType *>(this);
         }
@@ -129,16 +131,12 @@ namespace Miyuki {
             bool specular = false;
             bool valid = false;
             ShadingContext shadingContext;
-            Spectrum directLighting, indirectLighting;
             while (true) {
                 if (valid) {
                     intersection = tempIsct;
                 } else if (!scene.intersect(ray, &intersection)) {
-                    auto L = beta * scene.infiniteAreaLight->L(ray);
-                    if (depth == 0) {
-                        directLighting += L;
-                    }
-                    Li += L;
+                    if(sampleDirect || depth > 0)
+                        Li += beta * scene.infiniteAreaLight->L(ray);
                     break;
                 }
 
@@ -151,11 +149,7 @@ namespace Miyuki {
                             intersection.primitive->material()->albedo(event), 1);
                 }
                 if (specular || depth == 0) {
-                    auto L = event.Le(-1 * ray.d) * beta;
-                    Li += L;
-                    if (depth == 0) {
-                        directLighting += L;
-                    }
+                    Li += event.Le(-1 * ray.d) * beta;
                 }
                 if (++depth > maxDepth) {
                     break;
@@ -164,13 +158,8 @@ namespace Miyuki {
                 valid = false;
                 Spectrum sampledF;
 
-                auto Ld = beta * estimateDirect(scene, ctx, event, sampledF, &temp, &tempIsct, &valid);
-
-                if (depth == 1) {
-                    directLighting += Ld;
-                }
-
-                Li += Ld;
+                if (sampleDirect || depth > 1)
+                    Li += beta * estimateDirect(scene, ctx, event, sampledF, &temp, &tempIsct, &valid);
                 Spectrum f;
                 if (!valid) {
                     f = sample(event);
@@ -196,10 +185,7 @@ namespace Miyuki {
                     }
                 }
             }
-            indirectLighting = Li - directLighting;
             shadingContext.color = ShadingContextElement(Li, 1);
-            shadingContext.direct = ShadingContextElement(directLighting / shadingContext.albedo.eval(), 1);
-            shadingContext.indirect = ShadingContextElement(indirectLighting / shadingContext.albedo.eval(), 1);
             return shadingContext;
         }
     };

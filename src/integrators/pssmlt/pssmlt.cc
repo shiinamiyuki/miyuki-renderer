@@ -7,9 +7,9 @@
 
 namespace Miyuki {
 
-    Spectrum PSSMLT::radiance(Scene &scene, MemoryArena *arena, MLTSampler *sampler, Point2i *raster) {
+    Spectrum PSSMLT::Li(Scene &scene, MemoryArena *arena, MLTSampler *sampler, Point2f *raster) {
         auto imageLoc = sampler->sampleImageLocation();
-        *raster = imageLoc;
+        *raster = Point2f(imageLoc);
         sampler->startStream(0);
         auto ctx = scene.getRenderContext(imageLoc, arena, sampler);
         auto L = VolPath::Li(ctx, scene);
@@ -46,10 +46,10 @@ namespace Miyuki {
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
         Thread::ParallelFor(0u, nBootstrap, [&](uint32_t i, uint32_t threadId) {
             arenas[threadId].reset();
-            Point2i raster;
+            Point2f raster;
             MLTSampler sampler(&bootstrapSeeds[i], 1, largeStep, scene.filmDimension(), maxDepth);
-            auto L = radiance(scene, &arenas[threadId], &sampler,
-                              &raster);
+            auto L = Li(scene, &arenas[threadId], &sampler,
+                        &raster);
             L = removeNaNs(L);
             bootstrapWeights[i] = L.luminance();
 
@@ -66,8 +66,8 @@ namespace Miyuki {
 
             samplers[i] = std::make_shared<MLTSampler>(&mltSeeds[i], 1, largeStep, scene.filmDimension(),
                                                        maxDepth);
-            samplers[i]->L = radiance(scene, &arenas[0], samplers[i].get(),
-                                      &samplers[i]->imageLocation);
+            samplers[i]->L = Li(scene, &arenas[0], samplers[i].get(),
+                                &samplers[i]->imageLocation);
             do {
                 mltSeeds[i] = dist2(rd);
             } while (mltSeeds[i] == 0);
@@ -79,8 +79,8 @@ namespace Miyuki {
         static std::random_device rd;
         static std::uniform_real_distribution<Float> dist;
         sampler->startIteration();
-        Point2i pProposed;
-        auto LProposed = radiance(scene, arena, sampler, &pProposed);
+        Point2f pProposed;
+        auto LProposed = Li(scene, arena, sampler, &pProposed);
         Float accept;
         if (sampler->L.luminance() == 0)
             accept = 1;
@@ -94,9 +94,11 @@ namespace Miyuki {
             sampler->nonZeroCount++;
         }
         auto LNew = removeNaNs(Spectrum(
-                LProposed * accept / LProposed.luminance()));
+                LProposed *
+                (accept + (sampler->large() ? 1.0f : 0.0f)) / (LProposed.luminance() / b + largeStep)));
         auto LOld = removeNaNs(Spectrum(
-                sampler->L * (1 - accept) / sampler->L.luminance()));
+                sampler->L *
+                (1 - accept) / (sampler->L.luminance() / b + largeStep)));
         if (accept > 0) {
             scene.film->addSplat(pProposed, LNew);
         }
@@ -132,11 +134,9 @@ namespace Miyuki {
             static int last = -1;
             int64_t mpp = lround(cur / (double) nPixels);
             if (mpp == 0)return;
-            if (mpp > 4)
-                mpp /= 4;
-            if (cur % mpp == 0 && mpp != last) {
+            if (mpp != last) {
                 std::lock_guard<std::mutex> lockGuard(mutex);
-                if (reporter->count() % mpp == 0 && mpp != last) {
+                if (mpp != last) {
                     last = mpp;
                     fmt::print("Mutations per pixel: {}/{} Acceptance rate: {} ,Elapsed:{} Remaining:{}\n",
                                lround(cur / (double) nPixels),
@@ -151,7 +151,7 @@ namespace Miyuki {
             auto mpp = reporter->count() / (double) nPixels;
             for (int i = 0; i < film.width(); i++) {
                 for (int j = 0; j < film.height(); j++) {
-                    film.splatWeight({i, j}) = b / mpp;
+                    film.splatWeight({i, j}) = 1.0 / mpp;
                     auto out = film.getPixel(i, j).toInt();
                     auto idx = i + film.width() * (film.height() - j - 1);
                     pixelData[4 * idx] = out.x();
@@ -161,37 +161,9 @@ namespace Miyuki {
                 }
             }
         };
-        fmt::print("Start rendering; progressive = {}\n", progressive);
+        fmt::print("Start rendering;\n");
         acceptanceCounter = 0;
         mutationCounter = 0;
-        if (progressive) {
-            renderProgressive(scene);
-        } else {
-            renderNonProgressive(scene);
-        }
-
-    }
-
-    void PSSMLT::renderProgressive(Scene &scene) {
-        auto &film = *scene.film;
-        int nPixels = scene.filmDimension().x() * scene.filmDimension().y();
-        std::vector<MemoryArena> arenas(Thread::pool->numThreads());
-
-        for (int64_t curIter = 0; curIter < nMutations && scene.processContinuable(); curIter++) {
-            Thread::ParallelFor(0, nChains, [&](uint32_t idx, uint32_t threadId) {
-                auto sampler = samplers[idx].get();
-                runMC(scene, sampler, &arenas[threadId]);
-                arenas[threadId].reset();
-                reporter->update();
-            }, 64);
-        }
-        scene.update();
-        recoverImage(scene);
-    }
-
-    void PSSMLT::renderNonProgressive(Scene &scene) {
-        auto &film = *scene.film;
-        int nPixels = scene.filmDimension().x() * scene.filmDimension().y();
         std::vector<MemoryArena> arenas(Thread::pool->numThreads());
         Thread::ParallelFor(0, nChains, [&](uint32_t idx, uint32_t threadId) {
             for (int64_t curIter = 0; curIter < nMutations && scene.processContinuable(); curIter++) {
@@ -206,12 +178,13 @@ namespace Miyuki {
         recoverImage(scene);
     }
 
+
     void PSSMLT::recoverImage(Scene &scene) {
         int nPixels = scene.filmDimension().x() * scene.filmDimension().y();
         auto mpp = reporter->count() / (double) nPixels;
         for (int i = 0; i < scene.film->width(); i++) {
             for (int j = 0; j < scene.film->height(); j++) {
-                scene.film->splatWeight({i, j}) = b / mpp;
+                scene.film->splatWeight({i, j}) = 1.0 / mpp;
             }
         }
     }

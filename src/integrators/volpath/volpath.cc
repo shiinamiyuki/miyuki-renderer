@@ -153,6 +153,10 @@ namespace Miyuki {
 
     ShadingContext VolPath::LiWithAuxBuffer(RenderContext &ctx, Scene &scene) {
         struct VolPathTracer : PathTracer<VolPathTracer, ScatteringEvent> {
+            VolPathTracer(bool s) {
+                sampleDirect = s;
+            }
+
             Float pdfImpl(ScatteringEvent &event) {
                 return event.bsdf->pdf(event);
             }
@@ -178,7 +182,7 @@ namespace Miyuki {
                                          ctx, event, sampledF, sampledEvent, intersection, sampleValid);
             }
         };
-        return VolPathTracer().Li(scene, ctx.primary, ctx, minDepth, maxDepth);
+        return VolPathTracer(sampleDirect).Li(scene, ctx.primary, ctx, minDepth, maxDepth);
     }
 
 

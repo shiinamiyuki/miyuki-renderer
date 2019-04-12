@@ -27,13 +27,14 @@ namespace Miyuki {
         StatsVec accepts;
         StatsVec rejects;
 
-        MLTStats(int maxLength){
-            for(int i =0 ;i<maxLength;i++){
+        MLTStats(int maxLength) {
+            for (int i = 0; i < maxLength; i++) {
                 mutations[i] = std::make_shared<std::atomic<uint64_t>>(0);
                 accepts[i] = std::make_shared<std::atomic<uint64_t>>(0);
                 rejects[i] = std::make_shared<std::atomic<uint64_t>>(0);
             }
         }
+
         void mutate(int pathLength) {
             (*mutations[pathLength])++;
         }
@@ -58,8 +59,11 @@ namespace Miyuki {
                 pathLengthDistribution(&b[0], b.size()) {}
 
         MarkovChain &operator=(const MarkovChain &) = delete;
-
+        
     };
+
+    Spectrum MMLTPathContribution(Scene &scene, MemoryArena *arena,
+                                  MLTSampler *sampler, int depth, Point2f *raster, bool sampledDirect);
 
     class MultiplexedMLT : public Integrator {
         int nBootstrap;
@@ -71,10 +75,7 @@ namespace Miyuki {
         int maxDepth;
         int spp;
         Float maxRayIntensity;
-        static const int cameraStreamIndex;
-        static const int lightStreamIndex;
-        static const int connectionStreamIndex;
-        static const int nStream;
+
 
         static const int twoStageSampleFactor;
         DECLARE_STATS_MEMBER(uint64_t, acceptanceCounter);
@@ -85,19 +86,24 @@ namespace Miyuki {
         std::vector<Float> b;
         std::vector<std::shared_ptr<MarkovChain>> chains;
 
-        Spectrum radiance(Scene &scene, MemoryArena *arena, MLTSampler *sampler, int depth, Point2f *raster);
+        Spectrum Li(Scene &scene, MemoryArena *arena, MLTSampler *sampler, int depth, Point2f *raster);
 
         void handleDirect(Scene &scene);
 
         void generateBootstrapSamples(Scene &scene);
 
-        void run(MarkovChain & markovChain,Scene &scene, MemoryArena *arena);
+        void run(MarkovChain &markovChain, Scene &scene, MemoryArena *arena);
 
 
         void recoverImage(Scene &scene);
 
 
     public:
+        static const int cameraStreamIndex;
+        static const int lightStreamIndex;
+        static const int connectionStreamIndex;
+        static const int nStream;
+
         void render(Scene &scene) override;
 
         MultiplexedMLT(const ParameterSet &set);

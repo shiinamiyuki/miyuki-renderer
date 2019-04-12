@@ -6,20 +6,23 @@
 #define MIYUKI_SHADINGCONTEXT_HPP
 
 #include <core/spectrum.h>
+#include <math/variance.hpp>
 
 namespace Miyuki {
     struct ShadingContextElement {
         Spectrum value;
+        Variance<Spectrum> variance;
         Float weightSum = 0;
         bool valid = false;
 
         ShadingContextElement() {}
 
-        ShadingContextElement(const Spectrum& value, Float weight = 1)
+        ShadingContextElement(const Spectrum &value, Float weight = 1)
                 : value(value * weight), weightSum(weight), valid(true) {}
 
         void addSample(const Spectrum &value, Float weight = 1) {
-            this->value += value * weight;
+            auto v = value * weight;
+            this->value += value;
             weightSum += -weight;
         }
 
@@ -41,16 +44,12 @@ namespace Miyuki {
 
     struct ShadingContext {
         ShadingContextElement color;
-        ShadingContextElement direct;
-        ShadingContextElement indirect;
         ShadingContextElement albedo;
         ShadingContextElement depth;
         ShadingContextElement normal;
 
         void combineSamples(const ShadingContext &ctx) {
             color.combineSample(ctx.color);
-            direct.combineSample(ctx.direct);
-            indirect.combineSample(ctx.indirect);
             albedo.combineSample(ctx.albedo);
             depth.combineSample(ctx.depth);
             normal.combineSample(ctx.normal);

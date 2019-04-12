@@ -7,6 +7,7 @@
 #include <integrators/volpath/volpath.h>
 #include <integrators/vpl/vpl.h>
 #include <integrators/mmlt/mmlt.h>
+#include <integrators/pssmlt/pssmlt.h>
 //#include <integrators/bdpt/bdpt.h>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
@@ -21,6 +22,7 @@ static void glfw_error_callback(int error, const char *description) {
 }
 
 #include <denoiser/nlm.h>
+
 int main(int argc, char **argv) {
     using namespace Miyuki;
     try {
@@ -36,10 +38,13 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-#define _VOLPATH 0
-#define _VPL 1
-#define _BDPT 3
-#define _MMLT 2
+enum IntegratorType {
+    volpath = 0,
+    vpl,
+    mmlt,
+    pssmlt,
+    bdpt
+};
 
 Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
     renderEngine.setGuiMode(true);
@@ -51,16 +56,15 @@ Editor::Editor(int argc, char **argv) : GenericGUIWindow(argc, argv) {
         renderEngine.readPixelData(pixelDataBuffer, width, height);
         std::swap(pixelDataBuffer, pixelData);
     };
-    selectedIntegrator = _VOLPATH;
+    selectedIntegrator = volpath;
     Assert(renderEngine.integrator);
     if (typeid(*renderEngine.integrator) == typeid(VolPath)) {
-        selectedIntegrator = _VOLPATH;
+        selectedIntegrator = volpath;
     } else if (typeid(*renderEngine.integrator) == typeid(VPL)) {
-        selectedIntegrator = _VPL;
+        selectedIntegrator = vpl;
+    } else if (typeid(*renderEngine.integrator) == typeid(MultiplexedMLT)) {
+        selectedIntegrator = mmlt;
     }
-//    else if (typeid(*renderEngine.integrator) == typeid(MultiplexedMLT)) {
-//        selectedIntegrator = _MMLT;
-//    }
 //    else if (typeid(*renderEngine.integrator) == typeid(BDPT)) {
 //        selectedIntegrator = _BDPT;
 //    }
@@ -140,7 +144,8 @@ bool InputString(const char *prompt, std::string &s) {
 static const char *integratorName[] = {
         "Volumetric Path Tracer",
         "Virtual Point Light",
-        "MMLT"
+        "MMLT",
+        "PT-PSSMLT"
 };
 
 
@@ -152,7 +157,7 @@ void Editor::integratorWindow() {
     }
     bool modified = false;
     if (ImGui::TreeNode("Integrator")) {
-        for (int n = 0; n < 2; n++) {
+        for (int n = 0; n < 4; n++) {
             if (ImGui::Selectable(integratorName[n], selectedIntegrator == n)) {
                 selectedIntegrator = n;
                 modified = true;
@@ -183,7 +188,7 @@ void Editor::integratorWindow() {
                 modified = true;
             }
 
-            if (selectedIntegrator == _MMLT) {
+            if (selectedIntegrator == mmlt || selectedIntegrator == pssmlt) {
                 Float nChains, nDirect;
                 nChains = IO::deserialize<Float>(renderEngine.description["integrator"]["nChains"]);
                 nDirect = IO::deserialize<Float>(renderEngine.description["integrator"]["nDirect"]);
@@ -207,14 +212,16 @@ void Editor::integratorWindow() {
         }
         if (modified) {
             try {
-                if (selectedIntegrator == _MMLT) {
+                if (selectedIntegrator == mmlt) {
                     renderEngine.description["integrator"]["type"] = std::string("mlt");
-                } else if (selectedIntegrator == _VOLPATH) {
+                } else if (selectedIntegrator == volpath) {
                     renderEngine.description["integrator"]["type"] = std::string("volpath");
-                } else if (selectedIntegrator == _BDPT) {
+                } else if (selectedIntegrator == bdpt) {
                     renderEngine.description["integrator"]["type"] = std::string("bdpt");
-                } else if (selectedIntegrator == _VPL) {
+                } else if (selectedIntegrator == vpl) {
                     renderEngine.description["integrator"]["type"] = std::string("vpl");
+                } else if (selectedIntegrator == pssmlt) {
+                    renderEngine.description["integrator"]["type"] = std::string("pssmlt");
                 }
                 renderEngine.loadIntegrator();
             } catch (std::exception &e) {
@@ -687,7 +694,7 @@ void Editor::handleEvents() {
     rerender = false;
     mainEditorWindow();
     if (rerender) {
-        if(runIntegrator){
+        if (runIntegrator) {
             stopRenderThread();
             startRenderThread();
         } else

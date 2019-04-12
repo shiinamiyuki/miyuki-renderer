@@ -27,7 +27,6 @@ namespace Miyuki {
         double maxError = 0.05;
         Float heuristic;
         bool sampleDirect = true;
-        bool sampleIndirect = true;
     public:
         VolPath(const ParameterSet &set);
 

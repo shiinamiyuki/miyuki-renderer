@@ -16,6 +16,7 @@ namespace Miyuki {
             raw,
             bump,
             normal,
+            myk_binary
         };
 
         template<typename Texel>
@@ -43,15 +44,17 @@ namespace Miyuki {
             const Texel &operator()(const Point2i &p) const {
                 return (*this)(p[0], p[1]);
             }
+
             Texel &operator[](int i) {
                 Assert(0 <= i && i < pixelData.size());
                 return pixelData[i];
             }
 
-            const Texel &operator[](int i) const{
+            const Texel &operator[](int i) const {
                 Assert(0 <= i && i < pixelData.size());
                 return pixelData[i];
             }
+
             GenericImage() : width(0), height(0) {}
 
             GenericImage(int width, int height) : width(width), height(height), pixelData(width * height) {}
@@ -61,7 +64,9 @@ namespace Miyuki {
         struct Image : GenericImage<Spectrum> {
             ImageFormat format = ImageFormat::none;
             std::string filename;
-            Image():GenericImage<Spectrum>(){}
+
+            Image() : GenericImage<Spectrum>() {}
+
             Image(int width, int height) : GenericImage<Spectrum>(width, height) {}
 
             Image(const std::string &filename, ImageFormat format = ImageFormat::none);
@@ -70,6 +75,8 @@ namespace Miyuki {
         };
 
         void LoadHDR(const std::string &filename, Image &);
+
     }
+
 }
 #endif //MIYUKI_IMAGE_H

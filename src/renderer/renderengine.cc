@@ -6,8 +6,8 @@
 #include "integrators/volpath/volpath.h"
 #include <integrators/vpl/vpl.h>
 //#include <integrators/bdpt/bdpt.h>
-//#include <integrators/mmlt/mmlt.h>
-//#include <integrators/pssmlt/pssmlt.h>
+#include <integrators/mmlt/mmlt.h>
+#include <integrators/pssmlt/pssmlt.h>
 //#include <integrators/erpt/erpt.h>
 #include <utils/thread.h>
 #include "core/film.h"
@@ -210,7 +210,7 @@ namespace Miyuki {
             I.setIfHasNotKey("adaptive", Json::JsonObject(false));
             I.setIfHasNotKey("progressive", Json::JsonObject(false));
             I.setIfHasNotKey("nDirect", 16);
-            I.setIfHasNotKey("nChains", 8);
+            I.setIfHasNotKey("nChains", 4096);
             I.setIfHasNotKey("largeStep", Json::JsonObject(0.25f));
 
             parameters.addFloat("integrator.maxRayIntensity", IO::deserialize<Float>(I["maxRayIntensity"]));
@@ -238,15 +238,16 @@ namespace Miyuki {
 //                    parameters.addString("integrator", "bdpt");
 //                    integrator = std::make_unique<BDPT>(parameters);
 //                }
-//                else if (type == "mlt") {
-//                    parameters.addString("integrator", type);
-//                    integrator = std::make_unique<MultiplexedMLT>(parameters);
-//                }
-                else if (type == "vpl") {
+                else if (type == "pssmlt") {
+                    parameters.addString("integrator", type);
+                    integrator = std::make_unique<PSSMLT>(parameters);
+                } else if (type == "mlt") {
+                    parameters.addString("integrator", type);
+                    integrator = std::make_unique<MultiplexedMLT>(parameters);
+                } else if (type == "vpl") {
                     parameters.addString("integrator", "vpl");
                     integrator = std::make_unique<VPL>(parameters);
-                }
-                else {
+                } else {
                     fmt::print(stderr, "Unknown integrator type `{}`\nUsing volpath as default\n", type);
                     parameters.addString("integrator", "volpath");
                     integrator = std::make_unique<VolPath>(parameters);

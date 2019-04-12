@@ -53,8 +53,8 @@ namespace Miyuki {
                 arenas[threadId].reset();
                 Point2f raster;
                 MLTSampler sampler(&bootstrapSeeds[k][i], nStream, largeStep, scene.filmDimension(), k);
-                bootstrapWeights[k][i] = radiance(scene, &arenas[threadId], &sampler, k,
-                                                  &raster).luminance();
+                bootstrapWeights[k][i] = Li(scene, &arenas[threadId], &sampler, k,
+                                            &raster).luminance();
             }
         }, 4096);
         b.resize(maxDepth + 1u);
@@ -79,8 +79,8 @@ namespace Miyuki {
                         &seed, nStream,
                         largeStep, scene.filmDimension(), k);
                 sampler->depth = k;
-                sampler->L = radiance(scene, &arenas[0], sampler.get(), sampler->depth,
-                                      &sampler->imageLocation);
+                sampler->L = Li(scene, &arenas[0], sampler.get(), sampler->depth,
+                                &sampler->imageLocation);
                 markovChain->seeds[k] = uniformIntDistribution(rd);
                 sampler->reseed(&markovChain->seeds[k]);
                 markovChain->samplers[k] = sampler;
@@ -100,7 +100,7 @@ namespace Miyuki {
 
         sampler->startIteration();
         Point2f pProposed;
-        auto LProposed = radiance(scene, arena, sampler, sampler->depth, &pProposed);
+        auto LProposed = Li(scene, arena, sampler, sampler->depth, &pProposed);
         Float accept;
         if (sampler->L.luminance() == 0)
             accept = 1;
@@ -221,12 +221,30 @@ namespace Miyuki {
     }
 
     Spectrum
-    MultiplexedMLT::radiance(Scene &scene, MemoryArena *arena, MLTSampler *sampler, int depth, Point2f *raster) {
+    MultiplexedMLT::Li(Scene &scene, MemoryArena *arena, MLTSampler *sampler, int depth, Point2f *raster) {
+        return clampRadiance(MMLTPathContribution(scene, arena, sampler, depth, raster, nDirect <= 0), maxRayIntensity);
+    }
+
+    void MultiplexedMLT::handleDirect(Scene &scene) {
+        if (nDirect <= 0)
+            return;
+        std::unique_ptr<DirectLightingIntegrator> direct(new DirectLightingIntegrator(nDirect));
+        fmt::print("Rendering direct lighting\n");
+        direct->render(scene);
+    }
+
+
+    Spectrum MMLTPathContribution(Scene &scene,
+                                  MemoryArena *arena,
+                                  MLTSampler *sampler,
+                                  int depth,
+                                  Point2f *raster,
+                                  bool sampleDirect) {
         auto imageLoc = sampler->sampleImageLocation();
         int s, t, nStrategies;
-        sampler->startStream(cameraStreamIndex);
+        sampler->startStream(MultiplexedMLT::cameraStreamIndex);
         auto u = sampler->get1D();
-        if (nDirect <= 0) {
+        if (sampleDirect) {
             if (depth == 0) {
                 nStrategies = 1;
                 s = 0;
@@ -260,33 +278,22 @@ namespace Miyuki {
         if (cameraSubPath.N < t) {
             return {};
         }
-        sampler->startStream(lightStreamIndex);
+        sampler->startStream(MultiplexedMLT::lightStreamIndex);
         auto lightSubPath = Bidir::GenerateLightSubPath(scene, ctx, s, s);
         if (lightSubPath.N < s) {
             return {};
         }
-        if (nDirect > 0 && s + t == 3 && s == 0) {
+        if (!sampleDirect && s + t == 3 && s == 0) {
             if (!cameraSubPath[t - 1].isInfiniteLight() && !cameraSubPath[t - 2].delta)
                 return {};
         }
         *raster = ctx.raster;
-        sampler->startStream(connectionStreamIndex);
-        auto Li = clampRadiance(
-                removeNaNs(Bidir::ConnectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, raster, true, nullptr)),
-                maxRayIntensity) * nStrategies;
+        sampler->startStream(MultiplexedMLT::connectionStreamIndex);
+        auto Li =
+                removeNaNs(Bidir::ConnectBDPT(scene, ctx, lightSubPath, cameraSubPath, s, t, raster, true, nullptr) *
+                           nStrategies);
         return Li;
-
     }
-
-    void MultiplexedMLT::handleDirect(Scene &scene) {
-        if (nDirect <= 0)
-            return;
-        std::unique_ptr<DirectLightingIntegrator> direct(new DirectLightingIntegrator(nDirect));
-        fmt::print("Rendering direct lighting\n");
-        direct->render(scene);
-    }
-
-
 }
 
 
