@@ -54,7 +54,7 @@ CMake everything.
 ### Random test images
 ![](gallery/mc.png)
 
-![](gallery/fireplace_room_mlt.png)
+![](gallery/fireplace_room_8k.png)
 
 ![](gallery/fireplace_room.png)
 
