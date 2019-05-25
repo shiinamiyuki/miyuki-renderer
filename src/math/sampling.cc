@@ -2,7 +2,7 @@
 // Created by Shiina Miyuki on 2019/3/3.
 //
 
-#include "sampling.h"
+#include <math/sampling.h>
 
 namespace Miyuki {
     Point2f ConcentricSampleDisk(const Point2f &u) {

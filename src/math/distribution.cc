@@ -2,7 +2,7 @@
 // Created by Shiina Miyuki on 2019/1/22.
 //
 
-#include "distribution.h"
+#include <math/distribution.h>
 
 using namespace Miyuki;
 
