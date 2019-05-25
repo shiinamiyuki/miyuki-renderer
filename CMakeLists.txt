@@ -4,8 +4,15 @@
 cmake_minimum_required (VERSION 3.8)
 project(Miyuki)
 
+if(MSVC)
+	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /std:c++17")
+else()
+	set(CMAKE_CXX_STANDARD 17)
+endif()
+
 # Add source to this project's executable.
 include_directories("include/")
+include_directories("include/miyuki/")
 link_libraries(glfw3 opengl32)
 file(GLOB thirdpartySRC
         "include/lodepng/lodepng.cpp"
@@ -16,9 +23,15 @@ file(GLOB thirdpartySRC
         "include/hilbert/hilbert_curve.cpp")
 
 file(GLOB guiSRC
-	"include/imgui/*.cc")
+	"include/imgui/*.c"
+	"include/imgui/*.cpp"
+	"src/ui/*.cc"
+	"src/hw/*.cc"
+	)
 file(GLOB coreSRC
-	"src/math/*.cc")
+	"src/math/*.cc"
+	"src/utils/*.cc"
+	"src/io/*.cc")
 
 add_executable (mykgui "src/main/main.cc"
 	${thirdpartySRC}
