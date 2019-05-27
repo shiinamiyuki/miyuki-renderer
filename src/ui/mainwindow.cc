@@ -12,7 +12,7 @@ static void Draw(const Miyuki::HW::Texture& texture) {
 namespace Miyuki {
 	namespace GUI {
 		void MainWindow::mainLoop() {
-			ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+			ImVec4 clear_color = ImVec4(0.0f,0.0f,0.0f, 1.00f);
 			// Main loop
 			while (!glfwWindowShouldClose(window))
 			{
@@ -33,7 +33,7 @@ namespace Miyuki {
 				glViewport(0, 0, display_w, display_h);
 				glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 				glClear(GL_COLOR_BUFFER_BIT);
-				drawBackground();
+			//	drawBackground();
 				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 				glfwMakeContextCurrent(window);

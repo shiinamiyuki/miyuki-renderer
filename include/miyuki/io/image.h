@@ -76,6 +76,14 @@ namespace Miyuki {
             void saveAsFormat(const std::string &filename, ImageFormat format);
         };
 
+		using ImagePtr = Image *;
+		inline void from_json(const json& j, ImagePtr& image) {
+			throw NotImplemented();
+		}
+		inline json to_json(json& j, ImagePtr image) {
+			j["filename"] = image->filename;
+		}
+
         void LoadHDR(const std::string &filename, Image &);
 
         bool SaveMYKBinaryImage(const std::string &filename,

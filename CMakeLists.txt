@@ -26,12 +26,13 @@ file(GLOB guiSRC
 	"include/imgui/*.c"
 	"include/imgui/*.cpp"
 	"src/ui/*.cc"
-	"src/hw/*.cc"
-	)
+	"src/hw/*.cc")
+
 file(GLOB coreSRC
 	"src/math/*.cc"
 	"src/utils/*.cc"
-	"src/io/*.cc")
+	"src/io/*.cc"
+	"src/graph/*.cc")
 
 add_executable (mykgui "src/main/main.cc"
 	${thirdpartySRC}
