@@ -8,13 +8,19 @@ namespace Miyuki {
 	namespace Graph {
 		class Graph;
 		class Node;
+
+		class INodeVisitor {
+		public:
+			virtual void visit(Node*) = 0;
+		};
+
 		struct Edge {
 			Node* from, * to;
 			std::string name;
 			Edge(Node* from, Node* to, const std::string& name)
 				:from(from), to(to), name(name) {}
 		};
-
+		
 		class Node : NonCopyMovable {
 			friend class Graph;
 			Graph* _graph = nullptr;
@@ -27,7 +33,17 @@ namespace Miyuki {
 				return Edge(this, to, name);
 			}
 
-			const Edge& byName(const std::string& name)const {
+			const std::vector<Edge>& subnodes()const { return _subnodes; } 
+
+			void set(const std::string& name, Node* node) {
+				auto it = std::find_if(_subnodes.begin(), _subnodes.end(),
+					[&](const Edge & edge) {return edge.name == name; });
+				if (it == _subnodes.end()) {
+					_subnodes.emplace_back(this, node, name);
+				}
+			}
+
+		 	const Edge& byName(const std::string& name)const {
 				return *std::find_if(_subnodes.begin(), _subnodes.end(),
 					[&](const Edge & edge) {return edge.name == name; });
 			}
@@ -62,8 +78,9 @@ namespace Miyuki {
 			void serialize(json&);
 			static std::unique_ptr<Graph> CreateGraph(const json&);
 			void registerDeserializer(const std::string&, std::unique_ptr<IDeserializer>);
-		};
+		};		
 	}
 }
+
 
 #endif

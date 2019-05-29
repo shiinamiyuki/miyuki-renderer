@@ -23,6 +23,11 @@ namespace Miyuki {
 		};
 
 		template<>
+		struct _GetLeafType<Float> {
+			static constexpr int Type = kFloat;
+		};
+
+		template<>
 		struct _GetLeafType<Vec3f> {
 			static constexpr int Type = kFloat3;
 		};
@@ -104,7 +109,22 @@ namespace Miyuki {
 		using TranformNode = LeafNode<Transform>;
 		using ImageNode = LeafNode<IO::ImagePtr>;
 
+		template<typename T>
+		struct _ConvertToLeafType {
+			using type = std::conditional<_GetLeafType<T>::Type == kNull, T, LeafNode<T>>::type;
+		};
 
+#define MTK_NODE_TYPE_HELPER(Ty)  _ConvertToLeafType<Ty>::type
+#define MYK_NODE_MEMBER(Ty, name) MTK_NODE_TYPE_HELPER(Ty) * _ ## name = nullptr; \
+									MTK_NODE_TYPE_HELPER(Ty) * name(){\
+			return (MTK_NODE_TYPE_HELPER(Ty)*)byName(#name).to;\
+		} \
+		void set_## name(MTK_NODE_TYPE_HELPER(Ty) * val) {\
+			byName(#name).to = val;bind_ ## name(); \
+		} \
+		void bind_ ## name() { \
+			_ ## name = name(); \
+		}
 	}
 }
 

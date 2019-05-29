@@ -13,9 +13,6 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
-
-#pragma comment(lib, "glfw3.lib")
-
 namespace Miyuki {
 	namespace GUI {
 		class MainWindow {

@@ -64,11 +64,12 @@ namespace Miyuki {
 			graph->registerDeserializer("Float", std::make_unique<LeafNodeDeserializer<Float>>());
 			graph->registerDeserializer("Float3", std::make_unique<LeafNodeDeserializer<Vec3f>>());
 			graph->registerDeserializer("Transform", std::make_unique<LeafNodeDeserializer<Transform>>());
-			//	graph->registerDeserializer("Image", std::make_unique<LeafNodeDeserializer<IO::ImagePtr>>());
+			//graph->registerDeserializer("Image", std::make_unique<LeafNodeDeserializer<IO::ImagePtr>>());
 			graph->registerDeserializer("String", std::make_unique<LeafNodeDeserializer<std::string>>());
 			graph->deserialize(j);
 			return std::move(graph);
 		}
+
 		void Graph::registerDeserializer(const std::string& type, std::unique_ptr<IDeserializer> d) {
 			_deserializers[type] = std::move(d);
 		}
