@@ -1,15 +1,21 @@
 #include <miyuki.h>
 #include <ui/mainwindow.h>
-#include <graph/leaf.h>
+#include <graph/graph.h>
 
 namespace Miyuki {
 	namespace Graph {
 		class TestNode : public Node {
 			MYK_NODE_MEMBER(int, a)
-				MYK_NODE_MEMBER(Float, b)
+			MYK_NODE_MEMBER(Float, b)
+			MYK_NODE_MEMBER(Float, c)
 		public:
 			TestNode() :Node("TestNode") {
-
+				init_a();
+				init_b();
+				init_c();
+			}
+			const char* type()const {
+				return "TestNode";
 			}
 		};
 	}
@@ -20,17 +26,8 @@ int main(int argc, char** argv) {
 	/*Miyuki::GUI::MainWindow window(argc, argv);
 	window.show();*/
 	using namespace Miyuki;
-	Graph::Float3Node node("a", Vec3f(1, 2, 3));
+	Graph::TestNode node;
 	json j;
 	node.serialize(j);
-	std::stringstream stream;
-	stream << j.dump(2) << std::endl;
-	std::string s = stream.str();
-	std::cout << s << std::endl;
-	json o = {};
-	o["a"] = j;
-	auto graph = Graph::Graph::CreateGraph(o);
-	j = {};
-	graph->serialize(j);
-	std::cout << j << std::endl;
+	std::cout << j.dump(2) << std::endl;
 }

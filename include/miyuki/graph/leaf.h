@@ -70,13 +70,18 @@ namespace Miyuki {
 			return nullptr;
 		}
 
+		class BasicLeafNode : public Node {
+		public:
+			virtual const LeafType leafType() const = 0;
+		};
+
 		template<typename T>
-		class LeafNode : public Node {
+		class LeafNode : public BasicLeafNode {
 			T value;
 		public:
 			LeafNode(const std::string& name, const T& value, Graph* graph = nullptr) :
 				Node(name, graph) {}
-			virtual const LeafType leafType() const {
+			virtual const LeafType leafType() const override{
 				return LeafType(_GetLeafType<T>::Type);
 			}
 			virtual const char* type()const {
@@ -111,19 +116,22 @@ namespace Miyuki {
 
 		template<typename T>
 		struct _ConvertToLeafType {
-			using type = std::conditional<_GetLeafType<T>::Type == kNull, T, LeafNode<T>>::type;
+			using type = typename  std::conditional<_GetLeafType<T>::Type == kNull, T, LeafNode<T>>::type;
 		};
 
 #define MTK_NODE_TYPE_HELPER(Ty)  _ConvertToLeafType<Ty>::type
 #define MYK_NODE_MEMBER(Ty, name) MTK_NODE_TYPE_HELPER(Ty) * _ ## name = nullptr; \
 									MTK_NODE_TYPE_HELPER(Ty) * name(){\
-			return (MTK_NODE_TYPE_HELPER(Ty)*)byName(#name).to;\
+			return (MTK_NODE_TYPE_HELPER(Ty)*)byKey(#name).to;\
 		} \
 		void set_## name(MTK_NODE_TYPE_HELPER(Ty) * val) {\
-			byName(#name).to = val;bind_ ## name(); \
+			byKey(#name).to = val;bind_ ## name(); \
 		} \
 		void bind_ ## name() { \
 			_ ## name = name(); \
+		} \
+		void init_ ## name() { \
+			set(#name, nullptr); \
 		}
 	}
 }

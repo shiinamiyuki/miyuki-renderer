@@ -1,4 +1,4 @@
-#include <graph/graph.h>
+#include <graph/graphdetail.h>
 #include <graph/leaf.h>
 #include <utils/log.h>
 
@@ -73,8 +73,25 @@ namespace Miyuki {
 		void Graph::registerDeserializer(const std::string& type, std::unique_ptr<IDeserializer> d) {
 			_deserializers[type] = std::move(d);
 		}
+		std::string Graph::generateUniqueName(const std::set<std::string>& set) {
+			std::string s;
+			do {
+				auto i = dist(rd);
+				s = fmt::format("{:x}", i);
+			} while (_allNodes.find(s) != _allNodes.end()
+				|| set.find(s) != set.end());
+			return std::string("#").append(s);
+		}
+		std::string Graph::generateUniqueName() {
+			std::string s;
+			do {
+				auto i = dist(rd);
+				s = fmt::format("{:x}", i);
+			} while (_allNodes.find(s) != _allNodes.end());
+			return std::string("#").append(s);
+		}
 
-		void Node::serialize(json& j) const {
+		void Node::serialize(json & j) const {
 			j["name"] = _name;
 			j["type"] = type();
 			if (!isLeaf()) {
