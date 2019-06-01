@@ -4,7 +4,7 @@
 
 namespace Miyuki {
 	namespace GUI {
-		std::optional<bool> GetBool(std::string& prompt, bool initial)
+		std::optional<bool> GetBool(const std::string& prompt, bool initial)
 		{
 			bool temp = initial;
 			if (ImGui::Checkbox(prompt.c_str(), &temp)) {
@@ -14,7 +14,7 @@ namespace Miyuki {
 				return {};
 			}
 		}
-		std::optional<int> GetInt(std::string& prompt, int initial) {
+		std::optional<int> GetInt(const std::string& prompt, int initial) {
 			int temp = initial;
 			if (ImGui::InputInt(prompt.c_str(), &temp, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				return std::optional<int>(temp);
@@ -23,7 +23,7 @@ namespace Miyuki {
 				return {};
 			}
 		}
-		std::optional<Float> GetFloat(std::string& prompt, Float initial) {
+		std::optional<Float> GetFloat(const std::string& prompt, Float initial) {
 			Float temp = initial;
 			if (ImGui::InputFloat(prompt.c_str(), &temp, 0.01, 0.1, "%f", ImGuiInputTextFlags_EnterReturnsTrue)) {
 				return std::optional<Float>(temp);
@@ -33,7 +33,7 @@ namespace Miyuki {
 			}
 		}
 
-		std::optional<Vec3f> GetVec3f(std::string& prompt, Vec3f initial) {
+		std::optional<Vec3f> GetVec3f(const std::string& prompt, Vec3f initial) {
 			auto temp = initial;
 			if (ImGui::InputFloat3(prompt.c_str(), &temp[0], "%f", ImGuiInputTextFlags_EnterReturnsTrue)) {
 				return std::optional<Vec3f>(temp);
@@ -41,7 +41,7 @@ namespace Miyuki {
 			return {};
 		}
 
-		std::optional<Spectrum> GetSpectrum(std::string& prompt, Spectrum initial) {
+		std::optional<Spectrum> GetSpectrum(const std::string& prompt, Spectrum initial) {
 			auto temp = initial;
 			if (ImGui::ColorPicker3(prompt.c_str(), &temp[0], ImGuiInputTextFlags_EnterReturnsTrue)) {
 				return std::optional<Spectrum>(temp);

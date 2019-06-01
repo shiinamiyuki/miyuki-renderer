@@ -34,6 +34,7 @@ namespace Miyuki {
 			}
 
 			const std::vector<Edge>& subnodes()const { return _subnodes; }
+			std::vector<Edge>& subnodes() { return _subnodes; }
 
 			void set(const std::string& name, Node* node = nullptr) {
 				auto it = std::find_if(_subnodes.begin(), _subnodes.end(),

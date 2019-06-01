@@ -1,5 +1,5 @@
 #ifndef MIYUKI_LEAF_H
-#define MIYUKI_LERF_H
+#define MIYUKI_LEAF_H
 #include <graph/graph.h>
 #include <math/transform.h>
 #include <io/image.h>
@@ -73,6 +73,7 @@ namespace Miyuki {
 		class BasicLeafNode : public Node {
 		public:
 			virtual const LeafType leafType() const = 0;
+			BasicLeafNode(const std::string& n, Graph* g) :Node(n, g) {}
 		};
 
 		template<typename T>
@@ -80,7 +81,7 @@ namespace Miyuki {
 			T value;
 		public:
 			LeafNode(const std::string& name, const T& value, Graph* graph = nullptr) :
-				Node(name, graph) {}
+				BasicLeafNode(name, graph) {}
 			virtual const LeafType leafType() const override{
 				return LeafType(_GetLeafType<T>::Type);
 			}

@@ -57,5 +57,16 @@ namespace Miyuki {
 				*entry.data = opt.value();
 			}
 		}
+		bool ISelectable::select(const std::string& opt) {
+			if (_allOptions->empty()) {
+				option = opt;
+				return true;
+			}
+			if (_allOptions->find(opt) != _allOptions->end()) {
+				option = opt;
+				return true;
+			}
+			return false;
+		}
 	}
 }
