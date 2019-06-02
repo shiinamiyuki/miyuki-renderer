@@ -36,22 +36,25 @@ namespace Miyuki {
 			const std::vector<Edge>& subnodes()const { return _subnodes; }
 			std::vector<Edge>& subnodes() { return _subnodes; }
 
-			void set(const std::string& name, Node* node = nullptr) {
+			void set(const std::string& key, Node* node = nullptr) {
 				auto it = std::find_if(_subnodes.begin(), _subnodes.end(),
-					[&](const Edge & edge) {return edge.name == name; });
+					[&](const Edge & edge) {return edge.name == key; });
 				if (it == _subnodes.end()) {
-					_subnodes.emplace_back(this, node, name);
+					_subnodes.emplace_back(this, node, key);
+				}
+				else {
+					it->to = node;
 				}
 			}
 
-			const Edge& byKey(const std::string& name)const {
+			const Edge& byKey(const std::string& key)const {
 				return *std::find_if(_subnodes.begin(), _subnodes.end(),
-					[&](const Edge & edge) {return edge.name == name; });
+					[&](const Edge & edge) {return edge.name == key; });
 			}
 
-			Edge& byKey(const std::string& name) {
+			Edge& byKey(const std::string& key) {
 				return *std::find_if(_subnodes.begin(), _subnodes.end(),
-					[&](const Edge & edge) {return edge.name == name; });
+					[&](const Edge & edge) {return edge.name == key; });
 			}
 
 			virtual void serialize(json& j)const;
@@ -74,14 +77,26 @@ namespace Miyuki {
 			std::unordered_map<std::string, std::unique_ptr<Node>> _allNodes;
 
 			std::unordered_map<std::string, std::unique_ptr<IDeserializer>> _deserializers;
+
+			void addDefaultDeserializers();
 			Graph();
 			void deserialize(const json&);
 		public:
-			std::string generateUniqueName(const std::set<std::string>&);
+			template<class SequenceT>
+			std::string generateUniqueName(const SequenceT& set) {
+				std::string s;
+				do {
+					auto i = dist(rd);
+					s = fmt::format("{:x}", i);
+				} while (_allNodes.find(s) != _allNodes.end()
+					|| set.find(s) != set.end());
+				return std::string("#").append(s);
+			}
 			std::string generateUniqueName();
 			bool addNode(const std::string&, std::unique_ptr<Node>);
 			void serialize(json&);
 			static std::unique_ptr<Graph> CreateGraph(const json&);
+			static std::unique_ptr<Graph> NewGraph();
 			void registerDeserializer(const std::string&, std::unique_ptr<IDeserializer>);
 		};
 	}

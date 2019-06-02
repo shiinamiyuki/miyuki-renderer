@@ -80,8 +80,10 @@ namespace Miyuki {
 		class LeafNode : public BasicLeafNode {
 			T value;
 		public:
+			LeafNode(const T & value, Graph* graph = nullptr):
+				BasicLeafNode("", graph),value(value) {}
 			LeafNode(const std::string& name, const T& value, Graph* graph = nullptr) :
-				BasicLeafNode(name, graph) {}
+				BasicLeafNode(name, graph), value(value)  {}
 			virtual const LeafType leafType() const override{
 				return LeafType(_GetLeafType<T>::Type);
 			}

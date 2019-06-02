@@ -1,5 +1,5 @@
 #include <io/importobj.h>
-
+#include <graph/graph.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -44,72 +44,118 @@ namespace Miyuki {
 				if (tokens[0] == "newmtl") {
 					auto matName = tokens[1];
 					info.mtlDescription[matName] = json{};
-					info.mtlDescription[matName]["type"] = "OBJMaterial";
-					info.mtlDescription[matName]["Tr"] = false;
-					info.mtlDescription[matName]["roughness"] = {
-						{"type", "Float"},
-						{"value", 0.0}
+					json& mat = info.mtlDescription[matName];
+					mat["type"] = "OBJMaterial";
+					json Tr = {
+						{"key", "Tr"},
+						{"value", json{
+							{"type", "Bool"},
+							{"value",  false}
+						}}
 					};
-					info.mtlDescription[matName]["ka"] = {
-						{"type","RGB"},
-						{"value", {0,0,0}}
+
+					json roughness = {
+						{"key", "roughness"},
+						{"value", json{
+							{"type", "Float"},
+							{"value",  0.0f}
+						}}
 					};
-					info.mtlDescription[matName]["ks"] = {
-						{"type","RGB"},
-						{"value", {0,0,0}}
+
+					json ka = {
+						{"key", "ka"},
+						{"value", json{
+							{"type", "Float3"},
+							{"value",  {0,0,0}}
+						}}
 					};
-					info.mtlDescription[matName]["IOR"] = {
-						{"type","Float"},
-						{"value", 1.0f }
+
+					json ks = {
+						{"key", "ks"},
+						{"value", json{
+							{"type", "Float3"},
+							{"value",  {0,0,0}}
+						}}
 					};
+
+					json kd = {
+						{"key", "kd"},
+						{"value", json{
+							{"type", "Float3"},
+							{"value", {0,0,0}}
+						}}
+					};
+
+					json ior = {
+						{"key", "ior"},
+						{"value", json{
+							{"type", "Float"},
+							{"value",  1.0f}
+						}}
+					};
+
 					i++;
 					while (i < lines.size()) {
 						if (lines.empty()) { i++; continue; }
 						if (tokens[0] == "Ni") {
-							info.mtlDescription[matName]["IOR"]["value"] = std::stof(tokens[1]);
+							ior["value"] = json{
+								{"type", "Float"},
+								{"value", std::stof(tokens[1])}
+							};
 						}
 						else if (tokens[0] == "Ns") {
 							auto Ns = std::stof(tokens[1]);
-							info.mtlDescription[matName]["IOR"]["roughness"] = std::sqrt(2 / (2 + Ns));
+							roughness["value"] = json{
+								{"type", "Float"},
+								{"value", std::sqrt(2 / (2 + Ns))}
+							};
 						}
 						else if (tokens[0] == "Ks") {
-							if (info.mtlDescription[matName]["ks"]["type"] == "RGB") {
+							if (ks["value"]["type"] == "Float3") {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								info.mtlDescription[matName]["ks"]["value"] = { v[0],v[1],v[2] };
+								ks["value"]["value"] = json{ v[0],v[1],v[2] };
 							}
 						}
 						else if (tokens[0] == "Kd") {
-							if (info.mtlDescription[matName]["kd"]["type"] == "RGB") {
+							if (kd["value"]["type"] == "Float3") {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								info.mtlDescription[matName]["kd"]["value"] = { v[0],v[1],v[2] };
+								kd["value"]["value"] = json{ v[0],v[1],v[2] };
 							}
 						}
 						else if (tokens[0] == "Ke") {
-							if (info.mtlDescription[matName]["ka"]["type"] == "RGB") {
+							if (ka["value"]["type"] == "Float3") {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								info.mtlDescription[matName]["ka"]["value"] = { v[0],v[1],v[2] };
+								ka["value"]["value"] = json{ v[0],v[1],v[2] };
 							}
-						}
+						}//
 						else if (tokens[0] == "map_Ks") {
-							info.mtlDescription[matName]["ks"]["type"] = "ImageTexture";
+							ks["value"]["type"] = "ImageTexture";
 							auto s = __Internal::ParseFilename(tokens);
-							info.mtlDescription[matName]["ks"]["value"] = s;
+							ks["value"]["value"] = s;
 
 						}
 						else if (tokens[0] == "map_Kd") {
-							info.mtlDescription[matName]["kd"]["type"] = "ImageTexture";
+							kd["value"]["type"] = "ImageTexture";
 							auto s = __Internal::ParseFilename(tokens);
-							info.mtlDescription[matName]["kd"]["value"] = s;
+							kd["value"]["value"] = s;
 						}
 						else if (tokens[0] == "map_Ke") {
-							info.mtlDescription[matName]["ka"]["type"] = "ImageTexture";
+							ka["value"]["type"] = "ImageTexture";
 							auto s = __Internal::ParseFilename(tokens);
-							info.mtlDescription[matName]["ka"]["value"] = s;
+							ka["value"]["value"] = s;
 						}
 						else if (tokens[0] == "newmtl")
 							break;
 						i++;
 					}
+					mat["subnodes"] = json{
+						ka,
+						kd,
+						ks,
+						Tr,
+						roughness,
+						ior
+					};
 				}
 				else {
 					i++;
@@ -163,4 +209,4 @@ namespace Miyuki {
 
 		}
 	}
-} 
+}
