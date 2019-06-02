@@ -8,8 +8,13 @@ namespace Miyuki {
 	namespace Graph {
 		Graph::Graph() {
 		}
-		bool Graph::addNode(const std::string& name,
-			std::unique_ptr<Node> node) {
+		Node* Graph::getByName(const std::string& name) {
+			auto iter = _allNodes.find(name);
+			if (iter != _allNodes.end())return iter->second.get();
+			return nullptr;
+		}
+		bool Graph::addNode(std::unique_ptr<Node> node) {
+			const auto& name = node->name();
 			if (_allNodes.find(name) != _allNodes.end()) {
 				return false;
 			}
@@ -56,8 +61,8 @@ namespace Miyuki {
 			graph->addDefaultDeserializers();
 			std::unique_ptr<Meshes> meshes(new Meshes(graph.get()));
 			std::unique_ptr<Materials> materials(new Materials(graph.get()));
-			graph->addNode(materials->name(), std::move(materials));
-			graph->addNode(meshes->name(), std::move(meshes));
+			graph->addNode(std::move(materials));
+			graph->addNode(std::move(meshes));
 			return std::move(graph);
 		}
 

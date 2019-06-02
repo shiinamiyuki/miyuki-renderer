@@ -6,7 +6,7 @@ namespace Miyuki {
 	namespace GUI {
 		void EditEntryUIHandler(EditEntry<bool>& entry) {
 			auto temp = *entry.data;
-			auto opt = GetBool(entry.prompt, temp);
+			auto opt = GetInput(entry.prompt, temp);
 			if (opt.has_value()) {
 				entry.change();
 				*entry.data = opt.value();
@@ -15,7 +15,7 @@ namespace Miyuki {
 
 		void EditEntryUIHandler(EditEntry<int>& entry) {
 			auto temp = *entry.data;
-			auto opt = GetFloat(entry.prompt, temp);
+			auto opt = GetInput(entry.prompt, temp);
 			if (opt.has_value()) {
 				entry.change();
 				*entry.data = opt.value();
@@ -24,7 +24,7 @@ namespace Miyuki {
 
 		void EditEntryUIHandler(EditEntry<Float>& entry) {
 			auto temp = *entry.data;
-			auto opt = GetFloat(entry.prompt, temp);
+			auto opt = GetInput(entry.prompt, temp);
 			if (opt.has_value()) {
 				entry.change();
 				*entry.data = opt.value();
@@ -33,7 +33,7 @@ namespace Miyuki {
 
 		void EditEntryUIHandler(EditEntry<Vec3f>& entry) {
 			auto temp = *entry.data;
-			auto opt = GetVec3f(entry.prompt, temp);
+			auto opt = GetInput(entry.prompt, temp);
 			if (opt.has_value()) {
 				entry.change();
 				*entry.data = opt.value();
@@ -42,7 +42,7 @@ namespace Miyuki {
 
 		void EditEntryUIHandler(EditEntry<Spectrum>& entry) {
 			auto temp = *entry.data;
-			auto opt = GetSpectrum(entry.prompt, temp);
+			auto opt = GetInput(entry.prompt, temp);
 			if (opt.has_value()) {
 				entry.change();
 				*entry.data = opt.value();
@@ -51,7 +51,7 @@ namespace Miyuki {
 
 		void EditEntryUIHandler(EditEntry<std::string>& entry) {
 			auto temp = *entry.data;
-			auto opt = GetString(entry.prompt, temp);
+			auto opt = GetInput(entry.prompt, temp);
 			if (opt.has_value()) {
 				entry.change();
 				*entry.data = opt.value();

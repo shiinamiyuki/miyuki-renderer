@@ -1,17 +1,20 @@
 #pragma once
 #include <miyuki.h>
+#include <math/vec.hpp>
+#include <utils/log.h>
+#include <hw/texture.h>
+#include <hw/shader.h>
+#include <graph/graph.h>
+
 #include <cstdio>
 #include <cstdlib>
-#include <math/vec.hpp>
 #include <iostream>
-#include <utils/log.h>
+
+#include <GL/gl3w.h>
+#include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include <imgui/imgui_impl_glfw.h>
-#include <hw/texture.h>
-#include <hw/shader.h>
-#include <GL/gl3w.h>
-#include <GLFW/glfw3.h>
 
 namespace Miyuki {
 	namespace GUI {
@@ -19,6 +22,7 @@ namespace Miyuki {
 			//Timer updateTimer;
 			std::mutex viewportMutex;
 			uint32_t vbo;
+			std::unique_ptr<Graph::Graph> graph;
 			//std::unique_ptr<RenderEngine> engine;
 			GLFWwindow* window = nullptr;
 			void mainLoop();

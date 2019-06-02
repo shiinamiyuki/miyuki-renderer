@@ -2,6 +2,7 @@
 #include <ui/input.h>
 #include <ui/editable.h>
 #include <imgui/imgui.h>
+#include <utils/log.h>
 
 namespace Miyuki {
 	namespace GUI {
@@ -11,26 +12,26 @@ namespace Miyuki {
 			template<typename T>
 			void visitT(const std::string& prompt, T* node) {
 				auto temp = node->getValue();
-				auto opt = GetBool(prompt, temp);
+				auto opt = GetInput(prompt, temp);
 				if (opt.has_value()) {
 					//
 					Log::log("value changed\n");
 				}
 			}
 			void visit(const std::string& prompt, Graph::IntNode* node) {
-				visit(prompt, node);
+				visitT(prompt, node);
 			}
 
 			void visit(const std::string& prompt, Graph::Float3Node* node) {
-				visit(prompt, node);
+				visitT(prompt, node);
 			}
 
 			void visit(const std::string& prompt, Graph::FloatNode* node) {
-				visit(prompt, node);
+				visitT(prompt, node);
 			}
 
 			void visit(const std::string& prompt, Graph::TranformNode* node) {
-				visit(prompt, node);
+				visitT(prompt, node);
 			}
 
 			void visit(Graph::Edge& edge) {

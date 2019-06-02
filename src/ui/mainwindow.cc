@@ -12,6 +12,43 @@ static void Draw(const Miyuki::HW::Texture& texture) {
 }
 namespace Miyuki {
 	namespace GUI {
+		class GraphExplorer {
+			Graph::Graph* graph;
+			void unselect(Graph::Node* root, Graph::Node * except) {
+				if (root == except)return;
+				for (auto& edge : root->subnodes()) {
+					edge.to->unselect();
+					unselect(edge.to, except);
+				}
+			}
+			void showNodeSelectable(Graph::Node * node) {
+				if (ImGui::TreeNode(node->name().c_str())) {
+					for (auto& edge : node->subnodes()) {
+						auto sub = edge.to;
+						ImGuiTreeNodeFlags nodeFlags = 0;
+						nodeFlags |= (sub->selected() ? ImGuiTreeNodeFlags_Selected : 0);
+						ImGui::TreeNodeEx((void*)(intptr_t)sub, nodeFlags, "%s", edge.name.c_str());
+						if (ImGui::IsItemClicked()) {
+							sub->select();
+							unselect(node, sub);
+						}						
+					}
+					ImGui::TreePop();
+				}
+			}
+		public:
+			GraphExplorer(Graph::Graph* G) :graph(G) {}
+			
+			void show() {
+				if (ImGui::TreeNode("Scene")) {
+					auto materials = graph->getByName("materials");
+					auto meshes = graph->getByName("meshes");
+					showNodeSelectable(materials);
+					showNodeSelectable(meshes);
+					ImGui::TreePop();
+				}
+			}
+		};
 		void MainWindow::mainLoop() {
 			ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 			// Main loop
@@ -161,6 +198,8 @@ void main()
 		void MainWindow::explorerWindow() {
 			if (windowFlags.showExplorer
 				&& ImGui::Begin("Explorer", &windowFlags.showExplorer)) {
+				GraphExplorer explorer(graph.get());
+				explorer.show();
 				ImGui::End();
 			}
 		}
@@ -397,9 +436,11 @@ void main()
 
 			viewport = std::make_unique<HW::Texture>(1280, 720);
 			loadConfig();
-			loadBackgroundImage();
+		//	loadBackgroundImage();
 
-			loadBackGroundShader();
+		//	loadBackGroundShader();
+
+			graph = Graph::Graph::NewGraph(); 
 		}
 
 		void MainWindow::show() {

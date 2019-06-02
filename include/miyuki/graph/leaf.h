@@ -1,6 +1,7 @@
 #ifndef MIYUKI_LEAF_H
 #define MIYUKI_LEAF_H
-#include <graph/graph.h>
+
+#include <graph/node.h>
 #include <math/transform.h>
 #include <io/image.h>
 
