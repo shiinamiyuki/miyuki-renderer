@@ -14,14 +14,14 @@ namespace Miyuki {
 	namespace GUI {
 		class GraphExplorer {
 			Graph::Graph* graph;
-			void unselect(Graph::Node* root, Graph::Node * except) {
+			void unselect(Graph::Node* root, Graph::Node* except) {
 				if (root == except)return;
 				for (auto& edge : root->subnodes()) {
 					edge.to->unselect();
 					unselect(edge.to, except);
 				}
 			}
-			void showNodeSelectable(Graph::Node * node) {
+			void showNodeSelectable(Graph::Node* node) {
 				if (ImGui::TreeNode(node->name().c_str())) {
 					for (auto& edge : node->subnodes()) {
 						auto sub = edge.to;
@@ -31,21 +31,20 @@ namespace Miyuki {
 						if (ImGui::IsItemClicked()) {
 							sub->select();
 							unselect(node, sub);
-						}						
+						}
 					}
 					ImGui::TreePop();
 				}
 			}
 		public:
 			GraphExplorer(Graph::Graph* G) :graph(G) {}
-			
+
 			void show() {
-				if (ImGui::TreeNode("Scene")) {
+				if (ImGui::CollapsingHeader(("Scene"))) {
 					auto materials = graph->getByName("materials");
 					auto meshes = graph->getByName("meshes");
 					showNodeSelectable(materials);
 					showNodeSelectable(meshes);
-					ImGui::TreePop();
 				}
 			}
 		};
@@ -198,8 +197,10 @@ void main()
 		void MainWindow::explorerWindow() {
 			if (windowFlags.showExplorer
 				&& ImGui::Begin("Explorer", &windowFlags.showExplorer)) {
-				GraphExplorer explorer(graph.get());
-				explorer.show();
+				if (graph()) {
+					GraphExplorer explorer(graph());
+					explorer.show();
+				}
 				ImGui::End();
 			}
 		}
@@ -223,86 +224,106 @@ void main()
 				ImGui::End();
 			}
 		}*/
+		void MainWindow::newGraph() {
+			if (graph()) {
+				
+			}
+			if (!engine) {
+				engine = std::make_unique<RenderEngine>();
+			}
+			engine->newGraph();
+			
+		}
+		void MainWindow::menuBar() {
+			ImGui::BeginMainMenuBar();
+			if (ImGui::BeginMenu("File")) {
+				if (ImGui::MenuItem("New")) {
+					newGraph();
+				}
+				if (ImGui::MenuItem("Open")) {
+					auto s = IO::GetOpenFileNameWithDialog("Scene Description\0*.json\0");
+					/*if (!s.empty()) {
+						std::thread th([=]() {
+							try {
+								engine = std::make_unique<RenderEngine>();
+								engine->loadDescriptionFile(s);
+							}
+							catch (cxx::filesystem::filesystem_error & e) {
+								Log::log("{}\n", e.what());
+							}
+							});
 
-		//		void MainWindow::menuBar() {
-		//			ImGui::BeginMainMenuBar();
-		//			if (ImGui::BeginMenu("File")) {
-		//				if (ImGui::MenuItem("Open")) {
-		//					auto s = IO::GetOpenFileNameWithDialog(L"Scene Description\0*.json\0");
-		//					if (!s.empty()) {
-		//						std::thread th([=]() {
-		//							try {
-		//								engine = std::make_unique<RenderEngine>();
-		//								engine->loadDescriptionFile(s);
-		//							}
-		//							catch (cxx::filesystem::filesystem_error & e) {
-		//								Log::log("{}\n", e.what());
-		//							}
-		//							});
-		//
-		//						th.detach();
-		//					}
-		//				}
-		//				if (ImGui::MenuItem("Close")) {
-		//					stopRenderThread();
-		//					engine = nullptr;
-		//				}
-		//				ImGui::EndMenu();
-		//			}
-		//			if (ImGui::BeginMenu("Window")) {
-		//				if (ImGui::MenuItem("Explorer", "", &windowFlags.showExplorer)) {
-		//
-		//				}
-		//				if (ImGui::MenuItem("Attribute Editor", "", &windowFlags.showAttributeEditor)) {
-		//
-		//				}
-		//				if (ImGui::MenuItem("Log", "", &windowFlags.showLog)) {
-		//
-		//				}
-		//				if (ImGui::MenuItem("Preference", "", &windowFlags.showPreference)) {
-		//
-		//				}
-		//				ImGui::EndMenu();
-		//			}
-		//			if (ImGui::BeginMenu("Help")) {
-		//				if (ImGui::MenuItem("About", "", &windowFlags.showAbout)) {
-		//
-		//				}
-		//				ImGui::EndMenu();
-		//			}
-		//			if (windowFlags.showAbout && ImGui::Begin("About", &windowFlags.showAbout)) {
-		//				ImGui::GetVersion();
-		//				ImGui::Text(
-		//R"(Miyuki Renderer (WIP)
-		//
-		//Physically based rendering.
-		//Embree, advanced light transport and more.
-		//
-		//http://github/xt271828/MiyukiRenderer
-		//
-		//)", ImGui::GetVersion());
-		//				ImGui::End();
-		//			}
-		//			if (windowFlags.showPreference && ImGui::Begin("Preference", &windowFlags.showPreference)) {
-		//				if (ImGui::Button("Background Image")) {
-		//					auto s = IO::GetOpenFileNameWithDialog();
-		//					if (!s.empty()) {
-		//						config["background-image"] = s;
-		//						loadBackgroundImage();
-		//					}
-		//				}
-		//				Float dim = 0;
-		//				if (config.contains("background-dim"))
-		//					dim = config["background-dim"].get<Float>();
-		//				if (ImGui::SliderFloat("background dim", &dim, 0.0, 1.0)) {
-		//					config["background-dim"] = dim;
-		//				}
-		//				ImGui::Separator();
-		//				ImGui::ShowStyleEditor();;
-		//				ImGui::End();
-		//			}
-		//			ImGui::EndMainMenuBar();
-		//		}
+						th.detach();
+					}*/
+				}
+				if (ImGui::MenuItem("Close")) {
+					stopRenderThread();
+					engine = nullptr;
+				}
+				if (ImGui::MenuItem("Import Obj")) {
+					stopRenderThread();
+					auto s = IO::GetOpenFileNameWithDialog("Wavefront OBJ\0*.obj\0");
+					if (!s.empty()) {
+						
+					}
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Window")) {
+				if (ImGui::MenuItem("Explorer", "", &windowFlags.showExplorer)) {
+
+				}
+				if (ImGui::MenuItem("Attribute Editor", "", &windowFlags.showAttributeEditor)) {
+
+				}
+				if (ImGui::MenuItem("Log", "", &windowFlags.showLog)) {
+
+				}
+				if (ImGui::MenuItem("Preference", "", &windowFlags.showPreference)) {
+
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Help")) {
+				if (ImGui::MenuItem("About", "", &windowFlags.showAbout)) {
+
+				}
+				ImGui::EndMenu();
+			}
+			if (windowFlags.showAbout && ImGui::Begin("About", &windowFlags.showAbout)) {
+				ImGui::GetVersion();
+				ImGui::Text(
+					R"(Miyuki Renderer (WIP)
+		
+		Physically based rendering.
+		Embree, advanced light transport and more.
+		
+		http://github/xt271828/MiyukiRenderer
+		
+		)", ImGui::GetVersion());
+				ImGui::End();
+			}
+			if (windowFlags.showPreference && ImGui::Begin("Preference", &windowFlags.showPreference)) {
+				/*if (ImGui::Button("Background Image")) {
+					auto s = IO::GetOpenFileNameWithDialog();
+					if (!s.empty()) {
+						config["background-image"] = s;
+						loadBackgroundImage();
+					}
+				}
+				Float dim = 0;
+				if (config.contains("background-dim"))
+					dim = config["background-dim"].get<Float>();
+				if (ImGui::SliderFloat("background dim", &dim, 0.0, 1.0)) {
+					config["background-dim"] = dim;
+				}*/
+				ImGui::Separator();
+				ImGui::ShowStyleEditor();;
+				ImGui::End();
+			}
+			ImGui::EndMainMenuBar();
+		}
+
 		void MainWindow::logWindow() {
 			if (windowFlags.showLog && ImGui::Begin("Log", &windowFlags.showLog)) {
 				if (ImGui::Button("Clear")) {
@@ -317,7 +338,7 @@ void main()
 		}
 
 		void MainWindow::update() {
-			//	menuBar();
+			menuBar();
 			ImGui::ShowDemoWindow();
 			//	viewportWindow();
 			logWindow();
@@ -436,11 +457,10 @@ void main()
 
 			viewport = std::make_unique<HW::Texture>(1280, 720);
 			loadConfig();
-		//	loadBackgroundImage();
+			//	loadBackgroundImage();
 
-		//	loadBackGroundShader();
+			//	loadBackGroundShader();
 
-			graph = Graph::Graph::NewGraph(); 
 		}
 
 		void MainWindow::show() {

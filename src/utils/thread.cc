@@ -9,8 +9,18 @@ namespace Miyuki {
     namespace Thread {
         ThreadPool *pool = new ThreadPool();
 
+		ThreadPool::ThreadPool(uint32_t N) : terminated(false), activeWorkers(0), mainWaiting(false) {
+			hardwareConcurrency = std::thread::hardware_concurrency();
+			_numThreads = N;
+			for (int i = 0; i < numThreads(); i++) {
+				workers.emplace_back(std::make_unique<std::thread>([=]() {
+					workThreadFunc(i);
+					}));
+			}
+		}
         ThreadPool::ThreadPool() : terminated(false), activeWorkers(0), mainWaiting(false) {
 			hardwareConcurrency = std::thread::hardware_concurrency();
+			_numThreads = hardwareConcurrency;
             for (int i = 0; i < numThreads(); i++) {
                 workers.emplace_back(std::make_unique<std::thread>([=]() {
                     workThreadFunc(i);
@@ -61,7 +71,7 @@ namespace Miyuki {
         }
 		
         uint32_t ThreadPool::numThreads() const {
-            return hardwareConcurrency;
+            return _numThreads;
         }
 
         void ThreadPool::workThreadFunc(uint32_t id) {

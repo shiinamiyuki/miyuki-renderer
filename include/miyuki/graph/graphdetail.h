@@ -8,7 +8,7 @@
 
 namespace Miyuki {
 	namespace Graph {
-		
+
 		class Graph {
 			std::random_device rd;
 			std::uniform_int_distribution<uint64_t> dist;
@@ -24,6 +24,7 @@ namespace Miyuki {
 			Graph();
 			void deserialize(const json&);
 		public:
+			void bindRoot();
 			template<class SequenceT>
 			std::string generateUniqueName(const SequenceT& set) {
 				std::string s;
@@ -36,7 +37,7 @@ namespace Miyuki {
 			}
 			std::string generateUniqueName();
 			bool addNode(std::unique_ptr<Node>);
-			Node* getByName(const std::string& name);
+			Node* getByName(const std::string & name);
 			void serialize(json&);
 			static std::unique_ptr<Graph> CreateGraph(const json&);
 			static std::unique_ptr<Graph> NewGraph();
@@ -44,6 +45,5 @@ namespace Miyuki {
 		};
 	}
 }
-
 
 #endif

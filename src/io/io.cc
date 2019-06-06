@@ -42,25 +42,46 @@ namespace Miyuki{
             f(file);
             cxx::filesystem::current_path(currentPath);
         }
-		//std::string GetOpenFileNameWithDialog(const wchar_t* filter)	{
-		//	wchar_t filename[MAX_PATH];
+		std::string GetOpenFileNameWithDialog(const char* filter)	{
+			char filename[MAX_PATH];
 
-		//	OPENFILENAME ofn;
-		//	ZeroMemory(&filename, sizeof(filename));
-		//	ZeroMemory(&ofn, sizeof(ofn));
-		//	ofn.lStructSize = sizeof(ofn);
-		//	ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
-		//	if (filter)
-		//		ofn.lpstrFilter = filter;
-		//	else
-		//		ofn.lpstrFilter = L"Image\0*.png;*.jpg\0Text Files\0*.txt\0Any File\0*.*\0";
-		//	ofn.lpstrFile = filename;
-		//	ofn.nMaxFile = MAX_PATH;
-		//	ofn.lpstrTitle = L"Select a File";
-		//	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
-		//	if(GetOpenFileName(&ofn))
-		//		return wstring_to_utf8(filename);
-		//	return "";
-		//}
+			OPENFILENAME ofn;
+			ZeroMemory(&filename, sizeof(filename));
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
+			if (filter)
+				ofn.lpstrFilter = filter;
+			else
+				ofn.lpstrFilter = "Image\0*.png;*.jpg\0Text Files\0*.txt\0Any File\0*.*\0";
+			ofn.lpstrFile = filename;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.lpstrTitle = "Select a File";
+			ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+			if (GetOpenFileName(&ofn))
+				return filename;// wstring_to_utf8(filename);
+			return "";
+		}
+
+		std::string GetSaveFileNameWithDialog(const char* filter) {
+			char filename[MAX_PATH];
+
+			OPENFILENAME ofn;
+			ZeroMemory(&filename, sizeof(filename));
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
+			if (filter)
+				ofn.lpstrFilter = filter;
+			else
+				ofn.lpstrFilter = "Image\0*.png;*.jpg\0Text Files\0*.txt\0Any File\0*.*\0";
+			ofn.lpstrFile = filename;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.lpstrTitle = "Select a File";
+			ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+			if (GetSaveFileName(&ofn))
+				return filename;// wstring_to_utf8(filename);
+			return "";
+		}
     }
 }

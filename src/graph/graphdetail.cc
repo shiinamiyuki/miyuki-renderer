@@ -22,14 +22,14 @@ namespace Miyuki {
 			return true;
 		}
 
-		void Graph::serialize(json& j) {
+		void Graph::serialize(json & j) {
 			j = json::object();
 			for (const auto& i : _allNodes) {
 				j[i.first] = json::object();
 				i.second->serialize(j[i.first]);
 			}
 		}
-		void Graph::deserialize(const json& j) {
+		void Graph::deserialize(const json & j) {
 			Assert(j.is_object());
 			for (const auto& key : j.items()) {
 				auto d = _deserializers[key.value().at("type").get<std::string>()].get();
@@ -41,6 +41,10 @@ namespace Miyuki {
 				_allNodes[node->name()] = std::move(std::unique_ptr<Node>(node));
 			}
 		}
+		void Graph::bindRoot() {
+			root->set_materials(dynamic_cast<Materials*>(getByName("materials")));
+			root->set_meshes(dynamic_cast<Meshes*>(getByName("meshes")));
+		}
 		void Graph::addDefaultDeserializers() {
 			registerDeserializer("Int", std::make_unique<LeafNodeDeserializer<int>>());
 			registerDeserializer("Float", std::make_unique<LeafNodeDeserializer<Float>>());
@@ -49,7 +53,7 @@ namespace Miyuki {
 			//registerDeserializer("Image", std::make_unique<LeafNodeDeserializer<IO::ImagePtr>>());
 			registerDeserializer("String", std::make_unique<LeafNodeDeserializer<std::string>>());
 		}
-		std::unique_ptr<Graph> Graph::CreateGraph(const json& j) {
+		std::unique_ptr<Graph> Graph::CreateGraph(const json & j) {
 			std::unique_ptr<Graph> graph(new Graph());
 			graph->addDefaultDeserializers();
 			graph->deserialize(j);
@@ -66,7 +70,7 @@ namespace Miyuki {
 			return std::move(graph);
 		}
 
-		void Graph::registerDeserializer(const std::string& type, std::unique_ptr<IDeserializer> d) {
+		void Graph::registerDeserializer(const std::string & type, std::unique_ptr<IDeserializer> d) {
 			_deserializers[type] = std::move(d);
 		}
 

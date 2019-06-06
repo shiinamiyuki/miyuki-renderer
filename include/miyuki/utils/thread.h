@@ -7,6 +7,7 @@
 
 #include "miyuki.h"
 #include "math/vec.hpp"
+#include <utils/noncopyable.hpp>
 
 namespace Miyuki {
     namespace Thread {
@@ -28,8 +29,9 @@ namespace Miyuki {
             void invoke(uint32_t id);
         };
 
-        class ThreadPool {
+        class ThreadPool : NonCopyable {
         private:
+			uint32_t _numThreads;
 			uint32_t hardwareConcurrency;
             std::mutex taskMutex, mainMutex;
             std::condition_variable taskCondition, mainCondition;
@@ -42,12 +44,12 @@ namespace Miyuki {
             void workThreadFunc(uint32_t id);
 
         public:
+			ThreadPool(uint32_t N);
             ThreadPool();
 
             uint32_t numThreads() const;
 
             void enqueue(TaskFunc, uint32_t begin = 0, uint32_t end = 1u);
-
 
             void reset();
 

@@ -5,6 +5,7 @@
 #include <hw/texture.h>
 #include <hw/shader.h>
 #include <graph/graph.h>
+#include <engine/renderengine.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -21,9 +22,8 @@ namespace Miyuki {
 		class MainWindow {
 			//Timer updateTimer;
 			std::mutex viewportMutex;
-			uint32_t vbo;
-			std::unique_ptr<Graph::Graph> graph;
-			//std::unique_ptr<RenderEngine> engine;
+			uint32_t vbo = -1;
+			std::unique_ptr<RenderEngine> engine;
 			GLFWwindow* window = nullptr;
 			void mainLoop();
 			void close();
@@ -44,6 +44,7 @@ namespace Miyuki {
 			void update();
 			void loadConfig();
 			void saveConfig();
+			void newGraph();
 			//void loadViewport(Film&);
 			struct WindowFlags{
 				bool showLog = true;
@@ -56,6 +57,9 @@ namespace Miyuki {
 			}windowFlags;
 			void startRenderThread();
 			void stopRenderThread();
+			Graph::Graph* graph() {
+				return engine ? engine->graph() : nullptr;
+			}
 		public:
 			MainWindow(int argc, char** argv);
 			void show();
