@@ -10,6 +10,7 @@ namespace Miyuki {
 		public:
 			Meshes(Graph* G) :Node("meshes", G) {}
 			const char* type()const { return "Meshes"; }
+			const std::vector<Edge*> subnodes()const override { return {}; }
 		};
 	}
 }

@@ -25,13 +25,9 @@ namespace Miyuki {
 
 	class MixedMaterial : public Material {
 		Float fraction;
-		MYK_NODE_MEMBER(Material, matA);
-		MYK_NODE_MEMBER(Material, matB);
 	public:
 		MixedMaterial(const std::string& name, Graph::Graph* G)
 			:Material(name, G) {
-			init_matA();
-			init_matB();
 		}
 	};
 }

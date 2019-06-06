@@ -24,7 +24,6 @@ namespace Miyuki {
 			Graph();
 			void deserialize(const json&);
 		public:
-			void bindRoot();
 			template<class SequenceT>
 			std::string generateUniqueName(const SequenceT& set) {
 				std::string s;

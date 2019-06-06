@@ -41,10 +41,7 @@ namespace Miyuki {
 				_allNodes[node->name()] = std::move(std::unique_ptr<Node>(node));
 			}
 		}
-		void Graph::bindRoot() {
-			root->set_materials(dynamic_cast<Materials*>(getByName("materials")));
-			root->set_meshes(dynamic_cast<Meshes*>(getByName("meshes")));
-		}
+
 		void Graph::addDefaultDeserializers() {
 			registerDeserializer("Int", std::make_unique<LeafNodeDeserializer<int>>());
 			registerDeserializer("Float", std::make_unique<LeafNodeDeserializer<Float>>());
@@ -88,7 +85,8 @@ namespace Miyuki {
 			j["type"] = type();
 			if (!isLeaf()) {
 				j["subnodes"] = json::array();
-				for (auto i : _subnodes) {
+				for (auto _i : subnodes()) {
+					auto& i = _i->get();
 					auto sub = json::object();
 					sub["key"] = i.name;
 					if (!i.to)

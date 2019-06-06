@@ -17,17 +17,17 @@ namespace Miyuki {
 			void unselect(Graph::Node* root, Graph::Node* except) {
 				if (root == except)return;
 				for (auto& edge : root->subnodes()) {
-					edge.to->unselect();
-					unselect(edge.to, except);
+					edge->get().to->unselect();
+					unselect(edge->get().to, except);
 				}
 			}
 			void showNodeSelectable(Graph::Node* node) {
 				if (ImGui::TreeNode(node->name().c_str())) {
 					for (auto& edge : node->subnodes()) {
-						auto sub = edge.to;
+						auto sub = edge->get().to;
 						ImGuiTreeNodeFlags nodeFlags = 0;
 						nodeFlags |= (sub->selected() ? ImGuiTreeNodeFlags_Selected : 0);
-						ImGui::TreeNodeEx((void*)(intptr_t)sub, nodeFlags, "%s", edge.name.c_str());
+						ImGui::TreeNodeEx((void*)(intptr_t)sub, nodeFlags, "%s", edge->get().name.c_str());
 						if (ImGui::IsItemClicked()) {
 							sub->select();
 							unselect(node, sub);

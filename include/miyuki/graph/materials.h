@@ -10,6 +10,7 @@ namespace Miyuki {
 		public:
 			Materials(Graph* G) :Node("materials", G) {}
 			const char* type()const { return "Materials"; }
+			const std::vector<Edge*> subnodes()const override { return {}; }
 		};
 	}
 }

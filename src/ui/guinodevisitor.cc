@@ -34,7 +34,7 @@ namespace Miyuki {
 				visitT(prompt, node);
 			}
 
-			void visit(Graph::Edge& edge) {
+			void visit(const Graph::Edge& edge) {
 				auto node = edge.to;
 				// never visit the same node twice
 				if (visited.find(node) != visited.end()) {
@@ -66,15 +66,15 @@ namespace Miyuki {
 				}
 				else {
 					if (ImGui::TreeNode(node->name().c_str())) {
-						for (auto& i : node->subnodes()) {
-							visit(i);
+						for (const auto& i : node->subnodes()) {
+							visit(i->get());
 						}
 						ImGui::TreePop();
 					}
 				}
 			}
 			void visit(Graph::Node* root) {
-				Graph::Edge dummy(nullptr, root, "");
+				Graph::EdgeT<Graph::Node> dummy(nullptr, root, "");
 				visit(dummy); 
 			}
 		};
