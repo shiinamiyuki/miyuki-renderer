@@ -4,11 +4,27 @@
 #include "object.hpp"
 #include "primitive.hpp"
 
-#define MYK_DECL_PROPERTY(Type, Name)  Miyuki::Reflection::PropertyT<Miyuki::Reflection::_ConvertToPrimitiveType<Type>::type> Name
+#define MYK_DECL_PROPERTY(Type, Name)  \
+	using Name##_Type = Miyuki::Reflection::PropertyT<Miyuki::Reflection::_ConvertToPrimitiveType<Type>::type>;\
+	enum { _propertyIdx ## Name = __COUNTER__ - _propertyIdx - 1};\
+	Name##_Type Name = decltype(Name)(#Name); \
+	auto& getProperty(Miyuki::Reflection::UID<_propertyIdx  ## Name>){return Name;}\
+	const auto& getProperty(Miyuki::Reflection::UID<_propertyIdx ## Name>)const{return Name;}\
+	auto& getName(Miyuki::Reflection::UID<_propertyIdx ## Name>){return #Name;}
+
+#define MYK_BEGIN_PROPERTY 
+		
+#define MYK_END_PROPERTY enum{_propertyCount =  __COUNTER__ - _propertyIdx - 1 }; \
+	const std::vector<const Miyuki::Reflection::Property*> getProperties()const override{ \
+		auto vec = std::move(BaseT::getProperties()); \
+		Miyuki::Reflection::_GetPropertiesHelper<std::decay<decltype(*this)>::type, _propertyCount>::_GetProperties(*this, vec); \
+		return std::move(vec);\
+	}
+	
 #define MYK_PROPERTY_BEGIN() const std::vector<Miyuki::Reflection::Property*> getProperties()const override{\
-									std::vector<Miyuki::Reflection::Property*> __vec;	
+									auto  __vec = std::move(BaseT::getProperties());	
 #define MYK_ADD_PROPERTY(Name) __vec.emplace_back(&Name)
-#define MYK_PROPERTY_END() return __vec;}
+#define MYK_PROPERTY_END() return std::move(__vec);}
 #define MYK_CLASS(Classname, Base) MYK_CLASS_TYPE_INFO(Classname, Base) \
 									Classname(const std::string&n=""):Base(Classname::__classinfo__(),n){} \
 									Classname(Miyuki::Reflection::Class * info, const std::string&n=""):Base(info,n){}

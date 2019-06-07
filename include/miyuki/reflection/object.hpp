@@ -1,21 +1,24 @@
 #ifndef MIYUKI_REFLECTION_OBJECT_HPP
 #define MIYUKI_REFLECTION_OBJECT_HPP
-#include <string>
-#include <vector>
+#include <miyuki.h>
 #include <utils/noncopymovable.hpp>
 #include "class.hpp"
 namespace Miyuki {
 
 	namespace Reflection {
+		template<int>
+		struct UID {};
 #define MYK_NULL_CLASS Null
 #define MYK_CLASS_TYPE_INFO(classname, basename) \
+		enum {_propertyIdx = __COUNTER__}; \
+		using BaseT = basename; \
 		static Miyuki::Reflection::Class* __classinfo__(){\
 			static Miyuki::Reflection::Class* info = nullptr;\
 			static std::once_flag flag;\
-			std::call_once(flag,[&](){info = new Miyuki::Reflection::Class();});\
+			std::call_once(flag,[&](){info = new Miyuki::Reflection::Class();\
 			info->_name = #classname; \
 			info->classInfo.base = basename::__classinfo__();\
-			info->classInfo.ctor = [=](const std::string& n){return new classname(info, n);};\
+			info->classInfo.ctor = [=](const std::string& n){return new classname(info, n);};});\
 			return info; \
 		}
 		class Object;
@@ -24,29 +27,33 @@ namespace Miyuki {
 			std::string name;
 			Property(Object* object, const std::string& name)
 				: object(object), name(name) {}
-			Property(const std::string& name): name(name) {}
+			Property(const std::string& name) : name(name) {}
 			virtual const Property& get()const = 0;
 			virtual Property& get() = 0;
 		};
 		class Null {
 		public:
-			static Class * __classinfo__() {
-				static Class* info = nullptr; 
+			static Class* __classinfo__() {
+				static Class* info = nullptr;
 				static std::once_flag flag;
-				std::call_once(flag, [&]() {info = new Class(); }); 
-				info->_name ="Null"; 
+				std::call_once(flag, [&]() {info = new Class();
+				info->_name = "Null";
 				info->classInfo.base = nullptr;
 				info->classInfo.ctor = [=](const std::string&) {return nullptr; };
-				return info; 
+					});
+				return info;
 			}
 		};
 		template<class T>
-		struct PropertyT {
-			static_assert(std::is_base_of<PropertyT, T>::value);
+		struct PropertyT :public Property{
+			static_assert(std::is_base_of<Object, T>::value);
 			PropertyT(T* object, const std::string& name)
 				:Property(object, name) {}
 			PropertyT(const std::string& name) :Property(name) {}
 			T* operator->() {
+				return object;
+			}
+			const T* operator->()const {
 				return object;
 			}
 			T& operator *() {
@@ -65,15 +72,17 @@ namespace Miyuki {
 		protected:
 			Class* _class;
 			std::string _name;
-			Object(Class *_class, const std::string& name=""):_class(_class),_name(name){}
+			Object(Class* _class, const std::string& name = "") :_class(_class), _name(name) {}
 		public:
 			static Class* __classinfo__() {
 				static Class* info = nullptr;
 				static std::once_flag flag;
-				std::call_once(flag, [&]() {info = new Class(); });
-				info->_name = "Miyuki::Reflection::Object ";
-				info->classInfo.base = Null::__classinfo__() ;
-				info->classInfo.ctor = [=](const std::string&n) {return new Object(info, n); };
+				std::call_once(flag, [&]() {
+					info = new Class();
+					info->_name = "Miyuki::Reflection::Object ";
+					info->classInfo.base = Null::__classinfo__();
+					info->classInfo.ctor = [=](const std::string& n) {return new Object(info, n); };
+					});
 				return info;
 			}
 			const char* typeName()const {
@@ -93,14 +102,61 @@ namespace Miyuki {
 			}
 			virtual bool isPrimitive()const { return false; }
 			const std::string& name()const { return _name; }
-			virtual const std::vector<Property*> getProperties()const {
+			virtual const std::vector<const Property*> getProperties()const {
 				return {};
 			}
-			virtual void serialize(json&)const {
-
+			virtual void serialize(json& j)const {
+				j["name"] = name();
+				j["type"] = typeName();
+				if (!isPrimitive()) {
+					j["properties"] = json::array();
+					for (auto _i : getProperties()) {
+						auto& i = _i->get();
+						auto sub = json::object();
+						sub["name"] = i.name;
+						if (!i.object)
+							sub["value"] = "";
+						else {
+							if (i.object->isPrimitive()) {
+								sub["value"] = json::object();
+								i.object->serialize(sub["value"]);
+							}
+							else {
+								sub["value"] = i.object->name();
+							}
+						}
+						j["properties"].push_back(sub);
+					}
+				}
 			}
 		};
-	}
+		template<class T, int Idx>
+		struct _GetPropertiesHelperIdx {
+			static void _GetProperties(const T& obj, std::vector<const Property*>& vec) {
+				vec.push_back(&obj.getProperty(UID<T::_propertyCount - Idx - 1>()));
+				_GetPropertiesHelperIdx<T, Idx - 1>::_GetProperties(obj, vec);
+			}
+		};
+		template<class T>
+		struct _GetPropertiesHelperIdx<T, 0> {
+			static void _GetProperties(const T & obj,std::vector<const Property*>& vec) {
+				vec.push_back(&obj.getProperty(UID<T::_propertyCount - 1>()));
+			}
+		};
+		template<class T, int Count>
+		struct _GetPropertiesHelper {
+			static void _GetProperties(const T& obj, std::vector<const Property*>& vec) {
+				_GetPropertiesHelperIdx<T, Count - 1>::_GetProperties(obj, vec);
+			}
+		};
+		template<class T>
+		struct _GetPropertiesHelper<T, 0> {
+			static void _GetProperties(const T& obj, std::vector<const Property*>& vec) {
+			}
+		};
+	} 
 }
+
+
 
 #endif

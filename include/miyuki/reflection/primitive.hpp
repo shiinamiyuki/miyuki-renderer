@@ -57,7 +57,6 @@ namespace Miyuki {
 		public:
 			virtual const PrimitiveType primitiveType() const = 0;
 			Primitive(Class * _class,const std::string & name)  :Object(_class, name) {}
-			const std::vector<Property*> getProperties()const override { return {}; }
 		};
 
 		template<class T>
@@ -95,10 +94,10 @@ namespace Miyuki {
 								inline Class* _primitive_class<Ty>() { \
 									static Class* info = nullptr; \
 										static std::once_flag flag;\
-										std::call_once(flag, [&]() {info = new Class(); }); \
+										std::call_once(flag, [&]() {info = new Class();  \
 										info->_name = "Primitive::" #Ty; \
 										info->classInfo.base = nullptr; \
-										info->classInfo.ctor = [=](const std::string& n) {return new PrimitiveT<Ty>(n); };\
+										info->classInfo.ctor = [=](const std::string& n) {return new PrimitiveT<Ty>(n); };});\
 									return info; \
 								}
 		_MYK_PRIMITIVE_CLASS(int)
