@@ -14,6 +14,9 @@ namespace Miyuki {
 				if (j.is_null())
 					return nullptr;
 				auto name = j.at("name").get<std::string>();
+				if (!name.empty() && U.named.find(name) != U.named.end()) {
+					throw std::runtime_error(fmt::format("object named {} already exists", name));
+				}
 				auto type = j.at("type").get<std::string>();
 				auto object = classInfo.at(type)->create(name);
 				object->deserialize(j, [this](const json& js)->Object* {

@@ -33,6 +33,9 @@ namespace Miyuki {
 				}
 			}
 
+			void destroy(Object* object) {
+				delete object;
+			}
 			void mark() {
 				for (auto& i : root) {
 					mark(i);
@@ -47,7 +50,7 @@ namespace Miyuki {
 						obj->unmark();
 					}
 					else {
-						delete obj;
+						destroy(obj);
 						iter = U.anonymous.erase(iter);
 					}
 				}
@@ -58,7 +61,7 @@ namespace Miyuki {
 						obj->unmark();
 					}
 					else {
-						delete obj;
+						destroy(obj);
 						iter = U.named.erase(iter);
 					}
 				}
@@ -84,7 +87,7 @@ namespace Miyuki {
 			T* create(const std::string& name) {
 				Class* info = T::__classinfo__();
 				if (!name.empty() && U.named.find(name) != U.named.end()) {
-					return nullptr;
+					throw std::runtime_error(fmt::format("object named `{}` already exists", name));
 				}
 				T* object = (T*)classInfo.at(info->name())->create(name);
 				addObject(object);

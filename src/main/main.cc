@@ -42,8 +42,12 @@ int main(int argc, char** argv) {
 		json j2;
 		b->serialize(j2);
 		std::cout << j2.dump(2) << std::endl;
+		runtime.collect();
 	}
 	catch (json::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
+	catch (std::runtime_error& e) {
 		std::cout << e.what() << std::endl;
 	}
 	/*Miyuki::GUI::MainWindow window(argc, argv);
