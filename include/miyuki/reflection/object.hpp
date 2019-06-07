@@ -9,12 +9,13 @@ namespace Miyuki {
 	namespace Reflection {
 #define MYK_NULL_CLASS Null
 #define MYK_CLASS_TYPE_INFO(classname, basename) \
-		static Class* __class__()const{\
-			static Class* info = nullptr;\
-			std::call_once([&](){info = new Class();});\
-			info._name = #classname; \
-			info.classInfo.base = basename.__class__();\
-			info.ctor = [=](){return new classname(info);}\
+		static Miyuki::Reflection::Class* __classinfo__(){\
+			static Miyuki::Reflection::Class* info = nullptr;\
+			static std::once_flag flag;\
+			std::call_once(flag,[&](){info = new Miyuki::Reflection::Class();});\
+			info->_name = #classname; \
+			info->classInfo.base = basename::__classinfo__();\
+			info->classInfo.ctor = [=](const std::string& n){return new classname(info, n);};\
 			return info; \
 		}
 		class Object;
@@ -29,12 +30,13 @@ namespace Miyuki {
 		};
 		class Null {
 		public:
-			static Class * __class__()const {
+			static Class * __classinfo__() {
 				static Class* info = nullptr; 
-				std::call_once([&]() {info = new Class(); }); 
-				info._name ="Null"; 
-				info.classInfo.base = info; 
-				info.ctor = [=]() {return nullptr; }
+				static std::once_flag flag;
+				std::call_once(flag, [&]() {info = new Class(); }); 
+				info->_name ="Null"; 
+				info->classInfo.base = nullptr;
+				info->classInfo.ctor = [=](const std::string&) {return nullptr; };
 				return info; 
 			}
 		};
@@ -63,19 +65,27 @@ namespace Miyuki {
 		protected:
 			Class* _class;
 			std::string _name;
-			Object(const Class *_class):_class(_class){}
+			Object(Class *_class, const std::string& name=""):_class(_class),_name(name){}
 		public:
-			
+			static Class* __classinfo__() {
+				static Class* info = nullptr;
+				static std::once_flag flag;
+				std::call_once(flag, [&]() {info = new Class(); });
+				info->_name = "Miyuki::Reflection::Object ";
+				info->classInfo.base = Null::__classinfo__() ;
+				info->classInfo.ctor = [=](const std::string&n) {return new Object(info, n); };
+				return info;
+			}
 			const char* typeName()const {
 				return _class->name();
 			}
 			bool hasBase()const {
-				return _class->classInfo.base != nullptr;
+				return getClass().classInfo.base != nullptr;
 			}
 			const char* baseName()const {
-				return _class->classInfo.base->name();
+				return getClass().classInfo.base->name();
 			}
-			Class& getClass() {
+			const Class& getClass()const {
 				return *_class;
 			}
 			bool sameType(const Object& rhs)const {
@@ -83,7 +93,12 @@ namespace Miyuki {
 			}
 			virtual bool isPrimitive()const { return false; }
 			const std::string& name()const { return _name; }
-			virtual const std::vector<Property*> getProperties()const = 0;
+			virtual const std::vector<Property*> getProperties()const {
+				return {};
+			}
+			virtual void serialize(json&)const {
+
+			}
 		};
 	}
 }

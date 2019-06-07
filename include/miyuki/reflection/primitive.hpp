@@ -56,25 +56,32 @@ namespace Miyuki {
 		class Primitive : public Object {
 		public:
 			virtual const PrimitiveType primitiveType() const = 0;
-			Primitive(const Class * _class)  :Object(_class) {}
+			Primitive(Class * _class,const std::string & name)  :Object(_class, name) {}
 			const std::vector<Property*> getProperties()const override { return {}; }
 		};
 
+		template<class T>
+		inline Class* _primitive_class() {
+			return nullptr; 
+		}
+		
 		template<typename T>
 		class PrimitiveT : public Primitive {
 			T value;
 		public:
-			PrimitiveT(const T& value, Graph* graph = nullptr) :
-				Primitive("", graph), value(value) {}
-			PrimitiveT(const std::string& name, const T& value, Graph* graph = nullptr) :
-				Primitive(name, graph), value(value) {}
+			PrimitiveT(const std::string& name="") :
+				Primitive(_primitive_class<T>(), name) {}
+			PrimitiveT(const T& value) :
+				Primitive(_primitive_class<T>(),""), value(value) {}
+			PrimitiveT(const T& value, const std::string& name) :
+				Primitive(_primitive_class<T>(), name), value(value) {}
 			virtual const PrimitiveType primitiveType() const override {
 				return PrimitiveType(_GetLeafType<T>::Type);
 			}
 			virtual const char* type()const {
 				return PrimitiveTypeToString(primitiveType());
 			}
-			bool isLeaf()const override final { return true; }
+			bool isPrimitive()const override final { return true; }
 			virtual void serialize(json& j)const override {
 				Object::serialize(j);
 				j["value"] = value;
@@ -84,14 +91,28 @@ namespace Miyuki {
 			}
 			void setValue(const T& v) { value = v; }
 		};
+#define _MYK_PRIMITIVE_CLASS(Ty)	template<> \
+								inline Class* _primitive_class<Ty>() { \
+									static Class* info = nullptr; \
+										static std::once_flag flag;\
+										std::call_once(flag, [&]() {info = new Class(); }); \
+										info->_name = "Primitive::" #Ty; \
+										info->classInfo.base = nullptr; \
+										info->classInfo.ctor = [=](const std::string& n) {return new PrimitiveT<Ty>(n); };\
+									return info; \
+								}
+		_MYK_PRIMITIVE_CLASS(int)
+		_MYK_PRIMITIVE_CLASS(Float)
+		_MYK_PRIMITIVE_CLASS(Vec3f)
+		_MYK_PRIMITIVE_CLASS(std::string) 
 
-		template<typename T>
-		struct LeafNodeDeserializer : public IDeserializer {
-			virtual Node* deserialize(const json& j, Graph* G) {
-				// skip type checking
-				return new LeafNode<T>(j.at("name").get<std::string>(), j.at("value").get<T>(), G);
-			}
-		};
+		//template<typename T>
+		//struct LeafNodeDeserializer : public IDeserializer {
+		//	virtual Node* deserialize(const json& j, Graph* G) {
+		//		// skip type checking
+		//		return new LeafNode<T>(j.at("name").get<std::string>(), j.at("value").get<T>(), G);
+		//	}
+		//};
 
 
 		using IntNode = PrimitiveT<int>;
@@ -100,7 +121,7 @@ namespace Miyuki {
 		using StringNode = PrimitiveT<std::string>;
 		template<typename T>
 		struct _ConvertToPrimitiveType {
-			using type = typename  std::conditional<_GetLeafType<T>::Type == kNull, T, LeafNode<T>>::type;
+			using type = typename  std::conditional<_GetLeafType<T>::Type == kNull, T, PrimitiveT<T>>::type;
 		};
 //#define MYK_CLASS(Classname) virtual const char* type()const override{return #Classname;}
 
