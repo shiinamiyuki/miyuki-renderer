@@ -92,6 +92,9 @@ namespace Miyuki {
 			static Class * __classinfo__() {
 				return _primitive_class<T>();
 			}
+			virtual std::vector<Object*> getReferences()const {
+				return {};
+			}
 		};
 #define _MYK_PRIMITIVE_CLASS(Ty)	template<> \
 								inline Class* _primitive_class<Ty>() { \

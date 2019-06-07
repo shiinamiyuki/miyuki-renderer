@@ -41,6 +41,13 @@ namespace Miyuki {
 					j["array"].push_back(tmp);
 				}
 			}
+			virtual std::vector<Object*> getReferences()const {
+				auto result = Object::getReferences();
+				for (auto i : _array) {
+					result.push_back(i);
+				}
+				return result;
+			}
 		};
 	}
 }

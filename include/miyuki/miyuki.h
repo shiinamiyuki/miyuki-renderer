@@ -36,6 +36,7 @@
 #include <iostream>
 #include <filesystem>
 #include <future>
+#include <stack>
 
 
 #include <tiny_obj_loader/tiny_obj_loader.h>

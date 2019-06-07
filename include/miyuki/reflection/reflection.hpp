@@ -22,7 +22,7 @@
 		return std::move(vec);\
 	}
 	
-
+#define MYK_CTOR(...)  void init(__VA_ARGS__ )
 #define MYK_CLASS(Classname, Base) MYK_CLASS_TYPE_INFO(Classname, Base) \
 									Classname(const std::string&n=""):Base(Classname::__classinfo__(),n){} \
 									Classname(Miyuki::Reflection::Class * info, const std::string&n=""):Base(info,n){}

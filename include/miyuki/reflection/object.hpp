@@ -71,14 +71,21 @@ namespace Miyuki {
 			PropertyT& operator = (T* o) { object = o; return *this; }
 		};
 
+		class GC;
 		// NonCopyMovable gaurantees that during the object's lifetime,
 		// a reference to the object will never fail
 		class Object : NonCopyMovable {
+			friend class GC;
+			bool _marked = false;		
+			void mark() { _marked = true; }
+			bool marked()const { return _marked; }
+			void unmark() { _marked = false; }
 		protected:
 			Class* _class;
 			std::string _name;
 			Object(Class* _class, const std::string& name = "") :_class(_class), _name(name) {}
 		public:
+			
 			static Class* __classinfo__() {
 				static Class* info = nullptr;
 				static std::once_flag flag;
@@ -128,6 +135,15 @@ namespace Miyuki {
 						}
 					}
 				}
+			}
+			virtual std::vector<Object*> getReferences()const {
+				auto v = getProperties();
+				decltype(getReferences()) result;
+				for (auto i : v) {
+					if(i->object)
+						result.push_back(i->object);
+				}
+				return result;
 			}
 		};
 		template<class T, int Idx>
