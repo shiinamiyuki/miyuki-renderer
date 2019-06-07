@@ -3,8 +3,9 @@
 
 #include "object.hpp"
 #include "primitive.hpp"
+#include "array.hpp"
 
-#define MYK_DECL_PROPERTY(Type, Name)  \
+#define MYK_PROPERTY(Type, Name)  \
 	using Name##_Type = Miyuki::Reflection::PropertyT<Miyuki::Reflection::_ConvertToPrimitiveType<Type>::type>;\
 	enum { _propertyIdx ## Name = __COUNTER__ - _propertyIdx - 1};\
 	Name##_Type Name = decltype(Name)(#Name); \
@@ -21,10 +22,7 @@
 		return std::move(vec);\
 	}
 	
-#define MYK_PROPERTY_BEGIN() const std::vector<Miyuki::Reflection::Property*> getProperties()const override{\
-									auto  __vec = std::move(BaseT::getProperties());	
-#define MYK_ADD_PROPERTY(Name) __vec.emplace_back(&Name)
-#define MYK_PROPERTY_END() return std::move(__vec);}
+
 #define MYK_CLASS(Classname, Base) MYK_CLASS_TYPE_INFO(Classname, Base) \
 									Classname(const std::string&n=""):Base(Classname::__classinfo__(),n){} \
 									Classname(Miyuki::Reflection::Class * info, const std::string&n=""):Base(info,n){}

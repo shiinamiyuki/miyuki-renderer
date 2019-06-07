@@ -6,6 +6,9 @@
 namespace Miyuki {
 
 	namespace Reflection {
+		struct SerializationState {
+			std::set<std::string> visited;
+		};
 		template<int>
 		struct UID {};
 #define MYK_NULL_CLASS Null
@@ -30,6 +33,7 @@ namespace Miyuki {
 			Property(const std::string& name) : name(name) {}
 			virtual const Property& get()const = 0;
 			virtual Property& get() = 0;
+			Property& operator = (Object* o) { object = o; return *this; }
 		};
 		class Null {
 		public:
@@ -51,10 +55,10 @@ namespace Miyuki {
 				:Property(object, name) {}
 			PropertyT(const std::string& name) :Property(name) {}
 			T* operator->() {
-				return object;
+				return (T*)object;
 			}
 			const T* operator->()const {
-				return object;
+				return (T*)object;
 			}
 			T& operator *() {
 				return *object;
@@ -64,6 +68,7 @@ namespace Miyuki {
 			}
 			virtual const Property& get()const { return *this; }
 			virtual Property& get() { return *this; }
+			PropertyT& operator = (T* o) { object = o; return *this; }
 		};
 
 		// NonCopyMovable gaurantees that during the object's lifetime,
@@ -79,7 +84,7 @@ namespace Miyuki {
 				static std::once_flag flag;
 				std::call_once(flag, [&]() {
 					info = new Class();
-					info->_name = "Miyuki::Reflection::Object ";
+					info->_name = "Miyuki::Reflection::Object";
 					info->classInfo.base = Null::__classinfo__();
 					info->classInfo.ctor = [=](const std::string& n) {return new Object(info, n); };
 					});
@@ -105,27 +110,22 @@ namespace Miyuki {
 			virtual const std::vector<const Property*> getProperties()const {
 				return {};
 			}
-			virtual void serialize(json& j)const {
+			void serialize(json& j)const {
+				SerializationState state;
+				serialize(j, state);
+			}
+			virtual void serialize(json& j, SerializationState&)const {
 				j["name"] = name();
 				j["type"] = typeName();
 				if (!isPrimitive()) {
-					j["properties"] = json::array();
+					j["properties"] = json::object();
 					for (auto _i : getProperties()) {
 						auto& i = _i->get();
-						auto sub = json::object();
-						sub["name"] = i.name;
 						if (!i.object)
-							sub["value"] = "";
+							j["properties"][i.name] = {};
 						else {
-							if (i.object->isPrimitive()) {
-								sub["value"] = json::object();
-								i.object->serialize(sub["value"]);
-							}
-							else {
-								sub["value"] = i.object->name();
-							}
+							i.object->serialize(j["properties"][i.name]);
 						}
-						j["properties"].push_back(sub);
 					}
 				}
 			}

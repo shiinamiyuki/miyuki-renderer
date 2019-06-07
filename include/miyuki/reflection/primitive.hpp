@@ -81,7 +81,7 @@ namespace Miyuki {
 				return PrimitiveTypeToString(primitiveType());
 			}
 			bool isPrimitive()const override final { return true; }
-			virtual void serialize(json& j)const override {
+			virtual void serialize(json& j, SerializationState&)const override {
 				Object::serialize(j);
 				j["value"] = value;
 			}
@@ -89,6 +89,9 @@ namespace Miyuki {
 				return value;
 			}
 			void setValue(const T& v) { value = v; }
+			static Class * __classinfo__() {
+				return _primitive_class<T>();
+			}
 		};
 #define _MYK_PRIMITIVE_CLASS(Ty)	template<> \
 								inline Class* _primitive_class<Ty>() { \
