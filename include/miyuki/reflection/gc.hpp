@@ -8,12 +8,13 @@ namespace Miyuki {
 		Basic Garbage Collector
 		*/
 		class GC {
+		protected:
 			struct USet {
 				std::set<Object*> anonymous;
 				std::unordered_map<std::string, Object*> named;
 				void foreach(const std::function<void(Object*)>& f) {
 					for (auto& i : anonymous)f(i);
-					for (auto& i : named)f(i->second);
+					for (auto& i : named)f(i.second);
 				}
 			}U;// the universal set
 			std::set<Object*> root; //the root set
@@ -32,7 +33,7 @@ namespace Miyuki {
 				}
 			}
 
-			void mark() {				
+			void mark() {
 				for (auto& i : root) {
 					mark(i);
 				}
@@ -62,27 +63,41 @@ namespace Miyuki {
 					}
 				}
 			}
-
-		public:
-			template<class T>
-			void registerClass() {
-				Class* info = T::__classinfo__();
-				classInfo[info->name()] = info; 
-			}
-			
-			template<class T, typename... Args> 
-			T* create(const std::string & name, Args args) {
-				Class* info = T::__classinfo__();
-				if (!name.empty() && U.named.find(name) != U.named.end()) {
-					return nullptr;
-				}
-				T* object = (T*)classInfo[info->name()]->create(name);
+			void addObject(Object* object) {
+				if (!object)return;
+				const auto& name = object->name();
 				if (name.empty()) {
 					U.anonymous.insert(object);
 				}
 				else {
-					U.named[name] = object; 
+					U.named[name] = object;
 				}
+			}
+		public:
+			template<class T>
+			GC& registerClass() {
+				Class* info = T::__classinfo__();
+				classInfo[info->name()] = info;
+				return *this;
+			}
+			template<class T>
+			T* create(const std::string& name) {
+				Class* info = T::__classinfo__();
+				if (!name.empty() && U.named.find(name) != U.named.end()) {
+					return nullptr;
+				}
+				T* object = (T*)classInfo.at(info->name())->create(name);
+				addObject(object);
+				return object;
+			}
+			template<class T, typename... Args>
+			T* create(const std::string& name, Args... args) {
+				Class* info = T::__classinfo__();
+				if (!name.empty() && U.named.find(name) != U.named.end()) {
+					return nullptr;
+				}
+				T* object = (T*)classInfo.at(info->name())->create(name);
+				addObject(object);
 				object.init(args...);
 				return object;
 			}
@@ -91,9 +106,25 @@ namespace Miyuki {
 			WARNING: Not thread safe, must be manually called
 			This GC performs mark&sweep
 			*/
-			void GC() {
+			void collect() {
 				mark();
 				sweep();
+			}
+
+			~GC() {
+				U.foreach([](Object* obj) {
+					delete obj;
+					});
+			}
+
+			template<class T>
+			void addRoot(T* object) {
+				root.insert(object);
+			}
+
+			template<class T>
+			void removeRoot(T* object) {
+				root.erase(object);
 			}
 		};
 

@@ -24,27 +24,28 @@ struct T {
 	T* b;
 };
 int main(int argc, char** argv) {
-	using Miyuki::Reflection::Object;
-	A* a = new A();	
-	fmt::print("{}\n", a->typeName());
-	B* a2 = new B();
-	a2->a = new Miyuki::Reflection::IntNode(1);
-	a2->a3 = a;
-	Object* obj1 = a;
-	Object* obj2 = a2;
-	fmt::print("{} {}\n", obj1->typeName(), obj2->typeName());
-	Object* a3 = obj1->getClass().create();
-	fmt::print("{}\n", a3->typeName());
-	fmt::print("{}\n", a3->baseName());
-	for (const auto& i : a2->getProperties()) {
-		fmt::print("{}\n", i->name);
-	}
+	using namespace Miyuki::Reflection;
+	Runtime runtime;
+	runtime
+		.registerClass<IntNode>()
+		.registerClass<FloatNode>()
+		.registerClass<A>()
+		.registerClass<B>()
+		.registerClass<Array<int>>()
+		.registerClass<Object>();
+	auto a = runtime.create<A>("a");
 	json j;
-	a2->arr = new Miyuki::Reflection::Array<int>();
-	a2->arr->push_back(new Miyuki::Reflection::IntNode(1));
-	fmt::print("{}\n", a2->arr.object->typeName());
-	a2->serialize(j);
+	a->serialize(j);
 	std::cout << j.dump(2) << std::endl;
+	try {
+		auto b = runtime.deserialize(j);
+		json j2;
+		b->serialize(j2);
+		std::cout << j2.dump(2) << std::endl;
+	}
+	catch (json::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
 	/*Miyuki::GUI::MainWindow window(argc, argv);
 	window.show();*/
 	/*Miyuki::IO::ObjLoadInfo info(nullptr);

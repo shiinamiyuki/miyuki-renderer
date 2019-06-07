@@ -81,8 +81,8 @@ namespace Miyuki {
 				return PrimitiveTypeToString(primitiveType());
 			}
 			bool isPrimitive()const override final { return true; }
-			virtual void serialize(json& j, SerializationState&)const override {
-				Object::serialize(j);
+			virtual void serialize(json& j, SerializationState&state)const override {
+				Object::serialize(j,state);
 				j["value"] = value;
 			}
 			const T& getValue()const {
@@ -94,6 +94,9 @@ namespace Miyuki {
 			}
 			virtual std::vector<Object*> getReferences()const {
 				return {};
+			}
+			void deserialize(json& j, const std::function<Object* (const json&)>&)override {
+				value = j.at("value").get<T>();
 			}
 		};
 #define _MYK_PRIMITIVE_CLASS(Ty)	template<> \

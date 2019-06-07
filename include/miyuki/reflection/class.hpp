@@ -8,7 +8,7 @@ namespace Miyuki {
 		struct Class : NonCopyMovable{
 			using Constructor = std::function<Object* (const std::string&)>;
 			struct {
-				const Class* base;
+				const Class* base = nullptr;
 				Constructor ctor; 
 			} classInfo;
 			const char* _name;

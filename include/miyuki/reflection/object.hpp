@@ -9,6 +9,7 @@ namespace Miyuki {
 		struct SerializationState {
 			std::set<std::string> visited;
 		};
+
 		template<int>
 		struct UID {};
 #define MYK_NULL_CLASS Null
@@ -26,7 +27,7 @@ namespace Miyuki {
 		}
 		class Object;
 		struct Property {
-			Object* object = nullptr;
+			mutable Object* object = nullptr;
 			std::string name;
 			Property(Object* object, const std::string& name)
 				: object(object), name(name) {}
@@ -109,6 +110,23 @@ namespace Miyuki {
 			const Class& getClass()const {
 				return *_class;
 			}
+			bool isDerivedOf(const Class* c)const {
+				auto p = &getClass();
+				while (p && p != c) {
+					p = p->classInfo.base;
+				}
+				return p != nullptr;
+			}
+			bool isBaseOf(const Class* c) const {
+				while (c && c != &getClass()) {
+					c = c->classInfo.base;
+				}
+				return c != nullptr;
+			}
+			bool isBaseOf(Object * object)const{
+				const Class* p = &object->getClass();
+				return isBaseOf(p);
+			}
 			bool sameType(const Object& rhs)const {
 				return _class == rhs._class;
 			}
@@ -145,6 +163,32 @@ namespace Miyuki {
 				}
 				return result;
 			}
+			virtual void deserialize(const json& j, const std::function<Object*(const json&)>& resolve) {
+				for (auto i : getProperties()) {
+					i->object = resolve(j.at("properties").at(i->name));
+				}
+			}
+
+#ifdef HAS_MYK_CAST
+			template<class T>
+			T* cast() {
+				static_assert(std::is_base_of<Object, T>::value);
+				// up-cast
+				if (isDerivedOf(T::__classinfo__())) {
+					return (T*)this;
+				}
+				else {
+					if (isBaseOf(T::__classinfo__())) {
+						return (T*)this;
+					}
+					else {
+						throw std::runtime_error(
+							fmt::format("Cannot cast from {} to {}", typeName(), T::__classinfo__()->name())
+						);
+					}
+				}
+			}
+#endif
 		};
 		template<class T, int Idx>
 		struct _GetPropertiesHelperIdx {
