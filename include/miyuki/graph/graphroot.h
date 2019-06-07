@@ -8,10 +8,13 @@
 namespace Miyuki {
 	namespace Graph {
 		class Root : public Node{
-			Materials* materials = nullptr;
-			Meshes* meshes = nullptr;
+			MYK_DECL_MEMBER(Materials, materials);
+			MYK_DECL_MEMBER(Meshes, meshes);
 		public:
-			Root(Graph* G) :Node("root", G) {
+			Root(Graph* G) 
+				:Node("root", G),
+				materials(this, "materials"),
+				meshes(this, "meshes") {
 			}
 		};
 	}

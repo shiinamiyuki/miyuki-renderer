@@ -37,6 +37,11 @@ namespace Miyuki {
 					[&](const Edge* edge) {return edge->get().name == key; }))->get();
 			}
 
+			Edge& byKey(const std::string& key) {
+				return (*std::find_if(subnodes().begin(), subnodes().end(),
+					[&](const Edge* edge) {return edge->get().name == key; }))->get();
+			}
+
 			virtual void serialize(json& j)const;
 			virtual const char* type()const = 0;
 			virtual bool isLeaf()const { return false; }

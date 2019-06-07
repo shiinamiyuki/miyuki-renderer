@@ -2,9 +2,11 @@
 #include <ui/mainwindow.h>
 #include <graph/graph.h>
 #include <io/importobj.h>
+#include <materials/material.h>
 
 
 int main(int argc, char** argv) {
+
 	Miyuki::GUI::MainWindow window(argc, argv);
 	window.show();
 	/*Miyuki::IO::ObjLoadInfo info(nullptr);

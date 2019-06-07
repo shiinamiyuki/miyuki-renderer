@@ -7,9 +7,9 @@ namespace Miyuki {
 	namespace Graph {
 		// a node holding all materials
 		class Materials : public Node{
+			MYK_NODE_CLASS(Materials)
 		public:
 			Materials(Graph* G) :Node("materials", G) {}
-			const char* type()const { return "Materials"; }
 			const std::vector<Edge*> subnodes()const override { return {}; }
 		};
 	}

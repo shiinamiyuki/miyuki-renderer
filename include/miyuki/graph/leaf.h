@@ -75,7 +75,7 @@ namespace Miyuki {
 		public:
 			virtual const LeafType leafType() const = 0;
 			BasicLeafNode(const std::string& n, Graph* g) :Node(n, g) {}
-			const std::vector<Edge*> subnodes()const override{ return {}; }
+			const std::vector<Edge*> subnodes()const override { return {}; }
 		};
 
 		template<typename T>
@@ -122,9 +122,13 @@ namespace Miyuki {
 		template<typename T>
 		struct _ConvertToLeafType {
 			using type = typename  std::conditional<_GetLeafType<T>::Type == kNull, T, LeafNode<T>>::type;
-		}; 
-
-#define MYK_DECL_MEMBER(Type, Name)  EdgeT<_ConvertToLeafType<Type>::type> Name
+		};
+#define MYK_NODE_CLASS(Classname) virtual const char* type()const override{return #Classname;}
+#define MYK_DECL_MEMBER(Type, Name)  Miyuki::Graph::EdgeT<Miyuki::Graph::_ConvertToLeafType<Type>::type> Name
+#define MYK_NODE_INFO_BEGIN() const std::vector<Miyuki::Graph::Edge*> subnodes()const override{\
+									std::vector<Miyuki::Graph::Edge*> __vec;	
+#define MYK_NODE_MEMBER_INFO(Name) __vec.emplace_back(&Name)
+#define MYK_NODE_INFO_END() return __vec;}
 	}
 }
 #endif
