@@ -6,6 +6,7 @@ project(Miyuki)
 
 if(MSVC)
 	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /std:c++17")
+	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /D_ENABLE_EXTENDED_ALIGNED_STORAGE")
 else()
 	set(CMAKE_CXX_STANDARD 17)
 endif()
@@ -13,7 +14,7 @@ endif()
 # Add source to this project's executable.
 include_directories("include/")
 include_directories("include/miyuki/")
-link_libraries(glfw3 opengl32)
+link_libraries(glfw3 opengl32 embree3)
 file(GLOB thirdpartySRC
         "include/lodepng/lodepng.cpp"
         "include/tiny_obj_loader/tiny_obj_loader.cc"
@@ -29,6 +30,7 @@ file(GLOB guiSRC
 	"src/hw/*.cc")
 
 file(GLOB coreSRC
+	"src/core/*.cc"
 	"src/math/*.cc"
 	"src/utils/*.cc"
 	"src/io/*.cc"

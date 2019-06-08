@@ -15,14 +15,15 @@ namespace Miyuki {
 #define MYK_NULL_CLASS Null
 #define MYK_CLASS_TYPE_INFO(classname, basename) \
 		enum {_propertyIdx = __COUNTER__}; \
-		using BaseT = basename; \
+		using BaseT = basename;using ThisT = classname; \
 		static Miyuki::Reflection::Class* __classinfo__(){\
 			static Miyuki::Reflection::Class* info = nullptr;\
 			static std::once_flag flag;\
 			std::call_once(flag,[&](){info = new Miyuki::Reflection::Class();\
 			info->_name = #classname; \
 			info->classInfo.base = basename::__classinfo__();\
-			info->classInfo.ctor = [=](const std::string& n){return new classname(info, n);};});\
+			info->classInfo.ctor = [=](const std::string& n)->Miyuki::Reflection::Object*\
+			{return new classname(info, n);};});\
 			return info; \
 		}
 		class Object;
@@ -51,7 +52,7 @@ namespace Miyuki {
 		};
 		template<class T>
 		struct PropertyT :public Property{
-			static_assert(std::is_base_of<Object, T>::value);
+			static_assert(std::is_base_of<Object, T>::value, "Invalid template argument T");
 			PropertyT(T* object, const std::string& name)
 				:Property(object, name) {}
 			PropertyT(const std::string& name) :Property(name) {}
@@ -168,7 +169,15 @@ namespace Miyuki {
 					i->object = resolve(j.at("properties").at(i->name));
 				}
 			}
-
+			const Property* getProperty(const std::string& name)const {
+				for (auto i : getProperties()) {
+					if (i->name == name) {
+						return i;
+					}
+				}
+				throw std::runtime_error(
+					fmt::format("{} has no property named {}\n",typeName(),  name));
+			}
 #ifdef HAS_MYK_CAST
 			template<class T>
 			T* cast() {
@@ -190,29 +199,30 @@ namespace Miyuki {
 			}
 #endif
 		};
-		template<class T, int Idx>
-		struct _GetPropertiesHelperIdx {
-			static void _GetProperties(const T& obj, std::vector<const Property*>& vec) {
-				vec.push_back(&obj.getProperty(UID<T::_propertyCount - Idx - 1>()));
-				_GetPropertiesHelperIdx<T, Idx - 1>::_GetProperties(obj, vec);
-			}
-		};
-		template<class T>
-		struct _GetPropertiesHelperIdx<T, 0> {
-			static void _GetProperties(const T & obj,std::vector<const Property*>& vec) {
-				vec.push_back(&obj.getProperty(UID<T::_propertyCount - 1>()));
-			}
-		};
-		template<class T, int Count>
-		struct _GetPropertiesHelper {
-			static void _GetProperties(const T& obj, std::vector<const Property*>& vec) {
-				_GetPropertiesHelperIdx<T, Count - 1>::_GetProperties(obj, vec);
-			}
-		};
-		template<class T>
-		struct _GetPropertiesHelper<T, 0> {
-			static void _GetProperties(const T& obj, std::vector<const Property*>& vec) {
-			}
+#define __MYK_GET_PROPERTY_HELPER \
+		template<class T, int Idx>\
+		struct _GetPropertiesHelperIdx {\
+			static void _GetProperties(const T& obj, std::vector<const Miyuki::Reflection::Property*>& vec) {\
+				vec.push_back(&obj.getProperty(Miyuki::Reflection::UID<T::_propertyCount - Idx - 1>()));\
+				_GetPropertiesHelperIdx<T, Idx - 1>::_GetProperties(obj, vec);\
+			}\
+		};\
+		template<class T>\
+		struct _GetPropertiesHelperIdx<T, 0> {\
+			static void _GetProperties(const T & obj,std::vector<const Miyuki::Reflection::Property*>& vec) {\
+				vec.push_back(&obj.getProperty(Miyuki::Reflection::UID<T::_propertyCount - 1>()));\
+			}\
+		};\
+		template<class T, int Count>\
+		struct _GetPropertiesHelper {\
+			static void _GetProperties(const T& obj, std::vector<const Miyuki::Reflection::Property*>& vec) {\
+				_GetPropertiesHelperIdx<T, Count - 1>::_GetProperties(obj, vec);\
+			}\
+		};\
+		template<class T>\
+		struct _GetPropertiesHelper<T, 0> {\
+			static void _GetProperties(const T& obj, std::vector<const Miyuki::Reflection::Property*>& vec) {\
+			}\
 		};
 	} 
 }

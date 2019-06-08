@@ -1,5 +1,6 @@
 #include <miyuki.h>
 #include <reflection.h>
+#include <materials/material.h>
 
 class A : public Miyuki::Reflection::Object {
 public:
@@ -15,14 +16,12 @@ public:
 	MYK_BEGIN_PROPERTY;
 	MYK_PROPERTY(Miyuki::Reflection::Array<int>, arr);
 	MYK_PROPERTY(Miyuki::Reflection::Object, a2);
+private:
 	MYK_PROPERTY(A, a3);
 	MYK_PROPERTY(int, b2);
 	MYK_END_PROPERTY;
-};
-struct T {
-	int a;
-	T* b;
-};
+}; 
+
 int main(int argc, char** argv) {
 	using namespace Miyuki::Reflection;
 	Runtime runtime;

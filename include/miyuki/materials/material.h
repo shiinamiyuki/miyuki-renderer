@@ -1,7 +1,7 @@
 #ifndef MIYUKI_MATERIAL_H
 #define MIYUKI_MATERIAL_H
 #include <miyuki.h>
-#include <graph/graph.h>
+#include <reflection.h>
 
 
 namespace Miyuki {
@@ -16,30 +16,24 @@ namespace Miyuki {
 		kAllButSpecular = kAll & ~kSpecular
 	};
 
-	class Material : public Graph::Node {
-	protected:
-		BSDFLobe _lobe;
+	class Material : public Reflection::Object {
 	public:
-		Material(const std::string& name, BSDFLobe lobe, Graph::Graph* G)
-			:Graph::Node(name, G), _lobe(lobe) {}
+		MYK_CLASS(Material, Reflection::Object);
 		BSDFLobe lobe()const { return _lobe; }
+	protected:
+		BSDFLobe _lobe = kNone;
 	};
 
 	class MixedMaterial : public Material {
-		MYK_DECL_MEMBER(Float, fraction);
-		MYK_DECL_MEMBER(Material, matA);
-		MYK_DECL_MEMBER(Material, matB);
 	public:
-		MixedMaterial(const std::string& name, Graph::Graph* G)
-			:Material(name, kNone, G) {
-		}
-		MYK_NODE_INFO_BEGIN() {
-			MYK_NODE_MEMBER_INFO(fraction);
-			MYK_NODE_MEMBER_INFO(matA);
-			MYK_NODE_MEMBER_INFO(matB);
-		}
-		MYK_NODE_INFO_END()
+		MYK_CLASS(MixedMaterial, Material);
+		MYK_BEGIN_PROPERTY;
+	private:
+		MYK_PROPERTY(Material, matA);
+		MYK_PROPERTY(Material, matB);
+		MYK_END_PROPERTY;
 	};
+	
 }
 
 #endif

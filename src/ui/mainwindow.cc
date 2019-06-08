@@ -12,7 +12,7 @@ static void Draw(const Miyuki::HW::Texture& texture) {
 }
 namespace Miyuki {
 	namespace GUI {
-		class GraphExplorer {
+		/*class GraphExplorer {
 			Graph::Graph* graph;
 			void unselect(Graph::Node* root, Graph::Node* except) {
 				if (root == except)return;
@@ -47,7 +47,7 @@ namespace Miyuki {
 					showNodeSelectable(meshes);
 				}
 			}
-		};
+		};*/
 		void MainWindow::mainLoop() {
 			ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 			// Main loop
@@ -197,10 +197,6 @@ void main()
 		void MainWindow::explorerWindow() {
 			if (windowFlags.showExplorer
 				&& ImGui::Begin("Explorer", &windowFlags.showExplorer)) {
-				if (graph()) {
-					GraphExplorer explorer(graph());
-					explorer.show();
-				}
 				ImGui::End();
 			}
 		}
@@ -224,21 +220,11 @@ void main()
 				ImGui::End();
 			}
 		}*/
-		void MainWindow::newGraph() {
-			if (graph()) {
-				
-			}
-			if (!engine) {
-				engine = std::make_unique<RenderEngine>();
-			}
-			engine->newGraph();
-			
-		}
 		void MainWindow::menuBar() {
 			ImGui::BeginMainMenuBar();
 			if (ImGui::BeginMenu("File")) {
 				if (ImGui::MenuItem("New")) {
-					newGraph();
+
 				}
 				if (ImGui::MenuItem("Open")) {
 					auto s = IO::GetOpenFileNameWithDialog("Scene Description\0*.json\0");

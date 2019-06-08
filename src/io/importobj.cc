@@ -1,5 +1,4 @@
 #include <io/importobj.h>
-#include <graph/graph.h>
 
 #include <boost/algorithm/string.hpp>
 

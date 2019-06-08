@@ -4,7 +4,6 @@
 #include <utils/log.h>
 #include <hw/texture.h>
 #include <hw/shader.h>
-#include <graph/graph.h>
 #include <engine/renderengine.h>
 
 #include <cstdio>
@@ -44,7 +43,6 @@ namespace Miyuki {
 			void update();
 			void loadConfig();
 			void saveConfig();
-			void newGraph();
 			//void loadViewport(Film&);
 			struct WindowFlags{
 				bool showLog = true;
@@ -57,9 +55,6 @@ namespace Miyuki {
 			}windowFlags;
 			void startRenderThread();
 			void stopRenderThread();
-			Graph::Graph* graph() {
-				return engine ? engine->graph() : nullptr;
-			}
 		public:
 			MainWindow(int argc, char** argv);
 			void show();
