@@ -26,7 +26,7 @@
 #define MYK_CLASS(Classname, Base) MYK_CLASS_TYPE_INFO(Classname, Base) \
 									Classname(const std::string&n=""):Base(Classname::__classinfo__(),n){} \
 									Classname(Miyuki::Reflection::Class * info, const std::string&n=""):Base(info,n){}
-// MSVC and GCC's extension makes this happening
+// MSVC and GCC's extension makes this happen
 #define MYK_CTOR(...)  ThisT(Miyuki::Reflection::Class * info, const std::string&n,__VA_ARGS__)
 #define MYK_SUPER_CTOR(...)		BaseT(info, n, __VA_ARGS__)
 #define MYK_CTOR_FINAL(...) ThisT(const std::string&n, __VA_ARGS__)

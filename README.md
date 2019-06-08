@@ -13,35 +13,45 @@
 
 Goal: a high performance pbrt-style renderer with low hardware requirements but renders great images quickly (sounds like the ultimate goal for computer graphics though :D)
 
-## Recent TODOs:
-Fix the whole material system.
 
-## Features (WIP)
-### Ray tracing kernels:
- Embree and custom SAH BVH.
 
-### Light transport algorithm:
-Volumetric path tracer: Not yet supporting volume though. We also implemented an adaptive integration inspired by Mitsuba.</br>
+The project is using a design pattern called MVVM. This enables us to decouple core renderer modules with GUI code so that the latter can fully exploit the power of reflection while keeping the former as simple as possible for performance.
 
-BDPT: Boring pbrt-style implementation.</br>
+## File Structure:
 
-Multiplexed MLT: We implemented some of the optimizations suggested by Eric Veach, Hachisuka and other open source MLT implementations like LuxCoreRender. More optimizations needed.
+`miyuki/reflection`: A custom RTTI/Reflection/GC/Serialization library. 
 
-~~Path Space MLT: Working on it.~~
+`miyuki/graph`: Scene graph. All classes in this folder relies on reflection to provide information to the editor. Upon rendering, the graph is compiled to build the data structure used for rendering.
 
-Path Guiding: Based on https://github.com/Tom94/practical-path-guiding.
+`miyuki/materials`: All materials.
 
-~~All of these algorithms share the same code base, makes it easier to maintain the code.~~ Path tracing is handled through an
-optimized generic interface.
+`miyuki/intergrators`: All integrators.
 
-### Miscellaneous 
-We'll have possibly a denoiser and unlikely a blender plugin.
+`miyuki/hw`: Hardware acceleration. OpenGL for now.
+
+`miyuki/core`: Core infrastructure.
+
+`miyuki/utils`,`miyuki/math`: Utility libraries.
+
+`miyuki/ui`: GUI support.
+
+## Features :
+- [ ] Custom RTTI/Reflection/GC/Serialization library
+  - [x] Intrusive reflection using macros
+  - [x] RTTI
+  - [x] Basic GC. 
+  - [x] Automatic serialization
+  - [ ] Cyclic references
+- [ ] Editor Support
+- [ ] Custom BVH RT kernel
+- [ ] Disney BSDF
+- [ ] Path tracing & denoiser
 
 ## How to build
 
-Dependencies: Embree 3.0, boost filesystem(not required when on non-Windows).
+Dependencies: Embree 3.0, boost, OpenEXR.
 
-CMake everything.
+CMake everything. 
 
 ## Gallery 
 ### Editor

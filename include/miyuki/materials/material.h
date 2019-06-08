@@ -1,8 +1,6 @@
 #ifndef MIYUKI_MATERIAL_H
 #define MIYUKI_MATERIAL_H
 #include <miyuki.h>
-#include <reflection.h>
-
 
 namespace Miyuki {
 	enum BSDFLobe {
@@ -16,22 +14,16 @@ namespace Miyuki {
 		kAllButSpecular = kAll & ~kSpecular
 	};
 
-	class Material : public Reflection::Object {
-	public:
-		MYK_CLASS(Material, Reflection::Object);
+	class Material  {
 		BSDFLobe lobe()const { return _lobe; }
+		Material(BSDFLobe lobe) :_lobe(lobe) {}
 	protected:
 		BSDFLobe _lobe = kNone;
 	};
 
 	class MixedMaterial : public Material {
+		Material* matA, * matB;
 	public:
-		MYK_CLASS(MixedMaterial, Material);
-		MYK_BEGIN_PROPERTY;
-	private:
-		MYK_PROPERTY(Material, matA);
-		MYK_PROPERTY(Material, matB);
-		MYK_END_PROPERTY;
 	};
 	
 }
