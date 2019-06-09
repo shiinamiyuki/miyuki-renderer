@@ -41,17 +41,21 @@ namespace Miyuki {
 					j["array"].push_back(tmp);
 				}
 			}
-			virtual std::vector<Object*> getReferences()const {
+			virtual std::vector<Object::Reference> getReferences()override {
 				auto result = Object::getReferences();
+				int cnt = 0;
 				for (auto i : _array) {
-					result.push_back(i);
+					result.push_back(Object::Reference([=](Object* o)->void {
+						_array.at(cnt) = static_cast<Ty*>(o); }, i));
+					cnt++;
 				}
 				return result;
 			}
-			virtual void deserialize(const json& j, const std::function<Object* (const json&)>& resolve)override {
+			virtual void deserialize(const json& j, const Resolver& resolve)override {
 				Object::deserialize(j, resolve);
-				for (const auto& i : j["array"]) {
-					push_back((Ty*)resolve(j));
+				for (const auto& i : j["array"]){ 
+					if(auto r = resolve(j))
+						push_back(static_cast<Ty*>(r.value()));
 				}
 			}
 		};

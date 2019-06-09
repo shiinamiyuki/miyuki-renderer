@@ -92,10 +92,10 @@ namespace Miyuki {
 			static Class * __classinfo__() {
 				return _primitive_class<T>();
 			}
-			virtual std::vector<Object*> getReferences()const {
+			virtual std::vector<Object::Reference> getReferences()override{
 				return {};
 			}
-			void deserialize(json& j, const std::function<Object* (const json&)>&)override {
+			void deserialize(json& j, const Resolver&)override {
 				value = j.at("value").get<T>();
 			}
 		};

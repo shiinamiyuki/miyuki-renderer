@@ -37,15 +37,18 @@ The project is using a design pattern called MVVM. This enables us to decouple c
 
 ## Features :
 - [ ] Custom RTTI/Reflection/GC/Serialization library
-  - [x] Intrusive reflection using macros
+  - [x] Intrusive reflection
   - [x] RTTI
   - [x] Basic GC. 
   - [x] Automatic serialization
   - [ ] Cyclic references
 - [ ] Editor Support
+  - [ ] Cross platform support. Some GUI code calls native Windows API for now.
 - [ ] Custom BVH RT kernel
 - [ ] Disney BSDF
 - [ ] Path tracing & denoiser
+- [ ] Hybrid rendering
+- [ ] Network rendering 
 
 ## How to build
 
@@ -54,10 +57,6 @@ Dependencies: Embree 3.0, boost, OpenEXR.
 CMake everything. 
 
 ## Gallery 
-### Editor
-
-![](gallery/editor.png)
-
 ### Random test images
 ![](gallery/mc.png)
 

@@ -28,7 +28,7 @@ namespace Miyuki {
 					stack.pop();
 					o->mark();
 					for (auto& i : o->getReferences()) {
-						stack.push(i);
+						stack.push(i.object);
 					}
 				}
 			}

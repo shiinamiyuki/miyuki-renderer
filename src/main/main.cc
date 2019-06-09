@@ -1,6 +1,7 @@
+#include <materials/material.h>
 #include <miyuki.h>
 #include <reflection.h>
-#include <materials/material.h>
+#include <utils/result.hpp>
 
 class A : public Miyuki::Reflection::Object {
 public:
@@ -8,39 +9,42 @@ public:
 	MYK_BEGIN_PROPERTY;
 	MYK_PROPERTY(Miyuki::Reflection::Object, a);
 	MYK_PROPERTY(int, b);
-	MYK_END_PROPERTY; 
+	MYK_END_PROPERTY;
 };
+
 class B : public A {
 public:
 	MYK_CLASS(B, A);
 	MYK_BEGIN_PROPERTY;
 	MYK_PROPERTY(Miyuki::Reflection::Array<int>, arr);
 	MYK_PROPERTY(Miyuki::Reflection::Object, a2);
-private:
 	MYK_PROPERTY(A, a3);
+	MYK_PROPERTY(A, a4);
 	MYK_PROPERTY(int, b2);
 	MYK_END_PROPERTY;
-}; 
+};
 
 int main(int argc, char** argv) {
 	using namespace Miyuki::Reflection;
 	Runtime runtime;
-	runtime
-		.registerClass<IntNode>()
+	runtime.registerClass<IntNode>()
 		.registerClass<FloatNode>()
 		.registerClass<A>()
 		.registerClass<B>()
 		.registerClass<Array<int>>()
 		.registerClass<Object>();
-	auto a = runtime.create<A>("a");
-	json j;
-	a->serialize(j);
-	std::cout << j.dump(2) << std::endl;
 	try {
-		auto b = runtime.deserialize(j);
-		json j2;
-		b->serialize(j2);
-		std::cout << j2.dump(2) << std::endl;
+		auto a = runtime.create<A>("a");
+		auto b = runtime.create<B>("b");
+		b->a3 = a;
+		b->a4 = a;
+		json j;
+		b->serialize(j);
+		auto property = a->getPropertyByName("aaa");
+		if (property.hasError()) {
+			std::cout << property.error().what();
+		}
+		std::cout << j.dump(2) << std::endl;
 		runtime.collect();
 	}
 	catch (json::exception& e) {
@@ -52,6 +56,6 @@ int main(int argc, char** argv) {
 	/*Miyuki::GUI::MainWindow window(argc, argv);
 	window.show();*/
 	/*Miyuki::IO::ObjLoadInfo info(nullptr);
-	Miyuki::IO::LoadObjFile(R"(C:\Users\xiaoc\source\repos\_MiyukiRenderer\MiyukiRenderer\test-scenes\fireplace_room\mesh0.obj)", info);
-	std::cout << info.mtlDescription.dump(2) << std::endl;*/
+	Miyuki::IO::LoadObjFile(R"(C:\Users\xiaoc\source\repos\_MiyukiRenderer\MiyukiRenderer\test-scenes\fireplace_room\mesh0.obj)",
+	info); std::cout << info.mtlDescription.dump(2) << std::endl;*/
 }

@@ -2,12 +2,19 @@
 #define MIYUKI_REFLECTION_OBJECT_HPP
 #include <miyuki.h>
 #include <utils/noncopymovable.hpp>
+#include <utils/result.hpp>
 #include "class.hpp"
 namespace Miyuki {
 
 	namespace Reflection {
 		struct SerializationState {
-			std::set<std::string> visited;
+			std::set<const Object*> visited;
+			Optional<Error> error;
+			void add(const Object* o) { visited.insert(o); }
+			bool has(const Object* o) { return visited.find(o) != visited.end(); }
+			bool hasError()const {
+				return error.has_value();
+			}
 		};
 
 		template<int>
@@ -51,16 +58,16 @@ namespace Miyuki {
 			}
 		};
 		template<class T>
-		struct PropertyT :public Property{
+		struct PropertyT :public Property {
 			static_assert(std::is_base_of<Object, T>::value, "Invalid template argument T");
 			PropertyT(T* object, const std::string& name)
 				:Property(object, name) {}
 			PropertyT(const std::string& name) :Property(name) {}
 			T* operator->() {
-				return (T*)object;
+				return static_cast<T*>(object);
 			}
 			const T* operator->()const {
-				return (T*)object;
+				return static_cast<T*>(object);
 			}
 			T& operator *() {
 				return *object;
@@ -74,11 +81,11 @@ namespace Miyuki {
 		};
 
 		class GC;
-		// NonCopyMovable gaurantees that during the object's lifetime,
+		// NonCopyMovable gaurantees that during an object's lifetime,
 		// a reference to the object will never fail
 		class Object : NonCopyMovable {
 			friend class GC;
-			bool _marked = false;		
+			bool _marked = false;
 			void mark() { _marked = true; }
 			bool marked()const { return _marked; }
 			void unmark() { _marked = false; }
@@ -87,7 +94,7 @@ namespace Miyuki {
 			std::string _name;
 			Object(Class* _class, const std::string& name = "") :_class(_class), _name(name) {}
 		public:
-			
+
 			static Class* __classinfo__() {
 				static Class* info = nullptr;
 				static std::once_flag flag;
@@ -124,7 +131,7 @@ namespace Miyuki {
 				}
 				return c != nullptr;
 			}
-			bool isBaseOf(Object * object)const{
+			bool isBaseOf(Object* object)const {
 				const Class* p = &object->getClass();
 				return isBaseOf(p);
 			}
@@ -133,14 +140,31 @@ namespace Miyuki {
 			}
 			virtual bool isPrimitive()const { return false; }
 			const std::string& name()const { return _name; }
+			bool isAnonymous()const {
+				return name().empty();
+			}
 			virtual const std::vector<const Property*> getProperties()const {
 				return {};
 			}
-			void serialize(json& j)const {
+			Optional<Error> serialize(json& j)const {
 				SerializationState state;
 				serialize(j, state);
+				return state.error;
 			}
-			virtual void serialize(json& j, SerializationState&)const {
+			virtual void serialize(json& j, SerializationState& state)const {
+				if (state.hasError())return;
+				// never serialize the same object twice
+				if (state.has(this)) {
+					if (!isAnonymous()) {
+						j = name();
+					}
+					else {
+						state.error = Error(
+							fmt::format("Multiple references to an anonymous object"));
+					}
+					return;
+				}
+				state.add(this);
 				j["name"] = name();
 				j["type"] = typeName();
 				if (!isPrimitive()) {
@@ -150,35 +174,44 @@ namespace Miyuki {
 						if (!i.object)
 							j["properties"][i.name] = {};
 						else {
-							i.object->serialize(j["properties"][i.name]);
+							i.object->serialize(j["properties"][i.name], state);
 						}
 					}
 				}
 			}
-			virtual std::vector<Object*> getReferences()const {
+			struct Reference {
+				std::function<void(Object*)> reset;
+				Object* object;
+
+				Reference(const decltype(reset)& f, Object* object) :object(object), reset(f) {}
+			};
+			virtual std::vector<Reference> getReferences() {
 				auto v = getProperties();
 				decltype(getReferences()) result;
 				for (auto i : v) {
-					if(i->object)
-						result.push_back(i->object);
+					if (i->object)
+						result.push_back(Reference([=](Object* o) {i->object = o; }, i->object));
 				}
 				return result;
 			}
-			virtual void deserialize(const json& j, const std::function<Object*(const json&)>& resolve) {
+			using Resolver = std::function<Result<Object*> (const json&)>;
+			virtual void deserialize(const json& j, const Resolver& resolve) {
 				for (auto i : getProperties()) {
-					i->object = resolve(j.at("properties").at(i->name));
+					if (auto r = resolve(j.at("properties").at(i->name))) {
+						i->object = r.value();
+					}
 				}
 			}
-			const Property* getProperty(const std::string& name)const {
+			Result<const Property*> getPropertyByName(const std::string& name)const {
 				for (auto i : getProperties()) {
 					if (i->name == name) {
 						return i;
 					}
 				}
-				throw std::runtime_error(
-					fmt::format("{} has no property named {}\n",typeName(),  name));
+				return Error(
+					fmt::format("{} has no property named {}\n", typeName(), name));
 			}
-#ifdef HAS_MYK_CAST
+#ifdef HAS_MYK_CAST // 0
 			template<class T>
 			T* cast() {
 				static_assert(std::is_base_of<Object, T>::value);
@@ -224,7 +257,7 @@ namespace Miyuki {
 			static void _GetProperties(const T& obj, std::vector<const Miyuki::Reflection::Property*>& vec) {\
 			}\
 		};
-	} 
+	}
 }
 
 
