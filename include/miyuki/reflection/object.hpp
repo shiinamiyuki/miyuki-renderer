@@ -53,13 +53,13 @@ namespace Miyuki {
 				info->_name = "Null";
 				info->classInfo.base = nullptr;
 				info->classInfo.ctor = [=](const std::string&) {return nullptr; };
-					});
+				});
 				return info;
 			}
 		};
 		template<class T>
 		struct PropertyT :public Property {
-			static_assert(std::is_base_of<Object, T>::value, "Invalid template argument T");
+			//static_assert(std::is_base_of<Object, T>::value, "Invalid template argument T");
 			PropertyT(T* object, const std::string& name)
 				:Property(object, name) {}
 			PropertyT(const std::string& name) :Property(name) {}
@@ -103,7 +103,7 @@ namespace Miyuki {
 					info->_name = "Miyuki::Reflection::Object";
 					info->classInfo.base = Null::__classinfo__();
 					info->classInfo.ctor = [=](const std::string& n) {return new Object(info, n); };
-					});
+				});
 				return info;
 			}
 			const char* typeName()const {
@@ -194,7 +194,7 @@ namespace Miyuki {
 				}
 				return result;
 			}
-			using Resolver = std::function<Result<Object*> (const json&)>;
+			using Resolver = std::function<Result<Object*>(const json&)>;
 			virtual void deserialize(const json& j, const Resolver& resolve) {
 				for (auto i : getProperties()) {
 					if (auto r = resolve(j.at("properties").at(i->name))) {

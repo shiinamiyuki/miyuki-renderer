@@ -11,7 +11,7 @@ public:
 	MYK_PROPERTY(int, b);
 	MYK_END_PROPERTY;
 };
-
+class B;
 class B : public A {
 public:
 	MYK_CLASS(B, A);
@@ -19,7 +19,7 @@ public:
 	MYK_PROPERTY(Miyuki::Reflection::Array<int>, arr);
 	MYK_PROPERTY(Miyuki::Reflection::Object, a2);
 	MYK_PROPERTY(A, a3);
-	MYK_PROPERTY(A, a4);
+	MYK_PROPERTY(B, a4);
 	MYK_PROPERTY(int, b2);
 	MYK_END_PROPERTY;
 };
@@ -36,16 +36,20 @@ int main(int argc, char** argv) {
 	try {
 		auto a = runtime.create<A>("a");
 		auto b = runtime.create<B>("b");
+		auto b2 = runtime.create<B>("b2");
 		b->a3 = a;
-		b->a4 = a;
+		b->a4 = b2;
+		b2->a4 = b;
 		json j;
 		b->serialize(j);
-		auto property = a->getPropertyByName("aaa");
-		if (property.hasError()) {
-			std::cout << property.error().what();
-		}
 		std::cout << j.dump(2) << std::endl;
 		runtime.collect();
+		if (auto r = runtime.deserialize(j)) {
+			auto o = r.value();
+			json j2;
+			o->serialize(j2);
+			std::cout << j2.dump(2) << std::endl;
+		}
 	}
 	catch (json::exception& e) {
 		std::cout << e.what() << std::endl;

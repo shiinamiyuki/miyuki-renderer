@@ -9,14 +9,36 @@ namespace Miyuki {
 		Manages all objects
 		*/
 		class Runtime : public GC {
-			struct DeserializationState {
-				std::unordered_map<const Property*, std::string> map;
+			struct Temp {
+				std::string name;
+				Temp(const std::string& name) :name(name) {}
 			};
+			struct DeserializationState {
+				std::set<Temp*> map;
+				std::set<Object*>visited;
+				~DeserializationState() {
+					for (auto i : map) {
+						delete i;
+					}
+				}
+			};			
 		public:
-			Result<Object*> _deserialize(const json& j) {
+			Result<Object*> _deserialize(const json& j, DeserializationState&state) {
 				// null or references are skipped
-				if (j.is_null() || j.is_string())
+				if (j.is_null())
 					return nullptr;
+				if (j.is_string()) {
+					auto name = j.get<std::string>();
+					auto iter = U.named.find(name);
+					if (iter != U.named.end()) {
+						return iter->second;
+					}
+					fmt::print("name={}\n",name);
+					// Ugly
+					auto t = new Temp(name);
+					state.map.insert(t);
+					return (Object*)t;
+				}
 				auto name = j.at("name").get<std::string>();
 				if (!name.empty() && U.named.find(name) != U.named.end()) {
 					return Error(fmt::format("object named {} already exists", name));
@@ -26,13 +48,36 @@ namespace Miyuki {
 				if(iter == classInfo.end())
 					return Error(fmt::format("unknown type", type));
 				auto object = iter->second->create(name);
-				object->deserialize(j, [this](const json& js)->Result<Object*> {
-					return _deserialize(js);
+				addObject(object);
+				object->deserialize(j, [this,&state](const json& js)->Result<Object*> {
+					return _deserialize(js,state);
 				});
 				return object;
 			}
+			void resetReferences(Object * object, DeserializationState & state) {
+				if (state.visited.find(object) != state.visited.end())
+					return;
+				state.visited.insert(object);
+				for (auto i : object->getReferences()) {
+					auto iter = state.map.find((Temp*)i.object);
+					auto t = *iter;
+					if (iter != state.map.end()) {
+						fmt::print("reset: {}\n", t->name);
+						auto o = U.named[t->name];
+						i.reset(o);
+						state.visited.insert(o);
+					}
+					else {
+						resetReferences(i.object, state);
+					}
+				}
+			}
 			Result<Object*> deserialize(const json& j) {
-				return _deserialize(j);
+				DeserializationState state;
+				auto r = _deserialize(j,state);
+				if (!r)return r;
+				resetReferences(r.value(), state);
+				return r.value();
 			}
 
 			template<typename T>

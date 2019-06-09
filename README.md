@@ -41,7 +41,7 @@ The project is using a design pattern called MVVM. This enables us to decouple c
   - [x] RTTI
   - [x] Basic GC. 
   - [x] Automatic serialization
-  - [ ] Cyclic references
+  - [x] Cyclic references
 - [ ] Editor Support
   - [ ] Cross platform support. Some GUI code calls native Windows API for now.
 - [ ] Custom BVH RT kernel
