@@ -211,26 +211,19 @@ namespace Miyuki {
 				return Error(
 					fmt::format("{} has no property named {}\n", typeName(), name));
 			}
-#ifdef HAS_MYK_CAST // 0
+
 			template<class T>
-			T* cast() {
-				static_assert(std::is_base_of<Object, T>::value);
+			Result<T*> cast() {
 				// up-cast
-				if (isDerivedOf(T::__classinfo__())) {
+				if (isDerivedOf(T::__classinfo__()) || &getClass() == T::__classinfo__()) {
 					return (T*)this;
 				}
 				else {
-					if (isBaseOf(T::__classinfo__())) {
-						return (T*)this;
-					}
-					else {
-						throw std::runtime_error(
-							fmt::format("Cannot cast from {} to {}", typeName(), T::__classinfo__()->name())
-						);
-					}
+					return Error(
+						fmt::format("Cannot cast from {} to {}", typeName(), T::__classinfo__()->name())
+					);
 				}
 			}
-#endif
 		};
 #define __MYK_GET_PROPERTY_HELPER \
 		template<class T, int Idx>\

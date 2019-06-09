@@ -36,7 +36,7 @@ The project is using a design pattern called MVVM. This enables us to decouple c
 `miyuki/ui`: GUI support.
 
 ## Features :
-- [ ] Custom RTTI/Reflection/GC/Serialization library
+- [x] Custom RTTI/Reflection/GC/Serialization library
   - [x] Intrusive reflection
   - [x] RTTI
   - [x] Basic GC. 

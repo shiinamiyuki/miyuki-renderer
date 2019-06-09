@@ -40,6 +40,10 @@ int main(int argc, char** argv) {
 		b->a3 = a;
 		b->a4 = b2;
 		b2->a4 = b;
+		auto a2 = b->cast<A>();
+		if (!a2) {
+			std::cout << a2.error().what() << std::endl;
+		}
 		json j;
 		b->serialize(j);
 		std::cout << j.dump(2) << std::endl;
