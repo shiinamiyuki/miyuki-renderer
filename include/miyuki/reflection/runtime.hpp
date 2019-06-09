@@ -47,8 +47,11 @@ namespace Miyuki {
 				auto iter = classInfo.find(type);
 				if(iter == classInfo.end())
 					return Error(fmt::format("unknown type", type));
-				auto object = iter->second->create(name);
-				addObject(object);
+				auto r = create(iter->second, name);
+				if (!r) {
+					return r.error();
+				}
+				auto object = r.value();
 				object->deserialize(j, [this,&state](const json& js)->Result<Object*> {
 					return _deserialize(js,state);
 				});

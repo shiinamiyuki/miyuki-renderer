@@ -34,9 +34,9 @@ int main(int argc, char** argv) {
 		.registerClass<Array<int>>()
 		.registerClass<Object>();
 	try {
-		auto a = runtime.create<A>("a");
-		auto b = runtime.create<B>("b");
-		auto b2 = runtime.create<B>("b2");
+		auto a = runtime.create<A>("a").value();
+		auto b = runtime.create<B>("b").value();
+		auto b2 = runtime.create<B>("b2").value();
 		b->a3 = a;
 		b->a4 = b2;
 		b2->a4 = b;

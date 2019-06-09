@@ -83,24 +83,31 @@ namespace Miyuki {
 				classInfo[info->name()] = info;
 				return *this;
 			}
-			template<class T>
-			T* create(const std::string& name) {
-				Class* info = T::__classinfo__();
+
+			Result<Object*> create(Class* info, const std::string& name) {
 				if (!name.empty() && U.named.find(name) != U.named.end()) {
-					throw std::runtime_error(fmt::format("object named `{}` already exists", name));
+					return Error(fmt::format("object named `{}` already exists", name));
 				}
-				T* object = (T*)classInfo.at(info->name())->create(name);
-				addObject(object);
+				auto obj = info->create(name);
+				addObject(obj);
+				return obj;
+			}
+
+			template<class T>
+			Result<T*> create(const std::string& name) {
+				Class* info = T::__classinfo__();
+				auto r = create(info, name);
+				if (!r)return r.error();
+				auto object = (T*)r.value();
 				return object;
 			}
+
 			template<class T, typename... Args>
-			T* create(const std::string& name, Args... args) {
+			Result<T*> create(const std::string& name, Args... args) {
 				Class* info = T::__classinfo__();
-				if (!name.empty() && U.named.find(name) != U.named.end()) {
-					return nullptr;
-				}
-				T* object = (T*)classInfo.at(info->name())->create(name);
-				addObject(object);
+				auto r = create(info, name);
+				if (!r)return r.error();
+				auto object = (T*)r.value();
 				object.init(args...);
 				return object;
 			}
