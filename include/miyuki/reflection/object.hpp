@@ -28,6 +28,7 @@ namespace Miyuki {
 			static std::once_flag flag;\
 			std::call_once(flag,[&](){info = new Miyuki::Reflection::Class();\
 			info->_name = #classname; \
+			info->classInfo.size = sizeof(ThisT); \
 			info->classInfo.base = basename::__classinfo__();\
 			info->classInfo.ctor = [=](const std::string& n)->Miyuki::Reflection::Object*\
 			{return new classname(info, n);};});\
@@ -51,6 +52,7 @@ namespace Miyuki {
 				static std::once_flag flag;
 				std::call_once(flag, [&]() {info = new Class();
 				info->_name = "Null";
+				info->classInfo.size = sizeof(Null);
 				info->classInfo.base = nullptr;
 				info->classInfo.ctor = [=](const std::string&) {return nullptr; };
 				});
@@ -100,6 +102,7 @@ namespace Miyuki {
 				static std::once_flag flag;
 				std::call_once(flag, [&]() {
 					info = new Class();
+					info->classInfo.size = sizeof(Object);
 					info->_name = "Miyuki::Reflection::Object";
 					info->classInfo.base = Null::__classinfo__();
 					info->classInfo.ctor = [=](const std::string& n) {return new Object(info, n); };
@@ -131,26 +134,34 @@ namespace Miyuki {
 				}
 				return c != nullptr;
 			}
+
 			bool isBaseOf(Object* object)const {
 				const Class* p = &object->getClass();
 				return isBaseOf(p);
 			}
+
 			bool sameType(const Object& rhs)const {
 				return _class == rhs._class;
 			}
+
 			virtual bool isPrimitive()const { return false; }
+
 			const std::string& name()const { return _name; }
+
 			bool isAnonymous()const {
 				return name().empty();
 			}
+
 			virtual const std::vector<const Property*> getProperties()const {
 				return {};
 			}
+
 			Optional<Error> serialize(json& j)const {
 				SerializationState state;
 				serialize(j, state);
 				return state.error;
 			}
+
 			virtual void serialize(json& j, SerializationState& state)const {
 				if (state.hasError())return;
 				// never serialize the same object twice
@@ -215,7 +226,7 @@ namespace Miyuki {
 			template<class T>
 			Result<T*> cast() {
 				// up-cast
-				if (isDerivedOf(T::__classinfo__()) || &getClass() == T::__classinfo__()) {
+				if (&getClass() == T::__classinfo__() || isDerivedOf(T::__classinfo__())) {
 					return (T*)this;
 				}
 				else {

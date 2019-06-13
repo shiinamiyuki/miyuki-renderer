@@ -4,6 +4,8 @@
 #include "gc.hpp"
 namespace Miyuki {
 	namespace Reflection {
+		class Runtime;
+
 		/*
 		Enables serialization/deserialization
 		Manages all objects
@@ -57,6 +59,7 @@ namespace Miyuki {
 				});
 				return object;
 			}
+
 			void resetReferences(Object * object, DeserializationState & state) {
 				if (state.visited.find(object) != state.visited.end())
 					return;
@@ -75,6 +78,7 @@ namespace Miyuki {
 					}
 				}
 			}
+
 			Result<Object*> deserialize(const json& j) {
 				DeserializationState state;
 				auto r = _deserialize(j,state);
@@ -100,6 +104,7 @@ namespace Miyuki {
 				}
 				return Error(r.error());
 			}
+			
 		};
 	}
 }

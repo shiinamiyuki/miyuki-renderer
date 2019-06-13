@@ -20,31 +20,41 @@ namespace Miyuki {
     };
 
     class RGBSpectrum : public CoefficientSpectrum<3> {
+
     public:
         RGBSpectrum(const Vec3f &c) {
             v[0] = c[0];
             v[1] = c[1];
             v[2] = c[2];
+			v[3] = 1;
         }
 
         RGBSpectrum(const Vec<Float, 3> &c) {
             v[0] = c[0];
             v[1] = c[1];
             v[2] = c[2];
+			v[3] = 1;
         }
 
         RGBSpectrum(Float x = 0) {
             v[0] = x;
             v[1] = x;
             v[2] = x;
+			v[3] = 1;
         }
 
         RGBSpectrum(Float x, Float y, Float z) {
             v[0] = x;
             v[1] = y;
             v[2] = z;
+			v[3] = 1;
         }
-
+		RGBSpectrum(Float x, Float y, Float z,Float w) {
+			v[0] = x;
+			v[1] = y;
+			v[2] = z;
+			v[3] = w;
+		}
         RGBSpectrum &operator=(const Vec3f &c) {
             v[0] = c[0];
             v[1] = c[1];

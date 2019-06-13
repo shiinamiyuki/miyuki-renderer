@@ -20,6 +20,7 @@ namespace Miyuki {
 					*s += Ty::__classinfo__()->name();
 					*s += ">";
 					info->_name = s->c_str();
+					o->classInfo.size = sizeof(Array<T>);
 					info->classInfo.base = Object::__classinfo__();
 					info->classInfo.ctor = [=](const std::string& n) {return new Array<T>(n); };
 					});
