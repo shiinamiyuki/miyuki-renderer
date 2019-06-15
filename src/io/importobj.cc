@@ -1,5 +1,5 @@
 #include <io/importobj.h>
-
+#include <graph/materialnode.h>
 #include <boost/algorithm/string.hpp>
 
 namespace Miyuki {
@@ -24,7 +24,7 @@ namespace Miyuki {
 			fmt::print("Loading {}\n", filename);
 			auto parentPath = cxx::filesystem::path(filename).parent_path();
 			std::ifstream in(filename);
-			info.mtlDescription = json{};
+			std::vector<Reflection::LocalObject<Graph::MaterialNode>> materials;
 			std::vector<std::string> lines;
 			{
 				std::string line;
@@ -38,174 +38,156 @@ namespace Miyuki {
 				std::vector<std::string> tokens, _temp;
 				boost::algorithm::split(_temp, lines[i], boost::is_any_of(" "));
 				std::copy_if(_temp.begin(), _temp.end(), std::back_inserter(tokens),
-					[](const std::string & s) {return !s.empty(); });
+					[](const std::string& s) {return !s.empty(); });
 				if (tokens.empty()) { i++; continue; }
 				if (tokens[0] == "newmtl") {
+					bool hasMapKd = false;
+					bool hasMapKs = false;
+					bool hasMapKa = false;
 					auto matName = tokens[1];
-					info.mtlDescription[matName] = json{};
-					json& mat = info.mtlDescription[matName];
-					mat["type"] = "OBJMaterial";
-					json Tr = {
-						{"key", "Tr"},
-						{"value", json{
-							{"type", "Bool"},
-							{"value",  false}
-						}}
-					};
-
-					json roughness = {
-						{"key", "roughness"},
-						{"value", json{
-							{"type", "Float"},
-							{"value",  0.0f}
-						}}
-					};
-
-					json ka = {
-						{"key", "ka"},
-						{"value", json{
-							{"type", "Float3"},
-							{"value",  {0,0,0}}
-						}}
-					};
-
-					json ks = {
-						{"key", "ks"},
-						{"value", json{
-							{"type", "Float3"},
-							{"value",  {0,0,0}}
-						}}
-					};
-
-					json kd = {
-						{"key", "kd"},
-						{"value", json{
-							{"type", "Float3"},
-							{"value", {0,0,0}}
-						}}
-					};
-
-					json ior = {
-						{"key", "ior"},
-						{"value", json{
-							{"type", "Float"},
-							{"value",  1.0f}
-						}}
-					};
-
+					auto material = info.runtime->NewNamed<Graph::MixedMaterialNode>(matName);
+					auto kd = info.runtime->New<Graph::DiffuseMaterialNode>();
+					auto ks = info.runtime->New<Graph::GlossyMaterialNode>();
+					auto ka = info.runtime->New<Graph::ShaderNode>();					
 					i++;
 					while (i < lines.size()) {
-						if (lines.empty()) { i++; continue; }
+						if (lines[i].empty()) { i++; continue; }
+						tokens.clear();
+						_temp.clear();
+						boost::algorithm::split(_temp, lines[i], boost::is_any_of(" "));
+						std::copy_if(_temp.begin(), _temp.end(), std::back_inserter(tokens),
+							[](const std::string& s) {return !s.empty(); });
 						if (tokens[0] == "Ni") {
-							ior["value"] = json{
-								{"type", "Float"},
-								{"value", std::stof(tokens[1])}
-							};
+							//
 						}
 						else if (tokens[0] == "Ns") {
 							auto Ns = std::stof(tokens[1]);
-							roughness["value"] = json{
-								{"type", "Float"},
-								{"value", std::sqrt(2 / (2 + Ns))}
-							};
+							Float alpha = std::sqrt(2 / (2 + Ns));
+							auto roughness = info.runtime->New<Reflection::FloatNode>(alpha);
+							auto value = info.runtime->New<Graph::FloatNode>();
+							value->value = roughness;
+							ks->roughness = value;
 						}
 						else if (tokens[0] == "Ks") {
-							if (ks["value"]["type"] == "Float3") {
+							if (!hasMapKs) {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								ks["value"]["value"] = json{ v[0],v[1],v[2] };
+								auto color = info.runtime->New<Graph::RGBNode>();
+								color->value = info.runtime->New<Reflection::Float3Node>(v);
+								ks->color = color;							
 							}
 						}
 						else if (tokens[0] == "Kd") {
-							if (kd["value"]["type"] == "Float3") {
+							if (!hasMapKd) {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								kd["value"]["value"] = json{ v[0],v[1],v[2] };
+								auto color = info.runtime->New<Graph::RGBNode>();
+								color->value = info.runtime->New<Reflection::Float3Node>(v);
+								kd->color = color;
 							}
 						}
 						else if (tokens[0] == "Ke") {
-							if (ka["value"]["type"] == "Float3") {
+							if (!hasMapKa) {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								ka["value"]["value"] = json{ v[0],v[1],v[2] };
+								auto color = info.runtime->New<Graph::RGBNode>();
+								color->value = info.runtime->New<Reflection::Float3Node>(v);
+								ka = color;
 							}
 						}//
-						else if (tokens[0] == "map_Ks") {
-							ks["value"]["type"] = "ImageTexture";
+						else if (tokens[0] == "map_Ks") {							
 							auto s = __Internal::ParseFilename(tokens);
-							ks["value"]["value"] = s;
+							auto file = info.runtime->New<Reflection::FileNode>(s);
+							auto color = info.runtime->New<Graph::ImageTextureNode>();
+							color->file = file;
+							ks->color = color;
+							hasMapKs = true;
 
 						}
 						else if (tokens[0] == "map_Kd") {
-							kd["value"]["type"] = "ImageTexture";
 							auto s = __Internal::ParseFilename(tokens);
-							kd["value"]["value"] = s;
+							auto file = info.runtime->New<Reflection::FileNode>(s);
+							auto color = info.runtime->New<Graph::ImageTextureNode>();
+							color->file = file;
+							kd->color = color;
+							hasMapKd = true;
 						}
 						else if (tokens[0] == "map_Ke") {
-							ka["value"]["type"] = "ImageTexture";
 							auto s = __Internal::ParseFilename(tokens);
-							ka["value"]["value"] = s;
+							auto file = info.runtime->New<Reflection::FileNode>(s);
+							auto color = info.runtime->New<Graph::ImageTextureNode>();
+							color->file = file;
+							ka = color;
+							hasMapKa = true;
 						}
 						else if (tokens[0] == "newmtl")
 							break;
 						i++;
 					}
-					mat["subnodes"] = json{
-						ka,
-						kd,
-						ks,
-						Tr,
-						roughness,
-						ior
-					};
+					material->matA = kd;
+					material->matB = ks;
+					material->fraction = info.runtime->New<Reflection::FloatNode>(0.5f);
+					material->emission = ka;
+					
+					materials.emplace_back(*info.runtime, material);
 				}
 				else {
 					i++;
 				}
 			}
+			info.mtlDescription = json::array();
+			for (auto i : materials) {
+				json j;
+				i->serialize(j);
+				info.mtlDescription.push_back(j);
+			}
 		}
 		void LoadObjFile(const std::string & filename, ObjLoadInfo & info) {
-			auto parentPath = cxx::filesystem::path(filename).parent_path();
-			std::ifstream in(filename);
-			std::string line;
-			std::vector<std::string> tokens, _temp;
-			std::getline(in, line);
-			if (boost::algorithm::starts_with(line, MYK_IMPORTED_OBJ)) {
-				throw std::runtime_error("Cannot import an imported obj file");
-			}
-			std::string shapeBaseName;
-			std::ostringstream out(info.outputContent);
-			out << MYK_IMPORTED_OBJ << std::endl;
-			int part = 0;
-			while (std::getline(in, line)) {
-				_temp.clear();
-				tokens.clear();
-				boost::algorithm::split(_temp, line, boost::is_any_of(" "));
-				std::copy_if(_temp.begin(), _temp.end(), std::back_inserter(tokens),
-					[](const std::string & s) {return !s.empty(); });
-				if (tokens.empty())
-					continue;
-				if (tokens[0] == "g")continue;
-				if (tokens[0] == "mtllib") {
-					auto s = __Internal::ParseFilename(tokens);
-					auto path = parentPath.append(s);
-					LoadMTLFile(path.string(), info);
+			try {
+				auto parentPath = cxx::filesystem::path(filename).parent_path();
+				std::ifstream in(filename);
+				std::string line;
+				std::vector<std::string> tokens, _temp;
+				std::getline(in, line);
+				if (boost::algorithm::starts_with(line, MYK_IMPORTED_OBJ)) {
+					throw std::runtime_error("Cannot import an imported obj file");
 				}
-				else if (tokens[0] == "o") {
-					shapeBaseName = tokens[1];
-					part = 0;
-				}
-				else if (tokens[0] == "usemtl") {
-					std::string matName = tokens[1];
-					boost::algorithm::replace_all(matName, "\\", "/");
-					std::string shapeName = fmt::format("{}.{}.{}", shapeBaseName, matName, part++);
-					out << fmt::format("o {}", shapeName) << std::endl;
-					if (info.shapeMat.find(shapeName) == info.shapeMat.end()) {
-						info.shapeMat[shapeName] = matName;
+				std::string shapeBaseName;
+				std::ostringstream out(info.outputContent);
+				out << MYK_IMPORTED_OBJ << std::endl;
+				int part = 0;
+				while (std::getline(in, line)) {
+					_temp.clear();
+					tokens.clear();
+					boost::algorithm::split(_temp, line, boost::is_any_of(" "));
+					std::copy_if(_temp.begin(), _temp.end(), std::back_inserter(tokens),
+						[](const std::string& s) {return !s.empty(); });
+					if (tokens.empty())
+						continue;
+					if (tokens[0] == "g")continue;
+					if (tokens[0] == "mtllib") {
+						auto s = __Internal::ParseFilename(tokens);
+						auto path = parentPath.append(s);
+						LoadMTLFile(path.string(), info);
+					}
+					else if (tokens[0] == "o") {
+						shapeBaseName = tokens[1];
+						part = 0;
+					}
+					else if (tokens[0] == "usemtl") {
+						std::string matName = tokens[1];
+						boost::algorithm::replace_all(matName, "\\", "/");
+						std::string shapeName = fmt::format("{}.{}.{}", shapeBaseName, matName, part++);
+						out << fmt::format("o {}", shapeName) << std::endl;
+						if (info.shapeMat.find(shapeName) == info.shapeMat.end()) {
+							info.shapeMat[shapeName] = matName;
+						}
+					}
+					else {
+						out << line << std::endl;
 					}
 				}
-				else {
-					out << line << std::endl;
-				}
 			}
-
+			catch (std::runtime_error& e) {
+				std::cerr << e.what() << std::endl;
+			}
 		}
 	}
 }

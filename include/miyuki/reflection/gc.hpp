@@ -10,29 +10,39 @@ namespace Miyuki {
 	namespace Reflection {
 		template<class T>
 		class LocalObject {
-			GC& runtime;
-			T* object;
+			GC* runtime = nullptr;
+			T* object = nullptr;
 		public:
-			LocalObject(GC& runtime) :runtime(runtime), object(nullptr) {}
-			LocalObject(GC& runtime, T* object) :runtime(runtime), object(object) {
+			LocalObject() {}
+			LocalObject(GC& runtime) :runtime(&runtime), object(nullptr) {}
+			LocalObject(GC& runtime, T* object) :runtime(&runtime), object(object) {
 				if (object)
-					this->runtime.addRoot(object);
+					this->runtime->addRoot(object);
 			}
 			LocalObject(const LocalObject& rhs) :runtime(rhs.runtime), object(rhs.object) {
 				if (object)
-					runtime.addRoot(object);
+					runtime->addRoot(object);
 			}
 			LocalObject& operator=(const LocalObject& rhs) {
 				if(object)
-					runtime.removeRoot(object);
+					runtime->removeRoot(object);
 				object = rhs.object;
+				runtime = rhs.runtime;
 				if (object)
-					runtime.addRoot(object);
+					runtime->addRoot(object);
+				return *this;
+			}
+			LocalObject& operator=(T * rhs) {
+				if (object)
+					runtime->removeRoot(object);				
+				object = rhs;
+				if (object)
+					runtime->addRoot(object);
 				return *this;
 			}
 			~LocalObject() {
 				if (object)
-					runtime.removeRoot(object);
+					runtime->removeRoot(object);
 			}
 			T* operator->() {
 				return object;
@@ -162,7 +172,7 @@ namespace Miyuki {
 				auto r = create(info, name);
 				if (!r)return r.error();
 				auto object = (T*)r.value();
-				object.init(args...);
+				object->init(args...);
 				return object;
 			}
 
@@ -207,7 +217,7 @@ namespace Miyuki {
 			}
 			template<typename T, typename... Args>
 			LocalObject<T> New(Args... args) {
-				auto object = create<T>(generateUUID(), args);
+				auto object = create<T>(generateUUID(), args...);
 				if (!object) {
 					throw std::runtime_error(object.error().what());
 				}
@@ -223,7 +233,7 @@ namespace Miyuki {
 			}
 			template<typename T, typename... Args>
 			LocalObject<T> NewNamed(const std::string& name, Args... args) {
-				auto object = create<T>(name, args);
+				auto object = create<T>(name, args...);
 				if (!object) {
 					throw std::runtime_error(object.error().what());
 				}

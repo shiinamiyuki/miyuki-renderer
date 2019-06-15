@@ -44,6 +44,12 @@ namespace Miyuki {
 			virtual const Property& get()const = 0;
 			virtual Property& get() = 0;
 			Property& operator = (Object* o) { object = o; return *this; }
+			bool isNull()const {
+				return object == nullptr;
+			}
+			operator bool()const {
+				return !isNull();
+			}
 		};
 		class Null {
 		public:

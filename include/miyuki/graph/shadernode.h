@@ -25,7 +25,6 @@ namespace Miyuki {
 			virtual Vec3f evalFloat3() {
 				return Vec3f(value->getValue());
 			}
-		protected:
 			MYK_BEGIN_PROPERTY;
 			MYK_PROPERTY(Float, value);
 			MYK_END_PROPERTY;
@@ -41,7 +40,6 @@ namespace Miyuki {
 			virtual Vec3f evalFloat3() {
 				throw value->getValue();
 			}
-		protected:
 			MYK_BEGIN_PROPERTY;
 			MYK_PROPERTY(Vec3f, value);
 			MYK_END_PROPERTY;
@@ -55,7 +53,6 @@ namespace Miyuki {
 		class ImageTextureNode : public TextureNode {
 		public:
 			MYK_CLASS(ImageTextureNode, TextureNode);
-		protected:
 			MYK_BEGIN_PROPERTY;
 			MYK_PROPERTY(File, file);
 			MYK_END_PROPERTY;

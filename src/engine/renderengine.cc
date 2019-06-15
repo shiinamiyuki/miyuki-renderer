@@ -9,7 +9,8 @@ namespace Miyuki {
 		_filename = std::string(TempDirectory) + "scene.json";
 	}
 	void RenderEngine::importObj(const std::string& filename) {
-		IO::ObjLoadInfo info;
+		std::unique_ptr<Reflection::Runtime> runtime(new Reflection::Runtime());
+		IO::ObjLoadInfo info(runtime.get());
 		IO::LoadObjFile(filename, info);
 	}
 }

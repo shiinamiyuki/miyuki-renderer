@@ -13,13 +13,15 @@ namespace Miyuki {
 		public:
 			MYK_CLASS(MaterialNode, GraphNode);
 			virtual Material* createMaterial(GraphCompiler&)const { throw NotImplemented(); }
+			MYK_BEGIN_PROPERTY;
+			MYK_PROPERTY(ShaderNode, emission);
+			MYK_END_PROPERTY;
 		};
 
 		class MixedMaterialNode : public MaterialNode {
 		public:
 			MYK_CLASS(MixedMaterialNode, MaterialNode);
-			virtual Material* createMaterial(GraphCompiler&)const;
-		private:
+			//virtual Material* createMaterial(GraphCompiler&)const;
 			MYK_BEGIN_PROPERTY;
 			MYK_PROPERTY(Float, fraction);
 			MYK_PROPERTY(MaterialNode, matA);
@@ -30,9 +32,7 @@ namespace Miyuki {
 		class DiffuseMaterialNode : public MaterialNode {
 		public:
 			MYK_CLASS(DiffuseMaterialNode, MaterialNode);
-		private:
 			MYK_BEGIN_PROPERTY;
-		private:
 			MYK_PROPERTY(ShaderNode, roughness);
 			MYK_PROPERTY(ShaderNode, color);
 			MYK_END_PROPERTY;
@@ -41,7 +41,6 @@ namespace Miyuki {
 		class GlossyMaterialNode : public MaterialNode {
 		public:
 			MYK_CLASS(GlossyMaterialNode, MaterialNode);
-		private:
 			MYK_BEGIN_PROPERTY;
 			MYK_PROPERTY(ShaderNode, roughness);
 			MYK_PROPERTY(ShaderNode, color);
