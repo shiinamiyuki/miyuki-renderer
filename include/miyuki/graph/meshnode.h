@@ -1,12 +1,12 @@
 #pragma once
 
 #include <graph/graphcompiler.h>
-#include <reflection.h>
+#include <graph/graphnode.h>
 namespace Miyuki {
 	namespace Graph {
-		class MeshNode: public Reflection::Object {
+		class MeshNode: public GraphNode {
 		public:
-			MYK_CLASS(MeshNode, Reflection::Object);
+			MYK_CLASS(MeshNode, GraphNode);
 		};
 	}
 }

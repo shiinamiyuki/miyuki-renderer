@@ -13,11 +13,26 @@ namespace Miyuki {
 			GC& runtime;
 			T* object;
 		public:
+			LocalObject(GC& runtime) :runtime(runtime), object(nullptr) {}
 			LocalObject(GC& runtime, T* object) :runtime(runtime), object(object) {
-				this->runtime.addRoot(object);
+				if (object)
+					this->runtime.addRoot(object);
+			}
+			LocalObject(const LocalObject& rhs) :runtime(rhs.runtime), object(rhs.object) {
+				if (object)
+					runtime.addRoot(object);
+			}
+			LocalObject& operator=(const LocalObject& rhs) {
+				if(object)
+					runtime.removeRoot(object);
+				object = rhs.object;
+				if (object)
+					runtime.addRoot(object);
+				return *this;
 			}
 			~LocalObject() {
-				runtime.removeRoot(object);
+				if (object)
+					runtime.removeRoot(object);
 			}
 			T* operator->() {
 				return object;
@@ -45,8 +60,8 @@ namespace Miyuki {
 					for (auto& i : named)f(i.second);
 				}
 			}U;// the universal set
-			std::set<Object*> root; //the root set
-			std::unordered_map<std::string, Class*> classInfo;
+			std::multiset<Object*> root; //the root set
+			static std::unordered_map<std::string, Class*> classInfo;
 
 			void mark(Object* record) {
 				std::stack<Object*> stack;
@@ -112,8 +127,11 @@ namespace Miyuki {
 			GC() :memoryAllocated(0) {}
 			template<class T>
 			GC& registerClass() {
-				Class* info = T::__classinfo__();
-				classInfo[info->name()] = info;
+				static std::once_flag flag;
+				std::call_once(flag, []() {
+					Class* info = T::__classinfo__();
+					classInfo[info->name()] = info;
+				});
 				return *this;
 			}
 
@@ -129,6 +147,7 @@ namespace Miyuki {
 
 			template<class T>
 			Result<T*> create(const std::string& name) {
+				registerClass<T>();
 				Class* info = T::__classinfo__();
 				auto r = create(info, name);
 				if (!r)return r.error();
@@ -138,7 +157,8 @@ namespace Miyuki {
 
 			template<class T, typename... Args>
 			Result<T*> create(const std::string& name, Args... args) {
-				Class* info =  T::__classinfo__();
+				registerClass<T>();
+				Class* info = T::__classinfo__();
 				auto r = create(info, name);
 				if (!r)return r.error();
 				auto object = (T*)r.value();
@@ -168,7 +188,9 @@ namespace Miyuki {
 
 			template<class T>
 			void removeRoot(T* object) {
-				root.erase(object);
+				auto it = root.find(object);
+				assert(it != root.end());
+				root.erase(it);
 			}
 			std::string generateUUID() {
 				std::stringstream s;
@@ -192,7 +214,7 @@ namespace Miyuki {
 				return LocalObject<T>(*this, object.value());
 			}
 			template<typename T>
-			LocalObject<T> NewNamed(const std::string & name) {
+			LocalObject<T> NewNamed(const std::string& name) {
 				auto object = create<T>(name);
 				if (!object) {
 					throw std::runtime_error(object.error().what());
@@ -200,7 +222,7 @@ namespace Miyuki {
 				return LocalObject<T>(*this, object.value());
 			}
 			template<typename T, typename... Args>
-			LocalObject<T> NewNamed(const std::string& name,Args... args) {
+			LocalObject<T> NewNamed(const std::string& name, Args... args) {
 				auto object = create<T>(name, args);
 				if (!object) {
 					throw std::runtime_error(object.error().what());

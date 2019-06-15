@@ -235,7 +235,21 @@ namespace Miyuki {
 					);
 				}
 			}
+			template<class T>
+			T* staticCast() {
+				return static_cast<T*>(this);
+			}
 		};
+		template<class T>
+		Result<T*> Cast(Object* p) {
+			if (!p)return nullptr;
+			return p->cast<T>();
+		}
+		template<class T>
+		T* StaticCast(Object* p) {
+			if (!p)return nullptr;
+			return p->staticCast<T>();
+		}
 #define __MYK_GET_PROPERTY_HELPER \
 		template<class T, int Idx>\
 		struct _GetPropertiesHelperIdx {\

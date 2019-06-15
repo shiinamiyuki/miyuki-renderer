@@ -49,34 +49,34 @@
 
 using nlohmann::json;
 namespace Miyuki {
-    using Float = float;
+	using Float = float;
 
-    class NotImplemented : public std::logic_error {
-    public:
-        NotImplemented() : std::logic_error("Function not yet implemented") {};
-    };
+	class NotImplemented : public std::logic_error {
+	public:
+		NotImplemented() : std::logic_error("Function not yet implemented") {};
+	};
 
-    inline void __Assert(bool expr) {
-        if (!expr) {
-            throw std::runtime_error(std::string("Assertion failed"));
-        }
-    }
+	inline void __Assert(bool expr) {
+		if (!expr) {
+			throw std::runtime_error(std::string("Assertion failed"));
+		}
+	}
 
-    template<typename T>
-    T clamp(T x, T a, T b) {
-        return std::min(std::max(a, x), b);
-    }
+	template<typename T>
+	T clamp(T x, T a, T b) {
+		return std::min(std::max(a, x), b);
+	}
 
-    namespace cxx = std::experimental;
+	namespace cxx = std::experimental;
 #define CHECK(expr) do{if(!(expr)){fmt::print(stderr, "{}:{} {} failed\n",__FILE__, __LINE__, #expr);}}while(0)
 #define Assert(expr) do{if(!(expr)){fmt::print(stderr, "{}:{} {} failed\n",__FILE__, __LINE__, #expr);__Assert(false);}}while(0)
-    void Init();
+	void Init();
 
-    void Exit();
-    const Float PI = 3.1415926535f;
-    const Float PI2 = PI / 2.0f;
-    const Float PI4 = PI / 4.0f;
-    const Float INVPI = 1.0f / PI;
+	void Exit();
+	const Float PI = 3.1415926535f;
+	const Float PI2 = PI / 2.0f;
+	const Float PI4 = PI / 4.0f;
+	const Float INVPI = 1.0f / PI;
 	const Float INV4PI = 1.0f / (4 * PI);
 	const Float INV2PI = 1.0f / (2 * PI);
 }
@@ -84,5 +84,4 @@ namespace Miyuki {
 #include <math/vec.hpp>
 #include <math/spectrum.h>
 
-#define MIYUKI_ON_WINDOWS
 #endif //MIYUKI_MIYUKI_H

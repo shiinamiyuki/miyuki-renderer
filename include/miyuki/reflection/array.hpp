@@ -23,7 +23,7 @@ namespace Miyuki {
 					o->classInfo.size = sizeof(Array<T>);
 					info->classInfo.base = Object::__classinfo__();
 					info->classInfo.ctor = [=](const std::string& n) {return new Array<T>(n); };
-					});
+				});
 				return info;
 			}
 			Array(const std::string& name = "") :Object(__classinfo__(), name) {}
@@ -46,17 +46,17 @@ namespace Miyuki {
 				auto result = Object::getReferences();
 				int cnt = 0;
 				for (auto i : _array) {
-					result.push_back(Object::Reference([=](Object* o)->void {
-						_array.at(cnt) = static_cast<Ty*>(o); }, i));
+					result.emplace_back([=](Object* o)->void {
+						_array.at(cnt) = StaticCast<Ty>(o); }, i);
 					cnt++;
 				}
 				return result;
 			}
 			virtual void deserialize(const json& j, const Resolver& resolve)override {
 				Object::deserialize(j, resolve);
-				for (const auto& i : j["array"]){ 
-					if(auto r = resolve(j))
-						push_back(static_cast<Ty*>(r.value()));
+				for (const auto& i : j["array"]) {
+					if (auto r = resolve(j))
+						push_back(StaticCast<Ty>(r.value()));
 				}
 			}
 		};

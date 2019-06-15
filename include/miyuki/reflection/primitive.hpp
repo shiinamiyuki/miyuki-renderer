@@ -2,6 +2,7 @@
 #define MIYUKI_REFLECTION_PRIMITIVE_HPP
 
 #include "object.hpp"
+#include <utils/file.hpp>
 
 namespace Miyuki {
 	namespace Reflection {
@@ -11,6 +12,7 @@ namespace Miyuki {
 			kFloat,
 			kFloat3,
 			kString,
+			kFile
 		};
 
 		template<typename T>
@@ -38,6 +40,10 @@ namespace Miyuki {
 			static constexpr int Type = kString;
 		};
 
+		template<>
+		struct _GetLeafType<File> {
+			static constexpr int Type = kFile;
+		};
 
 		inline const char* PrimitiveTypeToString(PrimitiveType t) {
 			switch (t) {
@@ -49,6 +55,8 @@ namespace Miyuki {
 				return "Int";
 			case kFloat3:
 				return "Float3"; 
+			case kFile:
+				return "File";
 			}
 			return nullptr;
 		}
@@ -113,7 +121,7 @@ namespace Miyuki {
 		_MYK_PRIMITIVE_CLASS(Float)
 		_MYK_PRIMITIVE_CLASS(Vec3f)
 		_MYK_PRIMITIVE_CLASS(std::string) 
-
+		_MYK_PRIMITIVE_CLASS(File)
 		//template<typename T>
 		//struct LeafNodeDeserializer : public IDeserializer {
 		//	virtual Node* deserialize(const json& j, Graph* G) {
@@ -127,6 +135,7 @@ namespace Miyuki {
 		using FloatNode = PrimitiveT<Float>;
 		using Float3Node = PrimitiveT<Vec3f>;
 		using StringNode = PrimitiveT<std::string>;
+		using FileNode = PrimitiveT<File>;
 		template<typename T>
 		struct _ConvertToPrimitiveType {
 			using type = typename  std::conditional<_GetLeafType<T>::Type == kNull, T, PrimitiveT<T>>::type;

@@ -2,7 +2,7 @@
 #include <io/importobj.h>
 namespace Miyuki {
 	
-	RenderEngine::RenderEngine() {
+	RenderEngine::RenderEngine():graph(runtime) {
 		if (!cxx::filesystem::exists(TempDirectory)) {
 			cxx::filesystem::create_directory(TempDirectory);
 		}
