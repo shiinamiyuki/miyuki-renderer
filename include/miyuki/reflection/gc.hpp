@@ -60,14 +60,13 @@ namespace Miyuki {
 		*/
 		class GC {
 			boost::uuids::random_generator UUIDGenerator;
+			boost::uuids::string_generator UUIDStringGenerator;
 			std::atomic<uint64_t> memoryAllocated;
 		protected:
 			struct USet {
-				std::set<Object*> anonymous;
-				std::unordered_map<std::string, Object*> named;
+				std::unordered_map<UUID, Object*,UUID::Hash> objects;
 				void foreach(const std::function<void(Object*)>& f) {
-					for (auto& i : anonymous)f(i);
-					for (auto& i : named)f(i.second);
+					for (auto& i : objects)f(i.second);
 				}
 			}U;// the universal set
 			std::multiset<Object*> root; //the root set
@@ -97,18 +96,8 @@ namespace Miyuki {
 			}
 
 			void sweep() {
-				for (auto iter = U.anonymous.begin(); iter != U.anonymous.end();) {
-					auto obj = *iter;
-					if (obj->marked()) {
-						iter++;
-						obj->unmark();
-					}
-					else {
-						destroy(obj);
-						iter = U.anonymous.erase(iter);
-					}
-				}
-				for (auto iter = U.named.begin(); iter != U.named.end();) {
+
+				for (auto iter = U.objects.begin(); iter != U.objects.end();) {
 					auto obj = iter->second;
 					if (obj->marked()) {
 						iter++;
@@ -116,19 +105,15 @@ namespace Miyuki {
 					}
 					else {
 						destroy(obj);
-						iter = U.named.erase(iter);
+						iter = U.objects.erase(iter);
 					}
 				}
 			}
 			void addObject(Object* object) {
 				if (!object)return;
-				const auto& name = object->name();
-				if (name.empty()) {
-					U.anonymous.insert(object);
-				}
-				else {
-					U.named[name] = object;
-				}
+				const auto& id = object->id();	
+				U.objects[id] = object;
+		
 			}
 		public:
 			size_t estimiatedMemoryUsage() {
@@ -145,18 +130,18 @@ namespace Miyuki {
 				return *this;
 			}
 
-			Result<Object*> create(Class* info, const std::string& name) {
-				if (!name.empty() && U.named.find(name) != U.named.end()) {
-					return Error(fmt::format("object named `{}` already exists", name));
+			Result<Object*> create(Class* info, const UUID& id) {
+				if (U.objects.find(id) != U.objects.end()) {
+					return Error(fmt::format("object with uuid `{}` already exists", id));
 				}
-				auto obj = info->create(name);
+				auto obj = info->create(id);
 				memoryAllocated += info->classInfo.size;
 				addObject(obj);
 				return obj;
 			}
 
 			template<class T>
-			Result<T*> create(const std::string& name) {
+			Result<T*> create(const UUID& name) {
 				registerClass<T>();
 				Class* info = T::__classinfo__();
 				auto r = create(info, name);
@@ -166,7 +151,7 @@ namespace Miyuki {
 			}
 
 			template<class T, typename... Args>
-			Result<T*> create(const std::string& name, Args... args) {
+			Result<T*> create(const UUID& name, Args... args) {
 				registerClass<T>();
 				Class* info = T::__classinfo__();
 				auto r = create(info, name);
@@ -202,10 +187,11 @@ namespace Miyuki {
 				assert(it != root.end());
 				root.erase(it);
 			}
-			std::string generateUUID() {
-				std::stringstream s;
-				s << UUIDGenerator();
-				return s.str();
+			UUID generateUUID() {
+				return UUIDGenerator();
+			}
+			UUID UUIDFromString(const std::string&s) {
+				return UUIDStringGenerator(s);
 			}
 			template<typename T>
 			LocalObject<T> New() {
@@ -218,22 +204,6 @@ namespace Miyuki {
 			template<typename T, typename... Args>
 			LocalObject<T> New(Args... args) {
 				auto object = create<T>(generateUUID(), args...);
-				if (!object) {
-					throw std::runtime_error(object.error().what());
-				}
-				return LocalObject<T>(*this, object.value());
-			}
-			template<typename T>
-			LocalObject<T> NewNamed(const std::string& name) {
-				auto object = create<T>(name);
-				if (!object) {
-					throw std::runtime_error(object.error().what());
-				}
-				return LocalObject<T>(*this, object.value());
-			}
-			template<typename T, typename... Args>
-			LocalObject<T> NewNamed(const std::string& name, Args... args) {
-				auto object = create<T>(name, args...);
 				if (!object) {
 					throw std::runtime_error(object.error().what());
 				}

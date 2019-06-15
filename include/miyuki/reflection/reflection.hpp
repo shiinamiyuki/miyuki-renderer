@@ -24,13 +24,13 @@
 	
 #define MYK_INIT(...)  void init(__VA_ARGS__ )
 #define MYK_CLASS(Classname, Base) MYK_CLASS_TYPE_INFO(Classname, Base) \
-									Classname(const std::string&n=""):Base(Classname::__classinfo__(),n){} \
-									Classname(Miyuki::Reflection::Class * info, const std::string&n=""):Base(info,n){}
+									Classname(const Miyuki::Reflection::UUID&id):Base(Classname::__classinfo__(),id){} \
+									Classname(Miyuki::Reflection::Class * info, const Miyuki::Reflection::UUID&id):Base(info,id){}
 // MSVC and GCC's extension makes this happen
-#define MYK_CTOR(...)  ThisT(Miyuki::Reflection::Class * info, const std::string&n,__VA_ARGS__)
-#define MYK_SUPER_CTOR(...)		BaseT(info, n, __VA_ARGS__)
-#define MYK_CTOR_FINAL(...) ThisT(const std::string&n, __VA_ARGS__)
-#define MYK_SUPER_CTOR_FINAL(...)		BaseT(Classname::__classinfo__(), n, __VA_ARGS__)
+#define MYK_CTOR(...)  ThisT(Miyuki::Reflection::Class * info, const Miyuki::Reflection::UUID& id,__VA_ARGS__)
+#define MYK_SUPER_CTOR(...)		BaseT(info, id, __VA_ARGS__)
+#define MYK_CTOR_FINAL(...) ThisT(const Miyuki::Reflection::UUID& id, __VA_ARGS__)
+#define MYK_SUPER_CTOR_FINAL(...)		BaseT(Classname::__classinfo__(), id, __VA_ARGS__)
 #define MYK_FINAL_CLASS(Classname, Base) MYK_CLASS_TYPE_INFO(Classname, Base) \
-									Classname(const std::string&n=""):Base(Classname::__classinfo__(),n){}
+									Classname(const Miyuki::Reflection::UUID& id):Base(Classname::__classinfo__(),id){}
 #endif

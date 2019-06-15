@@ -14,6 +14,7 @@ namespace Miyuki {
 			MYK_CLASS(MaterialNode, GraphNode);
 			virtual Material* createMaterial(GraphCompiler&)const { throw NotImplemented(); }
 			MYK_BEGIN_PROPERTY;
+			MYK_PROPERTY(std::string, name);
 			MYK_PROPERTY(ShaderNode, emission);
 			MYK_END_PROPERTY;
 		};

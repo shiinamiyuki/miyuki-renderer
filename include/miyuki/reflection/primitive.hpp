@@ -64,7 +64,7 @@ namespace Miyuki {
 		class Primitive : public Object {
 		public:
 			virtual const PrimitiveType primitiveType() const = 0;
-			Primitive(Class * _class,const std::string & name)  :Object(_class, name) {}
+			Primitive(Class * _class, const UUID& id)  :Object(_class, id) {}
 		};
 
 		template<class T>
@@ -74,14 +74,12 @@ namespace Miyuki {
 		
 		template<typename T>
 		class PrimitiveT : public Primitive {
-			T value;
+			T value = T();
 		public:
-			PrimitiveT(const std::string& name="") :
-				Primitive(_primitive_class<T>(), name) {}
-			PrimitiveT(const T& value) :
-				Primitive(_primitive_class<T>(),""), value(value) {}
-			PrimitiveT(const T& value, const std::string& name) :
-				Primitive(_primitive_class<T>(), name), value(value) {}
+			PrimitiveT(const UUID& id) :
+				Primitive(_primitive_class<T>(), id) {}
+			PrimitiveT(const T& value, const UUID& id) :
+				Primitive(_primitive_class<T>(), id), value(value) {}
 			virtual const PrimitiveType primitiveType() const override {
 				return PrimitiveType(_GetLeafType<T>::Type);
 			}
@@ -117,7 +115,7 @@ namespace Miyuki {
 										std::call_once(flag, [&]() {info = new Class();  \
 										info->_name = "Primitive::" #Ty; \
 										info->classInfo.base = nullptr; \
-										info->classInfo.ctor = [=](const std::string& n) {return new PrimitiveT<Ty>(n); };});\
+										info->classInfo.ctor = [=](const UUID& n) {return new PrimitiveT<Ty>(n); };});\
 									return info; \
 								}
 		_MYK_PRIMITIVE_CLASS(int)

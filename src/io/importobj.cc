@@ -45,7 +45,8 @@ namespace Miyuki {
 					bool hasMapKs = false;
 					bool hasMapKa = false;
 					auto matName = tokens[1];
-					auto material = info.runtime->NewNamed<Graph::MixedMaterialNode>(matName);
+					auto material = info.runtime->New<Graph::MixedMaterialNode>();
+					material->name = info.runtime->New<Reflection::StringNode>(matName);
 					auto kd = info.runtime->New<Graph::DiffuseMaterialNode>();
 					auto ks = info.runtime->New<Graph::GlossyMaterialNode>();
 					auto ka = info.runtime->New<Graph::ShaderNode>();					

@@ -12,8 +12,8 @@ namespace Miyuki {
 		*/
 		class Runtime : public GC {
 			struct Temp {
-				std::string name;
-				Temp(const std::string& name) :name(name) {}
+				UUID id;
+				Temp(const UUID& id) :id(id) {}
 			};
 			struct DeserializationState {
 				std::set<Temp*> map;
@@ -30,26 +30,25 @@ namespace Miyuki {
 				if (j.is_null())
 					return nullptr;
 				if (j.is_string()) {
-					auto name = j.get<std::string>();
-					auto iter = U.named.find(name);
-					if (iter != U.named.end()) {
+					auto id = UUIDFromString(j.get<std::string>());
+					auto iter = U.objects.find(id);
+					if (iter != U.objects.end()) {
 						return iter->second;
 					}
-					fmt::print("name={}\n",name);
 					// Ugly
-					auto t = new Temp(name);
+					auto t = new Temp(id);
 					state.map.insert(t);
 					return (Object*)t;
 				}
-				auto name = j.at("name").get<std::string>();
-				if (!name.empty() && U.named.find(name) != U.named.end()) {
-					return Error(fmt::format("object named {} already exists", name));
+				auto id = UUIDFromString(j.at("id").get<std::string>());
+				if (U.objects.find(id) != U.objects.end()) {
+					return Error(fmt::format("object with uuid {} already exists", id));
 				}
 				auto type = j.at("type").get<std::string>();
 				auto iter = classInfo.find(type);
 				if(iter == classInfo.end())
 					return Error(fmt::format("unknown type", type));
-				auto r = create(iter->second, name);
+				auto r = create(iter->second, id);
 				if (!r) {
 					return r.error();
 				}
@@ -68,8 +67,8 @@ namespace Miyuki {
 					auto iter = state.map.find((Temp*)i.object);
 					auto t = *iter;
 					if (iter != state.map.end()) {
-						fmt::print("reset: {}\n", t->name);
-						auto o = U.named[t->name];
+						//fmt::print("reset: {}\n", t->id);
+						auto o = U.objects[t->id];
 						i.reset(o);
 						state.visited.insert(o);
 					}

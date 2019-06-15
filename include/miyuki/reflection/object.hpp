@@ -30,7 +30,7 @@ namespace Miyuki {
 			info->_name = #classname; \
 			info->classInfo.size = sizeof(ThisT); \
 			info->classInfo.base = basename::__classinfo__();\
-			info->classInfo.ctor = [=](const std::string& n)->Miyuki::Reflection::Object*\
+			info->classInfo.ctor = [=](const Miyuki::Reflection::UUID& n)->Miyuki::Reflection::Object*\
 			{return new classname(info, n);};});\
 			return info; \
 		}
@@ -60,7 +60,7 @@ namespace Miyuki {
 				info->_name = "Null";
 				info->classInfo.size = sizeof(Null);
 				info->classInfo.base = nullptr;
-				info->classInfo.ctor = [=](const std::string&) {return nullptr; };
+				info->classInfo.ctor = [=](const UUID&) {return nullptr; };
 				});
 				return info;
 			}
@@ -99,8 +99,8 @@ namespace Miyuki {
 			void unmark() { _marked = false; }
 		protected:
 			Class* _class;
-			std::string _name;
-			Object(Class* _class, const std::string& name = "") :_class(_class), _name(name) {}
+			UUID _id;
+			Object(Class* _class, const UUID& id) :_class(_class), _id(id) {}
 		public:
 
 			static Class* __classinfo__() {
@@ -111,7 +111,7 @@ namespace Miyuki {
 					info->classInfo.size = sizeof(Object);
 					info->_name = "Miyuki::Reflection::Object";
 					info->classInfo.base = Null::__classinfo__();
-					info->classInfo.ctor = [=](const std::string& n) {return new Object(info, n); };
+					info->classInfo.ctor = [=](const UUID& id) {return new Object(info, id); };
 				});
 				return info;
 			}
@@ -152,11 +152,7 @@ namespace Miyuki {
 
 			virtual bool isPrimitive()const { return false; }
 
-			const std::string& name()const { return _name; }
-
-			bool isAnonymous()const {
-				return name().empty();
-			}
+			const UUID& id()const { return _id; }
 
 			virtual const std::vector<const Property*> getProperties()const {
 				return {};
@@ -172,17 +168,11 @@ namespace Miyuki {
 				if (state.hasError())return;
 				// never serialize the same object twice
 				if (state.has(this)) {
-					if (!isAnonymous()) {
-						j = name();
-					}
-					else {
-						state.error = Error(
-							fmt::format("Multiple references to an anonymous object"));
-					}
+					j = id().str();
 					return;
 				}
 				state.add(this);
-				j["name"] = name();
+				j["id"] = id().str();
 				j["type"] = typeName();
 				if (!isPrimitive()) {
 					j["properties"] = json::object();
