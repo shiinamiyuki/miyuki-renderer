@@ -22,11 +22,11 @@ namespace Miyuki {
 					info->_name = s->c_str();
 					o->classInfo.size = sizeof(Array<T>);
 					info->classInfo.base = Object::__classinfo__();
-					info->classInfo.ctor = [=](const std::string& n) {return new Array<T>(n); };
+					info->classInfo.ctor = [=](const UUID& n) {return new Array<T>(n); };
 				});
 				return info;
 			}
-			Array(const std::string& name = "") :Object(__classinfo__(), name) {}
+			Array(const UUID & id) :Object(__classinfo__(), id) {}
 			void push_back(Ty* t) { _array.push_back(t); }
 			void pop_back() { _array.pop_back(); }
 			auto begin()const { return _array.begin(); }
@@ -55,7 +55,7 @@ namespace Miyuki {
 			virtual void deserialize(const json& j, const Resolver& resolve)override {
 				Object::deserialize(j, resolve);
 				for (const auto& i : j["array"]) {
-					if (auto r = resolve(j))
+					if (auto r = resolve(i))
 						push_back(StaticCast<Ty>(r.value()));
 				}
 			}

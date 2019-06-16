@@ -235,6 +235,12 @@ namespace Miyuki {
 			T* staticCast() {
 				return static_cast<T*>(this);
 			}
+			size_t hashCode()const {
+				return (size_t)this;
+			}
+			bool equals(Object* obj)const {
+				return obj == this;
+			}
 		};
 		template<class T>
 		Result<T*> Cast(Object* p) {
