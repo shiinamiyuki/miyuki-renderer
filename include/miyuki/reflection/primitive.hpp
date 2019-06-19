@@ -3,7 +3,20 @@
 
 #include "object.hpp"
 #include <utils/file.hpp>
-
+#include <boost/functional/hash.hpp>
+namespace std {
+	template<>struct hash<Miyuki::Vec3f> {
+		typedef Miyuki::Vec3f argument_type;
+		typedef std::size_t result_type;
+		result_type operator()(argument_type const& s) const noexcept
+		{
+			result_type h(std::hash<float>{}(s[0]));
+			boost::hash_combine(h, s[1]);
+			boost::hash_combine(h, s[2]);
+			return h;
+		}
+	};
+}
 namespace Miyuki {
 	namespace Reflection {
 		enum PrimitiveType {
@@ -54,24 +67,30 @@ namespace Miyuki {
 			case kInt:
 				return "Int";
 			case kFloat3:
-				return "Float3"; 
+				return "Float3";
 			case kFile:
 				return "File";
 			}
 			return nullptr;
 		}
 
+		template<class T>
+		struct Hash {
+			size_t operator()(const T& v)const {
+				return std::hash<T>{}(v);
+			}
+		};
 		class Primitive : public Object {
 		public:
 			virtual const PrimitiveType primitiveType() const = 0;
-			Primitive(Class * _class, const UUID& id)  :Object(_class, id) {}
+			Primitive(Class* _class, const UUID& id) :Object(_class, id) {}
 		};
 
 		template<class T>
 		inline Class* _primitive_class() {
-			return nullptr; 
+			return nullptr;
 		}
-		
+
 		template<typename T>
 		class PrimitiveT : public Primitive {
 			T value = T();
@@ -90,27 +109,36 @@ namespace Miyuki {
 				return PrimitiveTypeToString(primitiveType());
 			}
 			bool isPrimitive()const override final { return true; }
-			virtual void serialize(json& j, SerializationState&state)const override {
-				Object::serialize(j,state);
+			virtual void serialize(json& j, SerializationState& state)const override {
+				Object::serialize(j, state);
 				j["value"] = value;
 			}
 			const T& getValue()const {
 				return value;
 			}
 			void setValue(const T& v) { value = v; }
-			static Class * __classinfo__() {
+			static Class* __classinfo__() {
 				return _primitive_class<T>();
 			}
-			virtual std::vector<Object::Reference> getReferences()override{
+			virtual std::vector<Object::Reference> getReferences()override {
 				return {};
 			}
-			virtual void deserialize(const json& j, const Resolver&resolve)override {
+			virtual void deserialize(const json& j, const Resolver& resolve)override {
 				value = j.at("value").get<T>();
 			}
-			bool equals(Object * val)const  override{
+			bool equals(Object* val)const  override {
 				if (!val || !isSameType(val))return false;
 				auto rhs = StaticCast<PrimitiveT<T>>(val);
 				return value == rhs->value;
+			}
+			size_t hashCode()const override {
+				return Hash<T>()(value);
+			}
+		};
+		template<>
+		struct Hash<File> {
+			size_t operator()(const File& file)const {
+				return 0;
 			}
 		};
 #define _MYK_PRIMITIVE_CLASS(Ty)	template<> \
@@ -124,20 +152,12 @@ namespace Miyuki {
 									return info; \
 								}
 		_MYK_PRIMITIVE_CLASS(int)
-		_MYK_PRIMITIVE_CLASS(Float)
-		_MYK_PRIMITIVE_CLASS(Vec3f)
-		_MYK_PRIMITIVE_CLASS(std::string) 
-		_MYK_PRIMITIVE_CLASS(File)
-		//template<typename T>
-		//struct LeafNodeDeserializer : public IDeserializer {
-		//	virtual Node* deserialize(const json& j, Graph* G) {
-		//		// skip type checking
-		//		return new LeafNode<T>(j.at("name").get<std::string>(), j.at("value").get<T>(), G);
-		//	}
-		//};
+			_MYK_PRIMITIVE_CLASS(Float)
+			_MYK_PRIMITIVE_CLASS(Vec3f)
+			_MYK_PRIMITIVE_CLASS(std::string)
+			_MYK_PRIMITIVE_CLASS(File)
 
-
-		using IntNode = PrimitiveT<int>;
+			using IntNode = PrimitiveT<int>;
 		using FloatNode = PrimitiveT<Float>;
 		using Float3Node = PrimitiveT<Vec3f>;
 		using StringNode = PrimitiveT<std::string>;
@@ -146,8 +166,6 @@ namespace Miyuki {
 		struct _ConvertToPrimitiveType {
 			using type = typename  std::conditional<_GetLeafType<T>::Type == kNull, T, PrimitiveT<T>>::type;
 		};
-//#define MYK_CLASS(Classname) virtual const char* type()const override{return #Classname;}
-
 	}
 }
 #endif

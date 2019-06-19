@@ -240,7 +240,7 @@ namespace Miyuki {
 			T* staticCast() {
 				return static_cast<T*>(this);
 			}
-			size_t hashCode()const {
+			virtual size_t hashCode()const {
 				return (size_t)__classinfo__();
 			}
 			virtual bool equals(Object* obj)const {

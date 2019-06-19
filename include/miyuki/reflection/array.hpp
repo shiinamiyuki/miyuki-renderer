@@ -69,13 +69,14 @@ namespace Miyuki {
 				}
 			}
 			bool equals(Object* object)const override {
-				if (!val || !isSameType(val))return false;
-				if (this->sameType(*object)) {
-					auto rhs = StaticCast<Array<T>>(object);
-					if (rhs->size() != size())return false;
-					// TODO:
+				if (!object || !isSameType(object))return false;
+				auto rhs = StaticCast<Array<T>>(object);
+				if (rhs->size() != size())return false;
+				for (int i = 0; i < size(); i++) {
+					if (at(i) != rhs->at(i))
+						return false;
 				}
-				return false;
+				return true;
 			}
 		};
 	}
