@@ -20,7 +20,7 @@ namespace Miyuki {
 					*s += Ty::__classinfo__()->name();
 					*s += ">";
 					info->_name = s->c_str();
-					o->classInfo.size = sizeof(Array<T>);
+					info->classInfo.size = sizeof(Array<T>);
 					info->classInfo.base = Object::__classinfo__();
 					info->classInfo.ctor = [=](const UUID& n) {return new Array<T>(n); };
 				});
@@ -56,8 +56,9 @@ namespace Miyuki {
 			virtual void deserialize(const json& j, const Resolver& resolve)override {
 				Object::deserialize(j, resolve);
 				for (const auto& i : j["array"]) {
-					if (auto r = resolve(i))
+					if (auto r = resolve(i)) {
 						push_back(StaticCast<Ty>(r.value()));
+					}
 				}
 			}
 		};

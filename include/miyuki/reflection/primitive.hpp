@@ -104,7 +104,7 @@ namespace Miyuki {
 			virtual std::vector<Object::Reference> getReferences()override{
 				return {};
 			}
-			void deserialize(json& j, const Resolver&)override {
+			virtual void deserialize(const json& j, const Resolver&resolve)override {
 				value = j.at("value").get<T>();
 			}
 		};
