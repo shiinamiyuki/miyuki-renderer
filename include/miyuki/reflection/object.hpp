@@ -146,10 +146,12 @@ namespace Miyuki {
 				return isBaseOf(p);
 			}
 
-			bool sameType(const Object& rhs)const {
+			bool isSameType(const Object& rhs)const {
 				return _class == rhs._class;
 			}
-
+			bool isSameType(const Object* rhs)const {
+				return rhs && _class == rhs->_class;
+			}
 			virtual bool isPrimitive()const { return false; }
 
 			const UUID& id()const { return _id; }
@@ -241,8 +243,13 @@ namespace Miyuki {
 			size_t hashCode()const {
 				return (size_t)__classinfo__();
 			}
-			bool equals(Object* obj)const {
+			virtual bool equals(Object* obj)const {
 				return obj == this;
+			}
+			static bool equals(Object* a, Object* b) {
+				if (a == b)return true;
+				if (!a || !b)return false;
+				return a->equals(b); 
 			}
 		};
 		template<class T>

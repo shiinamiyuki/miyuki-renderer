@@ -80,7 +80,12 @@ namespace Miyuki {
 		Float4 operator<=(const Float4 & rhs) {
 			return Float4(_mm_cmple_ps(m, rhs.m));
 		}
-
+		Float4 operator==(const Float4& rhs) {
+			return Float4(_mm_cmpeq_ps(m, rhs.m));
+		}
+		Float4 operator!=(const Float4& rhs) {
+			return Float4(_mm_cmpneq_ps(m, rhs.m));
+		}
 		Float4 operator>(const Float4 & rhs) {
 			return Float4(_mm_cmpgt_ps(m, rhs.m));
 		}

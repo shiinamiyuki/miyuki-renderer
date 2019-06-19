@@ -107,6 +107,11 @@ namespace Miyuki {
 			virtual void deserialize(const json& j, const Resolver&resolve)override {
 				value = j.at("value").get<T>();
 			}
+			bool equals(Object * val)const  override{
+				if (!val || !isSameType(val))return false;
+				auto rhs = StaticCast<PrimitiveT<T>>(val);
+				return value == rhs->value;
+			}
 		};
 #define _MYK_PRIMITIVE_CLASS(Ty)	template<> \
 								inline Class* _primitive_class<Ty>() { \

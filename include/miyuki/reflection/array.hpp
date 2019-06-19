@@ -27,12 +27,19 @@ namespace Miyuki {
 				return info;
 			}
 			Array(const UUID & id) :Object(__classinfo__(), id) {}
+			auto size()const { return _array.size(); }
 			void push_back(Ty* t) { _array.push_back(t); }
 			void pop_back() { _array.pop_back(); }
 			auto begin()const { return _array.begin(); }
 			auto begin() { return _array.begin(); }
 			auto end()const { return _array.end(); }
 			auto end() { return _array.end(); }
+			auto& at(int i)const {
+				return _array.at(i);
+			}
+			auto& at(int i) {
+				return _array.at(i);
+			}
 			void serialize(json& j, SerializationState& state)const override {
 				Object::serialize(j, state);
 				j["array"] = json::array();
@@ -60,6 +67,15 @@ namespace Miyuki {
 						push_back(StaticCast<Ty>(r.value()));
 					}
 				}
+			}
+			bool equals(Object* object)const override {
+				if (!val || !isSameType(val))return false;
+				if (this->sameType(*object)) {
+					auto rhs = StaticCast<Array<T>>(object);
+					if (rhs->size() != size())return false;
+					// TODO:
+				}
+				return false;
 			}
 		};
 	}

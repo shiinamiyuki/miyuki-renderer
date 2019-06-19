@@ -8,6 +8,9 @@ namespace Miyuki {
 		cxx::filesystem::path path;
 		File() {}
 		File(const std::string& s) :path(s) {}
+		bool operator == (const File& rhs) const{
+			return path == rhs.path;
+		}
 	};
 
 	inline void from_json(const json& j, File& file) {
