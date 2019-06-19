@@ -52,6 +52,7 @@ namespace Miyuki {
 				}
 				return result;
 			}
+
 			virtual void deserialize(const json& j, const Resolver& resolve)override {
 				Object::deserialize(j, resolve);
 				for (const auto& i : j["array"]) {

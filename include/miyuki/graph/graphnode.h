@@ -15,7 +15,6 @@ namespace Miyuki {
 			void unselect() { _selected = false; }
 			void expand() { _expanded = true; }
 			void collpase() { _expanded = false; }
-
 		};
 	}
 }

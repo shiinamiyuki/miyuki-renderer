@@ -187,6 +187,9 @@ namespace Miyuki {
 				}
 			}
 			struct Reference {
+				// WARNING: reset can only be used if the caller is sure that
+				// the object hasn't changed since getReference is called 
+				// can be fixed in the future
 				std::function<void(Object*)> reset;
 				Object* object;
 
@@ -236,7 +239,7 @@ namespace Miyuki {
 				return static_cast<T*>(this);
 			}
 			size_t hashCode()const {
-				return (size_t)this;
+				return (size_t)__classinfo__();
 			}
 			bool equals(Object* obj)const {
 				return obj == this;
