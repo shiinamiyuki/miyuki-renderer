@@ -1,5 +1,6 @@
 #include <ui/mainwindow.h>
 #include <ui/logwindow.h>
+#include <ui/mykui.h>
 
 static void glfw_error_callback(int error, const char* description) {
 	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -195,9 +196,12 @@ void main()
 		}*/
 
 		void MainWindow::explorerWindow() {
-			if (windowFlags.showExplorer
-				&& ImGui::Begin("Explorer", &windowFlags.showExplorer)) {
-				ImGui::End();
+			if (windowFlags.showExplorer) {
+				Window().name("Explorer")
+					.open(&windowFlags.showExplorer)
+					.with(true, [=] {
+
+				}).show();
 			}
 		}
 
@@ -250,7 +254,7 @@ void main()
 					stopRenderThread();
 					auto s = IO::GetOpenFileNameWithDialog("Wavefront OBJ\0*.obj\0");
 					if (!s.empty()) {
-						
+
 					}
 				}
 				ImGui::EndMenu();
@@ -311,15 +315,19 @@ void main()
 		}
 
 		void MainWindow::logWindow() {
-			if (windowFlags.showLog && ImGui::Begin("Log", &windowFlags.showLog)) {
-				if (ImGui::Button("Clear")) {
-					LogWindowContent::GetInstance()->content.clear();
-				}
-				ImGui::Separator();
-				ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
-				LogWindowContent::GetInstance()->draw();
-				ImGui::EndChild();
-				ImGui::End();
+			if (windowFlags.showLog) {
+				Window().name("Log").open(&windowFlags.showLog).with(true, [=]() {
+					Button().name("Clear").with(true, [=]() {
+						LogWindowContent::GetInstance()->content.clear();
+					}).show();
+					Separator().show();
+					ChildWindow().name("scolling")
+						.flag(ImGuiWindowFlags_HorizontalScrollbar)
+						.with(true, [=]() {
+						LogWindowContent::GetInstance()->draw();
+					}).show();
+					ImGui::End();
+				}).show();
 			}
 		}
 

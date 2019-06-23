@@ -31,6 +31,6 @@
 #define MYK_SUPER_CTOR(...)		BaseT(info, id, __VA_ARGS__)
 #define MYK_CTOR_FINAL(...) ThisT(const Miyuki::Reflection::UUID& id, __VA_ARGS__)
 #define MYK_SUPER_CTOR_FINAL(...)		BaseT(Classname::__classinfo__(), id, __VA_ARGS__)
-#define MYK_FINAL_CLASS(Classname, Base) MYK_CLASS_TYPE_INFO(Classname, Base) \
+#define MYK_FINAL_CLASS(Classname, Base) MYK_FINAL_CLASS_TYPE_INFO(Classname, Base) \
 									Classname(const Miyuki::Reflection::UUID& id):Base(Classname::__classinfo__(),id){}
 #endif

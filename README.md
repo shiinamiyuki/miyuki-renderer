@@ -14,9 +14,6 @@
 Goal: a high performance pbrt-style renderer with low hardware requirements but renders great images quickly (sounds like the ultimate goal for computer graphics though :D)
 
 
-
-The project is using a design pattern called MVVM. This enables us to decouple core renderer modules with GUI code so that the latter can fully exploit the power of reflection while keeping the former as simple as possible for performance.
-
 ## File Structure:
 
 `miyuki/reflection`: A custom RTTI/Reflection/GC/Serialization library. 

@@ -30,6 +30,7 @@ namespace Miyuki {
 				const Class* base = nullptr;
 				Constructor ctor; 
 				size_t size = 0;
+				bool isFinal = false;
 			} classInfo;
 			const char* _name;
 			const char* name() const{

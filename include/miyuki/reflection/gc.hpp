@@ -136,15 +136,16 @@ namespace Miyuki {
 				}
 				auto obj = info->create(id);
 				memoryAllocated += info->classInfo.size;
+				obj->allocator = this;
 				addObject(obj);
 				return obj;
 			}
 
 			template<class T>
-			Result<T*> create(const UUID& name) {
+			Result<T*> create(const UUID& id) {
 				registerClass<T>();
 				Class* info = T::__classinfo__();
-				auto r = create(info, name);
+				auto r = create(info, id);
 				if (!r)return r.error();
 				auto object = (T*)r.value();
 				return object;

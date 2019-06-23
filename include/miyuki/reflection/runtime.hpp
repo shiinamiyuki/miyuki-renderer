@@ -24,7 +24,7 @@ namespace Miyuki {
 					}
 				}
 			};			
-		public:
+		
 			Result<Object*> _deserialize(const json& j, DeserializationState&state) {
 				// null or references are skipped
 				if (j.is_null())
@@ -78,7 +78,7 @@ namespace Miyuki {
 				}
 			}
 
-			Result<Object*> deserialize(const json& j) {
+			Result<Object*> deserializeR(const json& j) {
 				DeserializationState state;
 				auto r = _deserialize(j,state);
 				if (!r)return r;
@@ -87,7 +87,7 @@ namespace Miyuki {
 			}
 
 			template<typename T>
-			Result<T*> deserialize(const json& j) {
+			Result<T*> deserializeR(const json& j) {
 				auto type = j.at("type").get<std::string>();
 				if (type != T::__classinfo__()->name()) {
 					return Error(
@@ -103,7 +103,24 @@ namespace Miyuki {
 				}
 				return Error(r.error());
 			}
-			
+		public:
+			template<typename T>
+			LocalObject<T> deserialize(const json& j) {
+				auto r = deserializeR<T>(j);
+				if (r)
+					return LocalObject<T>(*this, r.value());
+				else {
+					throw std::runtime_error(r.error().what());
+				}
+			}
+			LocalObject<Object> deserialize(const json& j) {
+				auto r = deserializeR(j);
+				if (r)
+					return LocalObject<Object>(*this, r.value());
+				else {
+					throw std::runtime_error(r.error().what());
+				}
+			}
 		};
 	}
 }

@@ -17,11 +17,17 @@ namespace Miyuki {
 			MYK_PROPERTY(std::string, name);
 			MYK_PROPERTY(ShaderNode, emission);
 			MYK_END_PROPERTY;
+			const std::string getName()const {
+				if (name) {
+					return name->getValue();
+				}
+				return "";
+			}
 		};
 
 		class MixedMaterialNode : public MaterialNode {
 		public:
-			MYK_CLASS(MixedMaterialNode, MaterialNode);
+			MYK_FINAL_CLASS(MixedMaterialNode, MaterialNode);
 			//virtual Material* createMaterial(GraphCompiler&)const;
 			MYK_BEGIN_PROPERTY;
 			MYK_PROPERTY(Float, fraction);

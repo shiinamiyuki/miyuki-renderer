@@ -24,7 +24,7 @@ namespace Miyuki {
 			fmt::print("Loading {}\n", filename);
 			auto parentPath = cxx::filesystem::path(filename).parent_path();
 			std::ifstream in(filename);
-			std::vector<Reflection::LocalObject<Graph::MaterialNode>> materials;
+			auto& materials = info.materials;
 			std::vector<std::string> lines;
 			{
 				std::string line;
@@ -132,12 +132,6 @@ namespace Miyuki {
 				else {
 					i++;
 				}
-			}
-			info.mtlDescription = json::array();
-			for (auto i : materials) {
-				json j;
-				i->serialize(j);
-				info.mtlDescription.push_back(j);
 			}
 		}
 		void LoadObjFile(const std::string & filename, ObjLoadInfo & info) {

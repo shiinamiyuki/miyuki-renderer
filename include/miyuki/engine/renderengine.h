@@ -16,6 +16,8 @@ namespace Miyuki {
 
 		// Precondition: graph is not null
 		void importObj(const std::string& filename);
+		void newGraph();
+		void visit(Graph::Visitor& visitor);
 	};
 }
 #endif

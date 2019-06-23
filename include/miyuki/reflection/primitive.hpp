@@ -152,12 +152,12 @@ namespace Miyuki {
 									return info; \
 								}
 		_MYK_PRIMITIVE_CLASS(int)
-			_MYK_PRIMITIVE_CLASS(Float)
-			_MYK_PRIMITIVE_CLASS(Vec3f)
-			_MYK_PRIMITIVE_CLASS(std::string)
-			_MYK_PRIMITIVE_CLASS(File)
+		_MYK_PRIMITIVE_CLASS(Float)
+		_MYK_PRIMITIVE_CLASS(Vec3f)
+		_MYK_PRIMITIVE_CLASS(std::string)
+		_MYK_PRIMITIVE_CLASS(File)
 
-			using IntNode = PrimitiveT<int>;
+		using IntNode = PrimitiveT<int>;
 		using FloatNode = PrimitiveT<Float>;
 		using Float3Node = PrimitiveT<Vec3f>;
 		using StringNode = PrimitiveT<std::string>;

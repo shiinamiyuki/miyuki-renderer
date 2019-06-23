@@ -34,6 +34,20 @@ namespace Miyuki {
 			{return new classname(info, n);};});\
 			return info; \
 		}
+#define MYK_FINAL_CLASS_TYPE_INFO(classname, basename) \
+		enum {_propertyIdx = __COUNTER__}; \
+		using BaseT = basename;using ThisT = classname; \
+		static Miyuki::Reflection::Class* __classinfo__(){\
+			static Miyuki::Reflection::Class* info = nullptr;\
+			static std::once_flag flag;\
+			std::call_once(flag,[&](){info = new Miyuki::Reflection::Class();\
+			info->_name = #classname; info->classInfo.isFinal = true;\
+			info->classInfo.size = sizeof(ThisT); \
+			info->classInfo.base = basename::__classinfo__();\
+			info->classInfo.ctor = [=](const Miyuki::Reflection::UUID& n)->Miyuki::Reflection::Object*\
+			{return new classname(n);};});\
+			return info; \
+		}
 		class Object;
 		struct Property {
 			mutable Object* object = nullptr;
@@ -78,14 +92,17 @@ namespace Miyuki {
 				return static_cast<T*>(object);
 			}
 			T& operator *() {
-				return *object;
+				return *static_cast<T*>(object);
 			}
 			const T& operator * () const {
-				return *object;
+				return *static_cast<T*>(object);
 			}
 			virtual const Property& get()const { return *this; }
 			virtual Property& get() { return *this; }
 			PropertyT& operator = (T* o) { object = o; return *this; }
+			/*Class* getDeclaredClass() {
+				return T::__classinfo__();
+			}*/
 		};
 
 		class GC;
@@ -98,11 +115,11 @@ namespace Miyuki {
 			bool marked()const { return _marked; }
 			void unmark() { _marked = false; }
 		protected:
+			GC* allocator = nullptr;
 			Class* _class;
 			UUID _id;
 			Object(Class* _class, const UUID& id) :_class(_class), _id(id) {}
 		public:
-
 			static Class* __classinfo__() {
 				static Class* info = nullptr;
 				static std::once_flag flag;
@@ -115,6 +132,7 @@ namespace Miyuki {
 				});
 				return info;
 			}
+			
 			const char* typeName()const {
 				return _class->name();
 			}
