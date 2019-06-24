@@ -23,6 +23,7 @@ namespace Miyuki {
 							continue;
 						}
 						const auto& name = material->getName();
+						Text().name(name).show();
 						//
 					}
 				});
