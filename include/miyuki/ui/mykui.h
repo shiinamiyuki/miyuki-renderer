@@ -9,17 +9,17 @@
 namespace Miyuki {
 	namespace GUI {
 		inline void EmptyFunc() {}
-		template<class T>
+		template<class Derived>
 		struct Base {
-			T& show() {
+			Derived& show() {
 				This()->showImpl();
 				return *This();
 			}
-			T& setActive(bool* active) {
+			Derived& setActive(bool* active) {
 				This()->setActiveImpl();
 				return *This();
 			}
-			T& with(bool value, const std::function<void(void)>& handler) {
+			Derived& with(bool value, const std::function<void(void)>& handler) {
 				if (value) {
 					handlerActive = handler;
 				}
@@ -28,11 +28,11 @@ namespace Miyuki {
 				}
 				return *This();
 			}
-			T& open(bool* p) {
+			Derived& open(bool* p) {
 				_open = p;
 				return *This();
 			}
-			T& name(const std::string& name) {
+			Derived& name(const std::string& name) {
 				_name = name;
 				return *This();
 			}
@@ -56,11 +56,21 @@ namespace Miyuki {
 			std::function<void(void)> handlerActive = EmptyFunc, handlerInactive = EmptyFunc;
 
 		private:
-			T* This() {
-				return (T*)this;
+			Derived* This() {
+				return static_cast<Derived*>(this);
 			}
-			const T* This()const {
-				return (T*)this;
+			const Derived* This()const {
+				return static_cast<Derived*>(this);
+			}
+		};
+		template<class Derived>
+		class Selectable {
+		protected:
+			bool* _selected = nullptr;
+		public:
+			Derived& selected(bool* p) {
+				_selected = p;
+				return *static_cast<Derived*>(this);
 			}
 		};
 		class Button : public Base<Button> {
@@ -81,6 +91,50 @@ namespace Miyuki {
 				ImGui::Separator();
 			}
 		};
+
+		class Text : public Base<Text> {
+		public:
+			void showImpl() {
+				ImGui::Text(nameCStr());
+			}
+		};
+		class SelectableText : public Base<SelectableText>, public Selectable<SelectableText> {
+		public:
+			void showImpl() {
+				if (ImGui::Selectable(nameCStr(), _selected)) {
+					active();
+				}
+				else {
+					inactive();
+				}
+			}
+		};
+		class DoubleClickableText : public Base<DoubleClickableText>, public Selectable<DoubleClickableText> {
+		public:
+			void showImpl() {
+				if (ImGui::Selectable(nameCStr(), _selected, ImGuiSelectableFlags_AllowDoubleClick)) {
+					if (ImGui::IsMouseDoubleClicked(0))
+						active();
+					else
+						inactive();
+				}
+				else {
+					inactive();
+				}
+			}
+		};
+		class ColorText : public Base<ColorText> {
+			Spectrum _color;
+		public:
+			ColorText& color(const Spectrum& color) {
+				_color = color;
+				return *this;
+			}
+			void showImpl() {
+				ImGui::TextColored(ImVec4(_color[0], _color[1], _color[2], 1.0f), nameCStr());
+			}
+		};
+
 		template<typename T>
 		class Input : public Base<Input<T>> {
 			T* _value;
@@ -113,10 +167,10 @@ namespace Miyuki {
 			}
 		};
 
-		class MenuItem :public  Base<MenuItem> {
+		class MenuItem :public  Base<MenuItem>, public Selectable<MenuItem> {
 		public:
 			void showImpl() {
-				if (ImGui::MenuItem(nameCStr(), "", openFlag())) {
+				if (ImGui::MenuItem(nameCStr(), "", _selected)) {
 					active();
 				}
 				else {
@@ -128,7 +182,7 @@ namespace Miyuki {
 			std::vector<MenuItem> items;
 		public:
 			void showImpl() {
-				if (ImGui::BeginMenu(nameCStr(), openFlag() ? *openFlag(): true)) {
+				if (ImGui::BeginMenu(nameCStr(), openFlag() ? *openFlag() : true)) {
 					active();
 					for (auto& i : items) {
 						i.show();
@@ -139,15 +193,16 @@ namespace Miyuki {
 					inactive();
 				}
 			}
-			Menu& item(MenuItem&& _item) {
+			Menu& item(const MenuItem& _item) {
 				items.emplace_back(_item);
 				return *this;
 			}
 		};
 		class MenuBar : public Base<MenuBar> {
+		protected:
 			std::vector<Menu> _menu;
 		public:
-			MenuBar& menu(Menu&& bar) {
+			MenuBar& menu(const Menu& bar) {
 				_menu.emplace_back(bar);
 				return *this;
 			}
@@ -164,21 +219,45 @@ namespace Miyuki {
 				}
 			}
 		};
+		class MainMenuBar : public Base<MainMenuBar> {
+		protected:
+			std::vector<Menu> _menu;
+		public:
+			MainMenuBar& menu(const Menu& bar) {
+				_menu.emplace_back(bar);
+				return *this;
+			}
+			void showImpl() {
+				if (ImGui::BeginMainMenuBar()) {
+					active();
+					for (auto& m : _menu) {
+						m.show();
+					}
+					ImGui::EndMainMenuBar();
+				}
+				else {
+					inactive();
+				}
+			}
+		};
+
 		using WindowFlag = int;
-		template<class T>
+
+		template<class Derived>
 		class BaseWindow {
 		protected:
 			WindowFlag _flag;
 		public:
-			T& flag(WindowFlag f) {
+			Derived& flag(WindowFlag f) {
 				_flag |= f;
-				return *static_cast<T*>(this);
+				return *static_cast<Derived*>(this);
 			}
-			T& clearFlag() {
+			Derived& clearFlag() {
 				_flag = 0;
-				return *static_cast<T*>(this);
+				return *static_cast<Derived*>(this);
 			}
 		};
+
 		class Window : public Base<Window>, public BaseWindow<Window> {
 		public:
 			void showImpl() {

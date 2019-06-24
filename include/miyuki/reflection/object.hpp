@@ -106,6 +106,10 @@ namespace Miyuki {
 		};
 
 		class GC;
+		class Visitor;
+
+
+
 		// NonCopyMovable gaurantees that during an object's lifetime,
 		// a reference to the object will never fail
 		class Object : NonCopyMovable {
@@ -269,6 +273,7 @@ namespace Miyuki {
 				if (!a || !b)return false;
 				return a->equals(b); 
 			}
+			inline void accept(Visitor&);
 		};
 		template<class T>
 		Result<T*> Cast(Object* p) {
@@ -305,6 +310,44 @@ namespace Miyuki {
 			static void _GetProperties(const T& obj, std::vector<const Miyuki::Reflection::Property*>& vec) {\
 			}\
 		};
+		class Visitor {
+			using VisitFunc = std::function<void(Object*)>;
+			std::unordered_map<const Reflection::Class*, VisitFunc> funcs;
+		protected:
+			template<class T>
+			void visit(std::function<void(T*)> func) {
+				funcs[T::__classinfo__()] = [=](Object* object) {
+					func(Reflection::StaticCast<T>(object));
+				};
+			}
+		public:
+			inline void visit(Object* object);
+		};
+		inline void Object::accept(Visitor& visitor) {
+			visitor.visit(this);
+		}
+
+		// first check if there is an `overload` for object's type
+		// if not check its parent 
+		// until we have reached the top level.
+		inline void Visitor::visit(Object* object) {
+			const Class* _class = &object->getClass();
+			auto classname = _class->name();
+			while (true) {
+				auto iter = funcs.find(_class);
+				if (iter != funcs.end()) {
+					iter->second(object);
+					return;
+				}
+				if (_class->classInfo.base) {
+					_class = _class->classInfo.base;
+				}
+				else {
+					throw std::runtime_error(
+						fmt::format("No matching visitor can be called upon {}", classname));
+				}
+			}
+		}
 	}
 }
 

@@ -24,7 +24,7 @@ namespace Miyuki {
 			runtime.New<Reflection::Array<Graph::MeshNode>>());
 	}
 
-	void RenderEngine::visit(Graph::Visitor& visitor) {
+	void RenderEngine::visit(Reflection::Visitor& visitor) {
 		graph->accept(visitor);
 	}
 }

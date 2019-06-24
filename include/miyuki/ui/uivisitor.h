@@ -1,9 +1,9 @@
 #pragma once
-#include <graph/visitor.h>
+#include <reflection.h>
 
 namespace Miyuki {
 	namespace GUI {
-		class UIVisitor : public Graph::Visitor{
+		class UIVisitor : public Reflection::Visitor{
 			void init();
 			Reflection::Runtime* runtime;
 		public:

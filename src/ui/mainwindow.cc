@@ -225,93 +225,38 @@ void main()
 			}
 		}*/
 		void MainWindow::menuBar() {
-			ImGui::BeginMainMenuBar();
-			if (ImGui::BeginMenu("File")) {
-				if (ImGui::MenuItem("New")) {
-
-				}
-				if (ImGui::MenuItem("Open")) {
-					auto s = IO::GetOpenFileNameWithDialog("Scene Description\0*.json\0");
-					/*if (!s.empty()) {
-						std::thread th([=]() {
-							try {
-								engine = std::make_unique<RenderEngine>();
-								engine->loadDescriptionFile(s);
-							}
-							catch (cxx::filesystem::filesystem_error & e) {
-								Log::log("{}\n", e.what());
-							}
-							});
-
-						th.detach();
+			MainMenuBar()
+				.menu(Menu().name("File")
+					.item(MenuItem().name("Open"))
+					.item(MenuItem().name("New"))
+					.item(MenuItem().name("Save"))
+					.item(MenuItem().name("Close")))
+				.menu(Menu().name("Window")
+					.item(MenuItem().name("Explorer").selected(&windowFlags.showExplorer))
+					.item(MenuItem().name("Attribute Editor").selected(&windowFlags.showAttributeEditor))
+					.item(MenuItem().name("Log").selected(&windowFlags.showLog))
+					.item(MenuItem().name("Preference").selected(&windowFlags.showPreference)))
+				.menu(Menu().name("Help"))
+				.show();
+			if (windowFlags.showPreference) {
+				Window().name("Preference").open(&windowFlags.showPreference).with(true, [=]() {
+					/*if (ImGui::Button("Background Image")) {
+						auto s = IO::GetOpenFileNameWithDialog();
+						if (!s.empty()) {
+							config["background-image"] = s;
+							loadBackgroundImage();
+						}
+					}
+					Float dim = 0;
+					if (config.contains("background-dim"))
+						dim = config["background-dim"].get<Float>();
+					if (ImGui::SliderFloat("background dim", &dim, 0.0, 1.0)) {
+						config["background-dim"] = dim;
 					}*/
-				}
-				if (ImGui::MenuItem("Close")) {
-					stopRenderThread();
-					engine = nullptr;
-				}
-				if (ImGui::MenuItem("Import Obj")) {
-					stopRenderThread();
-					auto s = IO::GetOpenFileNameWithDialog("Wavefront OBJ\0*.obj\0");
-					if (!s.empty()) {
-
-					}
-				}
-				ImGui::EndMenu();
+					Separator().show();
+					ImGui::ShowStyleEditor();;
+				}).show();
 			}
-			if (ImGui::BeginMenu("Window")) {
-				if (ImGui::MenuItem("Explorer", "", &windowFlags.showExplorer)) {
-
-				}
-				if (ImGui::MenuItem("Attribute Editor", "", &windowFlags.showAttributeEditor)) {
-
-				}
-				if (ImGui::MenuItem("Log", "", &windowFlags.showLog)) {
-
-				}
-				if (ImGui::MenuItem("Preference", "", &windowFlags.showPreference)) {
-
-				}
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Help")) {
-				if (ImGui::MenuItem("About", "", &windowFlags.showAbout)) {
-
-				}
-				ImGui::EndMenu();
-			}
-			if (windowFlags.showAbout && ImGui::Begin("About", &windowFlags.showAbout)) {
-				ImGui::GetVersion();
-				ImGui::Text(
-					R"(Miyuki Renderer (WIP)
-		
-		Physically based rendering.
-		Embree, advanced light transport and more.
-		
-		http://github/xt271828/MiyukiRenderer
-		
-		)", ImGui::GetVersion());
-				ImGui::End();
-			}
-			if (windowFlags.showPreference && ImGui::Begin("Preference", &windowFlags.showPreference)) {
-				/*if (ImGui::Button("Background Image")) {
-					auto s = IO::GetOpenFileNameWithDialog();
-					if (!s.empty()) {
-						config["background-image"] = s;
-						loadBackgroundImage();
-					}
-				}
-				Float dim = 0;
-				if (config.contains("background-dim"))
-					dim = config["background-dim"].get<Float>();
-				if (ImGui::SliderFloat("background dim", &dim, 0.0, 1.0)) {
-					config["background-dim"] = dim;
-				}*/
-				ImGui::Separator();
-				ImGui::ShowStyleEditor();;
-				ImGui::End();
-			}
-			ImGui::EndMainMenuBar();
 		}
 
 		void MainWindow::logWindow() {
@@ -326,7 +271,6 @@ void main()
 						.with(true, [=]() {
 						LogWindowContent::GetInstance()->draw();
 					}).show();
-					ImGui::End();
 				}).show();
 			}
 		}
@@ -430,7 +374,7 @@ void main()
 			{
 				fprintf(stderr, "Failed to initialize OpenGL loader!\n");
 				std::exit(1);
-			}
+		}
 			// Setup Dear ImGui context
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
@@ -455,11 +399,11 @@ void main()
 
 			//	loadBackGroundShader();
 
-		}
+	}
 
 		void MainWindow::show() {
 			mainLoop();
 			close();
 		}
-	}
+}
 }

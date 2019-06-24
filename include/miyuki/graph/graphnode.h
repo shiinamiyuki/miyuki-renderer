@@ -4,7 +4,6 @@
 
 namespace Miyuki {
 	namespace Graph {
-		class Visitor;
 		class GraphNode : public Reflection::Object {
 			bool _expanded = false;
 			bool _selected = false;
@@ -16,7 +15,6 @@ namespace Miyuki {
 			void unselect() { _selected = false; }
 			void expand() { _expanded = true; }
 			void collpase() { _expanded = false; }
-			void accept(Visitor&);
 		};
 
 

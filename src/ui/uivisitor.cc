@@ -1,4 +1,5 @@
 #include <ui/uivisitor.h>
+#include <ui/mykui.h>
 #include <graph/graph.h>
 #include <graph/materialnode.h>
 #include <graph/meshnode.h>
@@ -15,14 +16,16 @@ namespace Miyuki {
 		};
 		void UIVisitor::init() {
 			visit<Graph::Graph>([=](Graph::Graph* node)->void {
-				auto materials = node->materials;
-				for (auto material : *materials) {
-					if(!material){
-						continue;
+				TreeNode().name("Materials").with(true, [=]() {
+					auto materials = node->materials;
+					for (auto material : *materials) {
+						if (!material) {
+							continue;
+						}
+						const auto& name = material->getName();
+						//
 					}
-					const auto& name = material->getName();
-
-				}
+				});
 			});
 		}
 	}
