@@ -2,7 +2,7 @@
 #include <io/io.h>
 #include <core/profile.h>
 #include <core/ray.h>
-#include <accelerators/accelerator.h>
+#include <core/accelerators/accelerator.h>
 #include <core/embreescene.h>
 #include <utils/log.h>
 
@@ -107,7 +107,7 @@ namespace Miyuki {
 			v = transform.apply(v);
 		}
 		for (auto& n : mesh->normals) {
-			n = transform.applyRotation(n).normalized();
+			n = transform.apply_rotation(n).normalized();
 		}
 		for (auto& p : mesh->primitives) {
 			p.instance = mesh.get();
@@ -128,8 +128,8 @@ namespace Miyuki {
 		}
 
 		for (auto& i : normals) {
-			i = transform.applyRotation(i, true);
-			i = T.applyRotation(i).normalized();
+			i = transform.apply_rotation(i, true);
+			i = T.apply_rotation(i).normalized();
 		}
 		transform = T;
 

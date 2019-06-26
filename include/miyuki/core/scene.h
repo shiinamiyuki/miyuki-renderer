@@ -1,7 +1,7 @@
 #ifndef MIYUKI_SCENE_H
 #define MIYUKI_SCENE_H
 #include <reflection.h>
-#include <materials/material.h>
+#include <core/materials/material.h>
 
 namespace Miyuki {
 

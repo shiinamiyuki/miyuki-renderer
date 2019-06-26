@@ -46,7 +46,7 @@ namespace Miyuki {
 		}		
 
 		Vec3f localToWord(const Vec3f &w) const {
-			return localFrame.localToWorld(w);
+			return localFrame.localToWorld (w);
 		}
 
 		Vec3f worldToLocal(const Vec3f &w) const {

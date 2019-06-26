@@ -98,6 +98,7 @@ namespace Miyuki {
 				ImGui::Text(nameCStr());
 			}
 		};
+
 		class SelectableText : public Base<SelectableText>, public Selectable<SelectableText> {
 		public:
 			void showImpl() {
@@ -109,6 +110,7 @@ namespace Miyuki {
 				}
 			}
 		};
+
 		class DoubleClickableText : public Base<DoubleClickableText>, public Selectable<DoubleClickableText> {
 		public:
 			void showImpl() {
@@ -123,6 +125,7 @@ namespace Miyuki {
 				}
 			}
 		};
+
 		class ColorText : public Base<ColorText> {
 			Spectrum _color;
 		public:
@@ -246,7 +249,7 @@ namespace Miyuki {
 		template<class Derived>
 		class BaseWindow {
 		protected:
-			WindowFlag _flag;
+			WindowFlag _flag = 0;
 		public:
 			Derived& flag(WindowFlag f) {
 				_flag |= f;
@@ -276,6 +279,49 @@ namespace Miyuki {
 				if (ImGui::BeginChild(nameCStr(), ImVec2(0, 0), false, _flag)) {
 					active();
 					ImGui::EndChild();
+				}
+				else {
+					inactive();
+				}
+			}
+		};
+
+		class Modal : public Base<Modal>, public BaseWindow<Modal> {
+			bool _openModal = false;
+			bool _updated = false;
+		public:
+			Modal& open() {
+				_openModal = true;
+				_updated = false;
+				return *this;
+			}
+
+			Modal& close() {
+				_openModal = false;
+				_updated = false;
+				return *this;
+			}
+
+			void showImpl() {
+				if (_openModal) {
+					if (!_updated) {
+						ImGui::OpenPopup(nameCStr());
+						_updated = true;
+					}
+					else {
+
+					}
+				}				
+				ImGui::SetNextWindowSize(ImVec2(400, 200));
+				if (ImGui::BeginPopupModal(nameCStr(), openFlag(), _flag)) {
+					if(!_openModal) {
+						if (!_updated) {
+							ImGui::CloseCurrentPopup();
+							_updated = true;
+						}
+					}else
+						active();
+					ImGui::EndPopup();
 				}
 				else {
 					inactive();

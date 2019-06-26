@@ -6,6 +6,7 @@
 #include <hw/shader.h>
 #include <engine/renderengine.h>
 
+
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -15,6 +16,8 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include <imgui/imgui_impl_glfw.h>
+
+#include <ui/mykui.h>
 
 namespace Miyuki {
 	namespace GUI {
@@ -51,10 +54,31 @@ namespace Miyuki {
 				bool showAttributeEditor = true;
 				bool showAbout = false;
 				std::atomic<bool> viewportUpdateAvailable;
-				WindowFlags() :viewportUpdateAvailable(false){}
+				std::atomic<bool> windowEnabled;
+				WindowFlags() :viewportUpdateAvailable(false), windowEnabled(true){}
 			}windowFlags;
 			void startRenderThread();
 			void stopRenderThread();
+
+			bool enabled() {
+				return windowFlags.windowEnabled;
+			}
+			void disable() {
+				windowFlags.windowEnabled = false;
+			}
+			void enable() {
+				windowFlags.windowEnabled = true;
+			}
+			Modal modal;
+			void showModal() {
+				modal.show();
+			}
+			void closeModal() {
+				modal.close();
+			}
+			void openModal(std::function<void(void)> f) {
+				modal.open().with(true, f);
+			}
 		public:
 			MainWindow(int argc, char** argv);
 			void show();

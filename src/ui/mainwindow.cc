@@ -1,6 +1,7 @@
 #include <ui/mainwindow.h>
 #include <ui/logwindow.h>
-#include <ui/mykui.h>
+#include <ui/uivisitor.h>
+#include <utils/future.hpp>
 
 static void glfw_error_callback(int error, const char* description) {
 	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -200,7 +201,8 @@ void main()
 				Window().name("Explorer")
 					.open(&windowFlags.showExplorer)
 					.with(true, [=] {
-
+					UIVisitor visitor;
+					engine->visit(visitor);
 				}).show();
 			}
 		}
@@ -225,12 +227,29 @@ void main()
 			}
 		}*/
 		void MainWindow::menuBar() {
+			auto newGraph = [=]() {
+				engine->newGraph();
+			};
+			auto importObj = [=]() {
+				auto filename = IO::GetOpenFileNameWithDialog("Wavefront OBJ\0*.obj");
+				if (filename.empty())return;
+				std::thread th([=]() {
+					modal.name("Importing"); modal.flag(ImGuiWindowFlags_AlwaysAutoResize);
+					openModal([]() {});
+					engine->importObj(filename);
+					Log::log("Imported {}\n", filename);
+					closeModal();
+				});
+				th.detach();
+			};
 			MainMenuBar()
 				.menu(Menu().name("File")
 					.item(MenuItem().name("Open"))
-					.item(MenuItem().name("New"))
+					.item(MenuItem().name("New").with(true, newGraph))
 					.item(MenuItem().name("Save"))
-					.item(MenuItem().name("Close")))
+					.item(MenuItem().name("Close"))
+					.item(MenuItem().name("Import").with(true, importObj))
+					.item(MenuItem().name("Exit")))
 				.menu(Menu().name("Window")
 					.item(MenuItem().name("Explorer").selected(&windowFlags.showExplorer))
 					.item(MenuItem().name("Attribute Editor").selected(&windowFlags.showAttributeEditor))
@@ -266,16 +285,22 @@ void main()
 						LogWindowContent::GetInstance()->content.clear();
 					}).show();
 					Separator().show();
-					ChildWindow().name("scolling")
+					// ???
+				/*	ChildWindow().name("scolling")
 						.flag(ImGuiWindowFlags_HorizontalScrollbar)
 						.with(true, [=]() {
 						LogWindowContent::GetInstance()->draw();
-					}).show();
+					}).show();*/
+					if (ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar)) {
+						LogWindowContent::GetInstance()->draw();
+						ImGui::EndChild();
+					}
 				}).show();
 			}
 		}
 
 		void MainWindow::update() {
+			showModal();
 			menuBar();
 			ImGui::ShowDemoWindow();
 			//	viewportWindow();
@@ -398,6 +423,8 @@ void main()
 			//	loadBackgroundImage();
 
 			//	loadBackGroundShader();
+
+			engine = std::make_unique<RenderEngine>();
 
 	}
 

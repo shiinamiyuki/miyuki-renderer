@@ -26,7 +26,7 @@ namespace Miyuki {
 						Text().name(name).show();
 						//
 					}
-				});
+				}).show();
 			});
 		}
 	}

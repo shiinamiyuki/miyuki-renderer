@@ -9,7 +9,7 @@
 #include "mesh.h"
 #include <core/ray.h>
 #include <core/intersection.hpp>
-#include <accelerators/accelerator.h>
+#include <core/accelerators/accelerator.h>
 #include <embree3/rtcore.h>
 
 namespace Miyuki {

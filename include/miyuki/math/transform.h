@@ -64,7 +64,7 @@ namespace Miyuki {
         //rotation then translation
         Vec3f apply(const Vec3f &, bool inverse = false) const;
 
-        Vec3f applyRotation(const Vec3f &, bool inverse = false) const;
+        Vec3f apply_rotation(const Vec3f &, bool inverse = false) const;
     };
 	inline void to_json(json& j, const Transform& T) {
 		j = json{

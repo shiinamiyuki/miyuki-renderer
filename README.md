@@ -20,15 +20,17 @@ Goal: a high performance pbrt-style renderer with low hardware requirements but 
 
 `miyuki/graph`: Scene graph. All classes in this folder relies on reflection to provide information to the editor. Upon rendering, the graph is compiled to build the data structure used for rendering.
 
-`miyuki/materials`: All materials.
+`miyuki/core`: Core renderer code.
 
-`miyuki/intergrators`: All integrators.
+`miyuki/core/accelerators`: Acceleration structure interface. 
+
+`miyuki/core/materials`: All materials.
+
+`miyuki/core/intergrators`: All integrators.
 
 `miyuki/hw`: Hardware acceleration. OpenGL for now.
 
-`miyuki/core`: Core infrastructure.
-
-`miyuki/utils`,`miyuki/math`: Utility libraries.
+`miyuki/utils`,`miyuki/math`, `miyuki/io`: Utility libraries.
 
 `miyuki/ui`: GUI support.
 
@@ -40,10 +42,21 @@ Goal: a high performance pbrt-style renderer with low hardware requirements but 
   - [x] Automatic serialization
   - [x] Cyclic references
 - [ ] Editor Support
+  - [ ] Loading scene files.
+  - [ ] Importing Wavefront OBJ
   - [ ] Cross platform support. Some GUI code calls native Windows API for now.
 - [ ] Custom BVH RT kernel
+- [ ] Basic Reflection Model
+  - [ ] Diffuse (lambertian/Oren-Nayar)
+  - [ ] Beckmann Microfacet Model
+  - [ ] GGX Microfacet Model
+  - [ ] Specular Transmission/Refelection 
 - [ ] Disney BSDF
+- [ ] Volume rendering 
 - [ ] Path tracing & denoiser
+  - [ ] Generic Path Tracer
+  - [ ] Denoiser (Using BCD)
+- [ ] Path guiding
 - [ ] Hybrid rendering
 - [ ] Network rendering 
 

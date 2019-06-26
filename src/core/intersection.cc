@@ -1,5 +1,5 @@
 #include <core/intersection.hpp>
-#include <materials/material.h>
+#include <core/materials/material.h>
 #include <core/mesh.h>
 namespace Miyuki {
 	Spectrum Intersection::Le(const Ray& ray) {

@@ -21,10 +21,11 @@ namespace Miyuki {
 
 	void RenderEngine::newGraph() {
 		graph = runtime.New<Graph::Graph>(runtime.New<Reflection::Array<Graph::MaterialNode>>(),
-			runtime.New<Reflection::Array<Graph::MeshNode>>());
+			runtime.New<Reflection::Array<Graph::MeshNode>>()); 
 	}
 
 	void RenderEngine::visit(Reflection::Visitor& visitor) {
-		graph->accept(visitor);
+		if(graph)
+			graph->accept(visitor);
 	}
 }
