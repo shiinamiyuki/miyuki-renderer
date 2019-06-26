@@ -8,75 +8,77 @@
 
 #define USE_EMBREE_GEOMETRY 1
 namespace Miyuki {
-	class Light;
+	namespace Core {
+		class Light;
 
-	struct Mesh;
+		struct Mesh;
 
-	class Material;
+		class Material;
 
-	class Accelerator;
+		class Accelerator;
 
-	struct Primitive {
-		uint32_t vertices[3];
-		uint32_t normals[3];
-		Point2f textureCoord[3];
+		struct Primitive {
+			uint32_t vertices[3];
+			uint32_t normals[3];
+			Point2f textureCoord[3];
 
-		Mesh* instance;
-		uint16_t nameId;
-		Float area()const {
-			return Vec3f::cross((v(1) - v(0)), v(2) - v(0)).length() / 2;
-		}
+			Mesh* instance;
+			uint16_t nameId;
+			Float area()const {
+				return Vec3f::cross((v(1) - v(0)), v(2) - v(0)).length() / 2;
+			}
 
-		Primitive();
+			Primitive();
 
-		Vec3f v(int32_t) const;
+			Vec3f v(int32_t) const;
 
-		const Vec3f& n(int32_t) const;
+			const Vec3f& n(int32_t) const;
 
-		Vec3f Ns(const Point2f& uv) const;
+			Vec3f Ns(const Point2f& uv) const;
 
-		Material* material() const;
+			Material* material() const;
 
-		const std::string& name() const;
+			const std::string& name() const;
 
-		bool intersect(const Ray&, Intersection*) const;
+			bool intersect(const Ray&, Intersection*) const;
 
-		Light* light() const;
+			Light* light() const;
 
-		void setLight(Light* light);
+			void setLight(Light* light);
 
-		Vec3f Ng() const {
-			auto edge1 = v(1) - v(0);
-			auto edge2 = v(2) - v(0);
-			return Vec3f::cross(edge1, edge2).normalized();
-		}
-	};
+			Vec3f Ng() const {
+				auto edge1 = v(1) - v(0);
+				auto edge2 = v(2) - v(0);
+				return Vec3f::cross(edge1, edge2).normalized();
+			}
+		};
 
-	class EmbreeScene;
+		class EmbreeScene;
 
-	struct Mesh {
-		std::string name;
-		Transform transform;
-		std::vector<Vec3f> vertices, normals;
-		std::vector<Primitive> primitives;
-		std::vector<std::string> names;
-		std::vector<std::shared_ptr<Material>> materials;
-		int geomId = -1;
-		EmbreeScene* accelerator;
-		uint32_t vertexCount = 0;
+		struct Mesh {
+			std::string name;
+			Transform transform;
+			std::vector<Vec3f> vertices, normals;
+			std::vector<Primitive> primitives;
+			std::vector<std::string> names;
+			std::vector<std::shared_ptr<Material>> materials;
+			int geomId = -1;
+			EmbreeScene* accelerator;
+			uint32_t vertexCount = 0;
 #if USE_EMBREE_GEOMETRY == 1
-		RTCGeometry rtcGeometry = nullptr;
+			RTCGeometry rtcGeometry = nullptr;
 #endif
 
-		Mesh(const std::string& filename);
+			Mesh(const std::string& filename);
 
-		std::shared_ptr<Mesh> instantiate(const std::string& name, const Transform& transform = Transform()) const;
+			std::shared_ptr<Mesh> instantiate(const std::string& name, const Transform& transform = Transform()) const;
 
-		void resetTransform(const Transform& T);
+			void resetTransform(const Transform& T);
 
-		std::unordered_map<const Primitive*, Light*> lightMap;
+			std::unordered_map<const Primitive*, Light*> lightMap;
 
-		~Mesh();
-	};
+			~Mesh();
+		};
+	}
 }
 #endif

@@ -5,67 +5,69 @@
 #include <math/spectrum.h>
 #include <embree3/rtcore.h>
 namespace Miyuki {
-	class BSDF;
-	class BSSRDF;
-	
-	struct Primitive;
+	namespace Core {
+		class BSDF;
+		class BSSRDF;
 
-	// struct handling intersection info
-	struct Intersection {
-		// Initialized through EmbreeScene::intersection
-		Float far;
-		Point2f uv, textureUV;
-		Vec3f p;
-		Vec3f wo;
-		int32_t geomId, primId;
+		struct Primitive;
 
-		// Initialized through Scene::postIntersection
-		Vec3f Ng;
-		Vec3f Ns;
+		// struct handling intersection info
+		struct Intersection {
+			// Initialized through EmbreeScene::intersection
+			Float far;
+			Point2f uv, textureUV;
+			Vec3f p;
+			Vec3f wo;
+			int32_t geomId, primId;
 
-		Ref<const Primitive> primitive;
+			// Initialized through Scene::postIntersection
+			Vec3f Ng;
+			Vec3f Ns;
 
-		CoordinateSystem localFrame;
-		BSDF * bsdf = nullptr;
-		bool hit() {
-			return primId != RTC_INVALID_GEOMETRY_ID && geomId != RTC_INVALID_GEOMETRY_ID;
-		}
-		Float hitDistance() const {
-			return far;
-		}
-		
-		bool isSurfaceScatteringEvent()const {
-			return bsdf != nullptr;
-		}
+			Ref<const Primitive> primitive;
 
-		bool isVolumeScatteringEvent()const {
-			return false;
-		}
-		bool hasScatteringFunction()const {
-			return isSurfaceScatteringEvent() || isVolumeScatteringEvent();
-		}		
+			CoordinateSystem localFrame;
+			BSDF* bsdf = nullptr;
+			bool hit() {
+				return primId != RTC_INVALID_GEOMETRY_ID && geomId != RTC_INVALID_GEOMETRY_ID;
+			}
+			Float hitDistance() const {
+				return far;
+			}
 
-		Vec3f localToWord(const Vec3f &w) const {
-			return localFrame.localToWorld (w);
-		}
+			bool isSurfaceScatteringEvent()const {
+				return bsdf != nullptr;
+			}
 
-		Vec3f worldToLocal(const Vec3f &w) const {
-			return localFrame.worldToLocal(w);
-		}
+			bool isVolumeScatteringEvent()const {
+				return false;
+			}
+			bool hasScatteringFunction()const {
+				return isSurfaceScatteringEvent() || isVolumeScatteringEvent();
+			}
 
-		void computeLocalFrame(const Vec3f & normal) {
-			localFrame = CoordinateSystem(normal);
-		}
-		Spectrum Le(const Ray & ray);
-		Spectrum Le(const Vec3f& wi);
+			Vec3f localToWord(const Vec3f& w) const {
+				return localFrame.localToWorld(w);
+			}
 
-		// w in world space
-		Ray spawnRay(const Vec3f & w) const{
-			return Ray(p, w.normalized());
-		}
-	};
+			Vec3f worldToLocal(const Vec3f& w) const {
+				return localFrame.worldToLocal(w);
+			}
 
-	struct Intersection4 {
-		Intersection isct[4];
-	};
+			void computeLocalFrame(const Vec3f& normal) {
+				localFrame = CoordinateSystem(normal);
+			}
+			Spectrum Le(const Ray& ray);
+			Spectrum Le(const Vec3f& wi);
+
+			// w in world space
+			Ray spawnRay(const Vec3f& w) const {
+				return Ray(p, w.normalized());
+			}
+		};
+
+		struct Intersection4 {
+			Intersection isct[4];
+		};
+	}
 }

@@ -8,106 +8,103 @@
 #include <miyuki.h>
 #include <utils/atomicfloat.h>
 #include <filters/filter.h>
-#include "lightingcomposition.hpp"
 #include <io/image.h>
 
 
 namespace Miyuki {
-    static constexpr int TileSize = 16;
-    static constexpr int FilterTableWidth = 16;
-
 	namespace HW {
 		class Texture;
 	}
 
-    struct Pixel {
-        Spectrum value;
-        Float filterWeightSum;
-        AtomicFloat splatXYZ[3];
-        Float splatWeight = 1;
+	namespace Core {
+		static constexpr int TileSize = 16;
+		static constexpr int FilterTableWidth = 16;
 
-        Pixel() : value(0, 0, 0), filterWeightSum(0) {}
+		
+		struct Pixel {
+			Spectrum value;
+			Float filterWeightSum;
+			AtomicFloat splatXYZ[3];
+			Float splatWeight = 1;
 
-        Spectrum toInt() const;
+			Pixel() : value(0, 0, 0), filterWeightSum(0) {}
 
-        Spectrum eval() const;
+			Spectrum toInt() const;
 
-        void add(const Spectrum &c, const Float &w);
-    };
+			Spectrum eval() const;
 
-    struct TilePixel {
-        Spectrum value;
-        Float filterWeightSum = 0;
-    };
+			void add(const Spectrum& c, const Float& w);
+		};
 
-    class Film;
+		struct TilePixel {
+			Spectrum value;
+			Float filterWeightSum = 0;
+		};
 
-    class FilmTile {
-        friend class Film;
+		class Film;
 
-        std::vector<TilePixel> pixels;
-        Bound2i pixelBounds;
-        const Float *filterTable = nullptr;
-        const Filter *filter;
-    public:
-        FilmTile(const Bound2i &bound2i, const Float *filterTable, const Filter *filter);
+		class FilmTile {
+			friend class Film;
 
-        TilePixel &getPixel(const Point2i &);
+			std::vector<TilePixel> pixels;
+			Bound2i pixelBounds;
+			const Float* filterTable = nullptr;
+			const Filter* filter;
+		public:
+			FilmTile(const Bound2i& bound2i, const Float* filterTable, const Filter* filter);
 
-        const TilePixel &getPixel(const Point2i &) const;
+			TilePixel& getPixel(const Point2i&);
 
-        void addSample(const Point2f &raster, const Spectrum &sample, Float weight = 1);
-    };
+			const TilePixel& getPixel(const Point2i&) const;
 
-    class Film {
-    public:
-        std::unique_ptr<IO::GenericImage<LighingComposition>> auxBuffer;
-        std::vector<Pixel> image;
-        std::unique_ptr<Filter> filter;
-		HW::Texture* hwBuffer = nullptr;
-    private:
-        Float filterTable[FilterTableWidth * FilterTableWidth];
-        Bound2i imageBound;
-        std::mutex lock;
-    public:
+			void addSample(const Point2f& raster, const Spectrum& sample, Float weight = 1);
+		};
 
-        const Point2i &imageDimension() const { return imageBound.pMax; }
+		class Film {
+		public:
+			std::vector<Pixel> image;
+			std::unique_ptr<Filter> filter;
+			HW::Texture* hwBuffer = nullptr;
+		private:
+			Float filterTable[FilterTableWidth * FilterTableWidth];
+			Bound2i imageBound;
+			std::mutex lock;
+		public:
 
-        int height() const { return imageBound.pMax.y(); }
+			const Point2i& imageDimension() const { return imageBound.pMax; }
 
-        int width() const { return imageBound.pMax.x(); }
+			int height() const { return imageBound.pMax.y(); }
 
-        Pixel &getPixel(const Point2f &);
+			int width() const { return imageBound.pMax.x(); }
 
-        Pixel &getPixel(const Point2i &);
+			Pixel& getPixel(const Point2f&);
 
-        Pixel &getPixel(int x, int y);
+			Pixel& getPixel(const Point2i&);
 
-        void addSample(const Point2f &, const Spectrum &c, Float weight = 1);
+			Pixel& getPixel(int x, int y);
 
-        void addSplat(const Point2f &pos, const Spectrum &c) {
-            getPixel(pos).splatXYZ[0].add(c[0]);
-            getPixel(pos).splatXYZ[1].add(c[1]);
-            getPixel(pos).splatXYZ[2].add(c[2]);
-        }
+			void addSample(const Point2f&, const Spectrum& c, Float weight = 1);
 
-        Float &splatWeight(const Point2i &pos) {
-            return getPixel(pos).splatWeight;
-        }
+			void addSplat(const Point2f& pos, const Spectrum& c) {
+				getPixel(pos).splatXYZ[0].add(c[0]);
+				getPixel(pos).splatXYZ[1].add(c[1]);
+				getPixel(pos).splatXYZ[2].add(c[2]);
+			}
 
-        Film(int w = 0, int h = 0);
+			Float& splatWeight(const Point2i& pos) {
+				return getPixel(pos).splatWeight;
+			}
 
-        void writePNG(const std::string &filename);
+			Film(int w = 0, int h = 0);
 
-        void clear();
+			void writePNG(const std::string& filename);
 
-        void mergeFilmTile(const FilmTile &);
+			void clear();
 
-        std::unique_ptr<FilmTile> getFilmTile(const Bound2i &bounds);
+			void mergeFilmTile(const FilmTile&);
 
-        void enableAuxBuffer();
-
-        void addSample(const Point2f &, const LighingComposition &);
-    };
+			std::unique_ptr<FilmTile> getFilmTile(const Bound2i& bounds);
+		};
+	}
 }
 #endif //MIYUKI_FILM_H

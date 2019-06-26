@@ -13,28 +13,30 @@
 #include <embree3/rtcore.h>
 
 namespace Miyuki {
-    RTCDevice GetEmbreeDevice();
+	namespace Core {
+		RTCDevice GetEmbreeDevice();
 
-    class Scene;
+		class Scene;
 
-    class EmbreeScene : public Accelerator {
-        friend class Scene;
+		class EmbreeScene : public Accelerator {
+			friend class Scene;
 
-        RTCScene scene;
+			RTCScene scene;
 
-        void commit();
+			void commit();
 
-    public:
-        EmbreeScene();
+		public:
+			EmbreeScene();
 
-        void addMesh(std::shared_ptr<Mesh> mesh, int id);
+			void addMesh(std::shared_ptr<Mesh> mesh, int id);
 
-		bool intersect(const Ray & ray, Intersection * isct);
+			bool intersect(const Ray& ray, Intersection* isct);
 
-        RTCScene getRTCScene(){
-            return scene;
-        }
-        ~EmbreeScene();
-    };
+			RTCScene getRTCScene() {
+				return scene;
+			}
+			~EmbreeScene();
+		};
+	}
 }
 #endif //MIYUKI_EMBREESCENE_H

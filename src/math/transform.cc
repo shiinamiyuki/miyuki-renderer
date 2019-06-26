@@ -290,7 +290,7 @@ Vec3f Transform::apply(const Vec3f & _v, bool inverse) const {
 	}
 }
 
-Vec3f Transform::apply_rotation(const Vec3f & _v, bool inverse) const {
+Vec3f Transform::applyRotation(const Vec3f & _v, bool inverse) const {
 	if (!inverse) {
 		auto v = _v;
 		v = rotate(v, Vec3f(1, 0, 0), -rotation.y());
