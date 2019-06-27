@@ -239,6 +239,7 @@ void main()
 					engine->open(filename);
 					closeModal();
 				});
+				th.detach();
 			};
 			auto saveFile = [=]() {
 				if (!engine->hasGraph()) {
@@ -250,13 +251,19 @@ void main()
 					});
 					return;
 				}
-				auto filename = IO::GetSaveFileNameWithDialog("Scene description\0*.json\0Any File\0*.*");
+				if (engine->isFilenameEmpty()) {
+					auto filename = IO::GetSaveFileNameWithDialog("Scene description\0*.json\0Any File\0*.*");
+					engine->firstSave(filename);
+				}
+				else {
+					engine->save();
+				}
 			};
 			MainMenuBar()
 				.menu(Menu().name("File")
 					.item(MenuItem().name("Open").with(true, openFile))
 					.item(MenuItem().name("New").with(true, newGraph))
-					.item(MenuItem().name("Save"))
+					.item(MenuItem().name("Save").with(true, saveFile))
 					.item(MenuItem().name("Close"))
 					.item(MenuItem().name("Import").with(true, importObj))
 					.item(MenuItem().name("Exit")))

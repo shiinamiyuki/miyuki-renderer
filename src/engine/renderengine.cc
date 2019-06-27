@@ -3,11 +3,34 @@
 #include <utils/log.h>
 
 namespace Miyuki {
-
+	static const char* MeshDirectory = "mesh";
 	RenderEngine::RenderEngine() :graph(runtime) {
 		_filename = "";
+		registerClasses();
 	}
-
+	void RenderEngine::registerClasses() {
+		runtime.registerClass<Graph::DiffuseMaterialNode>()
+			.registerClass<Reflection::IntNode>()
+			.registerClass<Reflection::FloatNode>()
+			.registerClass<Reflection::Float3Node>()
+			.registerClass<Reflection::StringNode>()
+			.registerClass<Reflection::FileNode>()
+			.registerClass<Graph::FloatNode>()
+			.registerClass<Graph::GlossyMaterialNode>()
+			.registerClass<Graph::Graph>()
+			.registerClass<Graph::GraphNode>()
+			.registerClass<Graph::ImageTextureNode>()
+			.registerClass<Graph::MaterialNode>()
+			.registerClass<Reflection::Array<Graph::MaterialNode>>()
+			.registerClass<Reflection::Array<Graph::MeshNode>>()
+			.registerClass<Graph::MeshNode>()
+			.registerClass<Graph::MixedMaterialNode>()
+			.registerClass<Graph::ShaderNode>()
+			.registerClass<Graph::RGBNode>()
+			.registerClass<Graph::TextureNode>()
+			.registerClass<Graph::TransformNode>();
+			
+	}
 	void RenderEngine::importObj(const std::string& filename) {
 		IO::ObjLoadInfo info(&runtime);
 		info.basePath = cxx::filesystem::path(filename).parent_path();
@@ -15,13 +38,21 @@ namespace Miyuki {
 		for (auto& m : info.materials) {
 			graph->addMaterial(m);
 		}
+		cxx::filesystem::path meshDir = cxx::filesystem::path(_filename).parent_path().append(MeshDirectory);
+		if (!cxx::filesystem::exists(meshDir)) {
+			cxx::filesystem::create_directory(meshDir);
+			Log::log("Created {}\n", meshDir.string());
+		}
 		int meshId = graph->meshes->size();
-		std::ofstream out(info.meshFile.path);
+		auto meshPath = meshDir.append(fmt::format("mesh{}.obj",meshId));
+		Log::log("Created meshfile {}\n", meshPath.string());
+		std::ofstream out(meshPath);
 		out << info.outputContent << std::endl;
 		auto mesh = runtime.New<Graph::MeshNode>();
 		mesh->meshFile = runtime.New<Reflection::FileNode>();
-		mesh->meshFile->setValue(info.meshFile);
+		mesh->meshFile->setValue(File(cxx::filesystem::relative(meshPath, cxx::filesystem::path(_filename).parent_path())));
 		mesh->transform = runtime.New<Graph::TransformNode>();
+		graph->meshes->push_back(mesh);
 	}
 
 	void RenderEngine::newGraph() {

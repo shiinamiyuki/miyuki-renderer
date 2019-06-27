@@ -47,7 +47,7 @@ namespace Miyuki {
 				auto type = j.at("type").get<std::string>();
 				auto iter = classInfo.find(type);
 				if(iter == classInfo.end())
-					return Error(fmt::format("unknown type", type));
+					return Error(fmt::format("unknown type {}", type));
 				auto r = create(iter->second, id);
 				if (!r) {
 					return r.error();
@@ -96,7 +96,7 @@ namespace Miyuki {
 							type));
 				}
 				Class* info = T::__classinfo__();
-				auto name = j.at("name").get<std::string>();
+				auto name = j.at("id").get<std::string>();
 				auto r = deserializeR(j);
 				if (r.hasValue()) {
 					return (T*)r.value();

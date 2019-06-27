@@ -1,6 +1,7 @@
 #include <io/importobj.h>
 #include <graph/materialnode.h>
 #include <boost/algorithm/string.hpp>
+#include <utils/log.h>
 
 namespace Miyuki {
 	namespace IO {
@@ -21,7 +22,7 @@ namespace Miyuki {
 		}
 		static const char* MYK_IMPORTED_OBJ = "# MYK_IMPORTED_OBJ";
 		void LoadMTLFile(const std::string& filename, ObjLoadInfo& info) {
-			fmt::print("Loading {}\n", filename);
+			Log::log("Loading {}\n", filename);
 			auto parentPath = cxx::filesystem::path(filename).parent_path();
 			std::ifstream in(filename);
 			auto& materials = info.materials;
@@ -140,12 +141,13 @@ namespace Miyuki {
 				std::ifstream in(filename);
 				std::string line;
 				std::vector<std::string> tokens, _temp;
+				std::set<std::string> visitedMTL;
 				std::getline(in, line);
 				if (boost::algorithm::starts_with(line, MYK_IMPORTED_OBJ)) {
 					throw std::runtime_error("Cannot import an imported obj file");
 				}
 				std::string shapeBaseName;
-				std::ostringstream out(info.outputContent);
+				std::ostringstream out;
 				out << MYK_IMPORTED_OBJ << std::endl;
 				int part = 0;
 				while (std::getline(in, line)) {
@@ -159,8 +161,11 @@ namespace Miyuki {
 					if (tokens[0] == "g")continue;
 					if (tokens[0] == "mtllib") {
 						auto s = __Internal::ParseFilename(tokens);
-						auto path = parentPath.append(s);
-						LoadMTLFile(path.string(), info);
+						if (visitedMTL.find(s) == visitedMTL.end()) {
+							auto path = parentPath.append(s);
+							LoadMTLFile(path.string(), info);
+							visitedMTL.insert(s);
+						}
 					}
 					else if (tokens[0] == "o") {
 						shapeBaseName = tokens[1];
@@ -180,10 +185,8 @@ namespace Miyuki {
 					}
 				}
 			
-				info.meshFile = cxx::filesystem::relative(
-					cxx::filesystem::path(filename),
-					info.basePath
-				);
+				info.meshFile = filename;
+				info.outputContent = out.str();
 			}
 			catch (std::runtime_error& e) {
 				std::cerr << e.what() << std::endl;

@@ -9,6 +9,7 @@ namespace Miyuki {
 		std::string _filename;
 		Reflection::Runtime runtime;
 		Reflection::LocalObject<Graph::Graph> graph;
+		void registerClasses();
 	public:
 		RenderEngine();
 		const std::string filename()const { return _filename; }
@@ -29,6 +30,10 @@ namespace Miyuki {
 		}
 		bool hasGraph() {
 			return graph;
+		}
+		void firstSave(const std::string& filename) {
+			_filename = filename;
+			save();
 		}
 	};
 }
