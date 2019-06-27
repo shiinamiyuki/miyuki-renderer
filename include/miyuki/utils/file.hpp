@@ -8,6 +8,7 @@ namespace Miyuki {
 		cxx::filesystem::path path;
 		File() {}
 		File(const std::string& s) :path(s) {}
+		File(cxx::filesystem::path path) :path(std::move(path)) {}
 		bool operator == (const File& rhs) const{
 			return path == rhs.path;
 		}

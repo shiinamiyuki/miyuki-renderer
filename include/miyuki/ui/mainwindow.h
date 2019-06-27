@@ -76,6 +76,9 @@ namespace Miyuki {
 			void closeModal() {
 				modal.close();
 			}
+			void openModal(const std::string& title, std::function<void(void)> f) {
+				modal.name(title).open().with(true, f);
+			}
 			void openModal(std::function<void(void)> f) {
 				modal.open().with(true, f);
 			}

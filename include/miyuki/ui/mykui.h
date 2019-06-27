@@ -73,6 +73,18 @@ namespace Miyuki {
 				return *static_cast<Derived*>(this);
 			}
 		};
+
+		template<class Derived>
+		class SingleSelectable {
+		protected:
+			bool _selected = false;
+		public:
+			Derived& selected(bool p) {
+				_selected = p;
+				return *static_cast<Derived*>(this);
+			}
+		};
+
 		class Button : public Base<Button> {
 
 		public:
@@ -100,6 +112,18 @@ namespace Miyuki {
 		};
 
 		class SelectableText : public Base<SelectableText>, public Selectable<SelectableText> {
+		public:
+			void showImpl() {
+				if (ImGui::Selectable(nameCStr(), _selected)) {
+					active();
+				}
+				else {
+					inactive();
+				}
+			}
+		};
+
+		class SingleSelectableText : public Base<SingleSelectableText>, public SingleSelectable<SingleSelectableText> {
 		public:
 			void showImpl() {
 				if (ImGui::Selectable(nameCStr(), _selected)) {

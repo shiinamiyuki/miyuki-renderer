@@ -4,6 +4,7 @@
 
 #include <utils/log.h>
 #include <ui/logwindow.h>
+#include <core/profile.h>
 
 namespace Miyuki {
     static std::atomic<Log::Level> curLevel(Log::verbose);
@@ -16,9 +17,11 @@ namespace Miyuki {
         return curLevel;
     }
 	static std::mutex mutex;
+	static Timer timer;
 	void Log::_LogInternal(const std::string& s) {
 		std::lock_guard<std::mutex> lockGuard(mutex);
-		fmt::print("{}", s);
-		GUI::LogWindowContent::GetInstance()->append(s);
+		auto s2 = fmt::format("[{:.3}]  {}", timer.elapsedSeconds(), s);
+		std::cout << s2 << std::endl;
+		GUI::LogWindowContent::GetInstance()->append(s2);
 	}
 }

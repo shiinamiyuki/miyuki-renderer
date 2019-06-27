@@ -148,6 +148,7 @@ namespace Miyuki {
 				auto r = create(info, id);
 				if (!r)return r.error();
 				auto object = (T*)r.value();
+				object->init();
 				return object;
 			}
 

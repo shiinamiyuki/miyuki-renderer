@@ -179,6 +179,11 @@ namespace Miyuki {
 						out << line << std::endl;
 					}
 				}
+			
+				info.meshFile = cxx::filesystem::relative(
+					cxx::filesystem::path(filename),
+					info.basePath
+				);
 			}
 			catch (std::runtime_error& e) {
 				std::cerr << e.what() << std::endl;

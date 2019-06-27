@@ -234,6 +234,9 @@ namespace Miyuki {
 					if (auto r = resolve(j.at("properties").at(i->name))) {
 						i->object = r.value();
 					}
+					else {
+						throw std::runtime_error(r.error().what());
+					}
 				}
 			}
 			Result<const Property*> getPropertyByName(const std::string& name)const {
@@ -274,6 +277,7 @@ namespace Miyuki {
 				return a->equals(b); 
 			}
 			inline void accept(Visitor&);
+			void init() {}
 		};
 		template<class T>
 		Result<T*> Cast(Object* p) {

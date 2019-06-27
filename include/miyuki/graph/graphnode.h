@@ -26,5 +26,20 @@ namespace Miyuki {
 			MYK_BEGIN_PROPERTY;
 			MYK_END_PROPERTY;
 		};
+
+		class TransformNode : public Reflection::Object {
+		public:
+			MYK_CLASS(TransformNode, Reflection::Object);
+			MYK_BEGIN_PROPERTY;
+			MYK_PROPERTY(Reflection::FloatNode, scale);
+			MYK_PROPERTY(Reflection::Float3Node, translation);
+			MYK_PROPERTY(Reflection::Float3Node, rotation);
+			MYK_END_PROPERTY;
+			void init() {
+				translation = allocator->New< Reflection::Float3Node>();
+				rotation = allocator->New< Reflection::Float3Node>();
+				scale = allocator->New< Reflection::FloatNode>(1.0f);
+			}
+		};
 	}
 }

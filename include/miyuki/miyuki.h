@@ -67,7 +67,7 @@ namespace Miyuki {
 		return std::min(std::max(a, x), b);
 	}
 
-	namespace cxx = std::experimental;
+	namespace cxx = std;
 #define CHECK(expr) do{if(!(expr)){fmt::print(stderr, "{}:{} {} failed\n",__FILE__, __LINE__, #expr);}}while(0)
 #define Assert(expr) do{if(!(expr)){fmt::print(stderr, "{}:{} {} failed\n",__FILE__, __LINE__, #expr);__Assert(false);}}while(0)
 	void Init();

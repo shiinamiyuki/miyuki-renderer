@@ -18,13 +18,29 @@ namespace Miyuki {
 			visit<Graph::Graph>([=](Graph::Graph* node)->void {
 				TreeNode().name("Materials").with(true, [=]() {
 					auto materials = node->materials;
-					for (auto material : *materials) {
+					int selected = -1;
+					for (int i = 0; i < materials->size();i++) {
+						auto material = materials->at(i);
 						if (!material) {
 							continue;
 						}
+						if (material->selected() && selected < 0) {
+							selected = i;
+						}
 						const auto& name = material->getName();
-						Text().name(name).show();
-						//
+						SingleSelectableText().name(name).selected(material->selected())
+							.with(true, [=, &selected]() {
+							selected = i;
+						}).show();
+					}
+					for (int i = 0; i < materials->size(); i++) {
+						auto material = materials->at(i);
+						if (i == selected) {
+							material->select();
+						}
+						else {
+							material->unselect();
+						}
 					}
 				}).show();
 			});

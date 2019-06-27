@@ -5,7 +5,6 @@
 #include <graph/graph.h>
 
 namespace Miyuki {
-	static const char* TempDirectory = ".tmp";
 	class RenderEngine {
 		std::string _filename;
 		Reflection::Runtime runtime;
@@ -18,6 +17,19 @@ namespace Miyuki {
 		void importObj(const std::string& filename);
 		void newGraph();
 		void visit(Reflection::Visitor& visitor);
+		void saveTo(const std::string& filename);
+		void save() {
+			saveTo(filename());
+		}
+
+		// overrides current graph if any
+		void open(const std::string& filename);
+		bool isFilenameEmpty() {
+			return filename().empty();
+		}
+		bool hasGraph() {
+			return graph;
+		}
 	};
 }
 #endif

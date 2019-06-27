@@ -34,10 +34,10 @@ namespace Miyuki {
 			auto begin() { return _array.begin(); }
 			auto end()const { return _array.end(); }
 			auto end() { return _array.end(); }
-			auto& at(int i)const {
+			const Ty* at(int i)const {
 				return _array.at(i);
 			}
-			auto& at(int i) {
+			Ty*& at(int i) {
 				return _array.at(i);
 			}
 			void serialize(json& j, SerializationState& state)const override {
@@ -65,6 +65,9 @@ namespace Miyuki {
 				for (const auto& i : j["array"]) {
 					if (auto r = resolve(i)) {
 						push_back(StaticCast<Ty>(r.value()));
+					}
+					else {
+						throw std::runtime_error(r.error().what());
 					}
 				}
 			}

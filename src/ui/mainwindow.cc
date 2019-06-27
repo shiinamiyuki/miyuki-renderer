@@ -50,37 +50,7 @@ namespace Miyuki {
 				}
 			}
 		};*/
-		void MainWindow::mainLoop() {
-			ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
-			// Main loop
-			while (!glfwWindowShouldClose(window)) {
-				glfwPollEvents();
 
-				// Start the Dear ImGui frame
-				ImGui_ImplOpenGL3_NewFrame();
-				ImGui_ImplGlfw_NewFrame();
-				ImGui::NewFrame();
-
-				update();
-
-				// Rendering
-				ImGui::Render();
-				int display_w, display_h;
-				glfwMakeContextCurrent(window);
-				glfwGetFramebufferSize(window, &display_w, &display_h);
-				glViewport(0, 0, display_w, display_h);
-				glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-				glClear(GL_COLOR_BUFFER_BIT);
-				//	drawBackground();
-				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-				glfwMakeContextCurrent(window);
-				glfwSwapBuffers(window);
-
-				//std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
-			}
-
-		}
 		void MainWindow::close() {
 			stopRenderThread();
 			ImGui_ImplOpenGL3_Shutdown();
@@ -228,9 +198,28 @@ void main()
 		}*/
 		void MainWindow::menuBar() {
 			auto newGraph = [=]() {
+				Log::log("Creating new scene graph\n");
 				engine->newGraph();
 			};
 			auto importObj = [=]() {
+				if (!engine->hasGraph()) {
+					openModal("Error", [=]() {
+						Text().name("Must create a scene graph first").show();
+						Button().name("Close").with(true, [=] {
+							closeModal();
+						}).show();
+					});
+					return;
+				}
+				if (engine->isFilenameEmpty()) {
+					openModal("Error", [=]() {
+						Text().name("Save the scene graph first").show();
+						Button().name("Close").with(true, [=] {
+							closeModal();
+						}).show();
+					});
+					return;
+				}
 				auto filename = IO::GetOpenFileNameWithDialog("Wavefront OBJ\0*.obj");
 				if (filename.empty())return;
 				std::thread th([=]() {
@@ -242,9 +231,30 @@ void main()
 				});
 				th.detach();
 			};
+			auto openFile = [=]() {
+				auto filename = IO::GetOpenFileNameWithDialog("Scene description\0*.json\0Any File\0*.*");
+				if (filename.empty())return;
+				std::thread th([=] (){
+					openModal("Opening scene description", []() {});
+					engine->open(filename);
+					closeModal();
+				});
+			};
+			auto saveFile = [=]() {
+				if (!engine->hasGraph()) {
+					openModal("Error", [=]() {
+						Text().name("Must create a scene graph first").show();
+						Button().name("Close").with(true, [=] {
+							closeModal();
+						}).show();
+					});
+					return;
+				}
+				auto filename = IO::GetSaveFileNameWithDialog("Scene description\0*.json\0Any File\0*.*");
+			};
 			MainMenuBar()
 				.menu(Menu().name("File")
-					.item(MenuItem().name("Open"))
+					.item(MenuItem().name("Open").with(true, openFile))
 					.item(MenuItem().name("New").with(true, newGraph))
 					.item(MenuItem().name("Save"))
 					.item(MenuItem().name("Close"))
@@ -399,7 +409,7 @@ void main()
 			{
 				fprintf(stderr, "Failed to initialize OpenGL loader!\n");
 				std::exit(1);
-		}
+			}
 			// Setup Dear ImGui context
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
@@ -416,7 +426,7 @@ void main()
 			ImGui_ImplOpenGL3_Init(glsl_version);
 
 			//io.Fonts->AddFontDefault();
-			io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/Consola.ttf", 14.0f);
+			io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/Consola.ttf", 16.0f);
 
 			viewport = std::make_unique<HW::Texture>(1280, 720);
 			loadConfig();
@@ -425,12 +435,44 @@ void main()
 			//	loadBackGroundShader();
 
 			engine = std::make_unique<RenderEngine>();
+			Log::log("Application started\n");
 
-	}
+		}
+		void MainWindow::mainLoop() {
+			ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
+			// Main loop
+			while (!glfwWindowShouldClose(window)) {
+				glfwPollEvents();
 
+				// Start the Dear ImGui frame
+				ImGui_ImplOpenGL3_NewFrame();
+				ImGui_ImplGlfw_NewFrame();
+				ImGui::NewFrame();
+
+				update();
+
+				// Rendering
+				ImGui::Render();
+				int display_w, display_h;
+				glfwMakeContextCurrent(window);
+				glfwGetFramebufferSize(window, &display_w, &display_h);
+				glViewport(0, 0, display_w, display_h);
+				glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+				glClear(GL_COLOR_BUFFER_BIT);
+				//	drawBackground();
+				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+				glfwMakeContextCurrent(window);
+				glfwSwapBuffers(window);
+
+				//std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
+				
+			}
+
+		}
 		void MainWindow::show() {
 			mainLoop();
 			close();
 		}
-}
+	}
 }

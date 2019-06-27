@@ -97,7 +97,7 @@ namespace Miyuki {
 				}
 				Class* info = T::__classinfo__();
 				auto name = j.at("name").get<std::string>();
-				auto r = deserialize(j);
+				auto r = deserializeR(j);
 				if (r.hasValue()) {
 					return (T*)r.value();
 				}

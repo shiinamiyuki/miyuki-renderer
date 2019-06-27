@@ -102,6 +102,9 @@ namespace Miyuki {
 			virtual const PrimitiveType primitiveType() const override {
 				return PrimitiveType(_GetLeafType<T>::Type);
 			}
+			void init() {
+				value = T();
+			}
 			void init(const T& value) {
 				setValue(value);
 			}
