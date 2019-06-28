@@ -6,9 +6,10 @@
 #include <graph/shadernode.h>
 
 namespace Miyuki {
+	class Material;
 	namespace Graph {
 		class GraphCompiler;
-		class Material;
+		
 		class MaterialNode : public GraphNode {
 		public:
 			MYK_CLASS(MaterialNode, GraphNode);

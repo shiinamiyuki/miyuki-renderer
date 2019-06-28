@@ -42,8 +42,9 @@ Goal: a high performance pbrt-style renderer with low hardware requirements but 
   - [x] Automatic serialization
   - [x] Cyclic references
 - [ ] Editor Support
-  - [ ] Loading scene files.
-  - [ ] Importing Wavefront OBJ
+  - [x] Loading scene files.
+  - [x] Importing Wavefront OBJ
+  - [ ] Placing mesh files/textures in /mesh, /texture respectively when importing OBJ
   - [ ] Cross platform support. Some GUI code calls native Windows API for now.
 - [ ] Custom BVH RT kernel
 - [ ] Basic Reflection Model

@@ -9,7 +9,8 @@ namespace Miyuki {
 		registerClasses();
 	}
 	void RenderEngine::registerClasses() {
-		runtime.registerClass<Graph::DiffuseMaterialNode>()
+		runtime
+			.registerClass<Graph::DiffuseMaterialNode>()
 			.registerClass<Reflection::IntNode>()
 			.registerClass<Reflection::FloatNode>()
 			.registerClass<Reflection::Float3Node>()
@@ -28,8 +29,9 @@ namespace Miyuki {
 			.registerClass<Graph::ShaderNode>()
 			.registerClass<Graph::RGBNode>()
 			.registerClass<Graph::TextureNode>()
-			.registerClass<Graph::TransformNode>();
-			
+			.registerClass<Graph::TransformNode>()
+			.registerClass<Graph::ObjectNode>();
+
 	}
 	void RenderEngine::importObj(const std::string& filename) {
 		IO::ObjLoadInfo info(&runtime);
@@ -38,13 +40,19 @@ namespace Miyuki {
 		for (auto& m : info.materials) {
 			graph->addMaterial(m);
 		}
+		for (auto& s : info.shapeMat) {
+			auto object = runtime.New<Graph::ObjectNode>();
+			object->objectName = runtime.New<Reflection::StringNode>(s.first);
+			object->materialName = runtime.New<Reflection::StringNode>(s.second);
+			graph->objects->push_back(object);
+		}
 		cxx::filesystem::path meshDir = cxx::filesystem::path(_filename).parent_path().append(MeshDirectory);
 		if (!cxx::filesystem::exists(meshDir)) {
 			cxx::filesystem::create_directory(meshDir);
 			Log::log("Created {}\n", meshDir.string());
 		}
 		int meshId = graph->meshes->size();
-		auto meshPath = meshDir.append(fmt::format("mesh{}.obj",meshId));
+		auto meshPath = meshDir.append(fmt::format("mesh{}.obj", meshId));
 		Log::log("Created meshfile {}\n", meshPath.string());
 		std::ofstream out(meshPath);
 		out << info.outputContent << std::endl;
@@ -57,7 +65,8 @@ namespace Miyuki {
 
 	void RenderEngine::newGraph() {
 		graph = runtime.New<Graph::Graph>(runtime.New<Reflection::Array<Graph::MaterialNode>>(),
-			runtime.New<Reflection::Array<Graph::MeshNode>>());
+			runtime.New<Reflection::Array<Graph::MeshNode>>(),
+			runtime.New<Reflection::Array<Graph::ObjectNode>>());
 	}
 
 	void RenderEngine::visit(Reflection::Visitor& visitor) {

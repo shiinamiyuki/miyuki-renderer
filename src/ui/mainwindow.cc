@@ -253,18 +253,37 @@ void main()
 				}
 				if (engine->isFilenameEmpty()) {
 					auto filename = IO::GetSaveFileNameWithDialog("Scene description\0*.json\0Any File\0*.*");
-					engine->firstSave(filename);
+					if (!filename.empty())
+						engine->firstSave(filename);
 				}
 				else {
 					engine->save();
 				}
+			};
+			auto saveAs = [=]() {
+				if (!engine->hasGraph()) {
+					openModal("Error", [=]() {
+						Text().name("Must create a scene graph first").show();
+						Button().name("Close").with(true, [=] {
+							closeModal();
+						}).show();
+					});
+					return;
+				}
+				auto filename = IO::GetSaveFileNameWithDialog("Scene description\0*.json\0Any File\0*.*");
+				if(!filename.empty())
+					engine->firstSave(filename);
+			};
+			auto closeFile = [=]() {
+				engine = std::make_unique<RenderEngine>();
 			};
 			MainMenuBar()
 				.menu(Menu().name("File")
 					.item(MenuItem().name("Open").with(true, openFile))
 					.item(MenuItem().name("New").with(true, newGraph))
 					.item(MenuItem().name("Save").with(true, saveFile))
-					.item(MenuItem().name("Close"))
+					.item(MenuItem().name("Save As").with(true, saveAs))
+					.item(MenuItem().name("Close").with(true, closeFile))
 					.item(MenuItem().name("Import").with(true, importObj))
 					.item(MenuItem().name("Exit")))
 				.menu(Menu().name("Window")

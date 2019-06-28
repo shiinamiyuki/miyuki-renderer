@@ -95,7 +95,7 @@ namespace Miyuki {
 							}
 						}//
 						else if (tokens[0] == "map_Ks") {							
-							auto s = __Internal::ParseFilename(tokens);
+							auto s = cxx::filesystem::absolute(__Internal::ParseFilename(tokens));
 							auto file = info.runtime->New<Reflection::FileNode>(s);
 							auto color = info.runtime->New<Graph::ImageTextureNode>();
 							color->file = file;
@@ -104,7 +104,7 @@ namespace Miyuki {
 
 						}
 						else if (tokens[0] == "map_Kd") {
-							auto s = __Internal::ParseFilename(tokens);
+							auto s = cxx::filesystem::absolute(__Internal::ParseFilename(tokens));
 							auto file = info.runtime->New<Reflection::FileNode>(s);
 							auto color = info.runtime->New<Graph::ImageTextureNode>();
 							color->file = file;
@@ -112,7 +112,7 @@ namespace Miyuki {
 							hasMapKd = true;
 						}
 						else if (tokens[0] == "map_Ke") {
-							auto s = __Internal::ParseFilename(tokens);
+							auto s = cxx::filesystem::absolute(__Internal::ParseFilename(tokens));
 							auto file = info.runtime->New<Reflection::FileNode>(s);
 							auto color = info.runtime->New<Graph::ImageTextureNode>();
 							color->file = file;
