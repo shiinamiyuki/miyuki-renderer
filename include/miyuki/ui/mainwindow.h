@@ -18,6 +18,7 @@
 #include <imgui/imgui_impl_glfw.h>
 
 #include <ui/mykui.h>
+#include <ui/uivisitor.h>
 
 namespace Miyuki {
 	namespace GUI {
@@ -82,6 +83,7 @@ namespace Miyuki {
 			void openModal(std::function<void(void)> f) {
 				modal.open().with(true, f);
 			}
+			UIVisitor visitor;
 		public:
 			MainWindow(int argc, char** argv);
 			void show();

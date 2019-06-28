@@ -182,9 +182,18 @@ namespace Miyuki {
 		};
 
 		class TreeNode : public Base<TreeNode> {
+			int _flags = 0;
 		public:
+			TreeNode& flag(int flag) {
+				_flags |= flag;
+				return *this;
+			}
+			TreeNode& clearFlag() {
+				_flags = 0;
+				return *this;
+			}
 			void showImpl() {
-				if (ImGui::TreeNode(nameCStr())) {
+				if (ImGui::TreeNodeEx(nameCStr(),_flags)) {
 					active();
 					ImGui::TreePop();
 				}

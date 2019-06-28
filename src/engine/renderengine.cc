@@ -24,6 +24,7 @@ namespace Miyuki {
 			.registerClass<Graph::MaterialNode>()
 			.registerClass<Reflection::Array<Graph::MaterialNode>>()
 			.registerClass<Reflection::Array<Graph::MeshNode>>()
+			.registerClass<Reflection::Array<Graph::ObjectNode>>()
 			.registerClass<Graph::MeshNode>()
 			.registerClass<Graph::MixedMaterialNode>()
 			.registerClass<Graph::ShaderNode>()
@@ -40,19 +41,15 @@ namespace Miyuki {
 		for (auto& m : info.materials) {
 			graph->addMaterial(m);
 		}
-		for (auto& s : info.shapeMat) {
-			auto object = runtime.New<Graph::ObjectNode>();
-			object->objectName = runtime.New<Reflection::StringNode>(s.first);
-			object->materialName = runtime.New<Reflection::StringNode>(s.second);
-			graph->objects->push_back(object);
-		}
+		
 		cxx::filesystem::path meshDir = cxx::filesystem::path(_filename).parent_path().append(MeshDirectory);
 		if (!cxx::filesystem::exists(meshDir)) {
 			cxx::filesystem::create_directory(meshDir);
 			Log::log("Created {}\n", meshDir.string());
 		}
 		int meshId = graph->meshes->size();
-		auto meshPath = meshDir.append(fmt::format("mesh{}.obj", meshId));
+		auto meshname = fmt::format("mesh{}.obj", meshId);
+		auto meshPath = meshDir.append(meshname);
 		Log::log("Created meshfile {}\n", meshPath.string());
 		std::ofstream out(meshPath);
 		out << info.outputContent << std::endl;
@@ -60,13 +57,19 @@ namespace Miyuki {
 		mesh->meshFile = runtime.New<Reflection::FileNode>();
 		mesh->meshFile->setValue(File(cxx::filesystem::relative(meshPath, cxx::filesystem::path(_filename).parent_path())));
 		mesh->transform = runtime.New<Graph::TransformNode>();
+		for (auto& s : info.shapeMat) {
+			auto object = runtime.New<Graph::ObjectNode>();
+			object->objectName = runtime.New<Reflection::StringNode>(s.first);
+			object->materialName = runtime.New<Reflection::StringNode>(s.second);
+			mesh->objects->push_back(object);
+		}
+		mesh->name = runtime.New<Reflection::StringNode>(meshname);
 		graph->meshes->push_back(mesh);
 	}
 
 	void RenderEngine::newGraph() {
 		graph = runtime.New<Graph::Graph>(runtime.New<Reflection::Array<Graph::MaterialNode>>(),
-			runtime.New<Reflection::Array<Graph::MeshNode>>(),
-			runtime.New<Reflection::Array<Graph::ObjectNode>>());
+			runtime.New<Reflection::Array<Graph::MeshNode>>());
 	}
 
 	void RenderEngine::visit(Reflection::Visitor& visitor) {

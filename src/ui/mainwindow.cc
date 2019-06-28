@@ -171,7 +171,6 @@ void main()
 				Window().name("Explorer")
 					.open(&windowFlags.showExplorer)
 					.with(true, [=] {
-					UIVisitor visitor;
 					engine->visit(visitor);
 				}).show();
 			}
