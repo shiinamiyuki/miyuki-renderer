@@ -6,7 +6,7 @@
 
 
 namespace Miyuki {
-	namespace Reflection {
+	namespace Reflection { 
 		struct Trait;
 		struct Deleter {
 			std::function<void(Trait*)> deleter;
@@ -70,6 +70,17 @@ namespace Miyuki {
 				stream.data["val"] = visitor.stream.data;
 			}
 		};
+		template<class T>
+		struct Saver<std::vector<T>> {
+			static void save(const std::vector<T>& value, OutStream& stream) {				
+				stream.data = json::array();
+				for (const auto& item : value) {
+					OutStream out(stream);
+					Saver<T>::save(item, out);
+					stream.data.push_back(out.data);
+				}
+			}
+		};
 
 		struct OutStreamVisitor {
 			OutStream stream;
@@ -89,7 +100,7 @@ namespace Miyuki {
 				stream.data = value;\
 			}\
 		};
-
+		
 		template<class T>
 		struct Saver<T*> {
 			static void save(const T* value, OutStream& stream) {
@@ -170,6 +181,18 @@ namespace Miyuki {
 				InStream s(stream.data.at("val"), stream.state);
 				InStreamVisitor visitor(s);
 				visit(value, visitor);
+			}
+		};
+		template<class T>
+		struct Loader<std::vector<T>> {
+			static void load(std::vector<T>& value, InStream& stream) {
+				value.clear();
+				for (const auto& item : stream.data) {
+					T tmp;
+					InStream in(item, stream.state);
+					Loader<T>::load(tmp, in);
+					value.emplace_back(std::move(tmp));
+				}
 			}
 		};
 		template<class T>
@@ -279,13 +302,31 @@ namespace Miyuki {
 			});
 			return info;
 		}
+		struct Visitor;
 		struct Trait {
 			virtual TypeInfo* typeInfo() const = 0;
 			virtual void serialize(OutStream& stream)const {
 				typeInfo()->saver(*this, stream);
 			}
 			virtual ~Trait() = default;
+			inline void accept(Visitor& visitor);
 		};
+		struct Visitor {
+			std::unordered_map<TypeInfo*, std::function<void(Trait*)>>_map;
+		public:
+			void visit(Trait* trait) {
+				_map.at(trait->typeInfo())(trait);
+			}
+			template<class T>
+			void visit(const std::function<void(T*)>& f) {
+				_map[T::type()] = [=](Trait * p) {
+					f(p);
+				};
+			}
+		};
+		inline void Trait::accept(Visitor&  visitor) {
+			visitor.visit(this);
+		}
 		template<int>
 		struct ID {};
 		template<class T>
@@ -312,6 +353,7 @@ namespace Miyuki {
 			if (!trait)return nullptr;
 			return trait->typeInfo();
 		}
+		
 	}
 	using Trait = Reflection::Trait;
 #define MYK_AUTO_REGSITER_TYPE(Type) struct RegisterType##Type{using Self = RegisterType##Type;\
@@ -358,12 +400,14 @@ struct Foo : Miyuki::Trait {
 	int a;
 	int b;
 	Foo(int a, int b) :a(a), b(b) {}
+	std::vector<int> arr;
 	Foo() {}
 };
 
 MYK_BEGIN_REFL(Foo)
 MYK_ATTR(a)
 MYK_ATTR(b)
+MYK_ATTR(arr)
 MYK_END_REFL
 
 struct Bar : Miyuki::Trait {
@@ -391,7 +435,10 @@ int main(int argc, char** argv) {
 		Bar bar;
 		bar.a = 0;
 		bar.b = 2;
-		bar.foo = nullptr;// make_box<Foo>(1, 2);
+		bar.foo = make_box<Foo>(1, 2);
+		for (auto i : { 1,2,3 }) {
+			bar.foo->arr.push_back(i);
+		}
 		bar.p = bar.foo.get();
 		OutStream stream;
 		bar.serialize(stream);
