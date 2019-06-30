@@ -64,6 +64,7 @@ namespace Miyuki {
 			operator bool()const {
 				return !isNull();
 			}
+			bool operator == (const Object* o)const { return o == object; }
 		};
 		class Null {
 		public:
@@ -335,6 +336,7 @@ namespace Miyuki {
 		// if not check its parent 
 		// until we have reached the top level.
 		inline void Visitor::visit(Object* object) {
+			if (!object)return;
 			const Class* _class = &object->getClass();
 			auto classname = _class->name();
 			while (true) {

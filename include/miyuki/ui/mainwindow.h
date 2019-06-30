@@ -83,7 +83,8 @@ namespace Miyuki {
 			void openModal(std::function<void(void)> f) {
 				modal.open().with(true, f);
 			}
-			UIVisitor visitor;
+			void showErrorModal(const std::string& title, const std::string& error);
+			std::unique_ptr<UIVisitor> visitor;
 		public:
 			MainWindow(int argc, char** argv);
 			void show();

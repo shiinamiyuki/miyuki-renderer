@@ -130,7 +130,7 @@ namespace Miyuki {
 				return *this;
 			}
 
-			Result<Object*> create(Class* info, const UUID& id) {
+			Result<Object*> create(const Class* info, const UUID& id) {
 				if (U.objects.find(id) != U.objects.end()) {
 					return Error(fmt::format("object with uuid `{}` already exists", id));
 				}
@@ -162,7 +162,29 @@ namespace Miyuki {
 				object->init(args...);
 				return object;
 			}
-
+			LocalObject<Object> New(const Class* info) {
+				auto object = create(info, generateUUID());
+				if (!object) {
+					throw std::runtime_error(object.error().what());
+				}
+				return LocalObject<Object>(*this, object.value());
+			}
+			template<typename T>
+			LocalObject<T> New() {
+				auto object = create<T>(generateUUID());
+				if (!object) {
+					throw std::runtime_error(object.error().what());
+				}
+				return LocalObject<T>(*this, object.value());
+			}
+			template<typename T, typename... Args>
+			LocalObject<T> New(Args... args) {
+				auto object = create<T>(generateUUID(), args...);
+				if (!object) {
+					throw std::runtime_error(object.error().what());
+				}
+				return LocalObject<T>(*this, object.value());
+			}
 			/*
 			WARNING: Not thread safe, must be manually called
 			This GC performs mark&sweep
@@ -195,22 +217,7 @@ namespace Miyuki {
 			UUID UUIDFromString(const std::string&s) {
 				return UUIDStringGenerator(s);
 			}
-			template<typename T>
-			LocalObject<T> New() {
-				auto object = create<T>(generateUUID());
-				if (!object) {
-					throw std::runtime_error(object.error().what());
-				}
-				return LocalObject<T>(*this, object.value());
-			}
-			template<typename T, typename... Args>
-			LocalObject<T> New(Args... args) {
-				auto object = create<T>(generateUUID(), args...);
-				if (!object) {
-					throw std::runtime_error(object.error().what());
-				}
-				return LocalObject<T>(*this, object.value());
-			}
+			
 		};
 
 	}

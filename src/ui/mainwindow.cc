@@ -171,30 +171,28 @@ void main()
 				Window().name("Explorer")
 					.open(&windowFlags.showExplorer)
 					.with(true, [=] {
-					engine->visit(visitor);
+					engine->visit(*visitor);
 				}).show();
 			}
 		}
 
-		/*void MainWindow::attriubuteEditorWindow() {
-			if (windowFlags.showAttributeEditor
-				&& ImGui::Begin("Attribute Editor", &windowFlags.showAttributeEditor)) {
-				if (!engine) {
-					ImGui::End();
-					return;
-				}
-				if (ImGui::TreeNode("Integrator") && engine->integrator.available()) {
-					auto& attr = engine->description["integrator"];
-					auto& integrator = engine->integrator;
-					auto vec = integrator.getEditEntries();
-					for (auto i : vec) {
-						i->uiHandler();
-					}
-					ImGui::TreePop();
-				}
-				ImGui::End();
+		void MainWindow::attriubuteEditorWindow() {
+			if (windowFlags.showAttributeEditor) {
+				Window().name("Attribute")
+					.open(&windowFlags.showAttributeEditor)
+					.with(true, [=]() {
+					visitor->visitSelected();
+				}).show();
 			}
-		}*/
+		}
+		void MainWindow::showErrorModal(const std::string& title, const std::string& error) {
+			openModal(title, [=]() {
+				Text().name(error).show();
+				Button().name("Close").with(true, [=] {
+					closeModal();
+				}).show();
+			});
+		}
 		void MainWindow::menuBar() {
 			auto newGraph = [=]() {
 				Log::log("Creating new scene graph\n");
@@ -202,21 +200,11 @@ void main()
 			};
 			auto importObj = [=]() {
 				if (!engine->hasGraph()) {
-					openModal("Error", [=]() {
-						Text().name("Must create a scene graph first").show();
-						Button().name("Close").with(true, [=] {
-							closeModal();
-						}).show();
-					});
+					showErrorModal("Error", "Must create a scene graph first");
 					return;
 				}
 				if (engine->isFilenameEmpty()) {
-					openModal("Error", [=]() {
-						Text().name("Save the scene graph first").show();
-						Button().name("Close").with(true, [=] {
-							closeModal();
-						}).show();
-					});
+					showErrorModal("Error", "Save the scene graph first");
 					return;
 				}
 				auto filename = IO::GetOpenFileNameWithDialog("Wavefront OBJ\0*.obj");
@@ -233,7 +221,7 @@ void main()
 			auto openFile = [=]() {
 				auto filename = IO::GetOpenFileNameWithDialog("Scene description\0*.json\0Any File\0*.*");
 				if (filename.empty())return;
-				std::thread th([=] (){
+				std::thread th([=]() {
 					openModal("Opening scene description", []() {});
 					engine->open(filename);
 					closeModal();
@@ -242,12 +230,7 @@ void main()
 			};
 			auto saveFile = [=]() {
 				if (!engine->hasGraph()) {
-					openModal("Error", [=]() {
-						Text().name("Must create a scene graph first").show();
-						Button().name("Close").with(true, [=] {
-							closeModal();
-						}).show();
-					});
+					showErrorModal("Error", "Must create a scene graph first");
 					return;
 				}
 				if (engine->isFilenameEmpty()) {
@@ -261,16 +244,11 @@ void main()
 			};
 			auto saveAs = [=]() {
 				if (!engine->hasGraph()) {
-					openModal("Error", [=]() {
-						Text().name("Must create a scene graph first").show();
-						Button().name("Close").with(true, [=] {
-							closeModal();
-						}).show();
-					});
+					showErrorModal("Error", "Must create a scene graph first");
 					return;
 				}
 				auto filename = IO::GetSaveFileNameWithDialog("Scene description\0*.json\0Any File\0*.*");
-				if(!filename.empty())
+				if (!filename.empty())
 					engine->firstSave(filename);
 			};
 			auto closeFile = [=]() {
@@ -335,13 +313,18 @@ void main()
 		}
 
 		void MainWindow::update() {
-			showModal();
-			menuBar();
-			ImGui::ShowDemoWindow();
-			//	viewportWindow();
 			logWindow();
-			explorerWindow();
-			//	attriubuteEditorWindow();
+			try {
+				showModal();
+				menuBar();
+				ImGui::ShowDemoWindow();
+				//	viewportWindow();
+				explorerWindow();
+				attriubuteEditorWindow();
+			}
+			catch (std::runtime_error& e) {
+				Log::log("Unable to update ui dure to {}\n", e.what());
+			}
 		}
 
 		void MainWindow::loadConfig() {
@@ -460,6 +443,7 @@ void main()
 			//	loadBackGroundShader();
 
 			engine = std::make_unique<RenderEngine>();
+			visitor = std::make_unique<UIVisitor>(engine->getRuntime());
 			Log::log("Application started\n");
 
 		}
@@ -491,7 +475,7 @@ void main()
 				glfwSwapBuffers(window);
 
 				//std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
-				
+
 			}
 
 		}

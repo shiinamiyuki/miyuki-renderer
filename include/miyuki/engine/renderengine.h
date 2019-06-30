@@ -13,7 +13,7 @@ namespace Miyuki {
 	public:
 		RenderEngine();
 		const std::string filename()const { return _filename; }
-
+		Reflection::Runtime* getRuntime() { return &runtime; }
 		// Precondition: graph is not null
 		void importObj(const std::string& filename);
 		void newGraph();

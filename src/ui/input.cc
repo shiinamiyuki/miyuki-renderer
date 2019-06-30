@@ -62,10 +62,10 @@ namespace Miyuki {
 
 		std::optional<std::string> GetInput(const std::string& prompt, const std::string& initial) {
 			std::vector<char> buffer(4096);
-			for (auto c : initial) {
-				buffer.emplace_back(c);
+			for (int i = 0; i < initial.size(); i++) {
+				buffer[i] = initial[i];
 			}
-			if (ImGui::InputText(prompt.c_str(), &buffer[0], buffer.capacity(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+			if (ImGui::InputText(prompt.c_str(), &buffer[0], buffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
 				if (buffer.back() != 0) {
 					Log::log("buffer.back() != 0\n");
 				}

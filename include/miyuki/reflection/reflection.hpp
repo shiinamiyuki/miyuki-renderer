@@ -11,7 +11,7 @@
 	Name##_Type Name = decltype(Name)(#Name); \
 	auto& getProperty(Miyuki::Reflection::UID<_propertyIdx  ## Name>){return Name;}\
 	const auto& getProperty(Miyuki::Reflection::UID<_propertyIdx ## Name>)const{return Name;}\
-	auto& getName(Miyuki::Reflection::UID<_propertyIdx ## Name>){return #Name;}
+	auto& getPropertyName(Miyuki::Reflection::UID<_propertyIdx ## Name>){return #Name;}
 
 #define MYK_BEGIN_PROPERTY 
 		

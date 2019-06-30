@@ -2,6 +2,7 @@
 
 #include <graph/graphcompiler.h>
 #include <graph/graphnode.h>
+#include <graph/materialnode.h>
 namespace Miyuki {
 	namespace Graph {
 		class ObjectNode : public GraphNode {
@@ -9,8 +10,14 @@ namespace Miyuki {
 			MYK_CLASS(ObjectNode, GraphNode);
 			MYK_BEGIN_PROPERTY;
 			MYK_PROPERTY(Reflection::StringNode, objectName);
-			MYK_PROPERTY(Reflection::StringNode, materialName);
+			MYK_PROPERTY(MaterialNode, material);
 			MYK_END_PROPERTY;
+			std::string getName() {
+				return objectName->getValue();
+			}
+			void setName(const std::string& s) {
+				objectName->setValue(s);
+			}
 		};
 
 		class MeshNode: public GraphNode {

@@ -57,10 +57,14 @@ namespace Miyuki {
 		mesh->meshFile = runtime.New<Reflection::FileNode>();
 		mesh->meshFile->setValue(File(cxx::filesystem::relative(meshPath, cxx::filesystem::path(_filename).parent_path())));
 		mesh->transform = runtime.New<Graph::TransformNode>();
+		std::unordered_map<std::string, Graph::MaterialNode*> map;
+		for (auto& m : info.materials) {
+			map[m->getName()] = m;
+		}
 		for (auto& s : info.shapeMat) {
 			auto object = runtime.New<Graph::ObjectNode>();
 			object->objectName = runtime.New<Reflection::StringNode>(s.first);
-			object->materialName = runtime.New<Reflection::StringNode>(s.second);
+			object->material = map.at(s.second);
 			mesh->objects->push_back(object);
 		}
 		mesh->name = runtime.New<Reflection::StringNode>(meshname);

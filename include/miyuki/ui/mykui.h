@@ -293,7 +293,23 @@ namespace Miyuki {
 				return *static_cast<Derived*>(this);
 			}
 		};
-
+		class Combo : public Base<Combo> {
+			std::string _item;
+		public:
+			Combo& item(const std::string& item) {
+				_item = item;
+				return *this;
+			}
+			void showImpl() {
+				if (ImGui::BeginCombo(nameCStr(), _item.c_str())) {
+					active();
+					ImGui::EndCombo();
+				}
+				else {
+					inactive();
+				}
+			}
+		};
 		class Window : public Base<Window>, public BaseWindow<Window> {
 		public:
 			void showImpl() {
