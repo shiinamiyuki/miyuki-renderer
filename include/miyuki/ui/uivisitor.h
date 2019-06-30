@@ -12,7 +12,6 @@ namespace Miyuki {
 			int selectedMaterialIndex = -1;
 			MainWindow * mainWindow = nullptr;
 			Graph::Graph* graph = nullptr;
-
 		public:
 			void visitSelected();
 			UIVisitor(Reflection::Runtime* rt) :runtime(rt) { init(); }

@@ -130,7 +130,7 @@ namespace Miyuki {
 				}).show();
 			});
 			visit<Graph::GlossyMaterialNode>([=](Graph::GlossyMaterialNode* node) {
-
+				
 			});
 			visit<Graph::DiffuseMaterialNode>([=](Graph::DiffuseMaterialNode* node) {
 			
