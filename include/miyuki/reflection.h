@@ -60,6 +60,9 @@ namespace Miyuki {
 			void addVisited(const void* ptr) {
 				state->_visitedPtr.insert(ptr);
 			}
+			std::string dump(int indent = -1)const{
+				return data.dump(indent);
+			}
 		private:
 			std::unique_ptr<State> _stateOwner;
 		};

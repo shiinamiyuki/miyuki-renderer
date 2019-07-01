@@ -199,7 +199,7 @@ namespace Miyuki {
 			float t = f * Vec3f::dot(edge2, q);
 			if (t > eps) // ray intersection
 			{
-				isct->far = t;
+				isct->distance = t;
 				isct->p = ray.o + t * ray.d;
 				isct->Ng = Ng();
 				return true;

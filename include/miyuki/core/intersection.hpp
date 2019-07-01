@@ -14,7 +14,7 @@ namespace Miyuki {
 		// struct handling intersection info
 		struct Intersection {
 			// Initialized through EmbreeScene::intersection
-			Float far;
+			Float distance;
 			Point2f uv, textureUV;
 			Vec3f p;
 			Vec3f wo;
@@ -32,7 +32,7 @@ namespace Miyuki {
 				return primId != RTC_INVALID_GEOMETRY_ID && geomId != RTC_INVALID_GEOMETRY_ID;
 			}
 			Float hitDistance() const {
-				return far;
+				return distance;
 			}
 
 			bool isSurfaceScatteringEvent()const {

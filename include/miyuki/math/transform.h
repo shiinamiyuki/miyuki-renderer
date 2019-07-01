@@ -8,7 +8,7 @@
 #include "miyuki.h"
 #include "vec.hpp"
 #include "func.h"
-
+#include <reflection.h>
 namespace Miyuki {
     struct Matrix4x4 {
         Vec3f m[4];
@@ -113,5 +113,8 @@ namespace Miyuki {
 			return normal;
 		}
     };
+	namespace Reflection {
+		MYK_SAVE_LOAD_TRVIAL(Transform)
+	}
 }
 #endif //MIYUKI_TRANSFORM_H

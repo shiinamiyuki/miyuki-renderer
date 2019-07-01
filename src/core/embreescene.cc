@@ -76,8 +76,8 @@ namespace Miyuki {
 			ray.org_x = _o.x();
 			ray.org_y = _o.y();
 			ray.org_z = _o.z();
-			ray.tnear = _ray.near;
-			ray.tfar = _ray.far;
+			ray.tnear = _ray.tMin;
+			ray.tfar = _ray.tMax;
 			ray.flags = 0;
 			return ray;
 		}
@@ -96,7 +96,7 @@ namespace Miyuki {
 			isct->wo = -ray.d;
 			isct->primId = rayHit.hit.primID;
 			isct->geomId = rayHit.hit.geomID;
-			isct->far = rayHit.ray.tfar;
+			isct->distance = rayHit.ray.tfar;
 			if (!isct->hit()) {
 				return false;
 			}
