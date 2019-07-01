@@ -2,6 +2,7 @@
 #define MIYUKI_FILE_HPP
 
 #include <miyuki.h>
+#include <reflection.h>
 
 namespace Miyuki {
 	struct File {
@@ -19,6 +20,9 @@ namespace Miyuki {
 	}
 	inline void to_json(json& j, const File& file) {
 		j = file.path.string();
+	}
+	namespace Reflection {
+		MYK_SAVE_LOAD_TRVIAL(File)
 	}
 }
 

@@ -1,6 +1,5 @@
 #include <ui/mainwindow.h>
 #include <ui/logwindow.h>
-#include <ui/uivisitor.h>
 #include <utils/future.hpp>
 
 static void glfw_error_callback(int error, const char* description) {
@@ -171,7 +170,7 @@ void main()
 				Window().name("Explorer")
 					.open(&windowFlags.showExplorer)
 					.with(true, [=] {
-					engine->visit(*visitor);
+					//engine->visit(*visitor);
 				}).show();
 			}
 		}
@@ -181,7 +180,7 @@ void main()
 				Window().name("Attribute")
 					.open(&windowFlags.showAttributeEditor)
 					.with(true, [=]() {
-					visitor->visitSelected();
+					//visitor->visitSelected();
 				}).show();
 			}
 		}
@@ -443,7 +442,7 @@ void main()
 			//	loadBackGroundShader();
 
 			engine = std::make_unique<RenderEngine>();
-			visitor = std::make_unique<UIVisitor>(engine->getRuntime());
+
 			Log::log("Application started\n");
 
 		}

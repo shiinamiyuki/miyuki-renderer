@@ -13,7 +13,7 @@ namespace Miyuki {
 
 		struct Mesh;
 
-		class Material;
+		struct Material;
 
 		class Accelerator;
 

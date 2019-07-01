@@ -2,7 +2,8 @@
 
 
 #include <miyuki.h>
-
+#include <reflection.h>
+#include <utils/file.hpp>
 namespace Miyuki {
 	namespace Core {
 		struct ShadingPoint {
@@ -10,21 +11,41 @@ namespace Miyuki {
 			Vec3f output;
 		};
 
-		class Shader {
+		struct Shader : Trait{
 		public:
 			virtual void eval(ShadingPoint&) = 0;
+			virtual void preprocess() {}
 		};
 
-		class RGBShader : public Shader{
-
+		struct FloatShader final : public Shader {
+		//	MYK_IMPL(FloatShader);
+			
+			FloatShader(Float v) :value(v) {}
+			virtual void eval(ShadingPoint& p) override {
+				p.output = Vec3f(value);
+			}
+		private:
+			Float value = 0;
 		};
 
-		class TextureShader : public Shader {
 
+
+		struct RGBShader final: public Shader{
+		//	MYK_IMPL(RGBShader);
+			RGBShader(Spectrum v) :value(v) {}
+			virtual void eval(ShadingPoint& p) override{
+				p.output = value;
+			}
+		private:
+			Spectrum value;
 		};
 
-		class ImageTextureShader : public Shader {
+		struct ImageTextureShader final : public Shader {
+			Box<File> imageFile;
+		//	MYK_IMPL(ImageTextureShader);
+			virtual void eval(ShadingPoint&) override {
 
+			}
 		};
 	}
 }

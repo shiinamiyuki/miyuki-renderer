@@ -1,8 +1,7 @@
 #include <io/importobj.h>
-#include <graph/materialnode.h>
 #include <boost/algorithm/string.hpp>
 #include <utils/log.h>
-
+#if 0
 namespace Miyuki {
 	namespace IO {
 		namespace __Internal {
@@ -46,11 +45,11 @@ namespace Miyuki {
 					bool hasMapKs = false;
 					bool hasMapKa = false;
 					auto matName = tokens[1];
-					auto material = info.runtime->New<Graph::MixedMaterialNode>();
-					material->name = info.runtime->New<Reflection::StringNode>(matName);
-					auto kd = info.runtime->New<Graph::DiffuseMaterialNode>();
-					auto ks = info.runtime->New<Graph::GlossyMaterialNode>();
-					auto ka = info.runtime->New<Graph::ShaderNode>();					
+					auto material = Reflection::make_box<Core::MixedMaterial>();
+					material->name = matName;
+					auto kd = Reflection::make_box<Core::DiffuseMaterial>();
+					auto ks = Reflection::make_box<Core::GlossyMaterial>();
+					auto ka = Reflection::make_box<Core::Shader>();
 					i++;
 					while (i < lines.size()) {
 						if (lines[i].empty()) { i++; continue; }
@@ -64,71 +63,52 @@ namespace Miyuki {
 						}
 						else if (tokens[0] == "Ns") {
 							auto Ns = std::stof(tokens[1]);
-							Float alpha = std::sqrt(2 / (2 + Ns));
-							auto roughness = info.runtime->New<Reflection::FloatNode>(alpha);
-							auto value = info.runtime->New<Graph::FloatNode>();
-							value->value = roughness;
-							ks->roughness = value;
+							Float alpha = std::sqrt(2 / (2 + Ns));							
+							ks->roughness = Reflection::make_box<Core::FloatShader>(alpha);
 						}
 						else if (tokens[0] == "Ks") {
 							if (!hasMapKs) {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								auto color = info.runtime->New<Graph::RGBNode>();
-								color->value = info.runtime->New<Reflection::Float3Node>(v);
-								ks->color = color;							
+								ks->color = Reflection::make_box<Core::RGBShader>(v);
 							}
 						}
 						else if (tokens[0] == "Kd") {
 							if (!hasMapKd) {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								auto color = info.runtime->New<Graph::RGBNode>();
-								color->value = info.runtime->New<Reflection::Float3Node>(v);
-								kd->color = color;
+								kd->color = Reflection::make_box<Core::RGBShader>(v);
 							}
 						}
 						else if (tokens[0] == "Ke") {
 							if (!hasMapKa) {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								auto color = info.runtime->New<Graph::RGBNode>();
-								color->value = info.runtime->New<Reflection::Float3Node>(v);
-								ka = color;
+								ka = Reflection::make_box<Core::RGBShader>(v);
 							}
 						}//
 						else if (tokens[0] == "map_Ks") {							
 							auto s = cxx::filesystem::absolute(__Internal::ParseFilename(tokens));
-							auto file = info.runtime->New<Reflection::FileNode>(s);
-							auto color = info.runtime->New<Graph::ImageTextureNode>();
-							color->file = file;
-							ks->color = color;
+							ks->color = Reflection::make_box<Core::ImageTextureShader>(s);
 							hasMapKs = true;
 
 						}
 						else if (tokens[0] == "map_Kd") {
 							auto s = cxx::filesystem::absolute(__Internal::ParseFilename(tokens));
-							auto file = info.runtime->New<Reflection::FileNode>(s);
-							auto color = info.runtime->New<Graph::ImageTextureNode>();
-							color->file = file;
-							kd->color = color;
+							kd->color = Reflection::make_box<Core::ImageTextureShader>(s);
 							hasMapKd = true;
 						}
 						else if (tokens[0] == "map_Ke") {
 							auto s = cxx::filesystem::absolute(__Internal::ParseFilename(tokens));
-							auto file = info.runtime->New<Reflection::FileNode>(s);
-							auto color = info.runtime->New<Graph::ImageTextureNode>();
-							color->file = file;
-							ka = color;
+							ka = Reflection::make_box<Core::ImageTextureShader>(s);
 							hasMapKa = true;
 						}
 						else if (tokens[0] == "newmtl")
 							break;
 						i++;
 					}
-					material->matA = kd;
-					material->matB = ks;
-					material->fraction = info.runtime->New<Reflection::FloatNode>(0.5f);
-					material->emission = ka;
-					
-					materials.emplace_back(*info.runtime, material);
+					material->matA = std::move(kd);
+					material->matB = std::move(ks);
+					material->fraction = Reflection::make_box<Core::FloatShader>(0.5f);
+					material->emissionShader = std::move(ka);
+					materials.emplace_back(material);
 				}
 				else {
 					i++;
@@ -194,3 +174,4 @@ namespace Miyuki {
 		}
 	}
 }
+#endif

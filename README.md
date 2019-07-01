@@ -35,12 +35,10 @@ Goal: a high performance pbrt-style renderer with low hardware requirements but 
 `miyuki/ui`: GUI support.
 
 ## Features :
-- [x] Custom RTTI/Reflection/GC/Serialization library
-  - [x] Intrusive reflection
+- [x] Custom RTTI/Reflection/Serialization library
+  - [x] Non-intrusive reflection
   - [x] RTTI
-  - [x] Basic GC. 
   - [x] Automatic serialization
-  - [x] Cyclic references
 - [ ] Editor Support
   - [x] Loading scene files.
   - [x] Importing Wavefront OBJ
