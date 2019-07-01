@@ -1,7 +1,7 @@
 #include <io/importobj.h>
 #include <boost/algorithm/string.hpp>
 #include <utils/log.h>
-#if 0
+#if 1
 namespace Miyuki {
 	namespace IO {
 		namespace __Internal {
@@ -49,7 +49,7 @@ namespace Miyuki {
 					material->name = matName;
 					auto kd = Reflection::make_box<Core::DiffuseMaterial>();
 					auto ks = Reflection::make_box<Core::GlossyMaterial>();
-					auto ka = Reflection::make_box<Core::Shader>();
+					Box<Core::Shader> ka = Reflection::make_box<Core::FloatShader>(0);
 					i++;
 					while (i < lines.size()) {
 						if (lines[i].empty()) { i++; continue; }
@@ -108,7 +108,7 @@ namespace Miyuki {
 					material->matB = std::move(ks);
 					material->fraction = Reflection::make_box<Core::FloatShader>(0.5f);
 					material->emissionShader = std::move(ka);
-					materials.emplace_back(material);
+					materials.emplace_back(std::move(material));
 				}
 				else {
 					i++;

@@ -23,11 +23,7 @@ namespace Miyuki {
 			}
 		};
 		template<class T = Trait>
-		struct Box : std::unique_ptr<T, Deleter> {
-			using Base = std::unique_ptr<T, Deleter>;
-			using Base::Base;
-	
-		};
+		using Box = std::unique_ptr<T, Deleter>;
 
 		template<class T, class... Args>
 		Box<T> make_box(Args... args) {
@@ -267,6 +263,7 @@ namespace Miyuki {
 		MYK_SAVE_LOAD_TRVIAL(int);
 		MYK_SAVE_LOAD_TRVIAL(Float);
 		MYK_SAVE_LOAD_TRVIAL(Vec3f);
+		MYK_SAVE_LOAD_TRVIAL(Spectrum);
 		MYK_SAVE_LOAD_TRVIAL(std::string);
 
 		struct InStreamVisitor {

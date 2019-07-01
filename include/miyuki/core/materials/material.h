@@ -24,6 +24,7 @@ namespace Miyuki {
 		};
 
 		struct MixedMaterial final : public Material {
+			MYK_IMPL(MixedMaterial)
 			Box<Material> matA = nullptr, matB = nullptr;
 			Box<Shader> emissionShader = nullptr;
 			Box<Shader> fraction = nullptr;
@@ -38,6 +39,7 @@ namespace Miyuki {
 		};
 
 		struct DiffuseMaterial final  : public Material {
+			MYK_IMPL(DiffuseMaterial)
 			Box<Shader> emissionShader;
 			Box<Shader> color;
 			Box<Shader> roughness;
@@ -51,6 +53,7 @@ namespace Miyuki {
 		};
 
 		struct GlossyMaterial final : public Material {
+			MYK_IMPL(GlossyMaterial)
 			Box<Shader> emissionShader = nullptr;
 			Box<Shader> color = nullptr;
 			Box<Shader> roughness = nullptr;
@@ -64,4 +67,7 @@ namespace Miyuki {
 		};
 	}
 }
+MYK_REFL(Miyuki::Core::MixedMaterial, (emissionShader)(fraction)(matA)(matB)(name))
+MYK_REFL(Miyuki::Core::DiffuseMaterial, (emissionShader)(color)(roughness)(name))
+MYK_REFL(Miyuki::Core::GlossyMaterial,(emissionShader)(color)(roughness)(name))
 #endif

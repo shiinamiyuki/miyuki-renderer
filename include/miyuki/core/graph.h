@@ -7,7 +7,7 @@ namespace Miyuki {
 	
 	namespace Core {
 		struct Object final : Trait {
-		//	MYK_IMPL(Object);
+			MYK_IMPL(Object);
 			std::string name;
 			Material* material;
 		};
@@ -15,17 +15,19 @@ namespace Miyuki {
 	
 
 		struct MeshFile final : Trait {
-		//	MYK_IMPL(MeshFile);
+			MYK_IMPL(MeshFile);
 			std::string name;
-			std::string relativePath;
+			File file;
 		};
 		
 	
 		struct Graph final  :  Trait {
-		//	MYK_IMPL(Graph);
+			MYK_IMPL(Graph);
 			std::vector<Box<Material>> materials;
 		};
 		
 	}
 }
-//MYK_REFL(Miyuki::Core::MeshFile, (relativePath)(name))
+MYK_REFL(Miyuki::Core::Object, (name)(material))
+MYK_REFL(Miyuki::Core::Graph, (materials))
+MYK_REFL(Miyuki::Core::MeshFile, (file)(name))
