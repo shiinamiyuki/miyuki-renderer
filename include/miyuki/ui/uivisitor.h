@@ -15,6 +15,11 @@ namespace Miyuki {
 			UIVisitor() {
 				init();
 			}
+			void visitSelected() {
+				if (selected) {
+					visit(selected);
+				}
+			}
 		};
 	}
 }

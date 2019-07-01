@@ -180,7 +180,12 @@ void main()
 				Window().name("Attribute")
 					.open(&windowFlags.showAttributeEditor)
 					.with(true, [=]() {
-					//visitor->visitSelected();
+					try {
+						visitor.visitSelected();
+					}
+					catch (std::exception& e) {
+						Log::log("Error when visiting selected: {}\n", e.what());
+					}
 				}).show();
 			}
 		}

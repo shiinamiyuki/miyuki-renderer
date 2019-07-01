@@ -3,9 +3,6 @@
 
 namespace Miyuki {
 	namespace GUI {
-		void UIVisitor::init() {
-
-		}
 		std::string getMaterialName(Core::Material* material) {
 			std::string name = "unknown";
 			Reflection::match(material)
@@ -18,6 +15,45 @@ namespace Miyuki {
 			});
 			return name;
 		}
+
+		void UIVisitor::init() {
+			visit<Core::GlossyMaterial>([=](Core::GlossyMaterial* node) {
+
+			});
+			visit<Core::DiffuseMaterial>([=](Core::DiffuseMaterial* node) {
+
+			});
+			visit<Core::MixedMaterial>([=](Core::MixedMaterial* node) {
+				visit(static_cast<Trait*>(node->matA.get()));
+				visit(static_cast<Trait*>(node->matB.get()));
+			});
+			visit<Core::MeshFile>([=](Core::MeshFile* node) {
+				auto name = node->name;
+				if (auto r = GetInput("name", name)) {
+					node->name = r.value();
+				}
+			});
+			visit<Core::Object>([=](Core::Object* node) {
+				auto graph = engine->getGraph();
+				auto objectName = node->name;
+				auto matName = getMaterialName(node->material);
+				if (auto r = GetInput("name", objectName)) {
+					node->name = r.value();
+				}
+				Combo().name("material").item(matName).with(true, [=]()
+				{
+					for (auto& m : graph->materials) {
+						bool is_selected = (m.get() == node->material);
+						SingleSelectableText().name(getMaterialName(m.get())).selected(is_selected).with(true, [=,&m]() {
+							node->material = m.get();
+							if (is_selected)
+								ImGui::SetItemDefaultFocus();
+						}).show();
+					}
+				}).show();
+			});
+		}
+		
 
 		void UIVisitor::visitGraph() {
 			auto graph = engine->getGraph();
