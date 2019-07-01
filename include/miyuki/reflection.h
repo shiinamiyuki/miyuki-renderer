@@ -3,6 +3,7 @@
 
 #include <miyuki.h>
 #include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/cat.hpp>
 
 template<class T>
 struct Miyuki_Reflection_MetaInfo {
@@ -348,16 +349,27 @@ namespace Miyuki {
 			using _T = std::decay_t<T>;
 			MetaInfo<_T>::accept(x, v);
 		}
-		static std::set<TypeInfo*> _registerdTypes;
-		static std::unordered_map<std::string, TypeInfo*> _registerdTypeMap;
+		namespace detail {
+			struct Types {
+				std::set<TypeInfo*> _registerdTypes;
+				std::unordered_map<std::string, TypeInfo*> _registerdTypeMap;
+				static Types* all;
+				static Types& get() {
+					static std::once_flag flag;
+					std::call_once(flag, [&]() {all = new Types(); });
+					return *all;
+				}
+			};
+			
+		}
 		template<class T>
 		inline void registerType() {
 			auto t = T::type();
-			_registerdTypes.insert(t);
-			_registerdTypeMap[t->name()] = t;
+			detail::Types::get()._registerdTypes.insert(t);
+			detail::Types::get()._registerdTypeMap[t->name()] = t;
 		}
 		inline TypeInfo* getTypeByName(const std::string& name) {
-			return _registerdTypeMap.at(name);
+			return detail::Types::get()._registerdTypeMap.at(name);
 		}
 		inline TypeInfo* typeof(Trait* trait) {
 			if (!trait)return nullptr;
@@ -365,15 +377,23 @@ namespace Miyuki {
 		}
 
 	}
+
+	struct __Injector {
+		__Injector(std::function<void(void)> f) { f(); }
+	};
 	using Trait = Reflection::Trait;
 	using Reflection::Box; 
 
-#define MYK_AUTO_REGSITER_TYPE(Namespace,Type) namespace Namespace {struct RegisterType##Type{using Self = RegisterType##Type;\
-		Self(){Miyuki::Reflection::registerType<Namespace::Type>();}\
-	}; static RegisterType##Type regTypeInstance##Type;}
-#define MYK_BEGIN_REFL(Namespace,Type) MYK_AUTO_REGSITER_TYPE(Namespace,Type)template<>struct Miyuki_Reflection_MetaInfo<Namespace::Type> {\
-						 enum {__idx = __COUNTER__}; using __Self = Namespace::Type;\
-						template<int i>using UID = Miyuki::Reflection::ID<i>;static constexpr char * TypeName = #Namespace" ::" #Type;
+//#define MYK_AUTO_REGSITER_TYPE(Type)struct Type##Register{using Self = Type##Register;\
+//		Self(){Miyuki::Reflection::registerType<Namespace::Type>();}\
+//	}; static Type##Register Type##RegisterInstance;
+	// ???
+	// This hack works.
+#define MYK_AUTO_REGSITER_TYPE(Type) static Miyuki::__Injector BOOST_PP_CAT(BOOST_PP_CAT(BOOST_PP_CAT(injector,__COUNTER__),_),__LINE__ )\
+											([](){Miyuki::Reflection::registerType<Type>();});
+#define MYK_BEGIN_REFL(Type) MYK_AUTO_REGSITER_TYPE(Type)template<>struct Miyuki_Reflection_MetaInfo<Type> {\
+						 enum {__idx = __COUNTER__}; using __Self = Type;\
+						template<int i>using UID = Miyuki::Reflection::ID<i>;static constexpr char * TypeName = #Type;
 
 #define MYK_ATTR(name)  enum {__attr_index_##name = __COUNTER__ - __idx - 1 };\
 						static auto& getAttribute(__Self& self, UID<__attr_index_##name>){return self.name;} \
@@ -405,7 +425,7 @@ namespace Miyuki {
 			return __Self::type();\
 		}
 #define MYK_SEQ_MACRO(r, data, elem) MYK_ATTR(elem)
-#define MYK_REFL(Namespace, Type, Attributes) MYK_BEGIN_REFL(Namespace, Type) BOOST_PP_SEQ_FOR_EACH(MYK_SEQ_MACRO, _, Attributes) MYK_END_REFL
+#define MYK_REFL(Type, Attributes) MYK_BEGIN_REFL(Type) BOOST_PP_SEQ_FOR_EACH(MYK_SEQ_MACRO, _, Attributes) MYK_END_REFL
 
 }
 #endif

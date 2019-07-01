@@ -6,7 +6,7 @@
 //#include <utils/future.hpp>
 
 
-namespace Miyuki{
+namespace Miyuki {
 
 	struct Foo : Miyuki::Trait {
 		MYK_IMPL(Foo);
@@ -30,16 +30,14 @@ namespace Miyuki{
 	};
 }
 
-MYK_REFL(Miyuki, Bar, (a)(b)(foo)(p))
-MYK_REFL(Miyuki, Foo, (a)(b))
+MYK_REFL(Miyuki::Bar, (a)(b)(foo)(p))
+MYK_REFL(Miyuki::Foo, (a)(b))
 
 
 
 
 
-
-
-
+#define FOO(...)int A## __VA_ARGS__
 int main(int argc, char** argv) {
 	using namespace Miyuki;
 	using namespace Miyuki::Reflection;

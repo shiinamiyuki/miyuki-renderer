@@ -5,6 +5,7 @@
 #include <miyuki.h>
 #include <imgui/imgui.h>
 #include <ui/input.h>
+#include <reflection.h>
 
 namespace Miyuki {
 	namespace GUI {
