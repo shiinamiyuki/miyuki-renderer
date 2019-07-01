@@ -170,7 +170,7 @@ void main()
 				Window().name("Explorer")
 					.open(&windowFlags.showExplorer)
 					.with(true, [=] {
-					//engine->visit(*visitor);
+					visitor.visitGraph();
 				}).show();
 			}
 		}
@@ -251,7 +251,7 @@ void main()
 					engine->firstSave(filename);
 			};
 			auto closeFile = [=]() {
-				engine = std::make_unique<RenderEngine>();
+				newEngine();
 			};
 			MainMenuBar()
 				.menu(Menu().name("File")
@@ -441,7 +441,7 @@ void main()
 
 			//	loadBackGroundShader();
 
-			engine = std::make_unique<RenderEngine>();
+			newEngine();
 
 			Log::log("Application started\n");
 

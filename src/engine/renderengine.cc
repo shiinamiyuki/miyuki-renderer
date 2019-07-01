@@ -13,7 +13,7 @@ namespace Miyuki {
 		IO::LoadObjFile(filename, info);
 		std::unordered_map<std::string, Core::Material*> map;
 		for (auto& _m : info.materials) {
-			auto m = static_cast<Core::MixedMaterial*>(_m.get());		
+			auto m = static_cast<Core::MixedMaterial*>(_m.get());
 			map[m->name] = m;
 		}
 		std::move(info.materials.begin(), info.materials.end(), std::back_inserter(graph->materials));
@@ -22,7 +22,7 @@ namespace Miyuki {
 			cxx::filesystem::create_directory(meshDir);
 			Log::log("Created {}\n", meshDir.string());
 		}
-		int meshId = graph->meshFiles.size();
+		int meshId = graph->meshes.size();
 		auto meshname = fmt::format("mesh{}.obj", meshId);
 		auto meshPath = meshDir.append(meshname);
 		Log::log("Created meshfile {}\n", meshPath.string());
@@ -30,8 +30,8 @@ namespace Miyuki {
 		out << info.outputContent << std::endl;
 		auto mesh = Reflection::make_box<Core::MeshFile>();
 		mesh->file = File(cxx::filesystem::relative(meshPath, cxx::filesystem::path(_filename).parent_path()));
-	
-	
+
+
 		for (auto& s : info.shapeMat) {
 			auto object = Reflection::make_box<Core::Object>();
 			object->name = s.first;
@@ -39,7 +39,7 @@ namespace Miyuki {
 			mesh->objects.emplace_back(std::move(object));
 		}
 		mesh->name = meshname;
-		graph->meshFiles.emplace_back(std::move(mesh));
+		graph->meshes.emplace_back(std::move(mesh));
 	}
 
 	void RenderEngine::newGraph() {
@@ -69,6 +69,15 @@ namespace Miyuki {
 		std::string content((std::istreambuf_iterator<char>(in)),
 			std::istreambuf_iterator<char>());
 		json j = json::parse(content);
-		
+		try {
+			Reflection::InStream in(j);
+			graph = Reflection::make_box<Core::Graph >();
+			graph->deserialize(in);
+			Log::log("Opened {}\n", filename);
+			Log::log("Loaded {} materials\n", graph->materials.size());
+		}
+		catch (std::runtime_error& e) {
+			Log::log("Failed to open {}; Error: {}\n", filename, e.what());
+		}
 	}
 }

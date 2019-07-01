@@ -334,9 +334,31 @@ namespace Miyuki {
 			template<class T>
 			void visit(const std::function<void(T*)>& f) {
 				_map[T::type()] = [=](Trait* p) {
-					f(p);
+					f(static_cast<T*>(p));
 				};
 			}
+		};
+		namespace detail {
+			template<class T = Trait>
+			struct Match {
+				T* value;
+				bool matched = false;
+				Match(T* value) :value(value) {}
+				template<class U,class Function>
+				Match& with(Function func) {
+					if (matched)return *this;					
+					if (value && typeof(value) == typeof<U>()) {
+						auto f = std::move(func);
+						f(static_cast<U*>(value));
+						matched = true;
+					}
+					return *this;
+				}
+			};
+		}
+		template<class T=Trait>
+		detail::Match<T> match(T* trait) {
+			return detail::Match<T>(trait);
 		};
 		inline void Trait::accept(TraitVisitor& visitor) {
 			visitor.visit(this);
@@ -354,8 +376,8 @@ namespace Miyuki {
 				std::set<TypeInfo*> _registerdTypes;
 				std::unordered_map<std::string, TypeInfo*> _registerdTypeMap;
 				static Types* all;
-				static Types& get() {
-					static std::once_flag flag;
+				static std::once_flag flag;
+				static Types& get() {					
 					std::call_once(flag, [&]() {all = new Types(); });
 					return *all;
 				}
@@ -374,6 +396,10 @@ namespace Miyuki {
 		inline TypeInfo* typeof(Trait* trait) {
 			if (!trait)return nullptr;
 			return trait->typeInfo();
+		}
+		template<class T>
+		inline TypeInfo* typeof() {
+			return T::type();
 		}
 
 	}

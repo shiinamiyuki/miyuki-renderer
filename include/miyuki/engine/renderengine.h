@@ -29,6 +29,9 @@ namespace Miyuki {
 			_filename = filename;
 			save();
 		}
+		Core::Graph* getGraph() {
+			return graph.get();
+		}
 	};
 }
 #endif

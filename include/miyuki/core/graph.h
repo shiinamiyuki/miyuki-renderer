@@ -23,7 +23,7 @@ namespace Miyuki {
 		struct Graph final  :  Trait {
 			MYK_IMPL(Graph);
 			std::vector<Box<Material>> materials;
-			std::vector<Box<MeshFile>> meshFiles;
+			std::vector<Box<MeshFile>> meshes;
 			void addMaterial(Box<Material> mat) {
 				materials.emplace_back(std::move(mat));
 			}
@@ -31,5 +31,5 @@ namespace Miyuki {
 	}
 }
 MYK_REFL(Miyuki::Core::Object, (name)(material))
-MYK_REFL(Miyuki::Core::Graph, (materials)(meshFiles))
+MYK_REFL(Miyuki::Core::Graph, (materials)(meshes))
 MYK_REFL(Miyuki::Core::MeshFile, (file)(name)(transform)(objects))
