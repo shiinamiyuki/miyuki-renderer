@@ -329,7 +329,12 @@ namespace Miyuki {
 			std::unordered_map<TypeInfo*, std::function<void(Trait*)>>_map;
 		public:
 			void visit(Trait* trait) {
+				if (!trait)return;
 				_map.at(trait->typeInfo())(trait);
+			}
+			template<class T>
+			void visit(Box<T>& trait) {
+				visit(trait.get());
 			}
 			template<class T>
 			void visit(const std::function<void(T*)>& f) {

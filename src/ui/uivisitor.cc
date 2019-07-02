@@ -17,15 +17,32 @@ namespace Miyuki {
 		}
 
 		void UIVisitor::init() {
+			visit<Core::FloatShader>([=](Core::FloatShader* shader) {
+				auto value = shader->getValue();
+				if (auto r = GetInput("value", value)) {
+					shader->setValue(r.value());
+				}
+			});
+			visit<Core::RGBShader>([=](Core::RGBShader* shader) {
+				Spectrum value = shader->getValue();
+				if (auto r = GetInput("color", value)) {
+					shader->setValue(r.value());
+				}
+			});
+			visit<Core::ImageTextureShader>([=](Core::ImageTextureShader* shader) {
+				Text().name(shader->imageFile.path.string()).show();
+			});
 			visit<Core::GlossyMaterial>([=](Core::GlossyMaterial* node) {
-
+				visit(node->color);
+				visit(node->roughness);
 			});
 			visit<Core::DiffuseMaterial>([=](Core::DiffuseMaterial* node) {
-
+				visit(node->color);
+				visit(node->roughness);
 			});
 			visit<Core::MixedMaterial>([=](Core::MixedMaterial* node) {
-				visit(static_cast<Trait*>(node->matA.get()));
-				visit(static_cast<Trait*>(node->matB.get()));
+				visit(node->matA);
+				visit(node->matB);
 			});
 			visit<Core::MeshFile>([=](Core::MeshFile* node) {
 				auto name = node->name;
@@ -44,7 +61,7 @@ namespace Miyuki {
 				{
 					for (auto& m : graph->materials) {
 						bool is_selected = (m.get() == node->material);
-						SingleSelectableText().name(getMaterialName(m.get())).selected(is_selected).with(true, [=,&m]() {
+						SingleSelectableText().name(getMaterialName(m.get())).selected(is_selected).with(true, [=, &m]() {
 							node->material = m.get();
 							if (is_selected)
 								ImGui::SetItemDefaultFocus();
@@ -53,7 +70,7 @@ namespace Miyuki {
 				}).show();
 			});
 		}
-		
+
 
 		void UIVisitor::visitGraph() {
 			auto graph = engine->getGraph();
@@ -67,7 +84,7 @@ namespace Miyuki {
 					}
 					const auto& name = getMaterialName(material.get());
 					SingleSelectableText().name(name).selected(material.get() == selected)
-						.with(true, [=,&material]() {
+						.with(true, [=, &material]() {
 						selected = material.get();
 					}).show();
 					index++;

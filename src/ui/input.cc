@@ -1,11 +1,18 @@
 #include <ui/input.h>
 #include <utils/log.h>
 #include <imgui/imgui.h>
+#include <ui/mykui.h>
 
 namespace Miyuki {
 	namespace GUI {
-		std::optional<Transform> GetInput(const std::string&, const Transform& initial) {
-			throw NotImplemented();
+		std::optional<Transform> GetInput(const std::string&prompt, const Transform& initial) {
+			Text().name(prompt).show();
+			auto r1 = GetInput("translation", initial.translation);
+			auto r2 = GetInput("rotation", initial.rotation);
+			auto r3 = GetInput("scale", initial.scale);
+			if (r1.has_value() || r2.has_value() || r3.has_value()) {
+				return Transform(r1.value(), r2.value(), r3.value());
+			}
 		}
 		std::optional<bool> GetInput(const std::string& prompt, bool initial)
 		{

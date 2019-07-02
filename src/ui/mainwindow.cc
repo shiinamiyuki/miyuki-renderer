@@ -13,42 +13,6 @@ static void Draw(const Miyuki::HW::Texture& texture) {
 }
 namespace Miyuki {
 	namespace GUI {
-		/*class GraphExplorer {
-			Graph::Graph* graph;
-			void unselect(Graph::Node* root, Graph::Node* except) {
-				if (root == except)return;
-				for (auto& edge : root->subnodes()) {
-					edge->get().to->unselect();
-					unselect(edge->get().to, except);
-				}
-			}
-			void showNodeSelectable(Graph::Node* node) {
-				if (ImGui::TreeNode(node->name().c_str())) {
-					for (auto& edge : node->subnodes()) {
-						auto sub = edge->get().to;
-						ImGuiTreeNodeFlags nodeFlags = 0;
-						nodeFlags |= (sub->selected() ? ImGuiTreeNodeFlags_Selected : 0);
-						ImGui::TreeNodeEx((void*)(intptr_t)sub, nodeFlags, "%s", edge->get().name.c_str());
-						if (ImGui::IsItemClicked()) {
-							sub->select();
-							unselect(node, sub);
-						}
-					}
-					ImGui::TreePop();
-				}
-			}
-		public:
-			GraphExplorer(Graph::Graph* G) :graph(G) {}
-
-			void show() {
-				if (ImGui::CollapsingHeader(("Scene"))) {
-					auto materials = graph->getByName("materials");
-					auto meshes = graph->getByName("meshes");
-					showNodeSelectable(materials);
-					showNodeSelectable(meshes);
-				}
-			}
-		};*/
 
 		void MainWindow::close() {
 			stopRenderThread();

@@ -24,6 +24,8 @@ namespace Miyuki {
 			virtual void eval(ShadingPoint& p) override {
 				p.output = Vec3f(value);
 			}
+			void setValue(Float value) { this->value = value; }
+			Float getValue()const { return value; }
 		private:
 			Float value = 0;
 		};
@@ -35,6 +37,8 @@ namespace Miyuki {
 			virtual void eval(ShadingPoint& p) override{
 				p.output = value;
 			}
+			void setValue(Spectrum value) { this->value = value; }
+			Spectrum getValue()const { return value; }
 		private:
 			Spectrum value;
 		};

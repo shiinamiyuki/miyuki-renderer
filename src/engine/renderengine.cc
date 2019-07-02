@@ -56,7 +56,7 @@ namespace Miyuki {
 			Reflection::OutStream stream;
 			graph->serialize(stream);
 			std::ofstream out(filename);
-			out << stream.dump(1) << std::endl;
+			out << stream.dump() << std::endl;
 			Log::log("Saved to {}\n", filename);
 		}
 		catch (std::runtime_error& e) {

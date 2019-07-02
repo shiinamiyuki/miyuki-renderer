@@ -6,9 +6,11 @@ namespace Miyuki {
 	namespace IO {
 		namespace __Internal {
 			Vec3f ParseFloat3(const std::vector<std::string>& tokens) {
-				return Vec3f(std::stof(tokens.at(1)),
+				
+				auto v =  Vec3f(std::stof(tokens.at(1)),
 					std::stof(tokens.at(2)),
 					std::stof(tokens.at(3)));
+				return v;
 			}
 			std::string ParseFilename(const std::vector<std::string>& tokens) {
 				std::string s;
