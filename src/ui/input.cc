@@ -13,6 +13,7 @@ namespace Miyuki {
 			if (r1.has_value() || r2.has_value() || r3.has_value()) {
 				return Transform(r1.value(), r2.value(), r3.value());
 			}
+			return {};
 		}
 		std::optional<bool> GetInput(const std::string& prompt, bool initial)
 		{

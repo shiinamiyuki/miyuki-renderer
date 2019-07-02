@@ -18,11 +18,11 @@ Goal: a high performance pbrt-style renderer with low hardware requirements but 
 
 `miyuki/reflection`: A custom RTTI/Reflection/GC/Serialization library. 
 
-`miyuki/graph`: Scene graph. All classes in this folder relies on reflection to provide information to the editor. Upon rendering, the graph is compiled to build the data structure used for rendering.
-
 `miyuki/core`: Core renderer code.
 
 `miyuki/core/accelerators`: Acceleration structure interface. 
+
+`miyuki/core/bsdfs`: All bsdfs.
 
 `miyuki/core/materials`: All materials.
 
@@ -39,14 +39,20 @@ Goal: a high performance pbrt-style renderer with low hardware requirements but 
   - [x] Non-intrusive reflection
   - [x] RTTI
   - [x] Automatic serialization
-- [ ] Editor Support
+- [ ] Editor
   - [x] Loading scene files.
   - [x] Importing Wavefront OBJ
   - [ ] Placing mesh files/textures in /mesh, /texture respectively when importing OBJ
   - [ ] Cross platform support. Some GUI code calls native Windows API for now.
+  - [ ] Interactive preview
+  - [ ] Hardware accelerated preview
 - [ ] Custom BVH RT kernel
+- [ ] Generic Math Utils
+  - [x] Probability Density Function
+  - [ ] 1D discrete distribution
+  - [ ] 2D discrete distribution
 - [ ] Basic Reflection Model
-  - [ ] Diffuse (lambertian/Oren-Nayar)
+  - [x] Diffuse (lambertian/Oren-Nayar)
   - [ ] Beckmann Microfacet Model
   - [ ] GGX Microfacet Model
   - [ ] Specular Transmission/Refelection 
@@ -56,12 +62,13 @@ Goal: a high performance pbrt-style renderer with low hardware requirements but 
   - [ ] Generic Path Tracer
   - [ ] Denoiser (Using BCD)
 - [ ] Path guiding
+- [ ] Command line rendering
 - [ ] Hybrid rendering
 - [ ] Network rendering 
 
 ## How to build
 
-Dependencies: Embree 3.0, boost, OpenEXR.
+Dependencies: Embree 3.0, boost, OpenEXR,  GLFW3
 
 CMake everything. 
 

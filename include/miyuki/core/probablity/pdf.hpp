@@ -26,5 +26,6 @@ namespace Miyuki {
 				return *static_cast<ImplT*>(this);
 			}
 		};
+
 	}
 }
