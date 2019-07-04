@@ -8,6 +8,14 @@ namespace Miyuki {
 		class UIVisitor : public Reflection::TraitVisitor{
 			Trait* selected = nullptr;
 
+			void visitMaterialAndSelect(Box<Core::Material>& material);
+			void visitShaderAndSelect(Box<Core::Shader>& shader);
+			enum SelectedNodeType {
+				kMaterial,
+				kMesh,
+				kObject
+			};
+			SelectedNodeType selectedNodeType;
 		public:
 			RenderEngine* engine = nullptr;
 			void visitGraph();
@@ -15,11 +23,10 @@ namespace Miyuki {
 			UIVisitor() {
 				init();
 			}
-			void visitSelected() {
-				if (selected) {
-					visit(selected);
-				}
+			void reset() {
+				selected = nullptr;
 			}
+			void visitSelected();
 		};
 	}
 }

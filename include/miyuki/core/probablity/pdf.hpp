@@ -1,6 +1,7 @@
 #pragma once
 
 #include <math/vec.hpp>
+
 namespace Miyuki {
 	namespace Core {
 

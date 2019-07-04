@@ -18,8 +18,7 @@ namespace Miyuki {
 				A = 1.f - (sigma2 / (2.f * (sigma2 + 0.33f)));
 				B = 0.45f * sigma2 / (sigma2 + 0.09f);
 			}
-			void sampleImpl(
-				ScatteringFunctionSample& sample)const {
+			void sampleImpl(ScatteringFunctionSample& sample)const {
 				sample.wi = CosineHemispherePDF().sample(sample.u, &sample.pdf);
 				sample.f = evaluate(sample.wo, sample.wi);
 			}
@@ -56,8 +55,7 @@ namespace Miyuki {
 		struct LambertianReflection : ScatteringFunction<LambertianReflection> {
 			Spectrum R;
 			LambertianReflection(const Spectrum& R) :R(R) {}
-			void sampleImpl(
-				ScatteringFunctionSample& sample)const {
+			void sampleImpl(ScatteringFunctionSample& sample)const {
 				sample.wi = CosineHemispherePDF().sample(sample.u, &sample.pdf);
 				sample.f = evaluate(sample.wo, sample.wi);
 			}

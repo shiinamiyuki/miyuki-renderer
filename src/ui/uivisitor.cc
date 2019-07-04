@@ -16,6 +16,89 @@ namespace Miyuki {
 			return name;
 		}
 
+		void setMaterialName(Core::Material* material, const std::string& name) {
+			Reflection::match(material)
+				.with<Core::MixedMaterial>([&](Core::MixedMaterial* mat) {
+				mat->name = name;
+			}).with<Core::DiffuseMaterial>([&](Core::DiffuseMaterial* mat) {
+				mat->name = name;
+			}).with<Core::GlossyMaterial>([&](Core::GlossyMaterial* mat) {
+				mat->name = name;
+			});
+		}
+
+		struct TypeSelector {
+			std::unordered_map<std::string, const Reflection::TypeInfo*>_map;
+			std::unordered_map<const Reflection::TypeInfo*, std::string>_invmap;
+			std::unordered_map<const Reflection::TypeInfo*, std::function<Box<Trait>(void)>> _ctors;
+			std::vector<std::string> _list;
+			template<class T>
+			TypeSelector& option(const std::string& s) {
+				auto c = T::type();
+
+				_map[s] = c;
+				_invmap[c] = s;
+				_list.push_back(s);
+				_ctors[c] = [](void) -> Box<Trait> {
+					return Reflection::make_box<T>();
+				};
+				return *this;
+			}
+			template<class T>
+			std::optional<Box<T>> select(const std::string& label, const T* current) {
+				std::optional<Box<T>> opt = {};
+				auto itemName = !current ? "Empty" : _invmap.at(current->typeInfo());
+				Combo().name(label).item(itemName).with(true, [=, &opt]()
+				{
+					SingleSelectableText().name("Empty").selected(current == nullptr).with(true, [=, &opt]() {
+						if (current) {
+							opt = { nullptr };
+						}
+						if (!current) {
+							ImGui::SetItemDefaultFocus();
+						}
+					}).show();
+				
+					for (auto ty : _list) {
+						auto currentTy = current ? current->typeInfo() : nullptr;
+						bool is_selected = _map.at(ty) == currentTy;
+						SingleSelectableText().name(ty).selected(is_selected).with(true, [=, &opt]() {
+							if (currentTy != _map.at(ty)) {
+								opt = std::move(
+									Reflection::static_unique_ptr_cast<T>(
+										_ctors[_map.at(ty)]()));
+							}
+							if (is_selected)
+								ImGui::SetItemDefaultFocus();
+						}).show();
+					}
+				}).show();
+				return opt;
+			}
+		};
+
+		std::optional<Box<Core::Material>> selectMaterial(Core::Material* material) {
+			static TypeSelector selector;
+			static std::once_flag flag;
+			std::call_once(flag, [&]() {
+				selector.option<Core::DiffuseMaterial>("diffuse shader")
+					.option<Core::GlossyMaterial>("glossy shader")
+					.option<Core::MixedMaterial>("mixed shader");
+			});
+			return selector.select<Core::Material>("material type, material", material);
+		}
+
+		std::optional<Box<Core::Shader>> selectShader(Core::Shader* shader) {
+			static TypeSelector selector;
+			static std::once_flag flag;
+			std::call_once(flag, [&]() {
+				selector.option<Core::FloatShader>("float")
+					.option<Core::RGBShader>("RGB")
+					.option<Core::ImageTextureShader>("Image Texture");
+			});
+			return selector.select<Core::Shader>("shader type", shader);
+		}
+
 		void UIVisitor::init() {
 			visit<Core::FloatShader>([=](Core::FloatShader* shader) {
 				auto value = shader->getValue();
@@ -33,21 +116,29 @@ namespace Miyuki {
 				Text().name(shader->imageFile.path.string()).show();
 			});
 			visit<Core::GlossyMaterial>([=](Core::GlossyMaterial* node) {
-				visit(node->color);
-				visit(node->roughness);
+				visitShaderAndSelect(node->color);
+				visitShaderAndSelect(node->roughness);
 			});
 			visit<Core::DiffuseMaterial>([=](Core::DiffuseMaterial* node) {
-				visit(node->color);
-				visit(node->roughness);
+				visitShaderAndSelect(node->color);
+				visitShaderAndSelect(node->roughness);
 			});
 			visit<Core::MixedMaterial>([=](Core::MixedMaterial* node) {
-				visit(node->matA);
-				visit(node->matB);
+				visitShaderAndSelect(node->fraction);
+				Text().name("material A").show();
+				visitMaterialAndSelect(node->matA);
+				Separator().show();
+				Text().name("material B").show();
+				visitMaterialAndSelect(node->matB);
+				Separator().show();
 			});
 			visit<Core::MeshFile>([=](Core::MeshFile* node) {
 				auto name = node->name;
 				if (auto r = GetInput("name", name)) {
 					node->name = r.value();
+				}
+				if (auto r = GetInput("transform", node->transform)) {
+					node->transform = r.value();
 				}
 			});
 			visit<Core::Object>([=](Core::Object* node) {
@@ -71,6 +162,34 @@ namespace Miyuki {
 			});
 		}
 
+		void UIVisitor::visitMaterialAndSelect(Box<Core::Material>& material) {
+			const auto& name = getMaterialName(material.get());
+			auto graph = engine->getGraph();
+			if (auto r = selectMaterial(material.get())) {
+				auto tmp = std::move(r.value());
+				for (auto& mesh : graph->meshes) {
+					for (auto& object : mesh->objects) {
+						if (object->material == material.get()) {
+							object->material = tmp.get();
+						}
+					}
+				}
+				material = std::move(tmp);
+				setMaterialName(material.get(), name);
+			}
+			visit(material);
+		}
+		void UIVisitor::visitShaderAndSelect(Box<Core::Shader>& shader) {
+			if (auto r = selectShader(shader.get())) {
+				shader = std::move(shader);
+			}
+			visit(shader);
+		}
+
+		void UIVisitor::visitSelected() {
+			if(selected)
+				visit(selected);
+		}
 
 		void UIVisitor::visitGraph() {
 			auto graph = engine->getGraph();
@@ -86,6 +205,7 @@ namespace Miyuki {
 					SingleSelectableText().name(name).selected(material.get() == selected)
 						.with(true, [=, &material]() {
 						selected = material.get();
+						selectedNodeType = kMaterial;
 					}).show();
 					index++;
 				}
@@ -109,11 +229,13 @@ namespace Miyuki {
 								.selected(object.get() == selected)
 								.with(true, [=, &object]() {
 								selected = object.get();
+								selectedNodeType = kObject;
 							}).show();
 						}
 					}).with(false, [=, &mesh]() {
 						if (ImGui::IsItemClicked()) {
 							selected = mesh.get();
+							selectedNodeType = kMesh;
 						}
 					}).show();
 				}

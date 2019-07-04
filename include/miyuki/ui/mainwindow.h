@@ -87,6 +87,7 @@ namespace Miyuki {
 			UIVisitor visitor;
 			void newEngine() {
 				engine = std::make_unique<RenderEngine>();
+				visitor.reset();
 				visitor.engine = engine.get();
 			}
 		public:
