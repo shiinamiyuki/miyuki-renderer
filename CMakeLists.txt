@@ -36,7 +36,8 @@ file(GLOB coreSRC
 	"src/utils/*.cc"
 	"src/io/*.cc"
 	"src/engine/*.cc"
-	"src/graph/*.cc")
+	"src/core/samplers/*.cc"
+	"src/core/materials/*.cc")
 
 add_executable (mykgui "src/main/main.cc"
 	${thirdpartySRC}

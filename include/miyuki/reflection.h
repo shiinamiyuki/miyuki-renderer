@@ -269,12 +269,26 @@ namespace Miyuki {
 		MYK_SAVE_LOAD_TRVIAL(Spectrum);
 		MYK_SAVE_LOAD_TRVIAL(std::string);
 
+		namespace detail {
+			template<class T>
+			struct ZeroInit {
+				static void init(T& value) { value = T(); }
+			};
+			template<class T>
+			struct ZeroInit<T*> {
+				static void init(T*& value) { value = nullptr; }
+			};
+		}
 		struct InStreamVisitor {
 			int index = 0;
 			InStream stream;
 			InStreamVisitor(const InStream& stream) :stream(stream) {}
 			template<class T>
 			void visit(T& value, const char* name) {
+				if (index >= stream.data.size()) {
+					detail::ZeroInit<T>::init(value);
+					return;
+				}
 				InStream stream(stream.data.at(index++), this->stream.state);
 				Loader<T>::load(value, stream);
 			}
