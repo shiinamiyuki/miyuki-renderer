@@ -41,6 +41,8 @@ namespace Miyuki {
             else if (CurrentLogLevel() == verbose)
 				_LogInternal(fmt::format(fmt, args...));
         }
+
+		void addHandler(std::function<void(const std::string&)> handler);
     }
 }
 #endif //MIYUKI_LOG_H

@@ -77,18 +77,18 @@ namespace Miyuki {
 			}
 		};
 
-		std::optional<Box<Core::Material>> selectMaterial(Core::Material* material) {
+		std::optional<Box<Core::Material>> selectMaterial(Core::Material* material, const std::string& label) {
 			static TypeSelector selector;
 			static std::once_flag flag;
 			std::call_once(flag, [&]() {
-				selector.option<Core::DiffuseMaterial>("diffuse shader")
-					.option<Core::GlossyMaterial>("glossy shader")
-					.option<Core::MixedMaterial>("mixed shader");
+				selector.option<Core::DiffuseMaterial>("diffuse material")
+					.option<Core::GlossyMaterial>("glossy material")
+					.option<Core::MixedMaterial>("mixed material");
 			});
-			return selector.select<Core::Material>("material type, material", material);
+			return selector.select<Core::Material>(label, material);
 		}
 
-		std::optional<Box<Core::Shader>> selectShader(Core::Shader* shader) {
+		std::optional<Box<Core::Shader>> selectShader(Core::Shader* shader, const std::string& label) {
 			static TypeSelector selector;
 			static std::once_flag flag;
 			std::call_once(flag, [&]() {
@@ -96,7 +96,7 @@ namespace Miyuki {
 					.option<Core::RGBShader>("RGB")
 					.option<Core::ImageTextureShader>("Image Texture");
 			});
-			return selector.select<Core::Shader>("shader type", shader);
+			return selector.select<Core::Shader>(label, shader);
 		}
 
 		void UIVisitor::init() {
@@ -108,7 +108,7 @@ namespace Miyuki {
 			});
 			visit<Core::RGBShader>([=](Core::RGBShader* shader) {
 				Spectrum value = shader->getValue();
-				if (auto r = GetInput("color", value)) {
+				if (auto r = GetInput("value", value)) {
 					shader->setValue(r.value());
 				}
 			});
@@ -116,20 +116,18 @@ namespace Miyuki {
 				Text().name(shader->imageFile.path.string()).show();
 			});
 			visit<Core::GlossyMaterial>([=](Core::GlossyMaterial* node) {
-				visitShaderAndSelect(node->color);
-				visitShaderAndSelect(node->roughness);
+				visitShaderAndSelect(node->color, "color");
+				visitShaderAndSelect(node->roughness, "roughness");
 			});
 			visit<Core::DiffuseMaterial>([=](Core::DiffuseMaterial* node) {
-				visitShaderAndSelect(node->color);
-				visitShaderAndSelect(node->roughness);
+				visitShaderAndSelect(node->color, "color");
+				visitShaderAndSelect(node->roughness, "roughness");
 			});
 			visit<Core::MixedMaterial>([=](Core::MixedMaterial* node) {
-				visitShaderAndSelect(node->fraction);
-				Text().name("material A").show();
-				visitMaterialAndSelect(node->matA);
+				visitShaderAndSelect(node->fraction,"fraction");
+				visitMaterialAndSelect(node->matA,"material A");
 				Separator().show();
-				Text().name("material B").show();
-				visitMaterialAndSelect(node->matB);
+				visitMaterialAndSelect(node->matB,"material B");
 				Separator().show();
 			});
 			visit<Core::MeshFile>([=](Core::MeshFile* node) {
@@ -162,10 +160,11 @@ namespace Miyuki {
 			});
 		}
 
-		void UIVisitor::visitMaterialAndSelect(Box<Core::Material>& material) {
+		void UIVisitor::visitMaterialAndSelect(Box<Core::Material>& material, const std::string& label) {
+			ImGui::PushID(&material);
 			const auto& name = getMaterialName(material.get());
 			auto graph = engine->getGraph();
-			if (auto r = selectMaterial(material.get())) {
+			if (auto r = selectMaterial(material.get(), label)) {
 				auto tmp = std::move(r.value());
 				for (auto& mesh : graph->meshes) {
 					for (auto& object : mesh->objects) {
@@ -178,12 +177,16 @@ namespace Miyuki {
 				setMaterialName(material.get(), name);
 			}
 			visit(material);
+			ImGui::PopID();
 		}
-		void UIVisitor::visitShaderAndSelect(Box<Core::Shader>& shader) {
-			if (auto r = selectShader(shader.get())) {
-				shader = std::move(shader);
+
+		void UIVisitor::visitShaderAndSelect(Box<Core::Shader>& shader, const std::string& label) {
+			ImGui::PushID(&shader);
+			if (auto r = selectShader(shader.get(),label)) {
+				shader = std::move(r.value());
 			}
 			visit(shader);
+			ImGui::PopID();
 		}
 
 		void UIVisitor::visitSelected() {
@@ -221,6 +224,7 @@ namespace Miyuki {
 					TreeNode().name(name).flag(flags).with(true, [=, &mesh]() {
 						if (ImGui::IsItemClicked()) {
 							selected = mesh.get();
+							selectedNodeType = kMesh;
 						}
 						for (auto& object : mesh->objects) {
 							if (!object)

@@ -378,6 +378,41 @@ namespace Miyuki {
 				}
 			}
 		};
+		class TabItem : public Base<TabItem> {
+		public:
+			void showImpl() {
+				if (ImGui::BeginTabItem(nameCStr())) {
+					active();
+					ImGui::EndTabItem();
+				}
+				else {
+					inactive();
+				}
+			}
+		};
+		class Tab : public Base<Tab> {
+			std::vector<TabItem> items;
+		public:
+			Tab& item(TabItem item) {
+				items.emplace_back(std::move(item));
+;			}
+			void showImpl() {
+				if (ImGui::BeginTabBar(nameCStr())) {
+					active();
+					for (auto& item : items) {
+						item.show();
+					}
+					ImGui::EndTabBar();
+				}
+				else {
+					inactive();
+				}
+			}
+		};
+
+		inline void LineText(const std::string& content) {
+			Text().name(content).show();
+		}
 	}
 }
 

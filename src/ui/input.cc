@@ -37,7 +37,7 @@ namespace Miyuki {
 		std::optional<Float> GetInput(const std::string& prompt, Float initial) {
 			Float temp = initial;
 			if (ImGui::InputFloat(prompt.c_str(), &temp, 0.01, 0.1, "%f", ImGuiInputTextFlags_EnterReturnsTrue)) {
-				return std::optional<Float>(temp);
+				return temp;
 			}
 			else {
 				return {};
