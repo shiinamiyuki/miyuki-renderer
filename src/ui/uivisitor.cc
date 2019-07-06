@@ -3,18 +3,7 @@
 
 namespace Miyuki {
 	namespace GUI {
-		std::string getMaterialName(Core::Material* material) {
-			std::string name = "unknown";
-			Reflection::match(material)
-				.with<Core::MixedMaterial>([&](Core::MixedMaterial* mat) {
-				name = mat->name;
-			}).with<Core::DiffuseMaterial>([&](Core::DiffuseMaterial* mat) {
-				name = mat->name;
-			}).with<Core::GlossyMaterial>([&](Core::GlossyMaterial* mat) {
-				name = mat->name;
-			});
-			return name;
-		}
+		using Core::getMaterialName;
 
 		void setMaterialName(Core::Material* material, const std::string& name) {
 			Reflection::match(material)

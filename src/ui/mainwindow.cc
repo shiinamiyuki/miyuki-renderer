@@ -140,16 +140,24 @@ void main()
 		}
 
 		void MainWindow::attriubuteEditorWindow() {
-			if (windowFlags.showAttributeEditor) {
-				Window().name("Attribute")
-					.open(&windowFlags.showAttributeEditor)
-					.with(true, [=]() {
+			if (windowFlags.showAttributeEditor){
+				auto showSelected = [=]() {
 					try {
 						visitor.visitSelected();
 					}
 					catch (std::exception& e) {
 						Log::log("Error when visiting selected: {}\n", e.what());
 					}
+				};
+
+				Window().name("Attribute")
+					.open(&windowFlags.showAttributeEditor)
+					.with(true, [=]() {
+
+					Tab().item(TabItem().name("selected").with(true, showSelected))
+						.item(TabItem().name("sampling"))
+						.item(TabItem().name("camera"))
+						.item(TabItem().name("film")).show();
 				}).show();
 			}
 		}

@@ -395,6 +395,7 @@ namespace Miyuki {
 		public:
 			Tab& item(TabItem item) {
 				items.emplace_back(std::move(item));
+				return *this;
 ;			}
 			void showImpl() {
 				if (ImGui::BeginTabBar(nameCStr())) {

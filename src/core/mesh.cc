@@ -170,7 +170,7 @@ namespace Miyuki {
 		}
 
 		Material* Primitive::material() const {
-			return instance->materials[nameId].get();
+			return instance->materials[nameId];
 		}
 
 		const std::string& Primitive::name() const {

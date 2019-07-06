@@ -4,6 +4,7 @@
 #include <miyuki.h>
 #include <reflection.h>
 #include <utils/file.hpp>
+#include <io/image.h>
 namespace Miyuki {
 	namespace Core {
 		struct ShadingPoint {
@@ -45,6 +46,7 @@ namespace Miyuki {
 
 		struct ImageTextureShader final : public Shader {
 			File imageFile;
+			IO::Image* texture = nullptr;
 			ImageTextureShader() {}
 			ImageTextureShader(const File& f) :imageFile(f) {}
 			MYK_IMPL(ImageTextureShader);

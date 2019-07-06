@@ -19,7 +19,6 @@ link_libraries(glfw3 opengl32 embree3)
 file(GLOB thirdpartySRC
         "include/lodepng/lodepng.cpp"
         "include/tiny_obj_loader/tiny_obj_loader.cc"
-        "include/rapidjson/rapidjson.h"
         "include/fmt/format.cc"
         "include/fmt/posix/cc"
         "include/hilbert/hilbert_curve.cpp")
@@ -37,7 +36,9 @@ file(GLOB coreSRC
 	"src/io/*.cc"
 	"src/engine/*.cc"
 	"src/core/samplers/*.cc"
-	"src/core/materials/*.cc")
+	"src/core/materials/*.cc"
+	"src/core/cameras/*.cc"
+	"src/core/integrators/*.cc")
 
 add_executable (mykgui "src/main/main.cc"
 	${thirdpartySRC}

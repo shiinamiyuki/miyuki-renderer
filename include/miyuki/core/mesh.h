@@ -61,7 +61,7 @@ namespace Miyuki {
 			std::vector<Vec3f> vertices, normals;
 			std::vector<Primitive> primitives;
 			std::vector<std::string> names;
-			std::vector<std::shared_ptr<Material>> materials;
+			std::vector<Material*> materials;
 			int geomId = -1;
 			EmbreeScene* accelerator;
 			uint32_t vertexCount = 0;

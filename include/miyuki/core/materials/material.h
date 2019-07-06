@@ -65,6 +65,7 @@ namespace Miyuki {
 				return emissionShader.get();
 			}
 		};
+		std::string getMaterialName(Core::Material* material);
 	}
 }
 MYK_REFL(Miyuki::Core::MixedMaterial, (emissionShader)(fraction)(matA)(matB)(name))

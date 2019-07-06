@@ -13,6 +13,12 @@ namespace Miyuki {
 		bool operator == (const File& rhs) const{
 			return path == rhs.path;
 		}
+		std::string str()const {
+			return path.string();
+		}
+		cxx::filesystem::path fullpath()const {
+			return cxx::filesystem::absolute(path);
+		}
 	};
 
 	inline void from_json(const json& j, File& file) {
