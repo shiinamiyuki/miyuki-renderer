@@ -3,18 +3,6 @@
 
 namespace Miyuki {
 	namespace GUI {
-		using Core::getMaterialName;
-
-		void setMaterialName(Core::Material* material, const std::string& name) {
-			Reflection::match(material)
-				.with<Core::MixedMaterial>([&](Core::MixedMaterial* mat) {
-				mat->name = name;
-			}).with<Core::DiffuseMaterial>([&](Core::DiffuseMaterial* mat) {
-				mat->name = name;
-			}).with<Core::GlossyMaterial>([&](Core::GlossyMaterial* mat) {
-				mat->name = name;
-			});
-		}
 
 		struct TypeSelector {
 			std::unordered_map<std::string, const Reflection::TypeInfo*>_map;
@@ -131,39 +119,57 @@ namespace Miyuki {
 			visit<Core::Object>([=](Core::Object* node) {
 				auto graph = engine->getGraph();
 				auto objectName = node->name;
-				auto matName = getMaterialName(node->material);
+				auto matName = node->material->name;
 				if (auto r = GetInput("name", objectName)) {
 					node->name = r.value();
 				}
-				Combo().name("material").item(matName).with(true, [=]()
+				
+				LineText("material");
+
+				Combo().name("use material").item(matName).with(true, [=]()
 				{
-					for (auto& m : graph->materials) {
-						bool is_selected = (m.get() == node->material);
-						SingleSelectableText().name(getMaterialName(m.get())).selected(is_selected).with(true, [=, &m]() {
-							node->material = m.get();
+					for (auto& slot : graph->materials) {
+						auto& m = slot->material;
+						bool is_selected = (node->material && m.get() == node->material->material.get());
+						SingleSelectableText().name(slot->name).selected(is_selected).with(true, [=, &m,&slot]() {
+							node->material = slot.get();
 							if (is_selected)
 								ImGui::SetItemDefaultFocus();
 						}).show();
 					}
 				}).show();
+
+				for (auto& slot : engine->getGraph()->materials) {
+					auto& material = slot->material;
+					if (material == node->material->material) {
+						visitMaterialAndSelect(slot->material, "type");
+						break;
+					}
+				}
+			});
+			visit<Core::MaterialSlot>([=](Core::MaterialSlot* slot) {
+				if (auto r = GetInput("name", slot->name)) {
+					slot->name = r.value();
+				}
+				visit(slot->material);
 			});
 		}
 
+		/*void UIVisitor::visitMaterialAndSelect(Core::MaterialSlot& material, const std::string& label) {
+			ImGui::PushID(&material);
+			const auto& name = material.name;
+			auto graph = engine->getGraph();
+			if (auto r = selectMaterial(material.material.get(), label)) {
+				material.material = std::move(r.value());
+			}
+			visit(material.material);
+			ImGui::PopID();
+		}*/
+
 		void UIVisitor::visitMaterialAndSelect(Box<Core::Material>& material, const std::string& label) {
 			ImGui::PushID(&material);
-			const auto& name = getMaterialName(material.get());
-			auto graph = engine->getGraph();
 			if (auto r = selectMaterial(material.get(), label)) {
-				auto tmp = std::move(r.value());
-				for (auto& mesh : graph->meshes) {
-					for (auto& object : mesh->objects) {
-						if (object->material == material.get()) {
-							object->material = tmp.get();
-						}
-					}
-				}
-				material = std::move(tmp);
-				setMaterialName(material.get(), name);
+				material = std::move(r.value());
 			}
 			visit(material);
 			ImGui::PopID();
@@ -179,8 +185,9 @@ namespace Miyuki {
 		}
 
 		void UIVisitor::visitSelected() {
-			if(selected)
-				visit(selected);
+			if (selected) {
+				visit(selected);				
+			}
 		}
 
 		void UIVisitor::visitGraph() {
@@ -189,15 +196,14 @@ namespace Miyuki {
 			TreeNode().name("Materials").with(true, [=]() {
 				auto& materials = graph->materials;
 				int index = 0;
-				for (auto& material : materials) {
-					if (!material) {
-						continue;
-					}
-					const auto& name = getMaterialName(material.get());
+				for (auto& slot : materials) {
+					auto& material = slot->material;
+					const auto& name = slot->name;
 					SingleSelectableText().name(name).selected(material.get() == selected)
-						.with(true, [=, &material]() {
-						selected = material.get();
+						.with(true, [=, &material,&slot]() {
+						selected = slot.get();
 						selectedNodeType = kMaterial;
+						selectedMaterialIndex = index;
 					}).show();
 					index++;
 				}

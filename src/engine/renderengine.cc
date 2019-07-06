@@ -1,6 +1,7 @@
 #include <engine/renderengine.h>
 #include <io/importobj.h>
 #include <utils/log.h>
+#include <core/cameras/camera.h>
 
 namespace Miyuki {
 	static const char* MeshDirectory = "mesh";
@@ -11,11 +12,7 @@ namespace Miyuki {
 		IO::ObjLoadInfo info;
 		info.basePath = cxx::filesystem::path(filename).parent_path();
 		IO::LoadObjFile(filename, info);
-		std::unordered_map<std::string, Core::Material*> map;
-		for (auto& _m : info.materials) {
-			auto m = static_cast<Core::MixedMaterial*>(_m.get());
-			map[m->name] = m;
-		}
+
 		std::move(info.materials.begin(), info.materials.end(), std::back_inserter(graph->materials));
 		cxx::filesystem::path meshDir = cxx::filesystem::path(_filename).parent_path().append(MeshDirectory);
 		if (!cxx::filesystem::exists(meshDir)) {
@@ -31,6 +28,10 @@ namespace Miyuki {
 		auto mesh = Reflection::make_box<Core::MeshFile>();
 		mesh->file = File(cxx::filesystem::relative(meshPath, cxx::filesystem::path(_filename).parent_path()));
 
+		std::unordered_map<std::string, Core::MaterialSlot*> map;
+		for (auto& m : graph->materials) {
+			map[m->name] = m.get();
+		}
 
 		for (auto& s : info.shapeMat) {
 			auto object = Reflection::make_box<Core::Object>();
@@ -75,6 +76,15 @@ namespace Miyuki {
 			graph->deserialize(in);
 			Log::log("Opened {}\n", filename);
 			Log::log("Loaded {} materials\n", graph->materials.size());
+
+			if (graph->cameras.empty()) {
+				auto camera = Reflection::make_box<Core::PerspectiveCamera>();
+				graph->activeCamera = camera.get();
+				graph->cameras.emplace_back(std::move(camera));				
+			}
+			else if (!graph->activeCamera) {
+				graph->activeCamera = graph->cameras.front().get();
+			}
 		}
 		catch (std::runtime_error& e) {
 			Log::log("Failed to open {}; Error: {}\n", filename, e.what());

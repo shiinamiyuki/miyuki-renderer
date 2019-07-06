@@ -9,7 +9,7 @@ namespace Miyuki {
 		struct ObjLoadInfo {
 			std::unordered_map<std::string, std::string> shapeMat;
 			std::string outputContent;
-			std::vector<Box<Core::Material>> materials;
+			std::vector<Box<Core::MaterialSlot>> materials;
 			std::unordered_map<std::string, std::string> imageFileMoves;
 			cxx::filesystem::path basePath;
 			File meshFile;

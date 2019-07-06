@@ -16,6 +16,7 @@ namespace Miyuki {
 				kMesh,
 				kObject
 			};
+			int selectedMaterialIndex = -1;
 			SelectedNodeType selectedNodeType;
 			using Base = Reflection::TraitVisitor;
 		public:

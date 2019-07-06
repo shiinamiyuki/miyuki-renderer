@@ -48,7 +48,8 @@ namespace Miyuki {
 					bool hasMapKa = false;
 					auto matName = tokens[1];
 					auto material = Reflection::make_box<Core::MixedMaterial>();
-					material->name = matName;
+					Box<Core::MaterialSlot> slot = Reflection::make_box<Core::MaterialSlot>();
+					slot->name = matName;
 					auto kd = Reflection::make_box<Core::DiffuseMaterial>();
 					auto ks = Reflection::make_box<Core::GlossyMaterial>();
 					Box<Core::Shader> ka = Reflection::make_box<Core::FloatShader>(0);
@@ -110,7 +111,8 @@ namespace Miyuki {
 					material->matB = std::move(ks);
 					material->fraction = Reflection::make_box<Core::FloatShader>(0.5f);
 					material->emissionShader = std::move(ka);
-					materials.emplace_back(std::move(material));
+					slot->material = std::move(material);
+					materials.emplace_back(std::move(slot));
 				}
 				else {
 					i++;

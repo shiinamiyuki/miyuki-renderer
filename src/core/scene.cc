@@ -34,9 +34,9 @@ namespace Miyuki {
 			Visitor(Scene& scene) :scene(scene) {
 			}
 			void loadMaterials(Core::Graph& graph) {
-				for (auto& material : graph.materials) {
-					auto name = getMaterialName(material.get());
-					scene.materials[name] = material.get();
+				for (auto& slot : graph.materials) {
+					auto name = slot->name;
+					scene.materials[name] = slot->material.get();
 				}
 			}
 			void loadImages(Core::Graph& graph) {
@@ -61,15 +61,15 @@ namespace Miyuki {
 					shader->texture = loader->load(shader->imageFile);
 				});
 				for (auto& material : graph.materials) {
-					visit(material);
+					visit(material->material);
 				}
 			}
 			void loadMeshes(Core::Graph& graph) {
 				for (auto& mesh : graph.meshes) {
 					for (auto& object : mesh->objects) {
-						scene.materialAssignment[object->name] = object->material;
+						scene.materialAssignment[object->name] = object->material->material.get();
 					}
-					scene.loadObjMeshAndInstantiate(mesh->file.fullpath.string(), mesh->name, mesh->transform);
+					scene.loadObjMeshAndInstantiate(mesh->file.fullpath().string(), mesh->name, mesh->transform);
 				}
 			}
 		};

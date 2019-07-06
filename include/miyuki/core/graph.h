@@ -3,14 +3,22 @@
 #include <reflection.h>
 #include <core/materials/material.h>
 #include <utils/file.hpp>
+#include <core/cameras/camera.h>
 
-namespace Miyuki {	
+namespace Miyuki {
 	namespace Core {
+		struct MaterialSlot final : Trait {
+			MYK_IMPL(MaterialSlot);
+			std::string name;
+			Box<Material> material;
+		};
+
+
 		struct Object final : Trait {
 			MYK_IMPL(Object);
 			std::string name;
-			Material* material;
-		};	
+			MaterialSlot* material = nullptr;
+		};
 
 		struct MeshFile final : Trait {
 			MYK_IMPL(MeshFile);
@@ -18,18 +26,20 @@ namespace Miyuki {
 			std::string name;
 			File file;
 			std::vector<Box<Object>> objects;
-		};		
-	
-		struct Graph final  :  Trait {
+		};
+
+		
+		struct Graph final : Trait {
 			MYK_IMPL(Graph);
-			std::vector<Box<Material>> materials;
+			std::vector<Box<MaterialSlot>> materials;
 			std::vector<Box<MeshFile>> meshes;
-			void addMaterial(Box<Material> mat) {
-				materials.emplace_back(std::move(mat));
-			}
-		};		
+			std::vector<Box<Camera>> cameras;
+			Camera* activeCamera = nullptr;
+		};
 	}
 }
+
+MYK_REFL(Miyuki::Core::MaterialSlot, (name)(material))
 MYK_REFL(Miyuki::Core::Object, (name)(material))
-MYK_REFL(Miyuki::Core::Graph, (materials)(meshes))
+MYK_REFL(Miyuki::Core::Graph, (materials)(meshes)(cameras)(activeCamera))
 MYK_REFL(Miyuki::Core::MeshFile, (file)(name)(transform)(objects))
