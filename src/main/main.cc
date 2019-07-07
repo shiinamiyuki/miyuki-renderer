@@ -5,7 +5,6 @@
 //#include <io/importobj.h>
 //#include <utils/future.hpp>
 
-
 int main(int argc, char** argv) {
 	using namespace Miyuki;
 	using namespace Miyuki::Reflection;

@@ -155,17 +155,6 @@ namespace Miyuki {
 			});
 		}
 
-		/*void UIVisitor::visitMaterialAndSelect(Core::MaterialSlot& material, const std::string& label) {
-			ImGui::PushID(&material);
-			const auto& name = material.name;
-			auto graph = engine->getGraph();
-			if (auto r = selectMaterial(material.material.get(), label)) {
-				material.material = std::move(r.value());
-			}
-			visit(material.material);
-			ImGui::PopID();
-		}*/
-
 		void UIVisitor::visitMaterialAndSelect(Box<Core::Material>& material, const std::string& label) {
 			ImGui::PushID(&material);
 			if (auto r = selectMaterial(material.get(), label)) {

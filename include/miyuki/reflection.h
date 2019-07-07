@@ -8,6 +8,8 @@
 template<class T>
 struct Miyuki_Reflection_MetaInfo {
 //	static_assert(false, "You need to specialize this or use one or the macros");
+	template<class _1, class _2>
+	static void accept(_1, _2) {}
 };
 namespace Miyuki {
 	namespace Reflection {
