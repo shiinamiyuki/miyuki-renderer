@@ -12,6 +12,7 @@ namespace Miyuki {
 			Point2i pixel;
 			uint32_t sample;
 			uint32_t samplesPerPixel;
+			SamplerState() {}
 			SamplerState(const Point2i& resolution,
 				const Point2i& pixel,
 				uint32_t sample = 0,
@@ -20,7 +21,7 @@ namespace Miyuki {
 			sample(sample),pixel(pixel),samplesPerPixel(samplesPerPixel){}
 		};
 
-		struct Sampler{
+		struct Sampler : Trait{
 			virtual std::unique_ptr<Sampler> clone()const = 0;
 			virtual Float get1D() = 0;
 			virtual Point2f get2D() = 0;
@@ -35,6 +36,8 @@ namespace Miyuki {
 			RNG rng;
 			SamplerState state;
 		public:
+			MYK_IMPL(RandomSampler);
+			RandomSampler() {}
 			RandomSampler(RNG rng, SamplerState state) :rng(std::move(rng)), state(std::move(state)) {}
 			virtual std::unique_ptr<Sampler> clone()const override {
 				auto sampler = std::make_unique<RandomSampler>(rng, state);
@@ -64,6 +67,8 @@ namespace Miyuki {
 			RNG rng;
 			uint32_t rotation;
 		public:
+			MYK_IMPL(SobolSampler);
+			SobolSampler() {}
 			SobolSampler(const SamplerState& state) :state(state) {}
 			virtual std::unique_ptr<Sampler> clone()const override {
 				auto sampler = std::make_unique<SobolSampler>(*this);

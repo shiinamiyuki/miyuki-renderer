@@ -18,24 +18,23 @@ namespace Miyuki {
 
 		class Scene;
 
-		class EmbreeScene : public Accelerator {
-			friend class Scene;
-
-			RTCScene scene;
-
+		struct EmbreeScene final: public Accelerator {
+			MYK_IMPL(EmbreeScene);
 			void commit();
 
-		public:
+
 			EmbreeScene();
 
-			void addMesh(std::shared_ptr<Mesh> mesh, int id);
+			void addMesh(std::shared_ptr<Mesh> mesh, uint32_t id)override;
 
-			bool intersect(const Ray& ray, Intersection* isct);
+			bool intersect(const Ray& ray, Intersection* isct)override;
 
 			RTCScene getRTCScene() {
 				return scene;
 			}
 			~EmbreeScene();
+		private:
+			RTCScene scene;
 		};
 	}
 }

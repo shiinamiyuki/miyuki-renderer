@@ -475,4 +475,99 @@ namespace Miyuki {
 #define MYK_REFL(Type, Attributes) MYK_BEGIN_REFL(Type) BOOST_PP_SEQ_FOR_EACH(MYK_SEQ_MACRO, _, Attributes) MYK_END_REFL
 
 }
+
+namespace Miyuki {
+	namespace Reflection {
+		struct Nil {};
+		template<class R, class T, class... Args>
+		auto toLambda(T& object, R(T::* p)(Args...))->std::function<R(Args...)> {
+			return [=, &object](Args... args) {
+				return std::invoke(p, object, args...);
+			};
+		}
+		template<class T>
+		struct MethodToFunction {};
+		template<class R, class T, class... Args>
+		struct MethodToFunction<R(T::*)(Args...)> {
+			using type = std::function<R(Args...)>;
+		};
+		template<class T>
+		struct VTable {};
+
+		template<class T>
+		struct AnyPtr {
+			template<class Any>
+			AnyPtr(Any* ptr) :ptr(ptr) {
+				if (ptr)
+					vtable.assign(*ptr);
+			}
+			VTable<T>* operator ->() {
+				return &vtable;
+			}
+			const VTable<T>* operator ->()const {
+				return &vtable;
+			}
+		private:
+			VTable<T> vtable;
+			std::shared_ptr<void> ptr;
+		};
+	}
+}
+
+#define MYK_METHOD_LAMBDA(Type, Method) \
+Miyuki::Reflection::MethodToFunction<decltype(&Type::Method)>::type Method;
+
+
+
+#define MYK_BEGIN_TRAIT(Type)template<>struct Miyuki::Reflection::VTable<Type> {\
+template<int i>using UID = Miyuki::Reflection::ID<i>;\
+ private:enum {__idx = __COUNTER__};using __Self = Type; using VTableT =  Miyuki::Reflection::VTable<Type>;public: 
+
+#define MYK_METHOD(Method) \
+private:enum {Method##index = __COUNTER__ - __idx - 1 };public:\
+MYK_METHOD_LAMBDA(__Self, Method)\
+private:template<class T>\
+void assignVTable(T& object,UID<Method##index>) {\
+	Method = Miyuki::Reflection::toLambda(object, &T::Method);\
+}public:
+
+#define MYK_END_TRAIT_COMMON protected:enum{MethodCount =  __COUNTER__ - __idx - 1 };\
+	template<int i>\
+	struct AssignVTableHelper{\
+		template<class T>static void assign(VTableT & vtable, T& object){\
+			vtable.assignVTable(object, UID<i>());\
+			AssignVTableHelper<i-1>::assign(vtable, object);\
+		}\
+	}; \
+	template<>\
+	struct AssignVTableHelper<0>{\
+		template<class T>static void assign(VTableT & vtable, T& object){\
+			vtable.assignVTable(object, UID<0>());\
+		}\
+	}; public:
+#define MYK_END_TRAIT MYK_END_TRAIT_COMMON\
+	template<class T>\
+	void assign(T& object) {\
+		AssignVTableHelper< MethodCount - 1 >::assign(*this, object);\
+	}\
+};
+#define MYK_SUPER_MACRO(r, data, elem) Miyuki::Reflection::VTable<elem>,
+#define MYK_BEGIN_TRAIT_DERIVED(Type, Supers) template<>struct Miyuki::Reflection::VTable<Type>: BOOST_PP_SEQ_FOR_EACH(MYK_SUPER_MACRO, _, Supers) Miyuki::Reflection::Nil{\
+template<int i>using UID = Miyuki::Reflection::ID<i>;\
+ private:enum {__idx = __COUNTER__};using __Self = Type; using VTableT =  Miyuki::Reflection::VTable<Type>;public: 
+
+#define MYK_SUPER_MACRO_ASSIGN(r, data, elem) Miyuki::Reflection::VTable<elem>::assign(object);
+#define MYK_END_TRAIT_DERIVED(Supers) MYK_END_TRAIT_COMMON\
+	template<class T>\
+	void assign(T& object) {\
+		AssignVTableHelper< MethodCount - 1 >::assign(*this, object);\
+		BOOST_PP_SEQ_FOR_EACH(MYK_SUPER_MACRO_ASSIGN,_,Supers)\
+	}\
+};
+
+#define MYK_TRAIT_SEQ_MACRO(r, data, elem) MYK_METHOD(elem)
+#define MYK_TRAIT(Type, Attributes) MYK_BEGIN_TRAIT(Type) BOOST_PP_SEQ_FOR_EACH(MYK_TRAIT_SEQ_MACRO, _, Attributes) MYK_END_TRAIT
+#define MYK_TRAIT_DERIVED(Type, Supers, Attributes) MYK_BEGIN_TRAIT_DERIVED(Type, Supers)\
+	 BOOST_PP_SEQ_FOR_EACH(MYK_TRAIT_SEQ_MACRO, _, Attributes)\
+	 MYK_END_TRAIT_DERIVED(Supers)
 #endif

@@ -32,7 +32,7 @@ namespace Miyuki {
 			scene = rtcNewScene(GetEmbreeDevice());
 		}
 
-		void EmbreeScene::addMesh(std::shared_ptr<Mesh> mesh, int id) {
+		void EmbreeScene::addMesh(std::shared_ptr<Mesh> mesh, uint32_t id) {
 			RTCGeometry rtcMesh = rtcNewGeometry(GetEmbreeDevice(), RTC_GEOMETRY_TYPE_TRIANGLE);
 			auto vertices =
 				(Float*)rtcSetNewGeometryBuffer(rtcMesh,
