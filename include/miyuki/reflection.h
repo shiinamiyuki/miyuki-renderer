@@ -7,7 +7,7 @@
 
 template<class T>
 struct Miyuki_Reflection_MetaInfo {
-//	static_assert(false, "You need to specialize this or use one or the macros");
+	//	static_assert(false, "You need to specialize this or use one or the macros");
 	template<class _1, class _2>
 	static void accept(_1, _2) {}
 };
@@ -15,23 +15,23 @@ namespace Miyuki {
 	namespace Reflection {
 		template<class T>
 		using MetaInfo = Miyuki_Reflection_MetaInfo<T>;
-		struct Trait;
+		struct Component;
 		struct Deleter {
-			std::function<void(Trait*)> deleter;
+			std::function<void(Component*)> deleter;
 			Deleter() {}
-			Deleter(std::function<void(Trait*)> f) :deleter(std::move(f)) {}
-			void operator()(Trait* t) {
+			Deleter(std::function<void(Component*)> f) :deleter(std::move(f)) {}
+			void operator()(Component* t) {
 				deleter(t);
 			}
 		};
-		template<class T = Trait>
+		template<class T = Component>
 		using Box = std::unique_ptr<T, Deleter>;
 
 		template<class T, class... Args>
 		Box<T> make_box(Args... args) {
-			return Box<T>(new T(args...), Deleter([](Trait* p) {delete p; }));
+			return Box<T>(new T(args...), Deleter([](Component* p) {delete p; }));
 		}
-		
+
 		struct OutStream {
 			struct State {
 				std::set<const void*> _visitedPtr;
@@ -62,7 +62,7 @@ namespace Miyuki {
 			void addVisited(const void* ptr) {
 				state->_visitedPtr.insert(ptr);
 			}
-			std::string dump(int indent = -1)const{
+			std::string dump(int indent = -1)const {
 				return data.dump(indent);
 			}
 		private:
@@ -140,7 +140,7 @@ namespace Miyuki {
 					value->serialize(s);
 					stream.data = json::object();
 					stream.data["meta"] = "val";
-					stream.data["addr"] = reinterpret_cast<uint64_t>(value.get());
+					stream.data["addr"] = reinterpret_cast<uint64_t>(static_cast<Component*>(value.get()));
 					stream.data["val"] = s.data;
 					stream.addVisited(value.get());
 				}
@@ -148,7 +148,7 @@ namespace Miyuki {
 		};
 		struct InStream {
 			struct State {
-				std::unordered_map<uint64_t, Trait*> _ptrs;
+				std::unordered_map<uint64_t, Component*> _ptrs;
 			};
 			const json& data;
 			State* state;
@@ -165,10 +165,10 @@ namespace Miyuki {
 			bool has(uint64_t i) {
 				return state->_ptrs.find(i) != state->_ptrs.end();
 			}
-			Trait* get(uint64_t i) {
+			Component* get(uint64_t i) {
 				return state->_ptrs.at(i);
 			}
-			void add(uint64_t i, Trait* t) {
+			void add(uint64_t i, Component* t) {
 				state->_ptrs[i] = t;
 			}
 		private:
@@ -299,9 +299,9 @@ namespace Miyuki {
 
 		struct TypeInfo {
 			const char* _name;
-			using Constructor = std::function<Box<Trait>()>;
-			using Loader = std::function<void(Trait&, InStream&)>;
-			using Saver = std::function<void(const Trait&, OutStream&)>;
+			using Constructor = std::function<Box<Component>()>;
+			using Loader = std::function<void(Component&, InStream&)>;
+			using Saver = std::function<void(const Component&, OutStream&)>;
 			Constructor ctor;
 			Loader loader;
 			Saver saver;
@@ -317,20 +317,20 @@ namespace Miyuki {
 			std::call_once(flag, [&]() {
 				info = new TypeInfo();
 				info->_name = name;
-				info->saver = [=](const Trait& value, OutStream& stream) {
+				info->saver = [=](const Component& value, OutStream& stream) {
 					Saver<T>::save(static_cast<const T&>(value), stream);
 				};
-				info->ctor = [=]()->Box<Trait> {
+				info->ctor = [=]()->Box<Component> {
 					return make_box<T>();
 				};
-				info->loader = [=](Trait& value, InStream& stream) {
+				info->loader = [=](Component& value, InStream& stream) {
 					Loader<T>::load(static_cast<T&>(value), stream);
 				};
 			});
 			return info;
 		}
-		struct TraitVisitor;
-		struct Trait {
+		struct ComponentVisitor;
+		struct Component {
 			virtual TypeInfo* typeInfo() const = 0;
 			virtual void serialize(OutStream& stream)const {
 				typeInfo()->saver(*this, stream);
@@ -338,13 +338,13 @@ namespace Miyuki {
 			virtual void deserialize(InStream& stream) {
 				typeInfo()->loader(*this, stream);
 			}
-			virtual ~Trait() = default;
-			inline void accept(TraitVisitor& visitor);
+			virtual ~Component() = default;
+			inline void accept(ComponentVisitor& visitor);
 		};
-		struct TraitVisitor {
-			std::unordered_map<TypeInfo*, std::function<void(Trait*)>>_map;
+		struct ComponentVisitor {
+			std::unordered_map<TypeInfo*, std::function<void(Component*)>>_map;
 		public:
-			void visit(Trait* trait) {
+			void visit(Component* trait) {
 				if (!trait)return;
 				_map.at(trait->typeInfo())(trait);
 			}
@@ -354,20 +354,20 @@ namespace Miyuki {
 			}
 			template<class T>
 			void visit(const std::function<void(T*)>& f) {
-				_map[T::type()] = [=](Trait* p) {
+				_map[T::type()] = [=](Component* p) {
 					f(static_cast<T*>(p));
 				};
 			}
 		};
 		namespace detail {
-			template<class T = Trait>
+			template<class T = Component>
 			struct Match {
 				T* value;
 				bool matched = false;
 				Match(T* value) :value(value) {}
-				template<class U,class Function>
+				template<class U, class Function>
 				Match& with(Function func) {
-					if (matched)return *this;					
+					if (matched)return *this;
 					if (value && typeof(value) == typeof<U>()) {
 						auto f = std::move(func);
 						f(static_cast<U*>(value));
@@ -377,16 +377,16 @@ namespace Miyuki {
 				}
 			};
 		}
-		template<class T=Trait>
-		detail::Match<T> match(T* trait) {
+		template<class T = Component>
+		detail::Match<T> match(T * trait) {
 			return detail::Match<T>(trait);
 		};
-		inline void Trait::accept(TraitVisitor& visitor) {
+		inline void Component::accept(ComponentVisitor& visitor) {
 			visitor.visit(this);
 		}
 		template<int>
 		struct ID {};
-	
+
 		template<class T, class Visitor>
 		void visit(T& x, Visitor& v) {
 			using _T = std::decay_t<T>;
@@ -398,12 +398,12 @@ namespace Miyuki {
 				std::unordered_map<std::string, TypeInfo*> _registerdTypeMap;
 				static Types* all;
 				static std::once_flag flag;
-				static Types& get() {					
+				static Types& get() {
 					std::call_once(flag, [&]() {all = new Types(); });
 					return *all;
 				}
 			};
-			
+
 		}
 		template<class T>
 		inline void registerType() {
@@ -414,7 +414,7 @@ namespace Miyuki {
 		inline TypeInfo* getTypeByName(const std::string& name) {
 			return detail::Types::get()._registerdTypeMap.at(name);
 		}
-		inline TypeInfo* typeof(Trait* trait) {
+		inline TypeInfo* typeof(Component* trait) {
 			if (!trait)return nullptr;
 			return trait->typeInfo();
 		}
@@ -428,14 +428,14 @@ namespace Miyuki {
 	struct __Injector {
 		__Injector(std::function<void(void)> f) { f(); }
 	};
-	using Trait = Reflection::Trait;
-	using Reflection::Box; 
+	using Component = Reflection::Component;
+	using Reflection::Box;
 
-//#define MYK_AUTO_REGSITER_TYPE(Type)struct Type##Register{using Self = Type##Register;\
-//		Self(){Miyuki::Reflection::registerType<Namespace::Type>();}\
-//	}; static Type##Register Type##RegisterInstance;
-	// ???
-	// This hack works.
+	//#define MYK_AUTO_REGSITER_TYPE(Type)struct Type##Register{using Self = Type##Register;\
+	//		Self(){Miyuki::Reflection::registerType<Namespace::Type>();}\
+	//	}; static Type##Register Type##RegisterInstance;
+		// ???
+		// This hack works.
 #define MYK_AUTO_REGSITER_TYPE(Type) static Miyuki::__Injector BOOST_PP_CAT(BOOST_PP_CAT(BOOST_PP_CAT(injector,__COUNTER__),_),__LINE__ )\
 											([](){Miyuki::Reflection::registerType<Type>();});
 #define MYK_BEGIN_REFL(Type) MYK_AUTO_REGSITER_TYPE(Type)template<>struct Miyuki_Reflection_MetaInfo<Type> {\
@@ -491,27 +491,99 @@ namespace Miyuki {
 		struct MethodToFunction<R(T::*)(Args...)> {
 			using type = std::function<R(Args...)>;
 		};
-		template<class T>
+		template<class... T>
 		struct VTable {};
 
-		template<class T>
+		namespace detail {
+			template<class... T>
+			struct AnyPtrVTable {
+				std::shared_ptr<void> ptr;
+				VTable<T...>vtable;
+			};
+		}
+		template<class... T>
+		struct WeakAnyPtr;
+		template<class... T>
 		struct AnyPtr {
 			template<class Any>
-			AnyPtr(Any* ptr) :ptr(ptr) {
-				if (ptr)
-					vtable.assign(*ptr);
+			AnyPtr(Any* ptr) {
+				reset(ptr);
 			}
-			VTable<T>* operator ->() {
-				return &vtable;
+			VTable<T...>* operator ->() {
+				return &ptr->vtable;
 			}
-			const VTable<T>* operator ->()const {
-				return &vtable;
+			const VTable<T...>* operator ->()const {
+				return &ptr->vtable;
+			}
+			AnyPtr& operator = (const AnyPtr& rhs) {
+				ptr = rhs.ptr;
+			}
+			template<class Any>
+			AnyPtr& operator = (Any* ptr) {
+				reset(ptr);
+				return *this;
+			}
+			void reset() {
+				ptr.reset();
+			}
+			template<class Any>
+			void reset(Any* ptr) {
+				if (ptr) {
+					this->ptr.reset(new detail::AnyPtrVTable<T...>());
+					this->ptr->ptr.reset(ptr);
+					this->ptr->vtable.assign(*ptr);
+				}
+				else {
+					this->ptr.reset();
+				}
+			}
+			friend struct WeakAnyPtr<T...>;
+		private:
+			std::shared_ptr<detail::AnyPtrVTable<T...>> ptr;
+		};
+
+		template<class... T>
+		struct WeakAnyPtr {
+			WeakAnyPtr(const AnyPtr<T...>& ptr) {
+				this->ptr = ptr.ptr;
+			}
+			WeakAnyPtr(const WeakAnyPtr& ptr) {
+				this->ptr = ptr.ptr;
+			}
+			VTable<T...>* operator ->() {
+				return &ptr.lock()->vtable;
+			}
+			const VTable<T...>* operator ->()const {
+				return &ptr.lock()->vtable;
+			}
+			WeakAnyPtr& operator = (const WeakAnyPtr& rhs) {
+				ptr = rhs.ptr;
+				return *this;
+			}
+			WeakAnyPtr& operator = (const AnyPtr<T...>& rhs) {
+				ptr = rhs.ptr;
+				return *this;
+			}
+			bool expired()const {
+				return ptr.expired();
 			}
 		private:
-			VTable<T> vtable;
-			std::shared_ptr<void> ptr;
+			std::weak_ptr<detail::AnyPtrVTable<T...>> ptr;
+		};
+
+		template<class T, class... Rest >
+		struct VTable<T, Rest...> :VTable<T>, VTable<Rest...> {
+			template<class Any>
+			void assign(Any& object) {
+				VTable<T>::assign(object);
+				VTable<Rest...>::assign(object);
+			}
 		};
 	}
+	template<class... T>
+	using AnyPtr = Reflection::AnyPtr<T...>;
+	template<class... T>
+	using WeakAnyPtr = Reflection::WeakAnyPtr<T...>;
 }
 
 #define MYK_METHOD_LAMBDA(Type, Method) \

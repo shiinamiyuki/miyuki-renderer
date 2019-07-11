@@ -18,7 +18,7 @@ namespace Miyuki {
 			kAllButSpecular = kAll & ~kSpecular
 		};
 
-		struct Material : public Trait {
+		struct Material : public Component {
 			virtual BSDFLobe lobe()const = 0;
 			virtual Shader* emission()const = 0;
 		};

@@ -7,20 +7,20 @@
 
 namespace Miyuki {
 	namespace Core {
-		struct MaterialSlot final : Trait {
+		struct MaterialSlot final : Component {
 			MYK_IMPL(MaterialSlot);
 			std::string name;
 			Box<Material> material;
 		};
 
 
-		struct Object final : Trait {
+		struct Object final : Component {
 			MYK_IMPL(Object);
 			std::string name;
 			MaterialSlot* material = nullptr;
 		};
 
-		struct MeshFile final : Trait {
+		struct MeshFile final : Component {
 			MYK_IMPL(MeshFile);
 			Transform transform;
 			std::string name;
@@ -29,7 +29,7 @@ namespace Miyuki {
 		};
 
 		
-		struct Graph final : Trait {
+		struct Graph final : Component {
 			MYK_IMPL(Graph);
 			std::vector<Box<MaterialSlot>> materials;
 			std::vector<Box<MeshFile>> meshes;

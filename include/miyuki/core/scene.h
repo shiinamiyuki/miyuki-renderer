@@ -15,6 +15,7 @@ namespace Miyuki {
 			std::unordered_map<std::string, Core::Material*> materialAssignment;
 			std::vector<std::shared_ptr<Mesh>> instances;
 			std::map<std::string, std::shared_ptr<Mesh>> meshes;
+			std::map<std::string, uint32_t> meshToId;
 			std::unique_ptr<IO::ImageLoader> imageLoader;
 			void loadObjMesh(const std::string& filename);
 

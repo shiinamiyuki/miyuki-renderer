@@ -1,13 +1,28 @@
 #include <ui/uivisitor.h>
 #include <ui/mykui.h>
+#include <utils/log.h>
+
 
 namespace Miyuki {
 	namespace GUI {
+		boost::signals2::signal<void(void)> uiInputChanged;
+		UIVisitor::~UIVisitor() {
+			connection.disconnect();
+		}
+
+		template<class T>
+		std::optional<T> GetInputWithSignal(const std::string& prompt, const T& initial) {
+			if (auto r = GetInput(prompt, initial)) {
+				uiInputChanged();
+				return r;
+			}
+			return {};
+		}
 
 		struct TypeSelector {
 			std::unordered_map<std::string, const Reflection::TypeInfo*>_map;
 			std::unordered_map<const Reflection::TypeInfo*, std::string>_invmap;
-			std::unordered_map<const Reflection::TypeInfo*, std::function<Box<Trait>(void)>> _ctors;
+			std::unordered_map<const Reflection::TypeInfo*, std::function<Box<Component>(void)>> _ctors;
 			std::vector<std::string> _list;
 			template<class T>
 			TypeSelector& option(const std::string& s) {
@@ -16,7 +31,7 @@ namespace Miyuki {
 				_map[s] = c;
 				_invmap[c] = s;
 				_list.push_back(s);
-				_ctors[c] = [](void) -> Box<Trait> {
+				_ctors[c] = [](void) -> Box<Component> {
 					return Reflection::make_box<T>();
 				};
 				return *this;
@@ -77,15 +92,18 @@ namespace Miyuki {
 		}
 
 		void UIVisitor::init() {
+			connection = uiInputChanged.connect([]() {
+				
+			});
 			visit<Core::FloatShader>([=](Core::FloatShader* shader) {
 				auto value = shader->getValue();
-				if (auto r = GetInput("value", value)) {
+				if (auto r = GetInputWithSignal("value", value)) {
 					shader->setValue(r.value());
 				}
 			});
 			visit<Core::RGBShader>([=](Core::RGBShader* shader) {
 				Spectrum value = shader->getValue();
-				if (auto r = GetInput("value", value)) {
+				if (auto r = GetInputWithSignal("value", value)) {
 					shader->setValue(r.value());
 				}
 			});
@@ -109,10 +127,10 @@ namespace Miyuki {
 			});
 			visit<Core::MeshFile>([=](Core::MeshFile* node) {
 				auto name = node->name;
-				if (auto r = GetInput("name", name)) {
+				if (auto r = GetInputWithSignal("name", name)) {
 					node->name = r.value();
 				}
-				if (auto r = GetInput("transform", node->transform)) {
+				if (auto r = GetInputWithSignal("transform", node->transform)) {
 					node->transform = r.value();
 				}
 			});
@@ -120,7 +138,7 @@ namespace Miyuki {
 				auto graph = engine->getGraph();
 				auto objectName = node->name;
 				auto matName = node->material->name;
-				if (auto r = GetInput("name", objectName)) {
+				if (auto r = GetInputWithSignal("name", objectName)) {
 					node->name = r.value();
 				}
 				
@@ -148,7 +166,7 @@ namespace Miyuki {
 				}
 			});
 			visit<Core::MaterialSlot>([=](Core::MaterialSlot* slot) {
-				if (auto r = GetInput("name", slot->name)) {
+				if (auto r = GetInputWithSignal("name", slot->name)) {
 					slot->name = r.value();
 				}
 				visit(slot->material);

@@ -4,7 +4,7 @@
 
 namespace Miyuki {
 	namespace Core {
-		struct Accelerator : Trait{
+		struct Accelerator : Component{
 			virtual void addMesh(std::shared_ptr<Mesh> mesh, uint32_t id) = 0;
 
 			virtual bool intersect(const Ray& ray, Intersection* isct) = 0;

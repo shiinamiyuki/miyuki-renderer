@@ -13,7 +13,7 @@ namespace Miyuki {
 			Float weight;
 		};
 
-		struct Camera : Trait {
+		struct Camera : Component {
 			virtual Float generateRay(Sampler& sampler,
 				const Point2i& raster,
 				Ray* ray,

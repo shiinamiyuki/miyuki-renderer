@@ -12,7 +12,7 @@ namespace Miyuki {
 			Vec3f output;
 		};
 
-		struct Shader : Trait{
+		struct Shader : Component {
 		public:
 			virtual void eval(ShadingPoint&) = 0;
 			virtual void preprocess() {}

@@ -21,7 +21,7 @@ namespace Miyuki {
 			sample(sample),pixel(pixel),samplesPerPixel(samplesPerPixel){}
 		};
 
-		struct Sampler : Trait{
+		struct Sampler : Component{
 			virtual std::unique_ptr<Sampler> clone()const = 0;
 			virtual Float get1D() = 0;
 			virtual Point2f get2D() = 0;

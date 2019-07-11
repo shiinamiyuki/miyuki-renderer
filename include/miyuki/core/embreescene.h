@@ -20,10 +20,10 @@ namespace Miyuki {
 
 		struct EmbreeScene final: public Accelerator {
 			MYK_IMPL(EmbreeScene);
-			void commit();
-
 
 			EmbreeScene();
+
+			void commit();
 
 			void addMesh(std::shared_ptr<Mesh> mesh, uint32_t id)override;
 

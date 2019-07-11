@@ -1,4 +1,5 @@
 #include <core/scene.h>
+#include <utils/log.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -19,17 +20,23 @@ namespace Miyuki {
 		}
 
 		void Scene::instantiateMesh(const std::string& filename, const std::string& meshName, const Transform& T) {
+			if (meshToId.find(meshName) != meshToId.end()) {
+				Log::log("Reading from mesh data {}\n", meshName);
+				return;
+			}
 			CHECK(meshes.find(filename) != meshes.end());
 			auto mesh = meshes[filename]->instantiate(meshName, T);
-			embreeScene->addMesh(mesh, (int)instances.size());
+			auto id = (uint32_t)instances.size();
+			embreeScene->addMesh(mesh, id);
+			meshToId[meshName] = id;
 			for (const auto& name : mesh->names) {
 				mesh->materials.push_back(materialAssignment.at(name));
 			}
 			instances.emplace_back(mesh);
 		}
 
-		struct Scene::Visitor : Reflection::TraitVisitor {
-			using Base = Reflection::TraitVisitor;
+		struct Scene::Visitor : Reflection::ComponentVisitor {
+			using Base = Reflection::ComponentVisitor;
 			Scene& scene;
 			Visitor(Scene& scene) :scene(scene) {
 			}

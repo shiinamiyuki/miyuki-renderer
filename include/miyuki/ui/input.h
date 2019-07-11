@@ -13,6 +13,7 @@ namespace Miyuki {
 		std::optional<Spectrum> GetInput(const  std::string&, Spectrum initial);
 		std::optional<Float> GetFloatClamped(const std::string&, Float initial, Float minVal, Float maxVal);
 		std::optional<std::string> GetInput(const std::string&, const std::string&);
+	
 	}
 }
 #endif
