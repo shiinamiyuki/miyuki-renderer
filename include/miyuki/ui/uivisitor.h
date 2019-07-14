@@ -21,7 +21,14 @@ namespace Miyuki {
 			SelectedNodeType selectedNodeType;
 			using Base = Reflection::ComponentVisitor;
 			boost::signals2::connection connection;
+			bool changed = true;
 		public:
+			void commit() {
+				if(changed)
+					engine->commit();
+				changed = false;
+			}
+	
 			RenderEngine* engine = nullptr;
 			void visitGraph();
 			void init();
@@ -29,9 +36,11 @@ namespace Miyuki {
 				init();
 			}
 			void reset() {
+				changed = true;
 				selected = nullptr;
 			}
 			void visitSelected();
+			void visitCamera();
 			~UIVisitor();
 		};
 	}

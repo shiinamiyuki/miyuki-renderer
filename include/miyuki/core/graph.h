@@ -4,6 +4,7 @@
 #include <core/materials/material.h>
 #include <utils/file.hpp>
 #include <core/cameras/camera.h>
+#include <core/integrators/integrator.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -34,6 +35,7 @@ namespace Miyuki {
 			std::vector<Box<MaterialSlot>> materials;
 			std::vector<Box<MeshFile>> meshes;
 			std::vector<Box<Camera>> cameras;
+			Box<Integrator> integrator;
 			Camera* activeCamera = nullptr;
 		};
 	}
@@ -41,5 +43,5 @@ namespace Miyuki {
 
 MYK_REFL(Miyuki::Core::MaterialSlot, (name)(material))
 MYK_REFL(Miyuki::Core::Object, (name)(material))
-MYK_REFL(Miyuki::Core::Graph, (materials)(meshes)(cameras)(activeCamera))
+MYK_REFL(Miyuki::Core::Graph, (materials)(meshes)(cameras)(activeCamera)(integrator))
 MYK_REFL(Miyuki::Core::MeshFile, (file)(name)(transform)(objects))

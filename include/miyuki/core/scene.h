@@ -23,7 +23,7 @@ namespace Miyuki {
 				const Transform& T = Transform());
 
 			void instantiateMesh(const std::string& filename, const std::string& meshName, const Transform&);
-			class Visitor;
+			struct Visitor;
 		public:
 			Scene();
 			void commit(Core::Graph&);

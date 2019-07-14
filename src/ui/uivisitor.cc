@@ -92,8 +92,8 @@ namespace Miyuki {
 		}
 
 		void UIVisitor::init() {
-			connection = uiInputChanged.connect([]() {
-				
+			connection = uiInputChanged.connect([=]() {
+				changed = true;
 			});
 			visit<Core::FloatShader>([=](Core::FloatShader* shader) {
 				auto value = shader->getValue();
@@ -140,8 +140,7 @@ namespace Miyuki {
 				auto matName = node->material->name;
 				if (auto r = GetInputWithSignal("name", objectName)) {
 					node->name = r.value();
-				}
-				
+				}				
 				LineText("material");
 
 				Combo().name("use material").item(matName).with(true, [=]()
@@ -170,6 +169,14 @@ namespace Miyuki {
 					slot->name = r.value();
 				}
 				visit(slot->material);
+			});
+			visit<Core::PerspectiveCamera>([=](Core::PerspectiveCamera* camera) {
+				if (auto r = GetInputWithSignal("viewpoint", camera->viewpoint)) {
+					camera->viewpoint = r.value();
+				}
+				if (auto r = GetInputWithSignal("direction", camera->direction)) {
+					camera->direction = r.value();
+				}
 			});
 		}
 
@@ -246,6 +253,10 @@ namespace Miyuki {
 					}).show();
 				}
 			}).show();
+		}
+		void UIVisitor::visitCamera() {
+			auto graph = engine->getGraph();
+			visit(graph->activeCamera);
 		}
 	}
 }

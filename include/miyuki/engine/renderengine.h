@@ -2,11 +2,16 @@
 #define MIYUKI_RENDERENGINE_H
 #include <miyuki.h>
 #include <core/graph.h>
+#include <core/integrators/integrator.h>
+#include <core/scene.h>
 
 namespace Miyuki {
-	class RenderEngine {
+	struct RenderEngine {
+	private:
 		std::string _filename;
 		Box<Core::Graph> graph;
+		std::unique_ptr<Core::Scene> scene;
+		Core::Integrator* integrator;
 	public:
 		RenderEngine();
 		const std::string filename()const { return _filename; }
@@ -20,7 +25,8 @@ namespace Miyuki {
 		bool hasGraph() {
 			return graph != nullptr;
 		}
-		// overrides current graph if any
+
+		// overwrites current graph if any
 		void open(const std::string& filename);
 		bool isFilenameEmpty() {
 			return filename().empty();
@@ -32,6 +38,13 @@ namespace Miyuki {
 		Core::Graph* getGraph() {
 			return graph.get();
 		}
+		void commit() {
+			scene->commit(*graph);
+		}
+		Core::Scene* getScene() {
+			return scene.get();
+		}
+		
 	};
 }
 #endif

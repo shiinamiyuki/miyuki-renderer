@@ -45,6 +45,7 @@ namespace Miyuki {
 
 	void RenderEngine::newGraph() {
 		graph = Reflection::make_box<Core::Graph>();
+		scene = std::make_unique<Core::Scene>();
 	}
 
 
@@ -72,7 +73,7 @@ namespace Miyuki {
 		json j = json::parse(content);
 		try {
 			Reflection::InStream in(j);
-			graph = Reflection::make_box<Core::Graph >();
+			newGraph();
 			graph->deserialize(in);
 			Log::log("Opened {}\n", filename);
 			Log::log("Loaded {} materials\n", graph->materials.size());

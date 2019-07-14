@@ -5,6 +5,7 @@
 #include <hw/texture.h>
 #include <hw/shader.h>
 #include <engine/renderengine.h>
+#include <core/film.h>
 
 
 #include <cstdio>
@@ -47,29 +48,20 @@ namespace Miyuki {
 			void update();
 			void loadConfig();
 			void saveConfig();
-			//void loadViewport(Film&);
-			struct WindowFlags{
+			void loadViewport(Core::Film&);
+			struct WindowFlags {
 				bool showLog = true;
 				bool showPreference = false;
 				bool showExplorer = true;
 				bool showAttributeEditor = true;
 				bool showAbout = false;
+				bool showView = false;
 				std::atomic<bool> viewportUpdateAvailable;
-				std::atomic<bool> windowEnabled;
-				WindowFlags() :viewportUpdateAvailable(false), windowEnabled(true){}
+				WindowFlags() :viewportUpdateAvailable(false) {}
 			}windowFlags;
 			void startRenderThread();
 			void stopRenderThread();
 
-			bool enabled() {
-				return windowFlags.windowEnabled;
-			}
-			void disable() {
-				windowFlags.windowEnabled = false;
-			}
-			void enable() {
-				windowFlags.windowEnabled = true;
-			}
 			Modal modal;
 			void showModal() {
 				modal.show();

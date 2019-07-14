@@ -11,6 +11,7 @@ namespace Miyuki {
 				return;
 			auto mesh = std::make_shared<Mesh>(filename);
 			meshes[filename] = mesh;
+			Log::log("Loaded {}\n", filename);
 		}
 
 		void Scene::loadObjMeshAndInstantiate(

@@ -104,30 +104,13 @@ void main()
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
-		/*void MainWindow::viewportWindow() {
-			if (ImGui::Begin("Viewpot")) {
-				bool b = renderThread != nullptr;
-				if (ImGui::Checkbox("Render", &b)) {
-					if (b) {
-						startRenderThread();
-					}
-					else {
-						stopRenderThread();
-					}
-				}
-				ImGui::Separator();
-				if (windowFlags.viewportUpdateAvailable) {
-					if (updateTimer.elapsedSeconds() > 0.5) {
-						std::lock_guard<std::mutex> lock(viewportMutex);
-						loadViewport(*engine->getScene().getMainCamera()->getFilm());
-						windowFlags.viewportUpdateAvailable = false;
-						updateTimer = Timer();
-					}
-				}
-				Draw(*viewport);
-				ImGui::End();
+		void MainWindow::viewportWindow() {
+			if (windowFlags.showView) {
+				Window().name("render view").with(true, [=]() {
+
+				}).show();
 			}
-		}*/
+		}
 
 		void MainWindow::explorerWindow() {
 			if (windowFlags.showExplorer) {
@@ -140,7 +123,7 @@ void main()
 		}
 
 		void MainWindow::attriubuteEditorWindow() {
-			if (windowFlags.showAttributeEditor){
+			if (windowFlags.showAttributeEditor) {
 				auto showSelected = [=]() {
 					try {
 						visitor.visitSelected();
@@ -156,7 +139,7 @@ void main()
 
 					Tab().item(TabItem().name("selected").with(true, showSelected))
 						.item(TabItem().name("sampling"))
-						.item(TabItem().name("camera"))
+						.item(TabItem().name("camera").with(true, [=]() {visitor.visitCamera(); }))
 						.item(TabItem().name("film")).show();
 				}).show();
 			}
@@ -177,7 +160,7 @@ void main()
 			auto importObj = [=]() {
 				if (!engine->hasGraph()) {
 					showErrorModal("Error", "Must create a scene graph first");
-					return;
+					return; 
 				}
 				if (engine->isFilenameEmpty()) {
 					showErrorModal("Error", "Save the scene graph first");
@@ -242,6 +225,7 @@ void main()
 				.menu(Menu().name("Window")
 					.item(MenuItem().name("Explorer").selected(&windowFlags.showExplorer))
 					.item(MenuItem().name("Attribute Editor").selected(&windowFlags.showAttributeEditor))
+					.item(MenuItem().name("View").selected(&windowFlags.showView))
 					.item(MenuItem().name("Log").selected(&windowFlags.showLog))
 					.item(MenuItem().name("Preference").selected(&windowFlags.showPreference)))
 				.menu(Menu().name("Help"))
@@ -294,7 +278,7 @@ void main()
 				showModal();
 				menuBar();
 				ImGui::ShowDemoWindow();
-				//	viewportWindow();
+				viewportWindow();
 				explorerWindow();
 				attriubuteEditorWindow();
 			}
@@ -322,20 +306,20 @@ void main()
 			out << config << std::endl;
 		}
 
-		/*void MainWindow::loadViewport(Film& film) {
-			int w = film.width(), h = film.height();
-			std::vector<uint8_t> pixelData(w * h * 4u);
-			uint32_t i = 0;
-			for (const auto& pixel : engine->getScene().getMainCamera()->getFilm()->image) {
+		void MainWindow::loadViewport(Core::Film& film) {
+			size_t w = film.width(), h = film.height();
+			std::vector<uint8_t> pixelData(w * h * 4ul);
+			size_t i = 0;
+			for (const auto& pixel : film.image) {
 				auto color = pixel.eval().toInt();
-				pixelData[4u * i] = color.r();
-				pixelData[4u * i + 1] = color.g();
-				pixelData[4u * i + 2] = color.b();
-				pixelData[4u * i + 3] = 255;
+				pixelData[4ul * i] = color.r();
+				pixelData[4ul * i + 1] = color.g();
+				pixelData[4ul * i + 2] = color.b();
+				pixelData[4ul * i + 3] = 255;
 				i++;
 			}
 			viewport = std::make_unique<HW::Texture>(w, h, &pixelData[0]);
-		}*/
+		}
 
 		void MainWindow::startRenderThread() {
 

@@ -41,10 +41,11 @@ namespace Miyuki {
 			Float filterWeightSum = 0;
 		};
 
-		class Film;
+		struct Film;
 
-		class FilmTile {
-			friend class Film;
+		struct FilmTile {
+		private:
+			friend struct Film;
 
 			std::vector<TilePixel> pixels;
 			Bound2i pixelBounds;
@@ -60,7 +61,7 @@ namespace Miyuki {
 			void addSample(const Point2f& raster, const Spectrum& sample, Float weight = 1);
 		};
 
-		class Film {
+		struct Film {
 		public:
 			std::vector<Pixel> image;
 			std::unique_ptr<Filter> filter;
