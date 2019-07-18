@@ -214,8 +214,8 @@ namespace Miyuki {
 		}
 
 		template<class T>
-		void save(std::vector<T>& vec, OutObjectStream& stream) {
-			for (auto& item : vec) {
+		void save(const std::vector<T>& vec, OutObjectStream& stream) {
+			for (const auto& item : vec) {
 				auto sub = stream.sub();
 				save(item, sub);
 				stream.append(sub);
@@ -232,8 +232,8 @@ namespace Miyuki {
 		}
 
 		template<class K, class V>
-		void save(std::unordered_map<K, V>& map, OutObjectStream& stream) {
-			for (auto& item : map) {
+		void save(const std::unordered_map<K, V>& map, OutObjectStream& stream) {
+			for (const auto& item : map) {
 				auto pair = stream.sub();
 				auto key = pair.sub();
 				auto val = pair.sub();
@@ -256,8 +256,8 @@ namespace Miyuki {
 			}
 		}
 		template<class K, class V>
-		void save(std::map<K, V>& map, OutObjectStream& stream) {
-			for (auto& item : map) {
+		void save(const std::map<K, V>& map, OutObjectStream& stream) {
+			for (const auto& item : map) {
 				auto pair = stream.sub();
 				auto key = pair.sub();
 				auto val = pair.sub();
@@ -509,6 +509,7 @@ namespace Miyuki {
 			}
 			void addClass(Class* info) {
 				classes[info->getName()] = info;
+				info->getBase()->addDerived(info);
 			}
 			static Runtime& GetInstance() {				
 				std::call_once(flag, [&]() {
@@ -644,10 +645,11 @@ MYK_REFL(A, (a))
 class B : public A {
 public:
 	B* next;
+	std::unordered_map<int, int> map;
 	MYK_CLASS(B, A)
 };
 
-MYK_REFL(B, (next))
+MYK_REFL(B, (next)(map))
 
 Miyuki::Reflection::Runtime* Miyuki::Reflection::Runtime::instance;
 std::once_flag Miyuki::Reflection::Runtime::flag;
@@ -659,6 +661,8 @@ int main(int argc, char** argv) {
 	try {
 		auto b = NewObject<B>();
 		b->a = 1;
+		b->map[2] = 3;
+		b->map[-123] = 4;
 		b->next = NewObject<B>();
 		b->next->next = b;
 		b->next->a = 2;
