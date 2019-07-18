@@ -28,17 +28,17 @@ namespace Miyuki {
 				}
 				CHECK(attrib.vertices.size() % 3 == 0);
 				vertices.reserve(attrib.vertices.size() / 3);
-				for (auto i = 0; i < attrib.vertices.size(); i += 3) {
+				for (size_t i = 0; i < attrib.vertices.size(); i += 3) {
 					vertices.emplace_back(Vec3f(attrib.vertices[i],
-						attrib.vertices[i + 1],
-						attrib.vertices[i + 2]));
+						attrib.vertices[i + 1ull],
+						attrib.vertices[i + 2ull]));
 				}
 				CHECK(attrib.normals.size() % 3 == 0);
 				normals.reserve(attrib.normals.size() / 3);
-				for (auto i = 0; i < attrib.normals.size(); i += 3) {
+				for (size_t i = 0; i < attrib.normals.size(); i += 3) {
 					normals.emplace_back(Vec3f(attrib.normals[i],
-						attrib.normals[i + 1],
-						attrib.normals[i + 2]));
+						attrib.normals[i + 1ull],
+						attrib.normals[i + 2ull]));
 				}
 				std::unordered_map<std::string, int> map;
 				for (const auto& shape : shapes) {

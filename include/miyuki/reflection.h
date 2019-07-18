@@ -276,6 +276,9 @@ namespace Miyuki {
 		MYK_SAVE_LOAD_TRVIAL(Vec3f);
 		MYK_SAVE_LOAD_TRVIAL(Spectrum);
 		MYK_SAVE_LOAD_TRVIAL(std::string);
+		MYK_SAVE_LOAD_TRVIAL(Point2i);
+		MYK_SAVE_LOAD_TRVIAL(Point2f);
+		MYK_SAVE_LOAD_TRVIAL(Point3f);
 
 		namespace detail {
 			template<class T>
@@ -436,6 +439,8 @@ namespace Miyuki {
 	};
 	using Component = Reflection::Component;
 	using Reflection::Box;
+	template<class T>
+	using Arc = std::shared_ptr<T>;
 
 	//#define MYK_AUTO_REGSITER_TYPE(Type)struct Type##Register{using Self = Type##Register;\
 	//		Self(){Miyuki::Reflection::registerType<Namespace::Type>();}\
@@ -474,7 +479,7 @@ namespace Miyuki {
 					};};
 #define MYK_IMPL(Type) using __Self = Type;friend struct Miyuki_Reflection_MetaInfo<__Self>;\
 		static Miyuki::Reflection::TypeInfo* type(){return Miyuki::Reflection::GetTypeInfo<Type>(#Type);}\
-		virtual Miyuki::Reflection::TypeInfo* typeInfo() const override{\
+		virtual Miyuki::Reflection::TypeInfo* typeInfo() const final override{\
 			return __Self::type();\
 		}
 #define MYK_SEQ_MACRO(r, data, elem) MYK_ATTR(elem)

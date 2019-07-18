@@ -41,6 +41,7 @@ namespace Miyuki {
 			}
 			void visitSelected();
 			void visitCamera();
+			void visitIntegrator();
 			~UIVisitor();
 		};
 	}

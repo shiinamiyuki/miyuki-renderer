@@ -5,6 +5,7 @@
 #include <core/samplers/sampler.h>
 #include <core/ray.h>
 #include <math/transform.h>
+#include <core/film.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -27,6 +28,8 @@ namespace Miyuki {
 			virtual void preprocess() {  }	
 			virtual Vec3f cameraToWorld(Vec3f w) const = 0;
 			virtual Vec3f worldToCamera(Vec3f w) const = 0;
+			virtual Arc<Film> createFilm() const = 0;
+			virtual Box<Camera> scale(Float k) const = 0;
 		};
 
 		struct PerspectiveCamera final: Camera {
@@ -34,6 +37,9 @@ namespace Miyuki {
 			// euler angle;
 			Vec3f direction;
 			Matrix4x4 rotationMatrix, invMatrix;
+			Point2i dimension;
+			Float lensRadius, focalDistance;
+			Float fov;
 			MYK_IMPL(PerspectiveCamera);
 			virtual void preprocess()override;
 
@@ -51,9 +57,7 @@ namespace Miyuki {
 			virtual Float generateRay(Sampler& sampler,
 				const Point2i& raster,
 				Ray* ray,
-				CameraSample*) override {
-				return 0.0;
-			}
+				CameraSample*) override;
 
 			virtual Float
 				generateRayDifferential(Sampler& sampler,
@@ -61,11 +65,13 @@ namespace Miyuki {
 					RayDifferential* ray, Float* weight) override {
 				return 0.0;
 			}
+			Arc<Film> createFilm()const override;
+			Box<Camera> scale(Float k)const override;
 		private:
 			void computeTransformMatrix();
 		};
 	}
 }
 
-MYK_REFL(Miyuki::Core::PerspectiveCamera, (viewpoint)(direction));
+MYK_REFL(Miyuki::Core::PerspectiveCamera, (viewpoint)(direction)(dimension)(lensRadius)(focalDistance)(fov));
 #endif

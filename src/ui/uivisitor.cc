@@ -2,6 +2,7 @@
 #include <ui/mykui.h>
 #include <utils/log.h>
 
+#include <core/integrators/ao.h>
 
 namespace Miyuki {
 	namespace GUI {
@@ -12,7 +13,7 @@ namespace Miyuki {
 
 		template<class T>
 		std::optional<T> GetInputWithSignal(const std::string& prompt, const T& initial) {
-			if (auto r = GetInput(prompt, initial)) {
+			if (auto r = GetInput(prompt, static_cast<T>(initial))) {
 				uiInputChanged();
 				return r;
 			}
@@ -177,6 +178,23 @@ namespace Miyuki {
 				if (auto r = GetInputWithSignal("direction", camera->direction)) {
 					camera->direction = r.value();
 				}
+				if (auto r = GetInputWithSignal("film dimension", camera->dimension)) {
+					camera->dimension = r.value();
+				}
+				if (auto r = GetInputWithSignal("lensRadius", camera->lensRadius)) {
+					camera->lensRadius = r.value();
+				}
+				if (auto r = GetInputWithSignal("focal distance", camera->focalDistance)) {
+					camera->focalDistance = r.value();
+				}
+			});
+			visit<Core::AOIntegrator>([=](Core::AOIntegrator* integrator) {
+				if (auto r = GetInputWithSignal("samples", integrator->spp)) {
+					integrator->spp = r.value();
+				}
+				if (auto r = GetInputWithSignal("occlusion distance", integrator->occlusionDistance)) {
+					integrator->occlusionDistance = r.value();
+				}
 			});
 		}
 
@@ -256,7 +274,30 @@ namespace Miyuki {
 		}
 		void UIVisitor::visitCamera() {
 			auto graph = engine->getGraph();
+			if (!graph)return;
 			visit(graph->activeCamera);
+		}
+
+		std::optional<Box<Core::Integrator>> selectIntegrator(Core::Integrator* integrator, const std::string& label) {
+			static TypeSelector selector;
+			static std::once_flag flag;
+			std::call_once(flag, [&]() {
+				selector.option<Core::AOIntegrator>("Ambient Occlusion");
+			});
+			return selector.select<Core::Integrator>(label, integrator);
+		}
+
+
+		void UIVisitor::visitIntegrator() {
+			auto graph = engine->getGraph();
+			if (!graph)return;
+			auto& integrator = graph->integrator;
+			ImGui::PushID(&integrator);
+			if (auto r = selectIntegrator(integrator.get(), "integrator")) {
+				integrator = std::move(r.value());
+			}
+			visit(integrator);
+			ImGui::PopID();
 		}
 	}
 }

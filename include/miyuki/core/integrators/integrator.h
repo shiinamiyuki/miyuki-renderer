@@ -11,8 +11,8 @@ namespace Miyuki {
 	namespace Core {
 		class Scene;
 
-		using RenderResultCallback = std::function<void(std::shared_ptr<Film>)>;
-		using ProgressiveRenderCallback = std::function<void(const std::shared_ptr<Film> film)>;
+		using RenderResultCallback = std::function<void(Arc<Film> film)>;
+		using ProgressiveRenderCallback = std::function<void(Arc<Film> film)>;
 		
 
 		struct Integrator : Component {

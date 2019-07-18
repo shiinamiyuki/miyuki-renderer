@@ -138,7 +138,7 @@ void main()
 					.with(true, [=]() {
 
 					Tab().item(TabItem().name("selected").with(true, showSelected))
-						.item(TabItem().name("sampling"))
+						.item(TabItem().name("sampling").with(true, [=]() {visitor.visitIntegrator(); }))
 						.item(TabItem().name("camera").with(true, [=]() {visitor.visitCamera(); }))
 						.item(TabItem().name("film")).show();
 				}).show();
@@ -160,7 +160,7 @@ void main()
 			auto importObj = [=]() {
 				if (!engine->hasGraph()) {
 					showErrorModal("Error", "Must create a scene graph first");
-					return; 
+					return;
 				}
 				if (engine->isFilenameEmpty()) {
 					showErrorModal("Error", "Save the scene graph first");
@@ -228,8 +228,11 @@ void main()
 					.item(MenuItem().name("View").selected(&windowFlags.showView))
 					.item(MenuItem().name("Log").selected(&windowFlags.showLog))
 					.item(MenuItem().name("Preference").selected(&windowFlags.showPreference)))
+				.menu(Menu().name("Render")
+					.item(MenuItem().name("Start Interactive"))
+					.item(MenuItem().name("Stop")))
 				.menu(Menu().name("Help"))
-				.show();
+				.show(); 
 			if (windowFlags.showPreference) {
 				Window().name("Preference").open(&windowFlags.showPreference).with(true, [=]() {
 					/*if (ImGui::Button("Background Image")) {
@@ -434,14 +437,18 @@ void main()
 				glfwMakeContextCurrent(window);
 				glfwSwapBuffers(window);
 
-				//std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
-
 			}
 
 		}
 		void MainWindow::show() {
 			mainLoop();
 			close();
+		}
+
+		void MainWindow::handleRenderOutput(std::shared_ptr<Core::Film> film) {
+			std::unique_lock<std::mutex> lock(renderResultMutex, std::try_to_lock);
+			if (!lock.owns_lock())
+				return;
 		}
 	}
 }

@@ -25,6 +25,23 @@ namespace Miyuki {
 				return {};
 			}
 		}
+		std::optional<Point2i> GetInput(const std::string& prompt, Point2i initial) {
+			auto temp = initial;
+			if (ImGui::InputInt2(prompt.c_str(), &temp[0], ImGuiInputTextFlags_EnterReturnsTrue)) {
+				return std::optional<Point2i>(temp);
+			}
+			return {};
+		}
+
+		std::optional<size_t> GetInput(const std::string& prompt, size_t initial) {
+			int temp = initial;
+			if (ImGui::InputInt(prompt.c_str(), &temp, ImGuiInputTextFlags_EnterReturnsTrue)) {
+				return std::optional<size_t>(temp);
+			}
+			else {
+				return {};
+			}
+		}
 		std::optional<int> GetInput(const std::string& prompt, int initial) {
 			int temp = initial;
 			if (ImGui::InputInt(prompt.c_str(), &temp, ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -43,6 +60,14 @@ namespace Miyuki {
 				return {};
 			}
 		}
+		std::optional<Point2f> GetInput(const std::string& prompt, Point2f initial) {
+			auto temp = initial;
+			if (ImGui::InputFloat2(prompt.c_str(), &temp[0], "%f", ImGuiInputTextFlags_EnterReturnsTrue)) {
+				return std::optional<Point2f>(temp);
+			}
+			return {};
+		}
+		
 
 		std::optional<Vec3f> GetInput(const std::string& prompt, Vec3f initial) {
 			auto temp = initial;

@@ -35,6 +35,7 @@ namespace Miyuki {
 			std::unique_ptr<HW::Texture> background;
 			std::unique_ptr<HW::ShaderProgram> backgroundShader;
 			std::unique_ptr<std::thread> renderThread;
+			std::mutex renderResultMutex;
 			cxx::filesystem::path programPath;
 			json config;
 			void loadBackGroundShader();
@@ -82,6 +83,7 @@ namespace Miyuki {
 				visitor.reset();
 				visitor.engine = engine.get();
 			}
+			void handleRenderOutput(std::shared_ptr<Core::Film> film);
 		public:
 			MainWindow(int argc, char** argv);
 			void show();

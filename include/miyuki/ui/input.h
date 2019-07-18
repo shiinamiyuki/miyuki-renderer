@@ -9,6 +9,9 @@ namespace Miyuki {
 		std::optional<bool> GetInput(const std::string&, bool initial);
 		std::optional<int> GetInput(const std::string&, int initial);
 		std::optional<Float> GetInput(const std::string&, Float initial);
+		std::optional<size_t> GetInput(const std::string&, size_t initial);
+		std::optional<Point2i> GetInput(const std::string& prompt, Point2i initial);
+		std::optional<Point2f> GetInput(const std::string& prompt, Point2f initial);
 		std::optional<Vec3f> GetInput(const std::string&, Vec3f initial);
 		std::optional<Spectrum> GetInput(const  std::string&, Spectrum initial);
 		std::optional<Float> GetFloatClamped(const std::string&, Float initial, Float minVal, Float maxVal);

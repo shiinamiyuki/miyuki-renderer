@@ -44,7 +44,9 @@ namespace Miyuki {
 		Core::Scene* getScene() {
 			return scene.get();
 		}
-		
+		Core::Integrator* getIntegrator()const {
+			return integrator;
+		}
 	};
 }
 #endif
