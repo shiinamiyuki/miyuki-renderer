@@ -11,7 +11,7 @@ struct Miyuki_MetaInfo {
 
 namespace Miyuki {
 	namespace Reflection {
-		
+
 		template<int>
 		struct UID {};
 		template<class T, class Visitor>
@@ -24,13 +24,13 @@ namespace Miyuki {
 			static const int value = false;
 		};
 
-		
+
 		template<class T>
 		using MetaInfo = Miyuki_MetaInfo<T>;
 
-		
+
 		class Object;
-		
+
 
 		class Reference {
 			Object* object = nullptr;
@@ -45,7 +45,7 @@ namespace Miyuki {
 		class OutObjectStream {
 			json data;
 			struct State {
-				std::set<Object*> visited;
+				std::set<const Object*> visited;
 			};
 			std::shared_ptr<State> state;
 		public:
@@ -63,7 +63,7 @@ namespace Miyuki {
 			void write(const std::string& key, const OutObjectStream& stream) {
 				data[key] = stream.data;
 			}
-			void write(const std::string& key, const std::string &value) {
+			void write(const std::string& key, const std::string& value) {
 				data[key] = value;
 			}
 			void write(const std::string& key, size_t value) {
@@ -75,10 +75,10 @@ namespace Miyuki {
 			void append(std::nullptr_t) {
 				data.push_back(json{});
 			}
-			bool hasSerialized(Object* object)const {
+			bool hasSerialized(const Object* object)const {
 				return state->visited.find(object) != state->visited.end();
 			}
-			void addSerialized(Object* object) {
+			void addSerialized(const Object* object) {
 				state->visited.insert(object);
 			}
 			void write(int value) {
@@ -114,7 +114,7 @@ namespace Miyuki {
 			void write(const Point3f& value) {
 				data = value;
 			}
-			void writeReference(Object* ref) {
+			void writeReference(const Object* ref) {
 				data = json::object();
 				data["ref"] = std::to_string(reinterpret_cast<size_t>(ref));
 			}
@@ -129,7 +129,7 @@ namespace Miyuki {
 			};
 			std::shared_ptr<State> state;
 		public:
-			InObjectStream(const json &data, std::shared_ptr<State>s = nullptr) :data(data) {
+			InObjectStream(const json& data, std::shared_ptr<State>s = nullptr) :data(data) {
 				if (!s)
 					state = std::make_shared<State>();
 				else
@@ -152,6 +152,7 @@ namespace Miyuki {
 			}
 			size_t size() { return data.size(); }
 		};
+		class GCContext;
 #define MYK_SAVE_TRIVIAL(type)\
 		void save(const type& value, OutObjectStream& stream) {\
 			stream.write(value);\
@@ -160,6 +161,7 @@ namespace Miyuki {
 		void load(type& value, InObjectStream& stream) {\
 			value = stream.getJson().get<type>();\
 		}
+
 #define MYK_SAVE_LOAD_TRIVIAL(type) 	MYK_SAVE_TRIVIAL(type)MYK_LOAD_TRIVIAL(type)
 		MYK_SAVE_LOAD_TRIVIAL(int32_t);
 		MYK_SAVE_LOAD_TRIVIAL(uint32_t);
@@ -203,14 +205,25 @@ namespace Miyuki {
 		};
 
 		template<class T>
-		std::enable_if_t<std::is_convertible_v<T*, Object*>, void>
+		std::enable_if_t<std::is_base_of_v<Object, T>, void>
 			save(T* object, OutObjectStream& stream) {
 			if (!object) {
 				stream.write("ref", nullptr);
 				return;
 			}
+			if (!object->isManaged()) {
+				throw std::runtime_error("Cannot have pointer to a non-managed object");
+			}
 			object->serialize(stream);
-			
+
+		}
+
+		template<class T>
+		std::enable_if_t<std::is_base_of_v<Object, T>, void>
+			save(const T& object, OutObjectStream& stream) {
+			stream.write("type", object.getClass()->getName());
+			object.serializeInternal(stream);
+
 		}
 
 		template<class T>
@@ -222,7 +235,7 @@ namespace Miyuki {
 			}
 		}
 		template<class T>
-		void load(std::vector<T>& vec, InObjectStream& stream) {			
+		void load(std::vector<T>& vec, InObjectStream& stream) {
 			for (auto i = 0; i < stream.size(); i++) {
 				auto sub = stream.sub(i);
 				T value;
@@ -283,11 +296,9 @@ namespace Miyuki {
 		template<class T>
 		std::enable_if_t<std::is_convertible_v<T*, Object*>, void>
 			load(T& object, InObjectStream& stream) {
-			
-			InStreamVisitor visitor(stream);
-			visit(object, visitor);
+			object.deserialize(stream);
 		}
-		
+
 		template<class T>
 		std::enable_if_t<std::is_convertible_v<T*, Object*>, void>
 			load(T*& object, InObjectStream& stream) {
@@ -302,14 +313,61 @@ namespace Miyuki {
 				object = stream.fetchByAddr(std::stoull(data["addr"].get<std::string>()))->cast<T>();
 				object->deserialize(stream);
 			}
-			
+
 		}
-		
+		class GCContext {
+		public:
+			void addReference(const Object* object) {
+			}
+		};
+
+		struct GCReferenceFindingVisitor {
+			GCContext& ctx;
+			GCReferenceFindingVisitor(GCContext& ctx) :ctx(ctx) {}
+			template<class T>
+			void visit(const T& value, const char* name) {
+				findReferences(value, ctx);
+			}
+		};
+
+		template<class T>
+		std::enable_if_t<std::is_base_of_v<Object, T>, void>
+			findReferences(const T* value, GCContext& ctx){
+			ctx.addReference(value);
+			GCReferenceFindingVisitor visitor(ctx);
+			visit(*value, visitor);
+		}
+
+		template<class T>
+		void findReferences(const std::vector<T>& value, GCContext& ctx) {
+			for (const auto& item : value) {
+				findReferences(item, ctx);
+			}
+		}
+
+		template<class K,class V>
+		void findReferences(const std::map<K, V>& value, GCContext& ctx) {
+			for (const auto& item : value) {
+				findReferences(item.first, ctx);
+				findReferences(item.second, ctx);
+			}
+		}
+
+		template<class K, class V>
+		void findReferences(const std::unordered_map<K, V>& value, GCContext& ctx) {
+			for (const auto& item : value) {
+				findReferences(item.first, ctx);
+				findReferences(item.second, ctx);
+			}
+		}
+
+
+		void findReferences(...) {}
 
 		class PropertyVisitor {
 		public:
 			virtual void visit(int32_t) = 0;
-			virtual void visit(int32_t&, const char *name) = 0;
+			virtual void visit(int32_t&, const char* name) = 0;
 		};
 		class Class {
 		public:
@@ -318,7 +376,7 @@ namespace Miyuki {
 			Class* base = nullptr;
 			std::set<Class* > derived;
 			std::function<void(Object*, OutObjectStream&)> serializer;
-		
+
 			Class(Class* base, const char* name, std::function<Object* ()> ctor)
 				:base(base), name(name), ctor(std::move(ctor)) {}
 			const char* getName() { return name; }
@@ -346,27 +404,27 @@ namespace Miyuki {
 			Class* _class;
 			friend class Runtime;
 		protected:
-			virtual void serializeInternal(OutObjectStream& stream) {}
-			virtual void deserializeInternal(InObjectStream& stream) {}
+
 		public:
+			virtual void serializeInternal(OutObjectStream& stream)const {}
+			virtual void deserializeInternal(InObjectStream& stream) {}
 			static Class* getStaticClass() {
 				static std::once_flag flag;
 				static Class* info;
 				std::call_once(flag, [&]() {
-					info = new Class(nullptr, "Miyuki::Reflection::Object", []() {return new Object(info); });
+					info = new Class(nullptr, "Miyuki::Reflection::Object", []() {return nullptr; });
 					info->serializer = [](Object* object, OutObjectStream& stream) {
-						
+
 					};
 				});
 				return info;
 			}
-			Class* getClass() {
+			Class* getClass()const {
 				return _class;
 			}
-			virtual void serialize(OutObjectStream& stream) {}
-			virtual void deserialize(InObjectStream& stream) {}
-			virtual void postDeserialize() {}			
-			virtual std::vector<Reference> getReferences() { return {}; }
+			virtual void serialize(OutObjectStream& stream) const = 0;
+			virtual void deserialize(InObjectStream& stream) = 0;
+			virtual void visitReferences(GCContext& ctx)const = 0;
 			virtual ~Object() {}
 			template<class T>
 			T* cast() {
@@ -378,9 +436,19 @@ namespace Miyuki {
 				}
 				throw ClassCastException(getClass(), T::getStaticClass());
 			}
-
+			template<class T>
+			const T* cast()const {
+				auto _class = getClass();
+				while (_class) {
+					if (_class == T::getStaticClass())
+						return static_cast<T*>(this);
+					_class = _class->getBase();
+				}
+				throw ClassCastException(getClass(), T::getStaticClass());
+			}
 			Object(Class* _class) :_class(_class) {}
-		}; 
+			inline bool isManaged()const;
+		};
 		template<>
 		struct Miyuki_MetaInfo<Object> {
 		};
@@ -389,8 +457,8 @@ namespace Miyuki {
 			static const int value = true;
 		};
 		template<class T, class Base>
-		struct GetClassInfo {			
-			static Class* GetClass(const char* name) {		
+		struct GetClassInfo {
+			static Class* GetClass(const char* name) {
 				static std::once_flag flag;
 				static Class* info;
 				std::call_once(flag, [&]() {
@@ -402,12 +470,12 @@ namespace Miyuki {
 				return info;
 			}
 		};
-		
+
 #define MYK_CLASS(Classname, Super) using __Self = Classname;using __Super = Super;friend struct Miyuki_MetaInfo<__Self>; \
 		using base = __Super;using super = __Super;static inline Miyuki::Reflection::Class * getStaticClass();\
 		Classname(Miyuki::Reflection::Class * info):base(info){}\
 		Classname() :__Super(__Self::getStaticClass()) {}\
-		virtual void serializeInternal(Miyuki::Reflection::OutObjectStream& stream)override {\
+		virtual void serializeInternal(Miyuki::Reflection::OutObjectStream& stream)const override {\
 				auto _base = stream.sub(); \
 				auto _this = stream.sub(); \
 				base::serializeInternal(_base); \
@@ -416,32 +484,37 @@ namespace Miyuki {
 				stream.write("base", _base); \
 				stream.write("this", _this); \
 		}\
-		virtual void serialize(Miyuki::Reflection::OutObjectStream& stream)override {\
+		virtual void serialize(Miyuki::Reflection::OutObjectStream& stream)const override {\
 			if(stream.hasSerialized(this)){\
-				stream.writeReference(static_cast<Miyuki::Reflection::Object*>(this));\
+				stream.writeReference(static_cast<const Miyuki::Reflection::Object*>(this));\
 			}\
 			else {\
-				stream.addSerialized(static_cast<Miyuki::Reflection::Object*>(this));\
+				stream.addSerialized(static_cast<const Miyuki::Reflection::Object*>(this));\
 				serializeInternal(stream);\
 				stream.write("type", getClass()->getName());\
 				if(Miyuki::Reflection::IsManaged(this))\
-					stream.write("addr", std::to_string(reinterpret_cast<size_t>(static_cast<Miyuki::Reflection::Object*>(this))));\
+					stream.write("addr", std::to_string(reinterpret_cast<size_t>(static_cast<const Miyuki::Reflection::Object*>(this))));\
 			}\
 		}\
 		virtual void deserializeInternal(Miyuki::Reflection::InObjectStream& stream)override {\
 			base::deserializeInternal(stream.sub("base"));\
-			load(*this, stream.sub("this"));\
+			auto _this = stream.sub("this");\
+			Miyuki::Reflection::InStreamVisitor visitor(_this);\
+			Miyuki::Reflection::visit(*this, visitor); \
 		}\
 		virtual void deserialize(Miyuki::Reflection::InObjectStream& stream)override {\
 			if (getClass()->getName() != stream.getJson().at("type").get<std::string>()) {\
 				throw std::runtime_error("Type mismatch");\
 			}\
 			deserializeInternal(stream);\
+		}\
+		virtual void visitReferences(Miyuki::Reflection::GCContext&ctx)const override{\
+			findReferences(this, ctx);\
 		}
 
 
 		inline Class* typeof(Object* object) {
-			return object ? object->getClass(): nullptr;
+			return object ? object->getClass() : nullptr;
 		}
 
 		class Runtime {
@@ -450,7 +523,7 @@ namespace Miyuki {
 			static std::once_flag flag;
 			std::set<Object*> allObjects;
 
-			Object * createObject(const json& data){
+			Object* createObject(const json& data) {
 				auto type = data.at("type").get<std::string>();
 				auto _class = classes.at(type);
 				auto object = _class->ctor();
@@ -461,23 +534,35 @@ namespace Miyuki {
 			/*
 			Scan the entire stream and create all managed objects
 			*/
-			void createAllObjects(InObjectStream & in){
+			void createAllObjects(InObjectStream& in) {
 				auto& data = in.getJson();
+				if (data.is_array()) {
+					for (size_t i = 0; i < in.size(); i++) {
+						createAllObjects(in.sub(i));
+					}
+				}
 				if (!data.is_object() || data.is_null())return;
 				if (data.contains("ref"))
 					return;
-				if (data.contains("addr")) { // is managed
-					auto addr = std::stoull(data["addr"].get<std::string>());
-					auto object = createObject(data);
-					in.state->map.insert(std::make_pair(addr, object));
+				if (data.contains("this")) {
+					if (data.contains("addr")) { // is managed
+						auto addr = std::stoull(data["addr"].get<std::string>());
+						auto object = createObject(data);
+						in.state->map.insert(std::make_pair(addr, object));
+					}
+					for (auto& el : data.at("this").items()) {
+						auto sub = in.sub("this").sub(el.key());
+						createAllObjects(sub);
+					}
+					if (!data.at("base").is_null()) {
+						auto sub = in.sub("base");
+						createAllObjects(sub);
+					}
 				}
-				for (auto& el : data.at("this").items()) {
-					auto sub = in.sub("this").sub(el.key());
-					createAllObjects(sub);
-				}
-				if (!data.at("base").is_null()) {					
-					auto sub = in.sub("base");
-					createAllObjects(sub);					
+				else {
+					for (auto& el : data.items()) {
+						createAllObjects(in.sub(el.key()));
+					}
 				}
 			}
 
@@ -502,7 +587,7 @@ namespace Miyuki {
 
 		public:
 			template<class T>
-			T * readObject(InObjectStream & in){
+			T* readObject(InObjectStream& in) {
 				createAllObjects(in);
 				auto object = deserializeObject(in);
 				return object->cast<T>();
@@ -511,7 +596,7 @@ namespace Miyuki {
 				classes[info->getName()] = info;
 				info->getBase()->addDerived(info);
 			}
-			static Runtime& GetInstance() {				
+			static Runtime& GetInstance() {
 				std::call_once(flag, [&]() {
 					instance = new Runtime();
 				});
@@ -521,37 +606,41 @@ namespace Miyuki {
 			void addObject(T* object) {
 				allObjects.insert(static_cast<Object*>(object));
 			}
-			bool isManaged(Object * object)const{
-				return allObjects.find(object) != allObjects.end();
+			bool isManaged(const Object* object)const {
+				return allObjects.find(const_cast<Object*>(object)) != allObjects.end();
 			}
-			
+
 			Class* getClass(const std::string& s) {
 				return classes.at(s);
 			}
 		};
+
+		inline bool Object::isManaged()const {
+			return Runtime::GetInstance().isManaged(this);
+		}
 		template<class T>
 		inline void registerType() {
 			auto t = T::getStaticClass();
 			auto& instance = Runtime::GetInstance();
 			instance.addClass(t);
 		}
-		bool IsManaged(Object* object) {
+		bool IsManaged(const Object* object) {
 			auto& instance = Runtime::GetInstance();
 			return instance.isManaged(object);
 		}
 
-		template<class T=Object>
-		T* NewObject() {
+		template<class T = Object>
+		T * NewObject() {
 			auto& instance = Runtime::GetInstance();
 			auto object = new T();
 			auto ptr = object->cast<T>();
 			instance.addObject(object);
 			return ptr;
 		}
-		template<class T=Object>
-		T* NewObject(Class* _class) {
+		template<class T = Object>
+		T * NewObject(Class * _class) {
 			auto& instance = Runtime::GetInstance();
-			auto object = _class->ctor();			
+			auto object = _class->ctor();
 			auto ptr = object->cast<T>();
 			instance.addObject(object);
 			return ptr;
@@ -623,6 +712,7 @@ inline Miyuki::Reflection::Class * Type::getStaticClass(){\
 			object->get() = value;\
 			return object;\
 		}}}MYK_REFL(Miyuki::Reflection::Type, (value))
+		
 
 MYK_PRIMITIVE_CLASS(Int8, char);
 MYK_PRIMITIVE_CLASS(UInt8, uint8_t);
@@ -636,20 +726,20 @@ MYK_PRIMITIVE_CLASS(Float32, float);
 
 class A : public Miyuki::Reflection::Object {
 public:
-	MYK_CLASS(A, Miyuki::Reflection::Object)
-	int a;
+	MYK_CLASS(A, Miyuki::Reflection::Object);
+	int a=0;
 	virtual std::vector< Miyuki::Reflection::Reference> getReferences() { return {}; }
 };
 MYK_REFL(A, (a))
-
 class B : public A {
 public:
-	B* next;
-	std::unordered_map<int, int> map;
+	A a2;
+	B* next=nullptr;
+	std::unordered_map<B*, int> map;
 	MYK_CLASS(B, A)
 };
 
-MYK_REFL(B, (next)(map))
+MYK_REFL(B, (a2)(next)(map))
 
 Miyuki::Reflection::Runtime* Miyuki::Reflection::Runtime::instance;
 std::once_flag Miyuki::Reflection::Runtime::flag;
@@ -660,10 +750,13 @@ int main(int argc, char** argv) {
 	window.show();*/
 	try {
 		auto b = NewObject<B>();
+		b->a2.a = 5;
 		b->a = 1;
-		b->map[2] = 3;
-		b->map[-123] = 4;
+		b->next = nullptr;
+		b->map[b] = 3;
 		b->next = NewObject<B>();
+		auto tmp = NewObject<B>();
+		b->map[tmp] = 4;
 		b->next->next = b;
 		b->next->a = 2;
 		OutObjectStream stream;
