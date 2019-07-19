@@ -28,7 +28,7 @@ namespace Miyuki {
 		j = file.path.string();
 	}
 	namespace Reflection {
-		MYK_SAVE_LOAD_TRVIAL(File)
+		MYK_SAVE_LOAD_TRIVIAL(File)
 	}
 }
 

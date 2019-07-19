@@ -32,253 +32,309 @@ namespace Miyuki {
 			return Box<T>(new T(args...), Deleter([](Component* p) {delete p; }));
 		}
 
-		struct OutStream {
-			struct State {
-				std::set<const void*> _visitedPtr;
-				bool visited(const void* ptr) {
-					return _visitedPtr.find(ptr) != _visitedPtr.end();
-				}
-
-			};
+		class OutObjectStream {
 			json data;
-			State* state;
-			OutStream() {
-				_stateOwner = std::make_unique<State>();
-				state = _stateOwner.get();
+			struct State {
+				std::set<const Component*> visited;
+			};
+			std::shared_ptr<State> state;
+		public:
+			OutObjectStream() {
+				state = std::make_shared<State>();
 			}
-			OutStream(const OutStream& rhs) :state(rhs.state) {}
-			OutStream& operator = (const OutStream& rhs) {
-				state = rhs.state;
-				return *this;
+			OutObjectStream sub() {
+				OutObjectStream stream;
+				stream.state = state;
+				return stream;
 			}
-			void from(const OutStream& rhs) {
-				data = rhs.data;
-				CHECK(state == rhs.state);
+			void write(const std::string& key, std::nullptr_t) {
+				data[key] = {};
+			}
+			void write(const std::string& key, const OutObjectStream& stream) {
+				data[key] = stream.data;
+			}
+			void write(const std::string& key, const std::string& value) {
+				data[key] = value;
+			}
+			void write(const std::string& key, size_t value) {
+				data[key] = value;
+			}
+			void write(std::nullptr_t) {
+				data = {};
+			}
+			void append(const OutObjectStream& stream) {
+				data.push_back(stream.data);
+			}
+			void append(std::nullptr_t) {
+				data.push_back(json{});
+			}
+			bool hasSerialized(const Component* object)const {
+				return state->visited.find(object) != state->visited.end();
+			}
+			void addSerialized(const Component* object) {
+				state->visited.insert(object);
 			}
 			template<class T>
-			bool visited(const T* ptr) {
-				return state->visited(ptr);
+			void write(const T& value) {
+				data = value;
 			}
-			void addVisited(const void* ptr) {
-				state->_visitedPtr.insert(ptr);
-			}
-			std::string dump(int indent = -1)const {
-				return data.dump(indent);
-			}
-		private:
-			std::unique_ptr<State> _stateOwner;
-		};
-
-
-		template<class T>
-		struct Saver {
-			static void save(const T& value, OutStream& stream) {
-				OutStreamVisitor visitor;
-				visitor.stream = stream;
-				visitor.stream.data = json::array();
-				Miyuki::Reflection::visit(value, visitor);
-				stream.data = json::object();
-				stream.data["type"] = T::type()->name();
-				stream.data["val"] = visitor.stream.data;
-			}
-		};
-		template<class T>
-		struct Saver<std::vector<T>> {
-			static void save(const std::vector<T>& value, OutStream& stream) {
-				stream.data = json::array();
-				for (const auto& item : value) {
-					OutStream out(stream);
-					Saver<T>::save(item, out);
-					stream.data.push_back(out.data);
-				}
-			}
+			
+			const json& toJson()const { return data; }
 		};
 
 		struct OutStreamVisitor {
-			OutStream stream;
-			OutStreamVisitor() {}
-			OutStreamVisitor(const OutStream& stream) :stream(stream) { }
+			OutObjectStream& stream;
+			OutStreamVisitor(OutObjectStream& stream) :stream(stream) { }
 			template<class T>
 			void visit(const T& value, const char* name) {
-				OutStream s(stream);
-				Saver<T>::save(value, s);
-				stream.data.push_back(s.data);
+				auto sub = stream.sub();
+				save(value, sub);
+				stream.write(name, sub);
 			}
-		};
-#define MYK_SAVE_TRIVIAL(T)\
-		template<>\
-		struct Saver<T> {\
-			static void save(const T& value, OutStream& stream) {\
-				stream.data = value;\
-			}\
 		};
 
 		template<class T>
-		struct Saver<T*> {
-			static void save(const T* value, OutStream& stream) {
-				if (value == nullptr) {
-					stream.data = {};
-				}
-				else {
-					stream.data = json::object();
-					stream.data["meta"] = "ref";
-					stream.data["val"] = reinterpret_cast<uint64_t>(value);
-				}
-			}
-		};
+		std::enable_if_t<std::is_base_of_v<Component, T>, void> save(const T& value, OutObjectStream& stream) {
+			auto sub = stream.sub();
+			OutStreamVisitor visitor(sub);
+			Miyuki::Reflection::visit(value, visitor);
+
+			stream.write("type", T::type()->name());
+			stream.write("val", sub);
+		}
+
+
 		template<class T>
-		struct Saver<Box<T>> {
-			static void save(const Box<T>& value, OutStream& stream) {
-				if (value == nullptr) {
-					stream.data = {};
-				}
-				else if (stream.visited(value.get())) {
-					throw std::runtime_error("Multiple strong reference to same object");
-				}
-				else {
-					OutStream s(stream);
-					value->serialize(s);
-					stream.data = json::object();
-					stream.data["meta"] = "val";
-					stream.data["addr"] = reinterpret_cast<uint64_t>(static_cast<Component*>(value.get()));
-					stream.data["val"] = s.data;
-					stream.addVisited(value.get());
-				}
+		void save(const T* value, OutObjectStream& stream) {
+			if (value == nullptr) {
+				stream.write(nullptr);
 			}
-		};
-		struct InStream {
-			struct State {
-				std::unordered_map<uint64_t, Component*> _ptrs;
-			};
+			else {
+				stream.write("meta", "ref");
+				stream.write("val", reinterpret_cast<uint64_t>(value));
+			}
+		}
+
+		template<class T>
+		std::enable_if_t<std::is_base_of_v<Component, T>, void>
+			save(const Box<T>& value, OutObjectStream& stream) {
+			if (value == nullptr) {
+				stream.write(nullptr);
+			}
+			else if (stream.hasSerialized(value.get())) {
+				throw std::runtime_error("Multiple strong reference to same object");
+			}
+			else {
+				auto s = stream.sub();
+				value->serialize(s);
+				stream.write("meta", "val");
+				stream.write("addr", reinterpret_cast<uint64_t>(static_cast<Component*>(value.get())));
+				stream.write("val", s);
+				stream.addSerialized(value.get());
+			}
+		}
+
+		class InObjectStream {
+			friend class Runtime;
 			const json& data;
-			State* state;
-			InStream(const InStream& rhs) :data(rhs.data), state(rhs.state) {}
-			InStream(const json& data, State* state = nullptr) :data(data) {
-				if (!state) {
-					_stateOwner = std::make_unique<State>();
-					this->state = _stateOwner.get();
-				}
-				else {
-					this->state = state;
-				}
+			struct State {
+				std::unordered_map<size_t, Component*> map;
+			};
+			std::shared_ptr<State> state;
+		public:
+			InObjectStream(const json& data, std::shared_ptr<State>s = nullptr) :data(data) {
+				if (!s)
+					state = std::make_shared<State>();
+				else
+					state = s;
 			}
-			bool has(uint64_t i) {
-				return state->_ptrs.find(i) != state->_ptrs.end();
+			InObjectStream sub(const std::string& key) {
+				return InObjectStream(data.at(key), state);
 			}
-			Component* get(uint64_t i) {
-				return state->_ptrs.at(i);
+			InObjectStream sub(size_t index) {
+				return InObjectStream(data.at(index), state);
 			}
-			void add(uint64_t i, Component* t) {
-				state->_ptrs[i] = t;
+			bool contains(const std::string& key) {
+				return data.contains(key);
 			}
-		private:
-
-			std::unique_ptr<State> _stateOwner;
+			const json& getJson() {
+				return data;
+			}
+			bool has(size_t addr) {
+				return state->map.find(addr) != state->map.end();
+			}
+			Component* fetchByAddr(size_t addr) {
+				return state->map.at(addr);
+			}
+			void add(size_t addr, Component* v) {
+				state->map[addr] = v;
+			}
+			size_t size() { return data.size(); }
 		};
 		template<typename Derived, typename Base, typename Del>
-		std::unique_ptr<Derived, Del>
+		inline std::unique_ptr<Derived, Del>
 			static_unique_ptr_cast(std::unique_ptr<Base, Del>&& p)
 		{
 			auto d = static_cast<Derived*>(p.release());
 			return std::unique_ptr<Derived, Del>(d, std::move(p.get_deleter()));
 		}
+
 		template<class T>
-		struct Loader {
-			static void load(T& value, InStream& stream) {
-				TypeInfo* type = T::type();
-				auto ty2 = stream.data.at("type").get<std::string>();
-				if (ty2 != type->name()) {
-					throw std::runtime_error(fmt::format("Excepted type {} but froud {}", type->name(), ty2));
-				}
-				InStream s(stream.data.at("val"), stream.state);
-				InStreamVisitor visitor(s);
-				visit(value, visitor);
+		inline std::enable_if_t<std::is_base_of_v<Component, T>, void> load(T& value, InObjectStream& stream) {
+			TypeInfo* type = T::type();
+			auto& data = stream.getJson();
+			auto ty2 = data.at("type").get<std::string>();
+			if (ty2 != type->name()) {
+				throw std::runtime_error(fmt::format("Excepted type {} but froud {}", type->name(), ty2));
 			}
-		};
-		template<class T>
-		struct Loader<std::vector<T>> {
-			static void load(std::vector<T>& value, InStream& stream) {
-				value.clear();
-				for (const auto& item : stream.data) {
-					T tmp;
-					InStream in(item, stream.state);
-					Loader<T>::load(tmp, in);
-					value.emplace_back(std::move(tmp));
-				}
-			}
-		};
-		template<class T>
-		struct Loader<Box<T>> {
-			static void load(Box<T>& value, InStream& stream) {
-				if (stream.data.is_null()) {
-					value = nullptr; return;
-				}
-				auto meta = stream.data.at("meta").get<std::string>();
-				if (meta == "ref") {
-					throw std::runtime_error(fmt::format("multiple strong ref !!"));
-				}
-				else if (meta == "val") {
-					auto val = stream.data.at("val");
-					auto type = val.at("type");
-					TypeInfo* info = getTypeByName(type.get<std::string>());
-					value = std::move(static_unique_ptr_cast<T>(info->ctor()));
-					InStream in(val, stream.state);
-					info->loader(*value, in);
-					auto addr = stream.data.at("addr").get<uint64_t>();
-					CHECK(in.state == stream.state);
-					stream.add(addr, value.get());
-				}
-				else {
-					throw std::runtime_error(fmt::format("Unrecognized meta info: {}", meta));
-				}
-			}
-		};
-		template<class T>
-		struct Loader<T*> {
-			static void load(T*& value, InStream& stream) {
-				if (stream.data.is_null()) {
-					value = nullptr; return;
-				}
-				auto meta = stream.data.at("meta").get<std::string>();
-				if (meta == "ref") {
-					auto val = stream.data.at("val").get<uint64_t>();
-					if (stream.has(val)) {
-						value = static_cast<T*>(stream.get(val));
-					}
-					else {
-						throw std::runtime_error(fmt::format("ref {} has not been loaded", val));
-					}
-				}
-				else if (meta == "val") {
-					throw std::runtime_error(fmt::format("weak ref !!"));
-				}
-				else {
-					throw std::runtime_error(fmt::format("Unrecognized meta info: {}", meta));
-				}
-			}
-		};
-#define MYK_LOAD_TRIVIAL(T) \
-		template<>\
-		struct Loader<T> {\
-			static void load(T& value, InStream& stream) {\
-				value = stream.data.get<T>();\
-			}\
+			auto s = stream.sub("val");
+			InStreamVisitor visitor(s);
+			visit(value, visitor);
 		}
-#define MYK_SAVE_LOAD_TRVIAL(T) MYK_LOAD_TRIVIAL(T);MYK_SAVE_TRIVIAL(T)
-		MYK_SAVE_LOAD_TRVIAL(int32_t);
-		MYK_SAVE_LOAD_TRVIAL(uint32_t);
-		MYK_SAVE_LOAD_TRVIAL(uint64_t);
-		MYK_SAVE_LOAD_TRVIAL(int64_t);
-		MYK_SAVE_LOAD_TRVIAL(int8_t);
-		MYK_SAVE_LOAD_TRVIAL(uint8_t);
-		MYK_SAVE_LOAD_TRVIAL(Float);
-		MYK_SAVE_LOAD_TRVIAL(double);
-		MYK_SAVE_LOAD_TRVIAL(Vec3f);
-		MYK_SAVE_LOAD_TRVIAL(Spectrum);
-		MYK_SAVE_LOAD_TRVIAL(std::string);
-		MYK_SAVE_LOAD_TRVIAL(Point2i);
-		MYK_SAVE_LOAD_TRVIAL(Point2f);
-		MYK_SAVE_LOAD_TRVIAL(Point3f);
+
+
+
+		template<class T>
+		inline std::enable_if_t<std::is_base_of_v<Component, T>, void>
+			load(Box<T>& value, InObjectStream& stream) {
+			auto& data = stream.getJson();
+			if (data.is_null()) {
+				value = nullptr; return;
+			}			
+			auto meta = data.at("meta").get<std::string>();
+			if (meta == "ref") {
+				throw std::runtime_error(fmt::format("multiple strong ref !!"));
+			}
+			else if (meta == "val") {
+				auto val = data.at("val");
+				auto type = val.at("type");
+				TypeInfo* info = getTypeByName(type.get<std::string>());
+				value = std::move(static_unique_ptr_cast<T>(info->ctor()));
+				auto in = stream.sub("val");
+				info->loader(*value, in);
+				auto addr = data.at("addr").get<uint64_t>();
+				stream.add(addr, value.get());
+			}
+			else {
+				throw std::runtime_error(fmt::format("Unrecognized meta info: {}", meta));
+			}
+		}
+
+		template<class T>
+		inline std::enable_if_t<std::is_base_of_v<Component, T>, void> load(T*& value, InObjectStream& stream) {
+			auto& data = stream.getJson();
+			if (data.is_null()) {
+				value = nullptr; return;
+			}
+			auto meta = data.at("meta").get<std::string>();
+			if (meta == "ref") {
+				auto val = data.at("val").get<uint64_t>();
+				if (stream.has(val)) {
+					value = static_cast<T*>(stream.fetchByAddr(val));
+				}
+				else {
+					throw std::runtime_error(fmt::format("ref {} has not been loaded", val));
+				}
+			}
+			else if (meta == "val") {
+				throw std::runtime_error(fmt::format("weak ref !!"));
+			}
+			else {
+				throw std::runtime_error(fmt::format("Unrecognized meta info: {}", meta));
+			}
+		}
+		template<class T>
+		inline void save(const std::vector<T>& vec, OutObjectStream& stream) {
+			for (const auto& item : vec) {
+				auto sub = stream.sub();
+				save(item, sub);
+				stream.append(sub);
+			}
+		}
+		template<class T>
+		inline void load(std::vector<T>& vec, InObjectStream& stream) {
+			for (auto i = 0; i < stream.size(); i++) {
+				auto sub = stream.sub(i);
+				T value;
+				load(value, sub);
+				vec.emplace_back(std::move(value));
+			}
+		}
+
+		template<class K, class V>
+		inline void save(const std::unordered_map<K, V>& map, OutObjectStream& stream) {
+			for (const auto& item : map) {
+				auto pair = stream.sub();
+				auto key = pair.sub();
+				auto val = pair.sub();
+				save(item.first, key);
+				save(item.second, val);
+				pair.write("key", key);
+				pair.write("val", val);
+				stream.append(pair);
+			}
+		}
+		template<class K, class V>
+		inline void load(std::unordered_map<K, V>& map, InObjectStream& stream) {
+			for (auto i = 0; i < stream.size(); i++) {
+				auto pair = stream.sub(i);
+				K key;
+				V val;
+				load(key, pair.sub("key"));
+				load(val, pair.sub("val"));
+				map[key] = val;
+			}
+		}
+		template<class K, class V>
+		inline void save(const std::map<K, V>& map, OutObjectStream& stream) {
+			for (const auto& item : map) {
+				auto pair = stream.sub();
+				auto key = pair.sub();
+				auto val = pair.sub();
+				save(item.first, key);
+				save(item.second, val);
+				pair.write("key", key);
+				pair.write("val", val);
+				stream.append(pair);
+			}
+		}
+		template<class K, class V>
+		inline void load(std::map<K, V>& map, InObjectStream& stream) {
+			for (auto i = 0; i < stream.size(); i++) {
+				auto pair = stream.sub(i);
+				K key;
+				V val;
+				load(key, pair.sub("key"));
+				load(val, pair.sub("val"));
+				map[key] = val;
+			}
+		}
+
+#define MYK_SAVE_TRIVIAL(type)\
+		inline void save(const type& value, Miyuki::Reflection::OutObjectStream& stream) {\
+			stream.write(value);\
+		}
+#define MYK_LOAD_TRIVIAL(type)\
+		inline void load(type& value, Miyuki::Reflection::InObjectStream& stream) {\
+			value = stream.getJson().get<type>();\
+		}
+
+#define MYK_SAVE_LOAD_TRIVIAL(type) 	MYK_SAVE_TRIVIAL(type)MYK_LOAD_TRIVIAL(type)
+		MYK_SAVE_LOAD_TRIVIAL(int32_t);
+		MYK_SAVE_LOAD_TRIVIAL(uint32_t);
+		MYK_SAVE_LOAD_TRIVIAL(uint64_t);
+		MYK_SAVE_LOAD_TRIVIAL(int64_t);
+		MYK_SAVE_LOAD_TRIVIAL(int8_t);
+		MYK_SAVE_LOAD_TRIVIAL(char);
+		MYK_SAVE_LOAD_TRIVIAL(uint8_t);
+		MYK_SAVE_LOAD_TRIVIAL(Float);
+		MYK_SAVE_LOAD_TRIVIAL(double);
+		MYK_SAVE_LOAD_TRIVIAL(Vec3f);
+		MYK_SAVE_LOAD_TRIVIAL(Spectrum);
+		MYK_SAVE_LOAD_TRIVIAL(std::string);
+		MYK_SAVE_LOAD_TRIVIAL(Point2i);
+		MYK_SAVE_LOAD_TRIVIAL(Point2f);
+		MYK_SAVE_LOAD_TRIVIAL(Point3f);
 
 		namespace detail {
 			template<class T>
@@ -292,16 +348,14 @@ namespace Miyuki {
 		}
 		struct InStreamVisitor {
 			int index = 0;
-			InStream stream;
-			InStreamVisitor(const InStream& stream) :stream(stream) {}
+			InObjectStream& stream;
+			InStreamVisitor(InObjectStream& stream) :stream(stream) {}
 			template<class T>
 			void visit(T& value, const char* name) {
-				if (index >= stream.data.size()) {
-					detail::ZeroInit<T>::init(value);
-					return;
+				if (stream.contains(name)) {
+					auto sub = stream.sub(name);
+					load(value, sub);
 				}
-				InStream stream(stream.data.at(index++), this->stream.state);
-				Loader<T>::load(value, stream);
 			}
 		};
 
@@ -309,8 +363,8 @@ namespace Miyuki {
 		struct TypeInfo {
 			const char* _name;
 			using Constructor = std::function<Box<Component>()>;
-			using Loader = std::function<void(Component&, InStream&)>;
-			using Saver = std::function<void(const Component&, OutStream&)>;
+			using Loader = std::function<void(Component&, InObjectStream&)>;
+			using Saver = std::function<void(const Component&, OutObjectStream&)>;
 			Constructor ctor;
 			Loader loader;
 			Saver saver;
@@ -326,14 +380,14 @@ namespace Miyuki {
 			std::call_once(flag, [&]() {
 				info = new TypeInfo();
 				info->_name = name;
-				info->saver = [=](const Component& value, OutStream& stream) {
-					Saver<T>::save(static_cast<const T&>(value), stream);
+				info->saver = [=](const Component& value, OutObjectStream& stream) {
+					save(static_cast<const T&>(value), stream);
 				};
 				info->ctor = [=]()->Box<Component> {
 					return make_box<T>();
 				};
-				info->loader = [=](Component& value, InStream& stream) {
-					Loader<T>::load(static_cast<T&>(value), stream);
+				info->loader = [=](Component& value, InObjectStream& stream) {
+					load(static_cast<T&>(value), stream);
 				};
 			});
 			return info;
@@ -341,10 +395,10 @@ namespace Miyuki {
 		struct ComponentVisitor;
 		struct Component {
 			virtual TypeInfo* typeInfo() const = 0;
-			virtual void serialize(OutStream& stream)const {
+			virtual void serialize(OutObjectStream& stream)const {
 				typeInfo()->saver(*this, stream);
 			}
-			virtual void deserialize(InStream& stream) {
+			virtual void deserialize(InObjectStream& stream) {
 				typeInfo()->loader(*this, stream);
 			}
 			virtual ~Component() = default;

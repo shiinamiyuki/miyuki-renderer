@@ -114,7 +114,7 @@ namespace Miyuki {
 		}
     };
 	namespace Reflection {
-		MYK_SAVE_LOAD_TRVIAL(Transform)
+		MYK_SAVE_LOAD_TRIVIAL(Transform)
 	}
 }
 #endif //MIYUKI_TRANSFORM_H

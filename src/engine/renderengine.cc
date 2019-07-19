@@ -55,10 +55,10 @@ namespace Miyuki {
 			return;
 		}
 		try {
-			Reflection::OutStream stream;
+			Reflection::OutObjectStream stream;
 			graph->serialize(stream);
 			std::ofstream out(filename);
-			out << stream.dump() << std::endl;
+			out << stream.toJson().dump() << std::endl;
 			Log::log("Saved to {}\n", filename);
 		}
 		catch (std::runtime_error& e) {
@@ -72,7 +72,7 @@ namespace Miyuki {
 			std::istreambuf_iterator<char>());
 		json j = json::parse(content);
 		try {
-			Reflection::InStream in(j);
+			Reflection::InObjectStream in(j);
 			newGraph();
 			graph->deserialize(in);
 			Log::log("Opened {}\n", filename);
