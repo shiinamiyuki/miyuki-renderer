@@ -19,7 +19,7 @@ namespace Miyuki {
 		class Scene;
 
 		struct EmbreeScene final: public Accelerator {
-			MYK_IMPL(EmbreeScene);
+			MYK_IMPL(Miyuki::Core::EmbreeScene);
 
 			EmbreeScene();
 
@@ -38,4 +38,5 @@ namespace Miyuki {
 		};
 	}
 }
+MYK_REFL(Miyuki::Core::EmbreeScene, MYK_REFL_NIL);
 #endif //MIYUKI_EMBREESCENE_H

@@ -4,6 +4,7 @@
 #include <miyuki.h>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/cat.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 template<class T>
 struct Miyuki_Reflection_MetaInfo {
@@ -11,6 +12,8 @@ struct Miyuki_Reflection_MetaInfo {
 	template<class _1, class _2>
 	static void accept(_1, _2) {}
 };
+#define MYK_REFL_NIL (__nil)
+#define _MYK_REFL_NIL __nil
 namespace Miyuki {
 	namespace Reflection {
 		template<class T>
@@ -175,8 +178,13 @@ namespace Miyuki {
 		inline std::unique_ptr<Derived, Del>
 			static_unique_ptr_cast(std::unique_ptr<Base, Del>&& p)
 		{
-			auto d = static_cast<Derived*>(p.release());
+			auto d = dynamic_cast<Derived*>(p.release());
 			return std::unique_ptr<Derived, Del>(d, std::move(p.get_deleter()));
+		}
+
+		template<typename Derived, typename Base>
+		inline Box<Derived> downcast(Box<Base>&& p) {
+			return static_unique_ptr_cast(p);
 		}
 
 		template<class T>
@@ -320,6 +328,7 @@ namespace Miyuki {
 		}
 
 #define MYK_SAVE_LOAD_TRIVIAL(type) 	MYK_SAVE_TRIVIAL(type)MYK_LOAD_TRIVIAL(type)
+		MYK_SAVE_LOAD_TRIVIAL(bool);
 		MYK_SAVE_LOAD_TRIVIAL(int32_t);
 		MYK_SAVE_LOAD_TRIVIAL(uint32_t);
 		MYK_SAVE_LOAD_TRIVIAL(uint64_t);
@@ -403,6 +412,8 @@ namespace Miyuki {
 			}
 			virtual ~Component() = default;
 			inline void accept(ComponentVisitor& visitor);
+		protected:
+			static bool _MYK_REFL_NIL;
 		};
 		struct ComponentVisitor {
 			std::unordered_map<TypeInfo*, std::function<void(Component*)>>_map;
@@ -473,6 +484,15 @@ namespace Miyuki {
 			auto t = T::type();
 			detail::Types::get()._registerdTypes.insert(t);
 			detail::Types::get()._registerdTypeMap[t->name()] = t;
+			std::string dot_name = t->name();
+			boost::replace_all(dot_name, "::", ".");
+			detail::Types::get()._registerdTypeMap[dot_name] = t;
+		}
+
+		
+		inline Box<Component> createComponent(const std::string& name) {
+			auto t = detail::Types::get()._registerdTypeMap.at(name);
+			return t->ctor();
 		}
 		inline TypeInfo* getTypeByName(const std::string& name) {
 			return detail::Types::get()._registerdTypeMap.at(name);
@@ -502,7 +522,9 @@ namespace Miyuki {
 		// ???
 		// This hack works.
 #define MYK_AUTO_REGSITER_TYPE(Type) static Miyuki::__Injector BOOST_PP_CAT(BOOST_PP_CAT(BOOST_PP_CAT(injector,__COUNTER__),_),__LINE__ )\
-											([](){Miyuki::Reflection::registerType<Type>();});
+											([](){Miyuki::Reflection::registerType<Type>();});\
+inline Miyuki::Reflection::TypeInfo* Type::type(){return Miyuki::Reflection::GetTypeInfo<Type>(#Type);}
+
 #define MYK_BEGIN_REFL(Type) MYK_AUTO_REGSITER_TYPE(Type)template<>struct Miyuki_Reflection_MetaInfo<Type> {\
 						 enum {__idx = __COUNTER__}; using __Self = Type;\
 						template<int i>using UID = Miyuki::Reflection::ID<i>;static constexpr char * TypeName = #Type;
@@ -532,7 +554,7 @@ namespace Miyuki {
 						}\
 					};};
 #define MYK_IMPL(Type) using __Self = Type;friend struct Miyuki_Reflection_MetaInfo<__Self>;\
-		static Miyuki::Reflection::TypeInfo* type(){return Miyuki::Reflection::GetTypeInfo<Type>(#Type);}\
+		static inline Miyuki::Reflection::TypeInfo* type();\
 		virtual Miyuki::Reflection::TypeInfo* typeInfo() const final override{\
 			return __Self::type();\
 		}
@@ -541,6 +563,9 @@ namespace Miyuki {
 
 }
 
+#define MYK_REFL_IMPLEMENTATION Miyuki::Reflection::detail::Types* Miyuki::Reflection::detail::Types::all;\
+std::once_flag  Miyuki::Reflection::detail::Types::flag;\
+bool Miyuki::Reflection::Component::  _MYK_REFL_NIL;
 namespace Miyuki {
 	namespace Reflection {
 		struct Nil {};

@@ -97,5 +97,6 @@ namespace Miyuki {
 
 	}
 }
-
+MYK_REFL(Miyuki::Core::RandomSampler, MYK_REFL_NIL);
+MYK_REFL(Miyuki::Core::SobolSampler, MYK_REFL_NIL);
 #endif

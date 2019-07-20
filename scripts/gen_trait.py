@@ -111,11 +111,19 @@ struct BoxedTrait{
     const Trait<T...> & operator*()const{
         return trait;
     }
+    void * release(){
+        trait.reset(nullptr);
+        return ptr.relesase();
+    }
 private:
     Trait<T...> trait;
     unique_void_ptr ptr; 
 };
 
+template<class... T, class... U>
+BoxedTrait&& static_boxed_trait_upcast(BoxedTrait<U...>&& from){
+    auto 
+}
 
 ''')
 f.write('}\n')
