@@ -18,6 +18,7 @@ namespace Miyuki {
 			virtual void eval(ShadingPoint&) = 0;
 			virtual void preprocess() {}
 		};
+		MYK_EXTENDS(Shader, (Component));
 
 		struct FloatShader final : public Shader {
 			MYK_META(FloatShader);
@@ -31,7 +32,7 @@ namespace Miyuki {
 		private:
 			Float value = 0;
 		};
-		MYK_IMPL(FloatShader, Shader, "Shader.Float");
+		MYK_IMPL(FloatShader, (Shader), "Shader.Float");
 		MYK_REFL(FloatShader, (value));
 
 		struct RGBShader final: public Shader{
@@ -47,7 +48,7 @@ namespace Miyuki {
 			Spectrum value;
 		};
 
-		MYK_IMPL(RGBShader, Shader, "Shader.RGB");
+		MYK_IMPL(RGBShader, (Shader), "Shader.RGB");
 		MYK_REFL(RGBShader, (value));
 
 		struct ImageTextureShader final : public Shader {
@@ -60,7 +61,7 @@ namespace Miyuki {
 
 			}
 		};
-		MYK_IMPL(ImageTextureShader, Shader, "Shader.ImageTexture");
+		MYK_IMPL(ImageTextureShader, (Shader), "Shader.ImageTexture");
 		MYK_REFL(ImageTextureShader, (imageFile));
 	}
 }

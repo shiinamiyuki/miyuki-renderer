@@ -5,7 +5,7 @@
 
 namespace Miyuki {
 	namespace Core {
-		struct AOIntegrator final : Integrator, ProgressiveRenderer{
+		struct AOIntegrator final : ProgressiveRenderer{
 			size_t spp = 16;
 			Float occlusionDistance = 1e5;
 			MYK_META(AOIntegrator);
@@ -17,10 +17,8 @@ namespace Miyuki {
 
 		};
 		MYK_REFL(AOIntegrator, (spp)(occlusionDistance));
-		MYK_IMPL(AOIntegrator, Integrator, "Integrator.AO");
+		MYK_IMPL(AOIntegrator, (ProgressiveRenderer), "Integrator.AO");
 	}
 }
-
-
 
 #endif

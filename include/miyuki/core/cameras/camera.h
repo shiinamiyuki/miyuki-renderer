@@ -15,6 +15,7 @@ namespace Miyuki {
 		};
 
 		struct Camera : Component {
+			MYK_INTERFACE(Camera);
 			virtual Float generateRay(Sampler& sampler,
 				const Point2i& raster,
 				Ray* ray,
@@ -31,6 +32,7 @@ namespace Miyuki {
 			virtual Arc<Film> createFilm() const = 0;
 			virtual Box<Camera> scale(Float k) const = 0;
 		};
+		MYK_EXTENDS(Camera, (Component));
 
 		struct PerspectiveCamera final: Camera {
 			Vec3f viewpoint;
@@ -70,7 +72,7 @@ namespace Miyuki {
 		private:
 			void computeTransformMatrix();
 		};
-		MYK_IMPL(PerspectiveCamera, Camera, "Camera.PerspectiveCamera")
+		MYK_IMPL(PerspectiveCamera, (Camera), "Camera.PerspectiveCamera")
 		MYK_REFL(PerspectiveCamera, (viewpoint)(direction)(dimension)(lensRadius)(focalDistance)(fov));
 	}
 }

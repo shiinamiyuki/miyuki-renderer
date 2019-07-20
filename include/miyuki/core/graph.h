@@ -13,7 +13,7 @@ namespace Miyuki {
 			std::string name;
 			Box<Material> material;
 		};
-		MYK_IMPL(MaterialSlot, Component, "Core.MaterialSlot");
+		MYK_IMPL(MaterialSlot, (Component), "Core.MaterialSlot");
 		MYK_REFL(MaterialSlot, (name)(material));
 		
 
@@ -23,7 +23,7 @@ namespace Miyuki {
 			MaterialSlot* material = nullptr;
 		};
 
-		MYK_IMPL(Object, Component, "Core.Object");
+		MYK_IMPL(Object, (Component), "Core.Object");
 		MYK_REFL(Object, (name)(material));
 
 		struct MeshFile final : Component {
@@ -33,7 +33,7 @@ namespace Miyuki {
 			File file;
 			std::vector<Box<Object>> objects;
 		};
-		MYK_IMPL(MeshFile, Component, "Core.MeshFile");
+		MYK_IMPL(MeshFile, (Component), "Core.MeshFile");
 		MYK_REFL(MeshFile, (file)(name)(transform)(objects));
 
 		struct Graph final : Component {
@@ -44,7 +44,7 @@ namespace Miyuki {
 			Box<Integrator> integrator;
 			Camera* activeCamera = nullptr;
 		};
-		MYK_IMPL(Graph, Component, "Core.Graph");
+		MYK_IMPL(Graph, (Component), "Core.Graph");
 		MYK_REFL(Graph, (materials)(meshes)(cameras)(activeCamera)(integrator));
 	}
 }

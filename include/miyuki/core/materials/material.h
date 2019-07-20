@@ -23,6 +23,7 @@ namespace Miyuki {
 			virtual BSDFLobe lobe()const = 0;
 			virtual Shader* emission()const = 0;
 		};
+		MYK_EXTENDS(Material, (Component));
 
 		struct MixedMaterial final : public Material {
 			MYK_META(MixedMaterial)
@@ -36,7 +37,7 @@ namespace Miyuki {
 				return emissionShader.get();
 			}
 		};
-		MYK_IMPL(MixedMaterial, Material, "Material.Mixed");
+		MYK_IMPL(MixedMaterial, (Material), "Material.Mixed");
 		MYK_REFL(MixedMaterial, (emissionShader)(fraction)(matA)(matB));
 
 		struct DiffuseMaterial final  : public Material {
@@ -51,7 +52,7 @@ namespace Miyuki {
 				return emissionShader.get();
 			}
 		};
-		MYK_IMPL(DiffuseMaterial, Material, "Material.Diffuse");
+		MYK_IMPL(DiffuseMaterial, (Material), "Material.Diffuse");
 		MYK_REFL(DiffuseMaterial, (emissionShader)(color)(roughness));
 
 		struct GlossyMaterial final : public Material {
@@ -66,7 +67,7 @@ namespace Miyuki {
 				return emissionShader.get();
 			}
 		};
-		MYK_IMPL(GlossyMaterial, Material, "Material.Glossy");
+		MYK_IMPL(GlossyMaterial, (Material), "Material.Glossy");
 		MYK_REFL(GlossyMaterial, (emissionShader)(color)(roughness));
 	}
 }

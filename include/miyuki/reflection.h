@@ -129,7 +129,7 @@ namespace Miyuki {
 				auto s = stream.sub();
 				value->serialize(s);
 				stream.write("meta", "val");
-				stream.write("addr", reinterpret_cast<uint64_t>(static_cast<Component*>(value.get())));
+				stream.write("addr", reinterpret_cast<uint64_t>(dynamic_cast<Component*>(value.get())));
 				stream.write("val", s);
 				stream.addSerialized(value.get());
 			}
@@ -237,7 +237,7 @@ namespace Miyuki {
 			if (meta == "ref") {
 				auto val = data.at("val").get<uint64_t>();
 				if (stream.has(val)) {
-					value = static_cast<T*>(stream.fetchByAddr(val));
+					value = dynamic_cast<T*>(stream.fetchByAddr(val));
 				}
 				else {
 					throw std::runtime_error(fmt::format("ref {} has not been loaded", val));
@@ -346,13 +346,11 @@ namespace Miyuki {
 
 		namespace detail {
 			template<class T>
-			struct ZeroInit {
-				static void init(T& value) { value = T(); }
-			};
+			std::enable_if_t<!std::is_pointer_v<T>, void> ZeroInit(T& value) { value = T(); }
+			
 			template<class T>
-			struct ZeroInit<T*> {
-				static void init(T*& value) { value = nullptr; }
-			};
+			std::enable_if_t<std::is_pointer_v<T>, void> ZeroInit(T& value) { value = nullptr; }
+			
 		}
 		struct InStreamVisitor {
 			int index = 0;
@@ -363,6 +361,9 @@ namespace Miyuki {
 				if (stream.contains(name)) {
 					auto sub = stream.sub(name);
 					load(value, sub);
+				}
+				else {
+					detail::ZeroInit(value);
 				}
 			}
 		};
@@ -389,21 +390,34 @@ namespace Miyuki {
 				info = new TypeInfo();
 				info->_name = name;
 				info->saver = [=](const Component& value, OutObjectStream& stream) {
-					save(static_cast<const T&>(value), stream);
+					save(dynamic_cast<const T&>(value), stream);
 				};
 				info->ctor = [=]()->Box<Component> {
 					return make_box<T>();
 				};
 				info->loader = [=](Component& value, InObjectStream& stream) {
-					load(static_cast<T&>(value), stream);
+					load(dynamic_cast<T&>(value), stream);
 				};
 			});
 			return info;
 		}
-
-#define MYK_INTERFACE(Interface) static std::string interfaceInfo(){\
-									return "Interface." #Interface;\
+		struct __Injector {
+			template<class F>
+			__Injector(F&& f) { std::move(f)(); }
+		};
+#define MYK_INTERFACE(Interface) static const std::string& interfaceInfo(){\
+									static std::string s = "Interface." #Interface;\
+									return s; \
 								}
+
+#define _MYK_EXTENDS(Interface, Super) \
+	static Miyuki::Reflection::__Injector \
+		BOOST_PP_CAT(BOOST_PP_CAT(BOOST_PP_CAT(Extend_ ## Interface ##_ ##injector_, __COUNTER__),_), __LINE__)\
+		([]() {\
+			Miyuki::Reflection::extendInterface<Interface, Super>(); \
+	});
+#define _MYK_EXTENDS_SEQ_MACRO(r, data, elem) _MYK_EXTENDS(data, elem)
+#define MYK_EXTENDS(Interface, Supers) BOOST_PP_SEQ_FOR_EACH(_MYK_EXTENDS_SEQ_MACRO, Interface, Supers)
 		struct ComponentVisitor;
 		struct Component {
 			MYK_INTERFACE(Component);
@@ -433,7 +447,7 @@ namespace Miyuki {
 			template<class T>
 			void visit(const std::function<void(T*)>& f) {
 				_map[T::type()] = [=](Component* p) {
-					f(static_cast<T*>(p));
+					f(dynamic_cast<T*>(p));
 				};
 			}
 		};
@@ -448,7 +462,7 @@ namespace Miyuki {
 					if (matched)return *this;
 					if (value && typeof(value) == typeof<U>()) {
 						auto f = std::move(func);
-						f(static_cast<U*>(value));
+						f(dynamic_cast<U*>(value));
 						matched = true;
 					}
 					return *this;
@@ -476,16 +490,60 @@ namespace Miyuki {
 					return std::less<std::string>()(a->name(), b->name());
 				}
 			};
+
 			using ImplSet = std::set<TypeInfo*, TypeInfoCompare>;
+			struct InterfaceTree {
+				std::string name;
+				std::set<InterfaceTree*> derived;
+				ImplSet directImpl;
+				template<class Impl>
+				void addDirectImpl() {
+					directImpl.insert(Impl::type());
+				}
+				ImplSet getAllImpls()const {
+					ImplSet set = directImpl;
+					for (auto d : derived) {
+						auto s = d->getAllImpls();
+						for (auto i : s) {
+							set.insert(i);
+						}
+					}
+					return set;
+				}
+			};
 			struct Types {
 				std::set<TypeInfo*> _registerdTypes;
 				std::unordered_map<std::string, TypeInfo*> _registerdTypeMap;
-				std::unordered_map<std::string, ImplSet> _impls;
+				std::unordered_map<std::string, std::unique_ptr<InterfaceTree>> _tree;
 				static Types* all;
 				static std::once_flag flag;
 				static Types& get() {
 					std::call_once(flag, [&]() {all = new Types(); });
 					return *all;
+				}
+				template<class T>
+				void addInterface(){
+					_tree[T::interfaceInfo()] = std::make_unique<InterfaceTree>();
+					_tree[T::interfaceInfo()]->name = T::interfaceInfo();
+				}
+				template<class Derived, class Base>
+				void extendInterface() {
+					if (_tree.find(Base::interfaceInfo()) == _tree.end())
+						addInterface<Base>();
+					if (_tree.find(Derived::interfaceInfo()) == _tree.end())
+						addInterface<Derived>();
+					auto& base = _tree.at(Base::interfaceInfo());
+					auto& derived = _tree.at(Derived::interfaceInfo());
+					base->derived.insert(derived.get());
+
+				}
+				template<class Impl, class Interface>
+				inline void addImpl() {
+					auto t = Impl::type();
+					auto inter = Interface::interfaceInfo();
+					if (_tree.find(inter) == _tree.end())
+						addInterface<Interface>();
+					_tree.at(inter)->addDirectImpl<Impl>();
 				}
 			};
 
@@ -499,20 +557,21 @@ namespace Miyuki {
 
 		template<class Impl, class Interface>
 		inline void registerImplementation() {
-			auto t = Impl::type();
-			auto inter = Interface::interfaceInfo();
-			auto& impls = detail::Types::get()._impls;
-			if (impls.find(inter) == impls.end()) {
-				impls[inter] = {};
-			}
-			impls[inter].insert(t);
+			detail::Types::get().addImpl<Impl, Interface>();			
 		}
 
+		template<class Derived, class Base>
+		inline void extendInterface() {
+			detail::Types::get().extendInterface<Derived, Base>();
+		}
+
+
 		template<class Interface>
-		inline const detail::ImplSet& getImplementations() {
+		inline detail::ImplSet getImplementations() {
 			auto inter = Interface::interfaceInfo();
-			const auto& impls = detail::Types::get()._impls;
-			return impls.at(inter);
+			const auto& _tree = detail::Types::get()._tree;
+			const auto& node = _tree.at(inter);
+			return node->getAllImpls();
 		}
 
 		inline Box<Component> createComponent(const std::string& name) {
@@ -544,7 +603,6 @@ namespace Miyuki {
 			return __Self::type();\
 		}
 
-
 #define MYK_AUTO_REGSITER_TYPE(Type, Alias)\
 		struct Injector_##Type{\
 			Injector_##Type(){\
@@ -552,12 +610,17 @@ namespace Miyuki {
 			}\
 		};static Injector_##Type _injector_##Type;\
 inline Miyuki::Reflection::TypeInfo* Type::type(){return Miyuki::Reflection::GetTypeInfo<Type>(Alias);}
-#define MYK_IMPL(Type, Interface, Alias) MYK_AUTO_REGSITER_TYPE(Type, Alias)\
-	struct Injector_##Type##_##Interface{\
-		Injector_##Type##_##Interface(){\
-			Miyuki::Reflection::registerImplementation<Type, Interface>();\
-		}\
-	};static Injector_##Type##_##Interface __injector__##Type##_##Interface;
+
+#define MYK_INJECT_INTERFACE_IMPL(Type, Interface) \
+	static Miyuki::Reflection::__Injector \
+		BOOST_PP_CAT(BOOST_PP_CAT(BOOST_PP_CAT(Impl_ ## Type ##_ ##injector_, __COUNTER__),_), __LINE__)\
+		([]() {\
+			Miyuki::Reflection::registerImplementation<Type, Interface>(); \
+	});
+#define _MYK_IMPL_SEQ_MACRO(r, data, elem) MYK_INJECT_INTERFACE_IMPL(data, elem)
+
+#define MYK_IMPL(Type, Interfaces, Alias) MYK_AUTO_REGSITER_TYPE(Type, Alias)\
+								BOOST_PP_SEQ_FOR_EACH(_MYK_IMPL_SEQ_MACRO, Type, Interfaces)
 
 #define MYK_BEGIN_REFL(Type) struct Type::Meta {\
 						 enum {__idx = __COUNTER__}; using __Self = Type;\

@@ -30,7 +30,7 @@ namespace Miyuki {
 			virtual bool startNextSample() = 0;
 			virtual SamplerState getState() = 0;
 		};
-
+		MYK_EXTENDS(Sampler, (Component));
 
 		struct RandomSampler final : Sampler {
 		private:
@@ -61,7 +61,7 @@ namespace Miyuki {
 				return state.sample < state.samplesPerPixel; 
 			}
 		};
-		MYK_IMPL(RandomSampler, Sampler, "Sampler.Random");
+		MYK_IMPL(RandomSampler, (Sampler), "Sampler.Random");
 		MYK_REFL(Miyuki::Core::RandomSampler, MYK_REFL_NIL);
 		struct SobolSampler final: Sampler {
 			SamplerState state;
@@ -98,7 +98,7 @@ namespace Miyuki {
 				return state.sample < state.samplesPerPixel;
 			}
 		};
-		MYK_IMPL(SobolSampler, Sampler, "Sampler.Sobol");
+		MYK_IMPL(SobolSampler, (Sampler), "Sampler.Sobol");
 		MYK_REFL(Miyuki::Core::SobolSampler, MYK_REFL_NIL);
 	}
 }
