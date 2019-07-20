@@ -4,9 +4,7 @@
 int main(int argc, char** argv) {
 	using namespace Miyuki;
 	using namespace Miyuki::Reflection;
-	/*GUI::MainWindow window(argc, argv);
-	window.show();*/
-	auto mat = createComponent("Miyuki.Core.DiffuseMaterial");
-	fmt::print("{}\n", mat->typeInfo()->name());
+	GUI::MainWindow window(argc, argv);
+	window.show();
 	return 0;
 }

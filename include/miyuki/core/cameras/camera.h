@@ -40,7 +40,7 @@ namespace Miyuki {
 			Point2i dimension;
 			Float lensRadius, focalDistance;
 			Float fov;
-			MYK_IMPL(PerspectiveCamera);
+			MYK_META(PerspectiveCamera);
 			virtual void preprocess()override;
 
 			virtual Vec3f cameraToWorld(Vec3f w) const override {
@@ -70,8 +70,10 @@ namespace Miyuki {
 		private:
 			void computeTransformMatrix();
 		};
+		MYK_IMPL(PerspectiveCamera, Camera, "Camera.PerspectiveCamera")
+		MYK_REFL(PerspectiveCamera, (viewpoint)(direction)(dimension)(lensRadius)(focalDistance)(fov));
 	}
 }
 
-MYK_REFL(Miyuki::Core::PerspectiveCamera, (viewpoint)(direction)(dimension)(lensRadius)(focalDistance)(fov));
+
 #endif

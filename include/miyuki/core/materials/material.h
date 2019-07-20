@@ -19,16 +19,16 @@ namespace Miyuki {
 		};
 
 		struct Material : public Component {
+			MYK_INTERFACE(Material);
 			virtual BSDFLobe lobe()const = 0;
 			virtual Shader* emission()const = 0;
 		};
 
 		struct MixedMaterial final : public Material {
-			MYK_IMPL(MixedMaterial)
+			MYK_META(MixedMaterial)
 			Box<Material> matA = nullptr, matB = nullptr;
 			Box<Shader> emissionShader = nullptr;
 			Box<Shader> fraction = nullptr;
-		//	MYK_IMPL(MixedMaterial);
 			virtual BSDFLobe lobe()const override{
 				return static_cast<BSDFLobe>(matA->lobe() | matB->lobe());
 			}
@@ -36,9 +36,11 @@ namespace Miyuki {
 				return emissionShader.get();
 			}
 		};
+		MYK_IMPL(MixedMaterial, Material, "Material.Mixed");
+		MYK_REFL(MixedMaterial, (emissionShader)(fraction)(matA)(matB));
 
 		struct DiffuseMaterial final  : public Material {
-			MYK_IMPL(DiffuseMaterial)
+			MYK_META(DiffuseMaterial)
 			Box<Shader> emissionShader;
 			Box<Shader> color;
 			Box<Shader> roughness;
@@ -49,9 +51,11 @@ namespace Miyuki {
 				return emissionShader.get();
 			}
 		};
+		MYK_IMPL(DiffuseMaterial, Material, "Material.Diffuse");
+		MYK_REFL(DiffuseMaterial, (emissionShader)(color)(roughness));
 
 		struct GlossyMaterial final : public Material {
-			MYK_IMPL(GlossyMaterial)
+			MYK_META(GlossyMaterial)
 			Box<Shader> emissionShader = nullptr;
 			Box<Shader> color = nullptr;
 			Box<Shader> roughness = nullptr;
@@ -62,9 +66,9 @@ namespace Miyuki {
 				return emissionShader.get();
 			}
 		};
+		MYK_IMPL(GlossyMaterial, Material, "Material.Glossy");
+		MYK_REFL(GlossyMaterial, (emissionShader)(color)(roughness));
 	}
 }
-MYK_REFL(Miyuki::Core::MixedMaterial, (emissionShader)(fraction)(matA)(matB))
-MYK_REFL(Miyuki::Core::DiffuseMaterial, (emissionShader)(color)(roughness))
-MYK_REFL(Miyuki::Core::GlossyMaterial,(emissionShader)(color)(roughness))
+
 #endif

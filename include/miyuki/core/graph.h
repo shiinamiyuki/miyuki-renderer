@@ -9,39 +9,43 @@
 namespace Miyuki {
 	namespace Core {
 		struct MaterialSlot final : Component {
-			MYK_IMPL(MaterialSlot);
+			MYK_META(MaterialSlot);
 			std::string name;
 			Box<Material> material;
 		};
-
+		MYK_IMPL(MaterialSlot, Component, "Core.MaterialSlot");
+		MYK_REFL(MaterialSlot, (name)(material));
+		
 
 		struct Object final : Component {
-			MYK_IMPL(Object);
+			MYK_META(Object);
 			std::string name;
 			MaterialSlot* material = nullptr;
 		};
 
+		MYK_IMPL(Object, Component, "Core.Object");
+		MYK_REFL(Object, (name)(material));
+
 		struct MeshFile final : Component {
-			MYK_IMPL(MeshFile);
+			MYK_META(MeshFile);
 			Transform transform;
 			std::string name;
 			File file;
 			std::vector<Box<Object>> objects;
 		};
+		MYK_IMPL(MeshFile, Component, "Core.MeshFile");
+		MYK_REFL(MeshFile, (file)(name)(transform)(objects));
 
-		
 		struct Graph final : Component {
-			MYK_IMPL(Graph);
+			MYK_META(Graph);
 			std::vector<Box<MaterialSlot>> materials;
 			std::vector<Box<MeshFile>> meshes;
 			std::vector<Box<Camera>> cameras;
 			Box<Integrator> integrator;
 			Camera* activeCamera = nullptr;
 		};
+		MYK_IMPL(Graph, Component, "Core.Graph");
+		MYK_REFL(Graph, (materials)(meshes)(cameras)(activeCamera)(integrator));
 	}
 }
 
-MYK_REFL(Miyuki::Core::MaterialSlot, (name)(material))
-MYK_REFL(Miyuki::Core::Object, (name)(material))
-MYK_REFL(Miyuki::Core::Graph, (materials)(meshes)(cameras)(activeCamera)(integrator))
-MYK_REFL(Miyuki::Core::MeshFile, (file)(name)(transform)(objects))

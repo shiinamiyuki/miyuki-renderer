@@ -14,12 +14,13 @@ namespace Miyuki {
 
 		struct Shader : Component {
 		public:
+			MYK_INTERFACE(Shader);
 			virtual void eval(ShadingPoint&) = 0;
 			virtual void preprocess() {}
 		};
 
 		struct FloatShader final : public Shader {
-			MYK_IMPL(FloatShader);
+			MYK_META(FloatShader);
 			FloatShader() {}
 			FloatShader(Float v) :value(v) {}
 			virtual void eval(ShadingPoint& p) override {
@@ -30,9 +31,11 @@ namespace Miyuki {
 		private:
 			Float value = 0;
 		};
+		MYK_IMPL(FloatShader, Shader, "Shader.Float");
+		MYK_REFL(FloatShader, (value));
 
 		struct RGBShader final: public Shader{
-			MYK_IMPL(RGBShader);
+			MYK_META(RGBShader);
 			RGBShader() {}
 			RGBShader(Spectrum v) :value(v) {}
 			virtual void eval(ShadingPoint& p) override{
@@ -44,18 +47,20 @@ namespace Miyuki {
 			Spectrum value;
 		};
 
+		MYK_IMPL(RGBShader, Shader, "Shader.RGB");
+		MYK_REFL(RGBShader, (value));
+
 		struct ImageTextureShader final : public Shader {
 			File imageFile;
 			IO::Image* texture = nullptr;
 			ImageTextureShader() {}
 			ImageTextureShader(const File& f) :imageFile(f) {}
-			MYK_IMPL(ImageTextureShader);
+			MYK_META(ImageTextureShader);
 			virtual void eval(ShadingPoint&) override {
 
 			}
 		};
+		MYK_IMPL(ImageTextureShader, Shader, "Shader.ImageTexture");
+		MYK_REFL(ImageTextureShader, (imageFile));
 	}
 }
-MYK_REFL(Miyuki::Core::FloatShader,(value))
-MYK_REFL(Miyuki::Core::RGBShader, (value))
-MYK_REFL(Miyuki::Core::ImageTextureShader, (imageFile))
