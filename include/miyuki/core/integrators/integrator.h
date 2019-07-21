@@ -13,20 +13,22 @@ namespace Miyuki {
 
 		using RenderResultCallback = std::function<void(Arc<Film> film)>;
 		using ProgressiveRenderCallback = std::function<void(Arc<Film> film)>;
-		
+
 
 		struct Integrator : Component {
-
+			MYK_INTERFACE(Integrator);
 		};
-	
-		struct ProgressiveRenderer {
+		MYK_EXTENDS(Integrator, (Component));
+
+		struct ProgressiveRenderer : virtual Integrator {
+			MYK_INTERFACE(ProgressiveRenderer);
 			virtual void render(
 				Scene& scene,
 				Camera& camera,
 				ProgressiveRenderCallback progressiveCallback,
 				RenderResultCallback resultCallback) = 0;
 		};
-	
+		MYK_EXTENDS(ProgressiveRenderer, (Integrator));
 	}
 }
 

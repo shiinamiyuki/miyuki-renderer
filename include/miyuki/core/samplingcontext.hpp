@@ -28,11 +28,12 @@ namespace Miyuki {
 			Camera* camera,
 			Sampler* sampler,
 			MemoryArena* arena,
+			const Point2i& dimension,
 			const Point2i& raster) {
 			sampler->startNextSample();
 			Ray primary;
 			CameraSample sample;
-			camera->generateRay(*sampler, raster, &primary, &sample);
+			camera->generateRay(*sampler, dimension, raster, &primary, &sample);
 			return SamplingContext(camera, sampler, arena, sample, primary);
 		}
 	}

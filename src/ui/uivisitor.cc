@@ -32,10 +32,23 @@ namespace Miyuki {
 				_map[s] = c;
 				_invmap[c] = s;
 				_list.push_back(s);
-				_ctors[c] = [](void) -> Box<Component> {
-					return Reflection::make_box<T>();
-				};
+				_ctors[c] = c->ctor;
 				return *this;
+			}
+
+			TypeSelector& option(Reflection::TypeInfo* info, const std::string& s) {
+				_map[s] = info;
+				_invmap[info] = s;
+				_list.push_back(s);
+				_ctors[info] = info->ctor;
+				return *this;
+			}
+			template<class Interface>
+			void loadImpl() {
+				const auto& impls = Reflection::getImplementations<Interface>();
+				for (auto& i : impls) {
+					option(i, i->name());
+				}
 			}
 			template<class T>
 			std::optional<Box<T>> select(const std::string& label, const T* current) {
@@ -51,7 +64,7 @@ namespace Miyuki {
 							ImGui::SetItemDefaultFocus();
 						}
 					}).show();
-				
+
 					for (auto ty : _list) {
 						auto currentTy = current ? current->typeInfo() : nullptr;
 						bool is_selected = _map.at(ty) == currentTy;
@@ -61,9 +74,9 @@ namespace Miyuki {
 									Reflection::static_unique_ptr_cast<T>(
 										_ctors[_map.at(ty)]()));
 							}
-							if (is_selected)
-								ImGui::SetItemDefaultFocus();
 						}).show();
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
 					}
 				}).show();
 				return opt;
@@ -74,9 +87,7 @@ namespace Miyuki {
 			static TypeSelector selector;
 			static std::once_flag flag;
 			std::call_once(flag, [&]() {
-				selector.option<Core::DiffuseMaterial>("diffuse material")
-					.option<Core::GlossyMaterial>("glossy material")
-					.option<Core::MixedMaterial>("mixed material");
+				selector.loadImpl<Core::Material>();
 			});
 			return selector.select<Core::Material>(label, material);
 		}
@@ -85,13 +96,49 @@ namespace Miyuki {
 			static TypeSelector selector;
 			static std::once_flag flag;
 			std::call_once(flag, [&]() {
-				selector.option<Core::FloatShader>("float")
-					.option<Core::RGBShader>("RGB")
-					.option<Core::ImageTextureShader>("Image Texture");
+				selector.loadImpl<Core::Shader>();
 			});
 			return selector.select<Core::Shader>(label, shader);
 		}
 
+		void resolutionSelector(Point2i& dim) {
+			auto res2str = [](const Point2i& dim) ->const char* {
+				if (dim[0] == 2560 && dim[1] == 1440) {
+					return "1440p";
+				}
+				if (dim[0] == 1920 && dim[1] == 1080) {
+					return "1080p";
+				}
+				if (dim[0] == 1280 && dim[1] == 720) {
+					return "720p";
+				}
+				if (dim[0] == 858 && dim[1] == 480) {
+					return "480p";
+				}
+				return "custom";
+			};
+			static const Point2i resolutions[] = {
+				{2560, 1440},  {1920,1080},{1280,720},{858, 480}
+			};
+			Combo().name("resolution").item(res2str(dim)).with(true, [&]()
+			{
+				for (auto& res : resolutions) {
+					bool is_selected = res == dim;
+					SingleSelectableText().name(res2str(res)).selected(is_selected).with(true, [&]() {
+						uiInputChanged();
+						dim = res;
+					}).show();
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				bool is_selected = std::string("custom") == res2str(dim);
+				SingleSelectableText().name("custom").selected(is_selected)
+					.with(true, [&]() {
+				});
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
+			}).show();
+		}
 		void UIVisitor::init() {
 			connection = uiInputChanged.connect([=]() {
 				changed = true;
@@ -120,10 +167,10 @@ namespace Miyuki {
 				visitShaderAndSelect(node->roughness, "roughness");
 			});
 			visit<Core::MixedMaterial>([=](Core::MixedMaterial* node) {
-				visitShaderAndSelect(node->fraction,"fraction");
-				visitMaterialAndSelect(node->matA,"material A");
+				visitShaderAndSelect(node->fraction, "fraction");
+				visitMaterialAndSelect(node->matA, "material A");
 				Separator().show();
-				visitMaterialAndSelect(node->matB,"material B");
+				visitMaterialAndSelect(node->matB, "material B");
 				Separator().show();
 			});
 			visit<Core::MeshFile>([=](Core::MeshFile* node) {
@@ -141,7 +188,7 @@ namespace Miyuki {
 				auto matName = node->material->name;
 				if (auto r = GetInputWithSignal("name", objectName)) {
 					node->name = r.value();
-				}				
+				}
 				LineText("material");
 
 				Combo().name("use material").item(matName).with(true, [=]()
@@ -149,11 +196,11 @@ namespace Miyuki {
 					for (auto& slot : graph->materials) {
 						auto& m = slot->material;
 						bool is_selected = (node->material && m.get() == node->material->material.get());
-						SingleSelectableText().name(slot->name).selected(is_selected).with(true, [=, &m,&slot]() {
+						SingleSelectableText().name(slot->name).selected(is_selected).with(true, [=, &m, &slot]() {
 							node->material = slot.get();
-							if (is_selected)
-								ImGui::SetItemDefaultFocus();
 						}).show();
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
 					}
 				}).show();
 
@@ -178,9 +225,6 @@ namespace Miyuki {
 				if (auto r = GetInputWithSignal("direction", camera->direction)) {
 					camera->direction = r.value();
 				}
-				if (auto r = GetInputWithSignal("film dimension", camera->dimension)) {
-					camera->dimension = r.value();
-				}
 				if (auto r = GetInputWithSignal("lensRadius", camera->lensRadius)) {
 					camera->lensRadius = r.value();
 				}
@@ -196,6 +240,15 @@ namespace Miyuki {
 					integrator->occlusionDistance = r.value();
 				}
 			});
+			visit<Core::FilmConfig>([=](Core::FilmConfig* config) {
+				if (auto r = GetInputWithSignal("scale", 100 * config->scale)) {
+					config->scale = r.value() / 100.0f;
+				}
+				resolutionSelector(config->dimension);
+				if (auto r = GetInputWithSignal("dimension", config->dimension)) {
+					config->dimension = r.value();
+				}
+			});
 		}
 
 		void UIVisitor::visitMaterialAndSelect(Box<Core::Material>& material, const std::string& label) {
@@ -209,7 +262,7 @@ namespace Miyuki {
 
 		void UIVisitor::visitShaderAndSelect(Box<Core::Shader>& shader, const std::string& label) {
 			ImGui::PushID(&shader);
-			if (auto r = selectShader(shader.get(),label)) {
+			if (auto r = selectShader(shader.get(), label)) {
 				shader = std::move(r.value());
 			}
 			visit(shader);
@@ -218,7 +271,7 @@ namespace Miyuki {
 
 		void UIVisitor::visitSelected() {
 			if (selected) {
-				visit(selected);				
+				visit(selected);
 			}
 		}
 
@@ -232,7 +285,7 @@ namespace Miyuki {
 					auto& material = slot->material;
 					const auto& name = slot->name;
 					SingleSelectableText().name(name).selected(material.get() == selected)
-						.with(true, [=, &material,&slot]() {
+						.with(true, [=, &material, &slot]() {
 						selected = slot.get();
 						selectedNodeType = kMaterial;
 						selectedMaterialIndex = index;
@@ -298,6 +351,11 @@ namespace Miyuki {
 			}
 			visit(integrator);
 			ImGui::PopID();
+		}
+		void UIVisitor::visitFilm() {
+			auto graph = engine->getGraph();
+			if (!graph)return;
+			visit(&graph->filmConfig);
 		}
 	}
 }

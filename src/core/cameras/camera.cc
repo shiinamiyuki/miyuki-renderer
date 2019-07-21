@@ -14,6 +14,7 @@ namespace Miyuki {
 			Matrix4x4::inverse(rotationMatrix, invMatrix);
 		}
 		Float PerspectiveCamera::generateRay(Sampler& sampler,
+			const Point2i& filmDimension,
 			const Point2i& raster,
 			Ray* ray,
 			CameraSample* sample) {
@@ -24,9 +25,9 @@ namespace Miyuki {
 			x += rx;
 			y += ry;
 			sample->pFilm = Point2f(x, y);
-			x = -(2 * x / dimension.x() - 1) * static_cast<Float>(dimension.x()) /
-				dimension.y();
-			y = 2 * (1 - y / dimension.y()) - 1;
+			x = -(2 * x / filmDimension.x() - 1) * static_cast<Float>(filmDimension.x()) /
+				filmDimension.y();
+			y = 2 * (1 - y / filmDimension.y()) - 1;
 
 			Vec3f ro(0, 0, 0);
 			auto z = (Float)(2.0 / std::tan(fov / 2));
@@ -50,18 +51,6 @@ namespace Miyuki {
 			rd = cameraToWorld(rd).normalized();
 			*ray = Ray(ro, rd);
 			return 1;
-		}
-
-		Arc<Film> PerspectiveCamera::createFilm()const {
-			return std::make_shared<Film>(dimension.x(), dimension.y());
-		}
-		Box<Camera> PerspectiveCamera::scale(Float k)const{
-			auto camera = new PerspectiveCamera();
-			*camera = *this;
-			camera->dimension *= k;
-			Box<Camera> box;
-			box.reset(camera);
-			return std::move(box);
 		}
 	}
 }
