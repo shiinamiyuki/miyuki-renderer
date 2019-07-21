@@ -21,7 +21,7 @@ namespace Miyuki {
 		MYK_EXTENDS(Shader, (Component));
 
 		struct FloatShader final : public Shader {
-			MYK_META(FloatShader);
+			MYK_META;
 			FloatShader() {}
 			FloatShader(Float v) :value(v) {}
 			virtual void eval(ShadingPoint& p) override {
@@ -36,7 +36,7 @@ namespace Miyuki {
 		MYK_REFL(FloatShader, (value));
 
 		struct RGBShader final: public Shader{
-			MYK_META(RGBShader);
+			MYK_META;
 			RGBShader() {}
 			RGBShader(Spectrum v) :value(v) {}
 			virtual void eval(ShadingPoint& p) override{
@@ -56,7 +56,7 @@ namespace Miyuki {
 			IO::Image* texture = nullptr;
 			ImageTextureShader() {}
 			ImageTextureShader(const File& f) :imageFile(f) {}
-			MYK_META(ImageTextureShader);
+			MYK_META;
 			virtual void eval(ShadingPoint&) override {
 
 			}

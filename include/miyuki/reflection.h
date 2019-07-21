@@ -405,6 +405,14 @@ namespace Miyuki {
 			template<class F>
 			__Injector(F&& f) { std::move(f)(); }
 		};
+		template<class T>
+		struct GetSelf {};
+
+		template<class R, class T, class... Args>
+		struct GetSelf<R(T::*)(Args...)> {
+			using type = T;
+		};
+#define MYK_GET_SELF void __get_self_helper(); using Self = Miyuki::Reflection::GetSelf<decltype(&__get_self_helper)>::type;
 #define MYK_INTERFACE(Interface) static const std::string& interfaceInfo(){\
 									static std::string s = "Interface." #Interface;\
 									return s; \
@@ -597,10 +605,10 @@ namespace Miyuki {
 	template<class T>
 	using Arc = std::shared_ptr<T>;
 
-#define MYK_META(Type) using __Self = Type;struct Meta;\
+#define MYK_META MYK_GET_SELF struct Meta;\
 		static inline Miyuki::Reflection::TypeInfo* type();\
 		virtual Miyuki::Reflection::TypeInfo* typeInfo() const final override{\
-			return __Self::type();\
+			return Self::type();\
 		}
 
 #define MYK_AUTO_REGSITER_TYPE(Type, Alias)\

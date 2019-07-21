@@ -42,7 +42,7 @@ namespace Miyuki {
 			Point2i dimension;
 			Float lensRadius, focalDistance;
 			Float fov;
-			MYK_META(PerspectiveCamera);
+			MYK_META;
 			virtual void preprocess()override;
 
 			virtual Vec3f cameraToWorld(Vec3f w) const override {

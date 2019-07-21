@@ -8,7 +8,7 @@ namespace Miyuki {
 		struct AOIntegrator final : ProgressiveRenderer{
 			size_t spp = 16;
 			Float occlusionDistance = 1e5;
-			MYK_META(AOIntegrator);
+			MYK_META;
 			void render(
 				Scene& scene,
 				Camera& camera,

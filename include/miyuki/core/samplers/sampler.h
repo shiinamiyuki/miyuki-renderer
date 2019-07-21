@@ -37,7 +37,7 @@ namespace Miyuki {
 			RNG rng;
 			SamplerState state;
 		public:
-			MYK_META(RandomSampler);
+			MYK_META;
 			RandomSampler() {}
 			RandomSampler(RNG rng, SamplerState state) :rng(std::move(rng)), state(std::move(state)) {}
 			virtual std::unique_ptr<Sampler> clone()const override {
@@ -62,14 +62,15 @@ namespace Miyuki {
 			}
 		};
 		MYK_IMPL(RandomSampler, (Sampler), "Sampler.Random");
-		MYK_REFL(Miyuki::Core::RandomSampler, MYK_REFL_NIL);
+		MYK_REFL(RandomSampler, MYK_REFL_NIL);
+
 		struct SobolSampler final: Sampler {
 			SamplerState state;
 			uint32_t dimension = 0;
 			RNG rng;
 			uint32_t rotation = 0;
 		public:
-			MYK_META(SobolSampler);
+			MYK_META;
 			SobolSampler() {}
 			SobolSampler(const SamplerState& state) :state(state) {
 				rotation = rng.uniformFloat();
@@ -99,7 +100,7 @@ namespace Miyuki {
 			}
 		};
 		MYK_IMPL(SobolSampler, (Sampler), "Sampler.Sobol");
-		MYK_REFL(Miyuki::Core::SobolSampler, MYK_REFL_NIL);
+		MYK_REFL(SobolSampler, MYK_REFL_NIL);
 	}
 }
 

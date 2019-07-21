@@ -9,7 +9,7 @@
 namespace Miyuki {
 	namespace Core {
 		struct MaterialSlot final : Component {
-			MYK_META(MaterialSlot);
+			MYK_META;
 			std::string name;
 			Box<Material> material;
 		};
@@ -18,7 +18,7 @@ namespace Miyuki {
 		
 
 		struct Object final : Component {
-			MYK_META(Object);
+			MYK_META;
 			std::string name;
 			MaterialSlot* material = nullptr;
 		};
@@ -27,7 +27,7 @@ namespace Miyuki {
 		MYK_REFL(Object, (name)(material));
 
 		struct MeshFile final : Component {
-			MYK_META(MeshFile);
+			MYK_META;
 			Transform transform;
 			std::string name;
 			File file;
@@ -37,7 +37,7 @@ namespace Miyuki {
 		MYK_REFL(MeshFile, (file)(name)(transform)(objects));
 
 		struct Graph final : Component {
-			MYK_META(Graph);
+			MYK_META;
 			std::vector<Box<MaterialSlot>> materials;
 			std::vector<Box<MeshFile>> meshes;
 			std::vector<Box<Camera>> cameras;

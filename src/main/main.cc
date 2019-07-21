@@ -21,6 +21,20 @@ void printInterfaceGraph(const std::string& I, int indent = 0) {
 		printInterfaceGraph(d->name, indent + 1);
 	}
 }
+void printUML(const std::string& I) {
+	using namespace Miyuki;
+	using namespace Miyuki::Reflection;
+	auto& types = detail::Types::get();
+	auto& i = types._tree.at(I);
+	for (auto& impl : i->directImpl) {
+		fmt::print("[{}]^-[{}]\n",i->name,  impl->name());
+	}
+	for (auto& d : i->derived) {
+		fmt::print("[{}]^-.-[{}]\n",i->name, d->name);
+		printUML(d->name);
+	}
+}
+
 
 int main(int argc, char** argv) {
 	using namespace Miyuki;
@@ -28,7 +42,7 @@ int main(int argc, char** argv) {
 	/*GUI::MainWindow window(argc, argv);
 	window.show();*/
 	try {
-		printInterfaceGraph(Component::interfaceInfo());
+		printUML(Component::interfaceInfo());
 	}
 	catch (std::out_of_range& e) {
 		std::cerr << e.what() << std::endl;

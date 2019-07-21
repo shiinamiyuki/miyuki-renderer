@@ -26,7 +26,7 @@ namespace Miyuki {
 		MYK_EXTENDS(Material, (Component));
 
 		struct MixedMaterial final : public Material {
-			MYK_META(MixedMaterial)
+			MYK_META;
 			Box<Material> matA = nullptr, matB = nullptr;
 			Box<Shader> emissionShader = nullptr;
 			Box<Shader> fraction = nullptr;
@@ -41,7 +41,7 @@ namespace Miyuki {
 		MYK_REFL(MixedMaterial, (emissionShader)(fraction)(matA)(matB));
 
 		struct DiffuseMaterial final  : public Material {
-			MYK_META(DiffuseMaterial)
+			MYK_META;
 			Box<Shader> emissionShader;
 			Box<Shader> color;
 			Box<Shader> roughness;
@@ -56,7 +56,7 @@ namespace Miyuki {
 		MYK_REFL(DiffuseMaterial, (emissionShader)(color)(roughness));
 
 		struct GlossyMaterial final : public Material {
-			MYK_META(GlossyMaterial)
+			MYK_META;
 			Box<Shader> emissionShader = nullptr;
 			Box<Shader> color = nullptr;
 			Box<Shader> roughness = nullptr;
