@@ -16,27 +16,27 @@ namespace Miyuki {
 		void accept(const Nil&, Visitor) {}
 		template<class Visitor>
 		void accept(Nil&, Visitor) {}
-		struct Component;
+		struct Reflective;
 		struct Deleter {
-			std::function<void(Component*)> deleter;
+			std::function<void(Reflective*)> deleter;
 			Deleter() {}
-			Deleter(std::function<void(Component*)> f) :deleter(std::move(f)) {}
-			void operator()(Component* t) {
+			Deleter(std::function<void(Reflective*)> f) :deleter(std::move(f)) {}
+			void operator()(Reflective* t) {
 				deleter(t);
 			}
 		};
-		template<class T = Component>
+		template<class T = Reflective>
 		using Box = std::unique_ptr<T, Deleter>;
 
 		template<class T, class... Args>
 		Box<T> make_box(Args... args) {
-			return Box<T>(new T(args...), Deleter([](Component* p) {delete p; }));
+			return Box<T>(new T(args...), Deleter([](Reflective* p) {delete p; }));
 		}
 
 		class OutObjectStream {
 			json data;
 			struct State {
-				std::set<const Component*> visited;
+				std::set<const Reflective*> visited;
 			};
 			std::shared_ptr<State> state;
 		public:
@@ -69,10 +69,10 @@ namespace Miyuki {
 			void append(std::nullptr_t) {
 				data.push_back(json{});
 			}
-			bool hasSerialized(const Component* object)const {
+			bool hasSerialized(const Reflective* object)const {
 				return state->visited.find(object) != state->visited.end();
 			}
-			void addSerialized(const Component* object) {
+			void addSerialized(const Reflective* object) {
 				state->visited.insert(object);
 			}
 			template<class T>
@@ -95,7 +95,7 @@ namespace Miyuki {
 		};
 
 		template<class T>
-		std::enable_if_t<std::is_base_of_v<Component, T>, void> save(const T& value, OutObjectStream& stream) {
+		std::enable_if_t<std::is_base_of_v<Reflective, T>, void> save(const T& value, OutObjectStream& stream) {
 			auto sub = stream.sub();
 			OutStreamVisitor visitor(sub);
 			Miyuki::Reflection::visit(value, visitor);
@@ -106,7 +106,7 @@ namespace Miyuki {
 
 
 		template<class T>
-		std::enable_if_t<std::is_base_of_v<Component, T>, void> save(const T* value, OutObjectStream& stream) {
+		std::enable_if_t<std::is_base_of_v<Reflective, T>, void> save(const T* value, OutObjectStream& stream) {
 			if (value == nullptr) {
 				stream.write(nullptr);
 			}
@@ -117,7 +117,7 @@ namespace Miyuki {
 		}
 
 		template<class T>
-		std::enable_if_t<std::is_base_of_v<Component, T>, void>
+		std::enable_if_t<std::is_base_of_v<Reflective, T>, void>
 			save(const Box<T>& value, OutObjectStream& stream) {
 			if (value == nullptr) {
 				stream.write(nullptr);
@@ -129,7 +129,7 @@ namespace Miyuki {
 				auto s = stream.sub();
 				value->serialize(s);
 				stream.write("meta", "val");
-				stream.write("addr", reinterpret_cast<uint64_t>(dynamic_cast<Component*>(value.get())));
+				stream.write("addr", reinterpret_cast<uint64_t>(dynamic_cast<Reflective*>(value.get())));
 				stream.write("val", s);
 				stream.addSerialized(value.get());
 			}
@@ -139,7 +139,7 @@ namespace Miyuki {
 			friend class Runtime;
 			const json& data;
 			struct State {
-				std::unordered_map<size_t, Component*> map;
+				std::unordered_map<size_t, Reflective*> map;
 			};
 			std::shared_ptr<State> state;
 		public:
@@ -164,10 +164,10 @@ namespace Miyuki {
 			bool has(size_t addr) {
 				return state->map.find(addr) != state->map.end();
 			}
-			Component* fetchByAddr(size_t addr) {
+			Reflective* fetchByAddr(size_t addr) {
 				return state->map.at(addr);
 			}
-			void add(size_t addr, Component* v) {
+			void add(size_t addr, Reflective* v) {
 				state->map[addr] = v;
 			}
 			size_t size() { return data.size(); }
@@ -186,7 +186,7 @@ namespace Miyuki {
 		}
 
 		template<class T>
-		inline std::enable_if_t<std::is_base_of_v<Component, T>, void> load(T& value, InObjectStream& stream) {
+		inline std::enable_if_t<std::is_base_of_v<Reflective, T>, void> load(T& value, InObjectStream& stream) {
 			TypeInfo* type = T::type();
 			auto& data = stream.getJson();
 			auto ty2 = data.at("type").get<std::string>();
@@ -201,7 +201,7 @@ namespace Miyuki {
 
 
 		template<class T>
-		inline std::enable_if_t<std::is_base_of_v<Component, T>, void>
+		inline std::enable_if_t<std::is_base_of_v<Reflective, T>, void>
 			load(Box<T>& value, InObjectStream& stream) {
 			auto& data = stream.getJson();
 			if (data.is_null()) {
@@ -228,7 +228,7 @@ namespace Miyuki {
 		}
 
 		template<class T>
-		inline std::enable_if_t<std::is_base_of_v<Component, T>, void> load(T*& value, InObjectStream& stream) {
+		inline std::enable_if_t<std::is_base_of_v<Reflective, T>, void> load(T*& value, InObjectStream& stream) {
 			auto& data = stream.getJson();
 			if (data.is_null()) {
 				value = nullptr; return;
@@ -375,9 +375,9 @@ namespace Miyuki {
 		};
 		struct TypeInfo {
 			const char* _name;
-			using Constructor = std::function<Box<Component>(void)>;
-			using Loader = std::function<void(Component&, InObjectStream&)>;
-			using Saver = std::function<void(const Component&, OutObjectStream&)>;
+			using Constructor = std::function<Box<Reflective>(void)>;
+			using Loader = std::function<void(Reflective&, InObjectStream&)>;
+			using Saver = std::function<void(const Reflective&, OutObjectStream&)>;
 			Constructor ctor;
 			Loader loader;
 			Saver saver;
@@ -393,13 +393,13 @@ namespace Miyuki {
 			std::call_once(flag, [&]() {
 				info = new TypeInfo();
 				info->_name = name;
-				info->saver = [=](const Component& value, OutObjectStream& stream) {
+				info->saver = [=](const Reflective& value, OutObjectStream& stream) {
 					save(dynamic_cast<const T&>(value), stream);
 				};
-				info->ctor = [=]()->Box<Component> {
+				info->ctor = [=]()->Box<Reflective> {
 					return make_box<T>();
 				};
-				info->loader = [=](Component& value, InObjectStream& stream) {
+				info->loader = [=](Reflective& value, InObjectStream& stream) {
 					load(dynamic_cast<T&>(value), stream);
 				};
 			});
@@ -412,7 +412,7 @@ namespace Miyuki {
 			std::call_once(flag, [&]() {
 				info = new TypeInfo();
 				info->_name = name;
-				info->ctor = [=]()->Box<Component> {
+				info->ctor = [=]()->Box<Reflective> {
 					throw std::runtime_error("Attempt to create abstract class");
 					return nullptr;
 				};
@@ -448,8 +448,8 @@ namespace Miyuki {
 #define _MYK_EXTENDS_SEQ_MACRO(r, data, elem) _MYK_EXTENDS(data, elem)
 #define MYK_EXTENDS(Interface, Supers) BOOST_PP_SEQ_FOR_EACH(_MYK_EXTENDS_SEQ_MACRO, Interface, Supers)
 		struct ComponentVisitor;
-		struct Component {
-			MYK_INTERFACE(Component);
+		struct Reflective {
+			MYK_INTERFACE(Reflective);
 			virtual TypeInfo* typeInfo() const = 0;
 			virtual void serialize(OutObjectStream& stream)const {
 				typeInfo()->saver(*this, stream);
@@ -457,15 +457,15 @@ namespace Miyuki {
 			virtual void deserialize(InObjectStream& stream) {
 				typeInfo()->loader(*this, stream);
 			}
-			virtual ~Component() = default;
+			virtual ~Reflective() = default;
 			inline void accept(ComponentVisitor& visitor);
 		protected:
 			static Nil _MYK_REFL_NIL;
 		};
 		struct ComponentVisitor {
-			std::unordered_map<TypeInfo*, std::function<void(Component*)>>_map;
+			std::unordered_map<TypeInfo*, std::function<void(Reflective*)>>_map;
 		public:
-			void visit(Component* trait) {
+			void visit(Reflective* trait) {
 				if (!trait)return;
 				_map.at(trait->typeInfo())(trait);
 			}
@@ -475,13 +475,13 @@ namespace Miyuki {
 			}
 			template<class T>
 			void visit(const std::function<void(T*)>& f) {
-				_map[T::type()] = [=](Component* p) {
+				_map[T::type()] = [=](Reflective* p) {
 					f(dynamic_cast<T*>(p));
 				};
 			}
 		};
 		namespace detail {
-			template<class T = Component>
+			template<class T = Reflective>
 			struct Match {
 				T* value;
 				bool matched = false;
@@ -498,11 +498,11 @@ namespace Miyuki {
 				}
 			};
 		}
-		template<class T = Component>
+		template<class T = Reflective>
 		detail::Match<T> match(T * trait) {
 			return detail::Match<T>(trait);
 		};
-		inline void Component::accept(ComponentVisitor& visitor) {
+		inline void Reflective::accept(ComponentVisitor& visitor) {
 			visitor.visit(this);
 		}
 		template<int>
@@ -603,14 +603,14 @@ namespace Miyuki {
 			return node->getAllImpls();
 		}
 
-		inline Box<Component> createComponent(const std::string& name) {
+		inline Box<Reflective> createComponent(const std::string& name) {
 			auto t = detail::Types::get()._registerdTypeMap.at(name);
 			return t->ctor();
 		}
 		inline TypeInfo* getTypeByName(const std::string& name) {
 			return detail::Types::get()._registerdTypeMap.at(name);
 		}
-		inline TypeInfo* typeof(Component* trait) {
+		inline TypeInfo* typeof(Reflective* trait) {
 			if (!trait)return nullptr;
 			return trait->typeInfo();
 		}
@@ -621,7 +621,7 @@ namespace Miyuki {
 
 	}
 
-	using Component = Reflection::Component;
+	using Reflective = Reflection::Reflective;
 	using Reflection::Box;
 	template<class T>
 	using Arc = std::shared_ptr<T>;
@@ -658,6 +658,7 @@ namespace Miyuki {
 			return Self::type();\
 		}\
 		_MYK_GEN_BASE_INFO()
+#define MYK_CLASS(type) MYK_META
 
 #define MYK_AUTO_REGSITER_TYPE(Type, Alias)\
 		struct Injector_##Type{\
@@ -736,6 +737,6 @@ inline Miyuki::Reflection::TypeInfo* Type::type(){return Miyuki::Reflection::Get
 
 #define MYK_REFL_IMPLEMENTATION Miyuki::Reflection::detail::Types* Miyuki::Reflection::detail::Types::all;\
 std::once_flag  Miyuki::Reflection::detail::Types::flag;\
-Miyuki::Reflection::Nil Miyuki::Reflection::Component::  _MYK_REFL_NIL;
+Miyuki::Reflection::Nil Miyuki::Reflection::Reflective::  _MYK_REFL_NIL;
 
 #endif

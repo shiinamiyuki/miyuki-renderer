@@ -21,7 +21,7 @@ namespace Miyuki {
 			sample(sample),pixel(pixel),samplesPerPixel(samplesPerPixel){}
 		};
 
-		struct Sampler : Component{
+		struct Sampler : Reflective{
 			MYK_INTERFACE(Sampler);
 			virtual std::unique_ptr<Sampler> clone()const = 0;
 			virtual Float get1D() = 0;
@@ -30,14 +30,14 @@ namespace Miyuki {
 			virtual bool startNextSample() = 0;
 			virtual SamplerState getState() = 0;
 		};
-		MYK_EXTENDS(Sampler, (Component));
+		MYK_EXTENDS(Sampler, (Reflective));
 
 		struct RandomSampler final : Sampler {
 		private:
 			RNG rng;
 			SamplerState state;
 		public:
-			MYK_META;
+			MYK_CLASS(RandomSampler);
 			RandomSampler() {}
 			RandomSampler(RNG rng, SamplerState state) :rng(std::move(rng)), state(std::move(state)) {}
 			virtual std::unique_ptr<Sampler> clone()const override {
@@ -70,7 +70,7 @@ namespace Miyuki {
 			RNG rng;
 			uint32_t rotation = 0;
 		public:
-			MYK_META;
+			MYK_CLASS(SobolSampler);
 			SobolSampler() {}
 			SobolSampler(const SamplerState& state) :state(state) {
 				rotation = rng.uniformFloat();

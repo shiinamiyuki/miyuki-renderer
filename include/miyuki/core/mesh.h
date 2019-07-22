@@ -9,13 +9,13 @@
 #define USE_EMBREE_GEOMETRY 1
 namespace Miyuki {
 	namespace Core {
-		struct Light;
+		class Light;
 
 		struct Mesh;
 
-		struct Material;
+		class Material;
 
-		struct Accelerator;
+		class Accelerator;
 
 		struct Primitive {
 			uint32_t vertices[3];
@@ -53,7 +53,7 @@ namespace Miyuki {
 			}
 		};
 
-		struct EmbreeScene;
+		class EmbreeScene;
 
 		struct Mesh {
 			std::string name;

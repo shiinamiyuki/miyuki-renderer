@@ -23,12 +23,14 @@ namespace Miyuki {
 			RenderResultCallback resultCallback;
 		};
 
-		struct Integrator : Component, Abortable {
+		class Integrator : public Reflective, public Abortable {
+		public:
 			MYK_INTERFACE(Integrator);
 		};
-		MYK_EXTENDS(Integrator, (Component)(Abortable));
+		MYK_EXTENDS(Integrator, (Reflective)(Abortable));
 
-		struct ProgressiveRenderer : virtual Integrator {
+		class ProgressiveRenderer : public virtual Integrator {
+		public:
 			MYK_INTERFACE(ProgressiveRenderer);
 			virtual void renderProgressive(
 				const IntegratorContext& context,

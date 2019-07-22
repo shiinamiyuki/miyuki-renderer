@@ -8,7 +8,7 @@
 namespace Miyuki {
 	namespace GUI {
 		class UIVisitor : public Reflection::ComponentVisitor{
-			Component* selected = nullptr;
+			Reflective* selected = nullptr;
 
 			void visitMaterialAndSelect(Box<Core::Material>& material, const std::string& label);
 			void visitShaderAndSelect(Box<Core::Shader>& shader, const std::string& label);

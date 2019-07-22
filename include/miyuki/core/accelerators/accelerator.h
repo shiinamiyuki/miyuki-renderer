@@ -4,7 +4,8 @@
 
 namespace Miyuki {
 	namespace Core {
-		struct Accelerator : Component{
+		class Accelerator : public Reflective{
+		public:
 			MYK_INTERFACE(Accelerator);
 			virtual void addMesh(std::shared_ptr<Mesh> mesh, uint32_t id) = 0;
 

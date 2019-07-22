@@ -14,7 +14,8 @@ namespace Miyuki {
 			Float weight;
 		};
 
-		struct Camera : Component {
+		class Camera : public Reflective {
+		public:
 			MYK_ABSTRACT(Camera);
 			virtual Float generateRay(Sampler& sampler,
 				const Point2i& filmDimension,
@@ -36,15 +37,16 @@ namespace Miyuki {
 			// euler angle;
 			Vec3f direction;
 		};
-		MYK_EXTENDS(Camera, (Component));
+		MYK_EXTENDS(Camera, (Reflective));
 		MYK_REFL(Camera, (viewpoint)(direction));
 
-		struct PerspectiveCamera final: Camera {
+		class PerspectiveCamera final: public Camera {
 		
 			Matrix4x4 rotationMatrix, invMatrix;
+		public:
 			Float lensRadius, focalDistance;
 			Float fov;
-			MYK_META;
+			MYK_CLASS(PerspectiveCamera);
 			MYK_INHERITS(Camera);
 			virtual void preprocess()override;
 

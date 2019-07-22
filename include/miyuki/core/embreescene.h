@@ -18,8 +18,9 @@ namespace Miyuki {
 
 		class Scene;
 
-		struct EmbreeScene final: public Accelerator {
-			MYK_META;
+		class EmbreeScene final: public Accelerator {
+		public:
+			MYK_CLASS(EmbreeScene);
 
 			EmbreeScene();
 

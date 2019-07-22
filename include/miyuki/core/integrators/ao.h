@@ -5,10 +5,11 @@
 
 namespace Miyuki {
 	namespace Core {
-		struct AOIntegrator final : ProgressiveRenderer {
+		class AOIntegrator final : public ProgressiveRenderer {
+		public:
 			size_t spp = 16;
 			Float occlusionDistance = 1e5;
-			MYK_META;
+			MYK_CLASS(AOIntegrator);
 			void renderProgressive(
 				const IntegratorContext& context,
 				ProgressiveRenderCallback progressiveCallback)override;

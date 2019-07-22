@@ -12,16 +12,17 @@ namespace Miyuki {
 			Vec3f output;
 		};
 
-		struct Shader : Component {
+		class Shader : public Reflective {
 		public:
 			MYK_INTERFACE(Shader);
 			virtual void eval(ShadingPoint&) = 0;
 			virtual void preprocess() {}
 		};
-		MYK_EXTENDS(Shader, (Component));
+		MYK_EXTENDS(Shader, (Reflective));
 
-		struct FloatShader final : public Shader {
-			MYK_META;
+		class FloatShader final : public Shader {
+		public:
+			MYK_CLASS(FloatShader);
 			FloatShader() {}
 			FloatShader(Float v) :value(v) {}
 			virtual void eval(ShadingPoint& p) override {
@@ -35,8 +36,9 @@ namespace Miyuki {
 		MYK_IMPL(FloatShader, (Shader), "Shader.Float");
 		MYK_REFL(FloatShader, (value));
 
-		struct RGBShader final: public Shader{
-			MYK_META;
+		class RGBShader final: public Shader{
+		public:
+			MYK_CLASS(RGBShader);
 			RGBShader() {}
 			RGBShader(Spectrum v) :value(v) {}
 			virtual void eval(ShadingPoint& p) override{
@@ -51,12 +53,13 @@ namespace Miyuki {
 		MYK_IMPL(RGBShader, (Shader), "Shader.RGB");
 		MYK_REFL(RGBShader, (value));
 
-		struct ImageTextureShader final : public Shader {
+		class ImageTextureShader final : public Shader {
+		public:
+			MYK_CLASS(ImageTextureShader);
 			File imageFile;
 			IO::Image* texture = nullptr;
 			ImageTextureShader() {}
 			ImageTextureShader(const File& f) :imageFile(f) {}
-			MYK_META;
 			virtual void eval(ShadingPoint&) override {
 
 			}

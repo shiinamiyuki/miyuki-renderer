@@ -23,7 +23,7 @@ namespace Miyuki {
 		struct TypeSelector {
 			std::unordered_map<std::string, const Reflection::TypeInfo*>_map;
 			std::unordered_map<const Reflection::TypeInfo*, std::string>_invmap;
-			std::unordered_map<const Reflection::TypeInfo*, std::function<Box<Component>(void)>> _ctors;
+			std::unordered_map<const Reflection::TypeInfo*, std::function<Box<Reflective>(void)>> _ctors;
 			std::vector<std::string> _list;
 			template<class T>
 			TypeSelector& option(const std::string& s) {

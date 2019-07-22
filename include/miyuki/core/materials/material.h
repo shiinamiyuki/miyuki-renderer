@@ -18,15 +18,17 @@ namespace Miyuki {
 			kAllButSpecular = kAll & ~kSpecular
 		};
 
-		struct Material : public Component {
+		class Material : public Reflective {
+		public:
 			MYK_INTERFACE(Material);
 			virtual BSDFLobe lobe()const = 0;
 			virtual Shader* emission()const = 0;
 		};
-		MYK_EXTENDS(Material, (Component));
+		MYK_EXTENDS(Material, (Reflective));
 
-		struct MixedMaterial final : public Material {
-			MYK_META;
+		class MixedMaterial final : public Material {
+		public:
+			MYK_CLASS(MixedMaterial);
 			Box<Material> matA = nullptr, matB = nullptr;
 			Box<Shader> emissionShader = nullptr;
 			Box<Shader> fraction = nullptr;
@@ -40,8 +42,9 @@ namespace Miyuki {
 		MYK_IMPL(MixedMaterial, (Material), "Material.Mixed");
 		MYK_REFL(MixedMaterial, (emissionShader)(fraction)(matA)(matB));
 
-		struct DiffuseMaterial final  : public Material {
-			MYK_META;
+		class DiffuseMaterial final  : public Material {
+		public:
+			MYK_CLASS(DiffuseMaterial);
 			Box<Shader> emissionShader;
 			Box<Shader> color;
 			Box<Shader> roughness;
@@ -55,8 +58,9 @@ namespace Miyuki {
 		MYK_IMPL(DiffuseMaterial, (Material), "Material.Diffuse");
 		MYK_REFL(DiffuseMaterial, (emissionShader)(color)(roughness));
 
-		struct GlossyMaterial final : public Material {
-			MYK_META;
+		class GlossyMaterial final : public Material {
+		public:
+			MYK_CLASS(GlossyMaterial);
 			Box<Shader> emissionShader = nullptr;
 			Box<Shader> color = nullptr;
 			Box<Shader> roughness = nullptr;
