@@ -59,7 +59,7 @@ namespace Miyuki {
 			this->height = height;
 		}
 
-		void Texture::setPixel(int x, int y, const Spectrum& _color) {
+		void Texture::setPixel(size_t x, size_t y, const Spectrum& _color) {
 			auto color = _color.toInt();
 			uint8_t data[8];
 			data[0] = color[0];

@@ -5,16 +5,19 @@
 
 namespace Miyuki {
 	namespace Core {
-		struct AOIntegrator final : ProgressiveRenderer{
+		struct AOIntegrator final : ProgressiveRenderer {
 			size_t spp = 16;
 			Float occlusionDistance = 1e5;
 			MYK_META;
-			void render(
-				Scene& scene,
-				Camera& camera,
-				ProgressiveRenderCallback progressiveCallback,
-				RenderResultCallback resultCallback)override;
-
+			void renderProgressive(
+				const IntegratorContext& context,
+				ProgressiveRenderCallback progressiveCallback)override;
+			void abort()override;
+			bool aborted()const override { return _aborted; }
+			void restart()override { _aborted = true; }
+			AOIntegrator() :_aborted(false) {}
+		private:
+			std::atomic<bool> _aborted;
 		};
 		MYK_REFL(AOIntegrator, (spp)(occlusionDistance));
 		MYK_IMPL(AOIntegrator, (ProgressiveRenderer), "Integrator.AO");

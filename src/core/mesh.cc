@@ -44,7 +44,7 @@ namespace Miyuki {
 				for (const auto& shape : shapes) {
 					auto iter = map.find(shape.name);
 					if (iter == map.end()) {
-						map[shape.name] = map.size();
+						map[shape.name] = (int)map.size();
 						names.emplace_back(shape.name);
 					}
 				}
@@ -85,7 +85,7 @@ namespace Miyuki {
 						if (!useNorm) {
 							normals.emplace_back(Ng);
 							for (int32_t i = 0; i < 3; i++) {
-								primitive.normals[i] = normals.size() - 1;
+								primitive.normals[i] = (uint32_t)normals.size() - 1;
 							}
 						}
 

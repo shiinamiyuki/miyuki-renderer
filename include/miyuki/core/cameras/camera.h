@@ -15,7 +15,7 @@ namespace Miyuki {
 		};
 
 		struct Camera : Component {
-			MYK_INTERFACE(Camera);
+			MYK_ABSTRACT(Camera);
 			virtual Float generateRay(Sampler& sampler,
 				const Point2i& filmDimension,
 				const Point2i& raster,
@@ -31,17 +31,21 @@ namespace Miyuki {
 			virtual void preprocess() {  }	
 			virtual Vec3f cameraToWorld(Vec3f w) const = 0;
 			virtual Vec3f worldToCamera(Vec3f w) const = 0;
-		};
-		MYK_EXTENDS(Camera, (Component));
 
-		struct PerspectiveCamera final: Camera {
 			Vec3f viewpoint;
 			// euler angle;
 			Vec3f direction;
+		};
+		MYK_EXTENDS(Camera, (Component));
+		MYK_REFL(Camera, (viewpoint)(direction));
+
+		struct PerspectiveCamera final: Camera {
+		
 			Matrix4x4 rotationMatrix, invMatrix;
 			Float lensRadius, focalDistance;
 			Float fov;
 			MYK_META;
+			MYK_INHERITS(Camera);
 			virtual void preprocess()override;
 
 			virtual Vec3f cameraToWorld(Vec3f w) const override {
@@ -72,7 +76,7 @@ namespace Miyuki {
 			void computeTransformMatrix();
 		};
 		MYK_IMPL(PerspectiveCamera, (Camera), "Camera.PerspectiveCamera")
-		MYK_REFL(PerspectiveCamera, (viewpoint)(direction)(lensRadius)(focalDistance)(fov));
+		MYK_REFL(PerspectiveCamera, (lensRadius)(focalDistance)(fov));
 	}
 }
 

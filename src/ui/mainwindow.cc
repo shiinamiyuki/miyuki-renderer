@@ -140,7 +140,7 @@ void main()
 					Tab().item(TabItem().name("selected").with(true, showSelected))
 						.item(TabItem().name("sampling").with(true, [=]() {visitor.visitIntegrator(); }))
 						.item(TabItem().name("camera").with(true, [=]() {visitor.visitCamera(); }))
-						.item(TabItem().name("film")).show();
+						.item(TabItem().name("film").with(true, [=]() {visitor.visitFilm(); })).show();
 				}).show();
 			}
 		}

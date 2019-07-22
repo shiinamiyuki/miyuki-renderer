@@ -145,13 +145,13 @@ namespace Miyuki {
 
 		TilePixel& FilmTile::getPixel(const Point2i& raster) {
 			auto p = raster - pixelBounds.pMin;
-			int i = clamp<int>(std::lround(p.x()) + TileSize * std::lround(p.y()), 0, pixels.size() - 1);
+			int i = (int)clamp<size_t>(std::lround(p.x()) + TileSize * std::lround(p.y()), 0, pixels.size() - 1);
 			return pixels[i];
 		}
 
 		const TilePixel& FilmTile::getPixel(const Point2i& raster) const {
 			auto p = raster - pixelBounds.pMin;
-			int i = clamp<int>(std::lround(p.x()) + TileSize * std::lround(p.y()), 0, pixels.size() - 1);
+			int i = (int)clamp<size_t>(std::lround(p.x()) + TileSize * std::lround(p.y()), 0, pixels.size() - 1);
 			return pixels[i];
 		}
 	}

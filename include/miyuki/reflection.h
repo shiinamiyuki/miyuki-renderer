@@ -368,7 +368,11 @@ namespace Miyuki {
 			}
 		};
 
-
+		enum TypeKind {
+			EInterface,
+			EAbstract,
+			EImplementation
+		};
 		struct TypeInfo {
 			const char* _name;
 			using Constructor = std::function<Box<Component>(void)>;
@@ -401,6 +405,20 @@ namespace Miyuki {
 			});
 			return info;
 		}
+		template<class T>
+		TypeInfo* GetAbstractTypeInfo(const char* name) {
+			static std::once_flag flag;
+			static TypeInfo* info;
+			std::call_once(flag, [&]() {
+				info = new TypeInfo();
+				info->_name = name;
+				info->ctor = [=]()->Box<Component> {
+					throw std::runtime_error("Attempt to create abstract class");
+					return nullptr;
+				};
+			});
+			return info;
+		}
 		struct __Injector {
 			template<class F>
 			__Injector(F&& f) { std::move(f)(); }
@@ -412,11 +430,14 @@ namespace Miyuki {
 		struct GetSelf<R(T::*)(Args...)> {
 			using type = T;
 		};
+#define MYK_TYPE_KIND(kind) static const Miyuki::Reflection::TypeKind typeKind = kind;
 #define MYK_GET_SELF void __get_self_helper(); using Self = Miyuki::Reflection::GetSelf<decltype(&__get_self_helper)>::type;
 #define MYK_INTERFACE(Interface) static const std::string& interfaceInfo(){\
 									static std::string s = "Interface." #Interface;\
 									return s; \
-								}
+								}\
+								MYK_TYPE_KIND(Miyuki::Reflection::EInterface)
+								
 
 #define _MYK_EXTENDS(Interface, Super) \
 	static Miyuki::Reflection::__Injector \
@@ -605,11 +626,38 @@ namespace Miyuki {
 	template<class T>
 	using Arc = std::shared_ptr<T>;
 
+#define MYK_ABSTRACT(Abstract) MYK_GET_SELF struct Meta; static const std::string& interfaceInfo(){\
+									static std::string s = "Abstract." #Abstract;\
+									return s; \
+								}\
+								MYK_TYPE_KIND(Miyuki::Reflection::EAbstract)\
+								static inline Miyuki::Reflection::TypeInfo* type() {\
+									return Miyuki::Reflection::GetAbstractTypeInfo<Self>("Abstract." #Abstract);\
+								}\
+								Miyuki::Reflection::TypeInfo* typeInfo() const{\
+									return Self::type();\
+								}\
+								_MYK_GEN_BASE_INFO()
+#define _MYK_GEN_BASE_INFO() \
+	template<size_t> \
+	struct GetBaseType { \
+		static const int has = false;\
+	};
+
+#define MYK_INHERITS(base) static_assert(base::typeKind != Miyuki::Reflection::EInterface, "You cannot only use MYK_BASE on Interface");\
+						template<>\
+						struct GetBaseType<0>{\
+							static const int has = true;\
+							using type = base;\
+						};\
+						MYK_TYPE_KIND(Miyuki::Reflection::EImplementation)
+						
 #define MYK_META MYK_GET_SELF struct Meta;\
 		static inline Miyuki::Reflection::TypeInfo* type();\
-		virtual Miyuki::Reflection::TypeInfo* typeInfo() const final override{\
+		Miyuki::Reflection::TypeInfo* typeInfo() const{\
 			return Self::type();\
-		}
+		}\
+		_MYK_GEN_BASE_INFO()
 
 #define MYK_AUTO_REGSITER_TYPE(Type, Alias)\
 		struct Injector_##Type{\
@@ -639,9 +687,21 @@ inline Miyuki::Reflection::TypeInfo* Type::type(){return Miyuki::Reflection::Get
 						static auto& getAttribute(const __Self& self, UID<__attr_index_##name>){return self.name;} \
 						static auto getAttributeName(UID<__attr_index_##name>) { return #name; }
 #define MYK_END_REFL(Type)  enum{__attr_count =  __COUNTER__ - __idx - 1 };\
-					template<class SelfT, class Visitor>\
-					static void accept(SelfT& self,Visitor& visitor){ \
-						__AcceptHelper<SelfT, Visitor, __attr_count - 1>::accept(self, visitor);\
+					template<class Visitor>\
+					static void accept(const __Self& self,Visitor& visitor){ \
+						if constexpr (__Self::GetBaseType<0>::has){\
+							using base = typename __Self::GetBaseType<0>::type;\
+							base::Meta::accept(static_cast<const base&>(self), visitor);\
+						}\
+						__AcceptHelper<const __Self, Visitor, __attr_count - 1>::accept(self, visitor);\
+					}\
+					template<class Visitor>\
+					static void accept(__Self& self,Visitor& visitor){ \
+						if constexpr (__Self::GetBaseType<0>::has){\
+							using base = typename __Self::GetBaseType<0>::type;\
+							base::Meta::accept(static_cast<base&>(self), visitor);\
+						}\
+						__AcceptHelper<__Self, Visitor, __attr_count - 1>::accept(self, visitor);\
 					}\
 					template<class SelfT, class Visitor, int i>\
 					struct __AcceptHelper {\

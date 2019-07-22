@@ -112,11 +112,11 @@ namespace Miyuki {
 			v[3] = fabsf(v[3]);
 		}
 
-		Float& operator[](int32_t i) { return v[i]; }
+		Float& operator[](size_t i) { return v[i]; }
 
-		const Float& operator[](int32_t i) const { return v[i]; }
+		const Float& operator[](size_t i) const { return v[i]; }
 
-		static constexpr int32_t width() { return 4; }
+		static constexpr size_t width() { return 4; }
 	};
 
 	struct Vec3f {
@@ -210,11 +210,11 @@ namespace Miyuki {
 		explicit Vec3f(const std::initializer_list<Float>& list) {
 			auto iter = list.begin();
 			assert(list.size() <= 4);
-			for (int32_t i = 0; i < list.size(); i++) {
+			for (size_t i = 0; i < list.size(); i++) {
 				v[i] = *iter;
 				iter++;
 			}
-			for (int32_t i = list.size(); i < 4; i++) {
+			for (size_t i = list.size(); i < 4; i++) {
 				v[i] = 0;
 			}
 		}
@@ -553,8 +553,12 @@ namespace Miyuki {
 
 		size_t size() const { return N; }
 
-		bool operator==(const Vec3f & rhs) const {
-			return x() == rhs.x() && y() == rhs.y() && z() == rhs.z();
+		bool operator==(const Vec & rhs) const {
+			for (int i = 0; i < N; i++) {
+				if (v[i] != rhs.v[i])
+					return false;
+			}
+			return true;
 		}
 	};
 

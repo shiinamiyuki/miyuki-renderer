@@ -36,12 +36,21 @@ namespace Miyuki {
 		MYK_IMPL(MeshFile, (Component), "Core.MeshFile");
 		MYK_REFL(MeshFile, (file)(name)(transform)(objects));
 
+		struct FilmConfig final :Component {
+			MYK_META;
+			Point2i dimension;
+			Float scale;
+		};
+		MYK_IMPL(FilmConfig, (Component), "Core.FilmConfig");
+		MYK_REFL(FilmConfig, (scale)(dimension));
+
 		struct Graph final : Component {
 			MYK_META;
 			std::vector<Box<MaterialSlot>> materials;
 			std::vector<Box<MeshFile>> meshes;
 			std::vector<Box<Camera>> cameras;
 			Box<Integrator> integrator;
+			FilmConfig filmConfig;
 			Camera* activeCamera = nullptr;
 		};
 		MYK_IMPL(Graph, (Component), "Core.Graph");
