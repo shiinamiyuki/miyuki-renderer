@@ -24,6 +24,7 @@
 namespace Miyuki {
 	namespace GUI {
 		class MainWindow {
+			friend class UIVisitor;
 			//Timer updateTimer;
 			std::mutex viewportMutex;
 			uint32_t vbo = -1;

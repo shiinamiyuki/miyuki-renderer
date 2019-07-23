@@ -36,6 +36,7 @@ namespace Miyuki {
 			Vec3f viewpoint;
 			// euler angle;
 			Vec3f direction;
+
 		};
 		MYK_EXTENDS(Camera, (Reflective));
 		MYK_REFL(Camera, (viewpoint)(direction));
@@ -47,7 +48,7 @@ namespace Miyuki {
 			Float lensRadius, focalDistance;
 			Float fov;
 			MYK_CLASS(PerspectiveCamera);
-			MYK_INHERITS(Camera);
+			MKY_BASE(Camera);
 			virtual void preprocess()override;
 
 			virtual Vec3f cameraToWorld(Vec3f w) const override {

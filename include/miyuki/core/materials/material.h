@@ -8,14 +8,14 @@ namespace Miyuki {
 	namespace Core {
 
 		enum BSDFLobe {
-			kNone = 0,
-			kDiffuse = 1 << 0,
-			kGlossy = 1 << 2,
-			kSpecular = 1 << 3,
-			kReflection = 1 << 4,
-			kTransmission = 1 << 5,
-			kAll = kDiffuse | kSpecular | kGlossy | kReflection | kTransmission,
-			kAllButSpecular = kAll & ~kSpecular
+			ENone = 0,
+			EDiffuse = 1 << 0,
+			EGlossy = 1 << 2,
+			ESpecular = 1 << 3,
+			EReflection = 1 << 4,
+			ETransmission = 1 << 5,
+			EAll = EDiffuse | ESpecular | EGlossy | EReflection | ETransmission,
+			EAllButSpecular = EAll & ~ESpecular
 		};
 
 		class Material : public Reflective {
@@ -49,7 +49,7 @@ namespace Miyuki {
 			Box<Shader> color;
 			Box<Shader> roughness;
 			virtual BSDFLobe lobe()const override {
-				return BSDFLobe(kDiffuse | kReflection);
+				return BSDFLobe(EDiffuse | EReflection);
 			}
 			virtual Shader* emission()const {
 				return emissionShader.get();
@@ -65,7 +65,7 @@ namespace Miyuki {
 			Box<Shader> color = nullptr;
 			Box<Shader> roughness = nullptr;
 			virtual BSDFLobe lobe()const override {
-				return BSDFLobe(kGlossy | kReflection);
+				return BSDFLobe(EGlossy | EReflection);
 			}
 			virtual Shader* emission()const {
 				return emissionShader.get();

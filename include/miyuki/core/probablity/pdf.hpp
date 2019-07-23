@@ -6,7 +6,7 @@ namespace Miyuki {
 	namespace Core {
 
 		/*
-		*	A generic non-deta pdf 
+		*	A generic non-delta pdf 
 		*/
 		template<
 			class ImplT, 

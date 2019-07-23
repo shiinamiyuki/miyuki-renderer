@@ -23,7 +23,7 @@ namespace Miyuki {
 
 		struct Sampler : Reflective{
 			MYK_INTERFACE(Sampler);
-			virtual std::unique_ptr<Sampler> clone()const = 0;
+			virtual Box<Sampler> clone()const = 0;
 			virtual Float get1D() = 0;
 			virtual Point2f get2D() = 0;
 			virtual void start(const SamplerState&) = 0;
@@ -40,8 +40,8 @@ namespace Miyuki {
 			MYK_CLASS(RandomSampler);
 			RandomSampler() {}
 			RandomSampler(RNG rng, SamplerState state) :rng(std::move(rng)), state(std::move(state)) {}
-			virtual std::unique_ptr<Sampler> clone()const override {
-				auto sampler = std::make_unique<RandomSampler>(rng, state);
+			virtual Box<Sampler> clone()const override {
+				auto sampler = Reflection::make_box<RandomSampler>(rng, state);
 				return std::move(sampler);
 			}
 			virtual Float get1D()override {
@@ -75,8 +75,8 @@ namespace Miyuki {
 			SobolSampler(const SamplerState& state) :state(state) {
 				rotation = rng.uniformFloat();
 			}
-			virtual std::unique_ptr<Sampler> clone()const override {
-				auto sampler = std::make_unique<SobolSampler>(*this);
+			virtual Box<Sampler> clone()const override {
+				auto sampler = Reflection::make_box<SobolSampler>(*this);
 				return std::move(sampler);
 			}
 			virtual Point2f get2D() override {

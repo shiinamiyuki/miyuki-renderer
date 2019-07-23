@@ -6,12 +6,11 @@
 #include <core/scene.h>
 
 namespace Miyuki {
-	struct RenderEngine {
+	class RenderEngine {
 	private:
 		std::string _filename;
 		Box<Core::Graph> graph;
 		std::unique_ptr<Core::Scene> scene;
-		Core::Integrator* integrator;
 	public:
 		RenderEngine();
 		const std::string filename()const { return _filename; }
@@ -43,9 +42,6 @@ namespace Miyuki {
 		}
 		Core::Scene* getScene() {
 			return scene.get();
-		}
-		Core::Integrator* getIntegrator()const {
-			return integrator;
 		}
 	};
 }

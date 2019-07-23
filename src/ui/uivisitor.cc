@@ -1,7 +1,7 @@
 #include <ui/uivisitor.h>
 #include <ui/mykui.h>
 #include <utils/log.h>
-
+#include <ui/mainwindow.h>
 #include <core/integrators/ao.h>
 
 namespace Miyuki {
@@ -335,7 +335,7 @@ namespace Miyuki {
 			static TypeSelector selector;
 			static std::once_flag flag;
 			std::call_once(flag, [&]() {
-				selector.option<Core::AOIntegrator>("Ambient Occlusion");
+				selector.loadImpl<Core::Integrator>();
 			});
 			return selector.select<Core::Integrator>(label, integrator);
 		}
@@ -356,6 +356,27 @@ namespace Miyuki {
 			auto graph = engine->getGraph();
 			if (!graph)return;
 			visit(&graph->filmConfig);
+		}
+
+		void UIVisitor::startInteractive() {
+			auto graph = engine->getGraph();
+			if (!graph)return;
+			auto integrator = Reflection::cast<Core::ProgressiveRenderer>(graph->integrator.get());
+			if (!integrator) {
+				window.showErrorModal("Error", 
+					"Cannot start rendering: no integrator or integrator does not support interactive\n");
+				return;
+			}
+			engine->commit();
+			
+		}
+		void UIVisitor::stopRender() {
+			auto graph = engine->getGraph();
+			if (!graph)return;
+			auto& integrator = graph->integrator;
+			if (integrator) {
+				integrator->abort();
+			}
 		}
 	}
 }

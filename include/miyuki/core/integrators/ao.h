@@ -1,27 +1,24 @@
 #ifndef MIYUKI_AO_H
 #define MIYUKI_AO_H
 
-#include <core/integrators/integrator.h>
+#include <core/integrators/samplerintegrator.h>
 
 namespace Miyuki {
 	namespace Core {
-		class AOIntegrator final : public ProgressiveRenderer {
+		class AOIntegrator final : public SamplerIntegrator {
 		public:
-			size_t spp = 16;
+			
 			Float occlusionDistance = 1e5;
 			MYK_CLASS(AOIntegrator);
-			void renderProgressive(
-				const IntegratorContext& context,
-				ProgressiveRenderCallback progressiveCallback)override;
-			void abort()override;
-			bool aborted()const override { return _aborted; }
-			void restart()override { _aborted = true; }
-			AOIntegrator() :_aborted(false) {}
+			MKY_BASE(SamplerIntegrator);
+			void Li(const IntegratorContext& context, SamplingContext&)override;
+			
+			AOIntegrator() :SamplerIntegrator() {}
 		private:
-			std::atomic<bool> _aborted;
+			
 		};
-		MYK_REFL(AOIntegrator, (spp)(occlusionDistance));
-		MYK_IMPL(AOIntegrator, (ProgressiveRenderer), "Integrator.AO");
+		MYK_REFL(AOIntegrator, (occlusionDistance));
+		MYK_IMPL(AOIntegrator, (SamplerIntegrator), "Integrator.AO");
 	}
 }
 

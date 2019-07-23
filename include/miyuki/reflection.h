@@ -16,7 +16,7 @@ namespace Miyuki {
 		void accept(const Nil&, Visitor) {}
 		template<class Visitor>
 		void accept(Nil&, Visitor) {}
-		struct Reflective;
+		class Reflective;
 		struct Deleter {
 			std::function<void(Reflective*)> deleter;
 			Deleter() {}
@@ -448,7 +448,8 @@ namespace Miyuki {
 #define _MYK_EXTENDS_SEQ_MACRO(r, data, elem) _MYK_EXTENDS(data, elem)
 #define MYK_EXTENDS(Interface, Supers) BOOST_PP_SEQ_FOR_EACH(_MYK_EXTENDS_SEQ_MACRO, Interface, Supers)
 		struct ComponentVisitor;
-		struct Reflective {
+		class Reflective {
+		public:
 			MYK_INTERFACE(Reflective);
 			virtual TypeInfo* typeInfo() const = 0;
 			virtual void serialize(OutObjectStream& stream)const {
@@ -470,11 +471,11 @@ namespace Miyuki {
 				_map.at(trait->typeInfo())(trait);
 			}
 			template<class T>
-			void visit(Box<T>& trait) {
+			std::enable_if_t<std::is_base_of_v<Reflective, T>, void> visit(Box<T>& trait) {
 				visit(trait.get());
 			}
 			template<class T>
-			void visit(const std::function<void(T*)>& f) {
+			std::enable_if_t<std::is_base_of_v<Reflective, T>, void> visit(const std::function<void(T*)>& f) {
 				_map[T::type()] = [=](Reflective* p) {
 					f(dynamic_cast<T*>(p));
 				};
@@ -539,6 +540,15 @@ namespace Miyuki {
 					}
 					return set;
 				}
+				bool hasImpl(TypeInfo* type)const {
+					if (directImpl.find(type) != directImpl.end())
+						return true;
+					for (auto i : derived) {
+						if (i->hasImpl(type))
+							return true;
+					}
+					return false;
+				}
 			};
 			struct Types {
 				std::set<TypeInfo*> _registerdTypes;
@@ -594,6 +604,10 @@ namespace Miyuki {
 			detail::Types::get().extendInterface<Derived, Base>();
 		}
 
+		template<class Interface>
+		Interface* cast(Reflective* ptr) {
+			return dynamic_cast<Interface*>(ptr);
+		} 
 
 		template<class Interface>
 		inline detail::ImplSet getImplementations() {
@@ -603,7 +617,7 @@ namespace Miyuki {
 			return node->getAllImpls();
 		}
 
-		inline Box<Reflective> createComponent(const std::string& name) {
+		inline Box<Reflective> createByName(const std::string& name) {
 			auto t = detail::Types::get()._registerdTypeMap.at(name);
 			return t->ctor();
 		}
@@ -644,7 +658,7 @@ namespace Miyuki {
 		static const int has = false;\
 	};
 
-#define MYK_INHERITS(base) static_assert(base::typeKind != Miyuki::Reflection::EInterface, "You cannot only use MYK_BASE on Interface");\
+#define MKY_BASE(base) static_assert(base::typeKind != Miyuki::Reflection::EInterface, "You cannot only use MYK_BASE on Interface");\
 						template<>\
 						struct GetBaseType<0>{\
 							static const int has = true;\
@@ -659,6 +673,7 @@ namespace Miyuki {
 		}\
 		_MYK_GEN_BASE_INFO()
 #define MYK_CLASS(type) MYK_META
+						
 
 #define MYK_AUTO_REGSITER_TYPE(Type, Alias)\
 		struct Injector_##Type{\
@@ -677,7 +692,8 @@ inline Miyuki::Reflection::TypeInfo* Type::type(){return Miyuki::Reflection::Get
 #define _MYK_IMPL_SEQ_MACRO(r, data, elem) MYK_INJECT_INTERFACE_IMPL(data, elem)
 
 #define MYK_IMPL(Type, Interfaces, Alias) MYK_AUTO_REGSITER_TYPE(Type, Alias)\
-								BOOST_PP_SEQ_FOR_EACH(_MYK_IMPL_SEQ_MACRO, Type, Interfaces)
+								BOOST_PP_SEQ_FOR_EACH(_MYK_IMPL_SEQ_MACRO, Type, Interfaces)\
+	static_assert(std::is_final_v<Type>, "Sounds irritating, MYK_CLASS must be final"); 
 
 #define MYK_BEGIN_REFL(Type) struct Type::Meta {\
 						 enum {__idx = __COUNTER__}; using __Self = Type;\

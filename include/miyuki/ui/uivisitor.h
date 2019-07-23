@@ -7,6 +7,7 @@
 
 namespace Miyuki {
 	namespace GUI {
+		class MainWindow;
 		class UIVisitor : public Reflection::ComponentVisitor{
 			Reflective* selected = nullptr;
 
@@ -22,6 +23,7 @@ namespace Miyuki {
 			using Base = Reflection::ComponentVisitor;
 			boost::signals2::connection connection;
 			bool changed = true;
+			MainWindow& window;
 		public:
 			void commit() {
 				if(changed)
@@ -32,7 +34,7 @@ namespace Miyuki {
 			RenderEngine* engine = nullptr;
 			void visitGraph();
 			void init();
-			UIVisitor() {
+			UIVisitor(MainWindow & window):window(window) {
 				init();
 			}
 			void reset() {
@@ -43,6 +45,8 @@ namespace Miyuki {
 			void visitCamera();
 			void visitIntegrator();
 			void visitFilm();
+			void startInteractive();
+			void stopRender();
 			~UIVisitor();
 		};
 	}

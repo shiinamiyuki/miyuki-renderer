@@ -5,11 +5,10 @@
 
 namespace Miyuki {
 	namespace Core {
-		struct Abortable {
+		class Abortable {
+		public:
 			MYK_INTERFACE(Abortable);
 			virtual void abort() = 0;
-			virtual bool aborted()const = 0;
-			virtual void restart() = 0;
 		};		
 	}		
 }

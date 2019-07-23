@@ -213,6 +213,12 @@ void main()
 			auto closeFile = [=]() {
 				newEngine();
 			};
+			auto startInteractive = [=]() {
+				visitor.startInteractive();
+			};
+			auto stopRender = [=]() {
+				visitor.stopRender();
+			};
 			MainMenuBar()
 				.menu(Menu().name("File")
 					.item(MenuItem().name("Open").with(true, openFile))
@@ -229,8 +235,8 @@ void main()
 					.item(MenuItem().name("Log").selected(&windowFlags.showLog))
 					.item(MenuItem().name("Preference").selected(&windowFlags.showPreference)))
 				.menu(Menu().name("Render")
-					.item(MenuItem().name("Start Interactive"))
-					.item(MenuItem().name("Stop")))
+					.item(MenuItem().name("Start Interactive").with(true, startInteractive))
+					.item(MenuItem().name("Stop").with(true, stopRender)))
 				.menu(Menu().name("Help"))
 				.show(); 
 			if (windowFlags.showPreference) {
@@ -336,7 +342,7 @@ void main()
 			}
 		}
 
-		MainWindow::MainWindow(int argc, char** argv) {
+		MainWindow::MainWindow(int argc, char** argv):visitor(*this) {
 			LogWindowContent::GetInstance();
 			programPath = cxx::filesystem::current_path();
 			glfwSetErrorCallback(glfw_error_callback);
