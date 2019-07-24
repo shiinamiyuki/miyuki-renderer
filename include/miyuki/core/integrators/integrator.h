@@ -27,7 +27,7 @@ namespace Miyuki {
 		public:
 			MYK_INTERFACE(Integrator);
 		};
-		MYK_EXTENDS(Integrator, (Reflective)(Abortable));
+		MYK_REFL(Integrator, (Reflective)(Abortable), MYK_REFL_NIL);
 
 		class ProgressiveRenderer : public virtual Integrator {
 		public:
@@ -36,7 +36,7 @@ namespace Miyuki {
 				const IntegratorContext& context,
 				ProgressiveRenderCallback progressiveCallback) = 0;
 		};
-		MYK_EXTENDS(ProgressiveRenderer, (Integrator));
+		MYK_REFL(ProgressiveRenderer, (Integrator), MYK_REFL_NIL);
 	}
 }
 

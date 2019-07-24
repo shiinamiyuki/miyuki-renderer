@@ -10,15 +10,14 @@ namespace Miyuki {
 			
 			Float occlusionDistance = 1e5;
 			MYK_CLASS(AOIntegrator);
-			MKY_BASE(SamplerIntegrator);
 			void Li(const IntegratorContext& context, SamplingContext&)override;
 			
 			AOIntegrator() :SamplerIntegrator() {}
 		private:
 			
 		};
-		MYK_REFL(AOIntegrator, (occlusionDistance));
-		MYK_IMPL(AOIntegrator, (SamplerIntegrator), "Integrator.AO");
+		MYK_REFL(AOIntegrator, (SamplerIntegrator), (occlusionDistance));
+		MYK_IMPL(AOIntegrator,  "Integrator.AO");
 	}
 }
 

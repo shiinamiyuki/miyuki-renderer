@@ -13,5 +13,6 @@ namespace Miyuki {
 
 			//virtual void detachGeometry(int geomId) = 0;
 		};
+		MYK_REFL(Accelerator, (Reflective), MYK_REFL_NIL);
 	}
 }

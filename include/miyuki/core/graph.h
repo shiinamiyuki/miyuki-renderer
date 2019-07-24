@@ -13,9 +13,9 @@ namespace Miyuki {
 			std::string name;
 			Box<Material> material;
 		};
-		MYK_IMPL(MaterialSlot, (Reflective), "Core.MaterialSlot");
-		MYK_REFL(MaterialSlot, (name)(material));
-		
+		MYK_IMPL(MaterialSlot, "Core.MaterialSlot");
+		MYK_REFL(MaterialSlot, (Reflective), (name)(material));
+
 
 		struct Object final : Reflective {
 			MYK_META;
@@ -23,8 +23,8 @@ namespace Miyuki {
 			MaterialSlot* material = nullptr;
 		};
 
-		MYK_IMPL(Object, (Reflective), "Core.Object");
-		MYK_REFL(Object, (name)(material));
+		MYK_IMPL(Object, "Core.Object");
+		MYK_REFL(Object, (Reflective), (name)(material));
 
 		struct MeshFile final : Reflective {
 			MYK_META;
@@ -33,16 +33,16 @@ namespace Miyuki {
 			File file;
 			std::vector<Box<Object>> objects;
 		};
-		MYK_IMPL(MeshFile, (Reflective), "Core.MeshFile");
-		MYK_REFL(MeshFile, (file)(name)(transform)(objects));
+		MYK_IMPL(MeshFile, "Core.MeshFile");
+		MYK_REFL(MeshFile, (Reflective), (file)(name)(transform)(objects));
 
 		struct FilmConfig final :Reflective {
 			MYK_META;
 			Point2i dimension;
 			Float scale;
 		};
-		MYK_IMPL(FilmConfig, (Reflective), "Core.FilmConfig");
-		MYK_REFL(FilmConfig, (scale)(dimension));
+		MYK_IMPL(FilmConfig, "Core.FilmConfig");
+		MYK_REFL(FilmConfig, (Reflective), (scale)(dimension));
 
 		struct Graph final : Reflective {
 			MYK_META;
@@ -53,8 +53,8 @@ namespace Miyuki {
 			FilmConfig filmConfig;
 			Camera* activeCamera = nullptr;
 		};
-		MYK_IMPL(Graph, (Reflective), "Core.Graph");
-		MYK_REFL(Graph, (materials)(meshes)(cameras)(activeCamera)(integrator));
+		MYK_IMPL(Graph, "Core.Graph");
+		MYK_REFL(Graph, (Reflective), (materials)(meshes)(cameras)(activeCamera)(integrator));
 	}
 }
 

@@ -20,8 +20,7 @@ namespace Miyuki {
 		protected:
 			std::atomic<bool> _aborted;
 		};
-		MYK_EXTENDS(SamplerIntegrator, (ProgressiveRenderer));
-		MYK_REFL(SamplerIntegrator, (spp));
+		MYK_REFL(SamplerIntegrator, (ProgressiveRenderer), (spp));
 	}
 }
 

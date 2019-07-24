@@ -10,6 +10,7 @@ namespace Miyuki {
 			MYK_INTERFACE(Abortable);
 			virtual void abort() = 0;
 		};		
+		MYK_REFL(Abortable, MYK_NIL_BASE, MYK_REFL_NIL);
 	}		
 }
 

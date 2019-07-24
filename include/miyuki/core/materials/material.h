@@ -24,7 +24,7 @@ namespace Miyuki {
 			virtual BSDFLobe lobe()const = 0;
 			virtual Shader* emission()const = 0;
 		};
-		MYK_EXTENDS(Material, (Reflective));
+		MYK_REFL(Material, (Reflective), MYK_REFL_NIL);
 
 		class MixedMaterial final : public Material {
 		public:
@@ -39,8 +39,8 @@ namespace Miyuki {
 				return emissionShader.get();
 			}
 		};
-		MYK_IMPL(MixedMaterial, (Material), "Material.Mixed");
-		MYK_REFL(MixedMaterial, (emissionShader)(fraction)(matA)(matB));
+		MYK_IMPL(MixedMaterial,  "Material.Mixed");
+		MYK_REFL(MixedMaterial, (Material), (emissionShader)(fraction)(matA)(matB));
 
 		class DiffuseMaterial final  : public Material {
 		public:
@@ -55,8 +55,8 @@ namespace Miyuki {
 				return emissionShader.get();
 			}
 		};
-		MYK_IMPL(DiffuseMaterial, (Material), "Material.Diffuse");
-		MYK_REFL(DiffuseMaterial, (emissionShader)(color)(roughness));
+		MYK_IMPL(DiffuseMaterial, "Material.Diffuse");
+		MYK_REFL(DiffuseMaterial, (Material), (emissionShader)(color)(roughness));
 
 		class GlossyMaterial final : public Material {
 		public:
@@ -71,8 +71,8 @@ namespace Miyuki {
 				return emissionShader.get();
 			}
 		};
-		MYK_IMPL(GlossyMaterial, (Material), "Material.Glossy");
-		MYK_REFL(GlossyMaterial, (emissionShader)(color)(roughness));
+		MYK_IMPL(GlossyMaterial,  "Material.Glossy");
+		MYK_REFL(GlossyMaterial, (Material), (emissionShader)(color)(roughness));
 	}
 }
 

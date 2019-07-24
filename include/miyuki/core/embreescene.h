@@ -37,8 +37,8 @@ namespace Miyuki {
 		private:
 			RTCScene scene;
 		};
-		MYK_IMPL(EmbreeScene, (Accelerator), "Accelerator.Embree");
-		MYK_REFL(EmbreeScene, MYK_REFL_NIL);
+		MYK_IMPL(EmbreeScene, "Accelerator.Embree");
+		MYK_REFL(EmbreeScene, (Accelerator), MYK_REFL_NIL);
 	}
 }
 

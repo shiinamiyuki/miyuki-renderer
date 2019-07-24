@@ -36,7 +36,7 @@ namespace Miyuki {
 				return *this;
 			}
 
-			TypeSelector& option(Reflection::TypeInfo* info, const std::string& s) {
+			TypeSelector& option(const Reflection::TypeInfo* info, const std::string& s) {
 				_map[s] = info;
 				_invmap[info] = s;
 				_list.push_back(s);

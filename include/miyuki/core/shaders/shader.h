@@ -18,7 +18,7 @@ namespace Miyuki {
 			virtual void eval(ShadingPoint&) = 0;
 			virtual void preprocess() {}
 		};
-		MYK_EXTENDS(Shader, (Reflective));
+		MYK_REFL(Shader, (Reflective),MYK_REFL_NIL);
 
 		class FloatShader final : public Shader {
 		public:
@@ -33,8 +33,8 @@ namespace Miyuki {
 		private:
 			Float value = 0;
 		};
-		MYK_IMPL(FloatShader, (Shader), "Shader.Float");
-		MYK_REFL(FloatShader, (value));
+		MYK_IMPL(FloatShader, "Shader.Float");
+		MYK_REFL(FloatShader, (Shader), (value));
 
 		class RGBShader final: public Shader{
 		public:
@@ -50,8 +50,8 @@ namespace Miyuki {
 			Spectrum value;
 		};
 
-		MYK_IMPL(RGBShader, (Shader), "Shader.RGB");
-		MYK_REFL(RGBShader, (value));
+		MYK_IMPL(RGBShader,  "Shader.RGB");
+		MYK_REFL(RGBShader, (Shader), (value));
 
 		class ImageTextureShader final : public Shader {
 		public:
@@ -64,7 +64,7 @@ namespace Miyuki {
 
 			}
 		};
-		MYK_IMPL(ImageTextureShader, (Shader), "Shader.ImageTexture");
-		MYK_REFL(ImageTextureShader, (imageFile));
+		MYK_IMPL(ImageTextureShader,  "Shader.ImageTexture");
+		MYK_REFL(ImageTextureShader, (Shader), (imageFile));
 	}
 }
