@@ -24,7 +24,7 @@ namespace Miyuki {
 			boost::signals2::connection connection;
 			bool changed = true;
 			MainWindow& window;
-			void loadWindowView(const Arc<Core::Film>&);
+			void loadWindowView(Arc<Core::Film>&);
 			std::mutex renderCBMutex;
 		public:
 			void commit() {

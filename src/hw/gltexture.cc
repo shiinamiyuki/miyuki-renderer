@@ -21,7 +21,7 @@ namespace Miyuki {
 		}
 
 		Texture::Texture(size_t width, size_t height, uint8_t* data) : width(width), height(height) {
-			glGenTextures(1, &texture);
+			glGenTextures(1, &texture);	PrintGLError();
 			glBindTexture(GL_TEXTURE_2D, texture);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -46,7 +46,7 @@ namespace Miyuki {
 				pixelBuffer.emplace_back(out.g());
 				pixelBuffer.emplace_back(out.b());
 				pixelBuffer.emplace_back(255);
-			}
+			}	PrintGLError();
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,
 				GL_RGBA, GL_UNSIGNED_BYTE, &pixelBuffer[0]);
 			

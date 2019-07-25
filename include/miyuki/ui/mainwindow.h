@@ -49,14 +49,16 @@ namespace Miyuki {
 			void update();
 			void loadConfig();
 			void saveConfig();
-			void loadView(Core::Film&);
+			Arc<Core::Film> viewportUpdate;;
+			void loadViewImpl();
+			void loadView(Arc<Core::Film>);
 			struct WindowFlags {
 				bool showLog = true;
 				bool showPreference = false;
 				bool showExplorer = true;
 				bool showAttributeEditor = true;
 				bool showAbout = false;
-				bool showView = false;
+				bool showView = true;
 				std::atomic<bool> viewportUpdateAvailable;
 				WindowFlags() :viewportUpdateAvailable(false) {}
 			}windowFlags;

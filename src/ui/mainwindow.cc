@@ -104,12 +104,20 @@ void main()
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 		void MainWindow::viewportWindow() {
+		
 			if (windowFlags.showView) {
-				Window().name("render view").with(true, [=]() {
-					if (!viewport)return;
+				ImGui::PushID("render view texture");					
+				if (windowFlags.viewportUpdateAvailable) {
 					std::lock_guard<std::mutex> lock(viewportMutex);
+					loadViewImpl();
+					windowFlags.viewportUpdateAvailable = false;
+				}
+				Window().name("render view").open(&windowFlags.showView).with(true, [=]() {
+					if (!viewport)return;				
 					Draw(*viewport);
+					
 				}).show();
+				ImGui::PopID();
 			}
 		}
 
@@ -287,7 +295,7 @@ void main()
 			try {
 				showModal();
 				menuBar();
-				ImGui::ShowDemoWindow();
+				//ImGui::ShowDemoWindow();
 				viewportWindow();
 				explorerWindow();
 				attriubuteEditorWindow();
@@ -316,8 +324,9 @@ void main()
 			out << config << std::endl;
 		}
 
-		void MainWindow::loadView(Core::Film& film) {
-			std::lock_guard<std::mutex> lock(viewportMutex);
+		void MainWindow::loadViewImpl() {
+
+			auto& film = *viewportUpdate;
 			size_t w = film.width(), h = film.height();
 			std::vector<uint8_t> pixelData(w * h * 4ul);
 			size_t i = 0;
@@ -330,6 +339,12 @@ void main()
 				i++;
 			}
 			viewport = std::make_unique<HW::Texture>(w, h, &pixelData[0]);
+
+		}
+		void MainWindow::loadView(Arc<Core::Film> film) {
+			std::lock_guard<std::mutex> lock(viewportMutex);
+			windowFlags.viewportUpdateAvailable = true;
+			viewportUpdate = film;			
 		}
 
 		MainWindow::MainWindow(int argc, char** argv):visitor(*this) {
@@ -410,6 +425,7 @@ void main()
 			ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 			// Main loop
 			while (!glfwWindowShouldClose(window)) {
+	
 				glfwPollEvents();
 
 				// Start the Dear ImGui frame

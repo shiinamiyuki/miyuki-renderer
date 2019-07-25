@@ -17,14 +17,14 @@ namespace Miyuki {
 			DomainT sample(const SampleT& u, SampleT* pdf=nullptr)const {
 				auto tmp =  This().sampleImpl(u);
 				if (pdf)* pdf = evaluate(tmp);
-				return pdf;
+				return tmp;
 			}
 			ValueT evaluate(const DomainT& p)const {
 				return This().evaluateImpl(p);
 			}
 		private:
 			const ImplT& This()const {
-				return *static_cast<ImplT*>(this);
+				return *static_cast<const ImplT*>(this);
 			}
 		};
 

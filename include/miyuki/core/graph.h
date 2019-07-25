@@ -56,7 +56,7 @@ namespace Miyuki {
 			Camera* activeCamera = nullptr;
 		};
 		MYK_IMPL(Graph, "Core.Graph");
-		MYK_REFL(Graph, (Reflective), (materials)(meshes)(cameras)(activeCamera)(integrator)(sampler));
+		MYK_REFL(Graph, (Reflective), (materials)(meshes)(cameras)(activeCamera)(integrator)(sampler)(filmConfig));
 	}
 }
 

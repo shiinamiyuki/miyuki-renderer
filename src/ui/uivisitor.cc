@@ -222,8 +222,11 @@ namespace Miyuki {
 				if (auto r = GetInputWithSignal("viewpoint", camera->viewpoint)) {
 					camera->viewpoint = r.value();
 				}
-				if (auto r = GetInputWithSignal("direction", camera->direction)) {
-					camera->direction = r.value();
+				if (auto r = GetInputWithSignal("direction", RadiansToDegrees(camera->direction))) {
+					camera->direction = DegreesToRadians(r.value());
+				}
+				if (auto r = GetInputWithSignal("fov", RadiansToDegrees(camera->fov))) {
+					camera->fov = DegreesToRadians(r.value());
 				}
 				if (auto r = GetInputWithSignal("lensRadius", camera->lensRadius)) {
 					camera->lensRadius = r.value();
@@ -370,8 +373,8 @@ namespace Miyuki {
 			visit(&graph->filmConfig);
 		}
 
-		void UIVisitor::loadWindowView(const Arc<Core::Film>& film) {
-			window.loadView(*film);
+		void UIVisitor::loadWindowView(Arc<Core::Film>& film) {
+			window.loadView(film);
 		}
 		void UIVisitor::startInteractive() {
 			Core::ProgressiveRenderCallback cb = [=](Arc<Core::Film> film) {

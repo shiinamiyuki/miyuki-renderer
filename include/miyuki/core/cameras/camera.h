@@ -46,7 +46,7 @@ namespace Miyuki {
 			Matrix4x4 rotationMatrix, invMatrix;
 		public:
 			Float lensRadius, focalDistance;
-			Float fov;
+			Float fov = DegreesToRadians(80.0);
 			MYK_CLASS(PerspectiveCamera);
 			virtual void preprocess()override;
 

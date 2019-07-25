@@ -89,5 +89,34 @@ namespace Miyuki {
 			visitor.loadImages(graph);
 			embreeScene->commit();
 		}
+
+		static inline Float mod(Float a, Float b) {
+			int k = a / b;
+			Float x = a - k * b;
+			if (x < 0)
+				x += b;
+			if (x >= b)
+				x -= b;
+			return x;
+		}
+
+		void Scene::postIntersect(Intersection* isct) {
+			isct->primitive = &instances[isct->geomId]->primitives[isct->primId];
+			auto p = isct->primitive;
+			isct->Ns = p->Ns(isct->uv);
+			isct->Ng = p->Ng();
+			isct->computeLocalFrame(isct->Ns);
+
+			auto uv = PointOnTriangle(isct->primitive->textureCoord[0],
+				isct->primitive->textureCoord[1],
+				isct->primitive->textureCoord[2],
+				isct->uv[0],
+				isct->uv[1]);
+			uv.x() = mod(uv.x(), 1);
+			uv.y() = mod(uv.y(), 1);
+			isct->textureUV = uv;
+
+			// TODO: partial derivatives
+		}
 	}
 }

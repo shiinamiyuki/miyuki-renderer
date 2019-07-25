@@ -102,8 +102,15 @@ namespace Miyuki {
 		renderThread = std::make_unique<std::thread>([=]() {
 			Core::IntegratorContext ctx;
 			ctx.camera = graph->activeCamera->clone();
+			ctx.camera->preprocess();
 			ctx.film = makeArc<Core::Film>(graph->filmConfig.dimension);
 			ctx.sampler = graph->sampler->clone();
+			ctx.scene = scene.get();
+			ctx.resultCallback = [=](Arc<Core::Film>film) {
+				film->writePNG("out.png");
+				renderThread->detach();
+				renderThread = nullptr;
+			};
 			Log::log("render thread started\n");
 			integrator->renderProgressive(ctx, std::move(callback));
 		});

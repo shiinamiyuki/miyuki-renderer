@@ -24,9 +24,18 @@ namespace Miyuki {
 
 			void instantiateMesh(const std::string& filename, const std::string& meshName, const Transform&);
 			struct Visitor;
+
+			void postIntersect(Intersection*);
 		public:
 			Scene();
 			void commit(Core::Graph&);
+			bool intersect(const Ray& ray, Intersection* isct) {
+				if (embreeScene->intersect(ray, isct)) {
+					postIntersect(isct);
+					return true;
+				}
+				return false;
+			}
 		};
 	}
 }
