@@ -97,7 +97,7 @@ namespace Miyuki {
 			}
 
 			Film(int w = 0, int h = 0);
-
+			Film(const Point2i& dim) :Film(dim[0], dim[1]) {}
 			void writePNG(const std::string& filename);
 
 			void clear();

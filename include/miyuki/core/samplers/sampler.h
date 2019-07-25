@@ -21,27 +21,37 @@ namespace Miyuki {
 			sample(sample),pixel(pixel),samplesPerPixel(samplesPerPixel){}
 		};
 
-		struct Sampler : Reflective{
-			MYK_INTERFACE(Sampler);
+		class Sampler : public Reflective{
+		public:
+			MYK_ABSTRACT(Sampler);
 			virtual Box<Sampler> clone()const = 0;
 			virtual Float get1D() = 0;
 			virtual Point2f get2D() = 0;
 			virtual void start(const SamplerState&) = 0;
 			virtual bool startNextSample() = 0;
-			virtual SamplerState getState() = 0;
+			SamplerState& getState() {
+				return state;
+			}
+			const SamplerState& getState()const {
+				return state;
+			}
+		protected:
+			SamplerState state;
+
 		};
 		MYK_REFL(Sampler, (Reflective), MYK_REFL_NIL);
 
-		struct RandomSampler final : Sampler {
+		class RandomSampler final : public Sampler {
 		private:
 			RNG rng;
-			SamplerState state;
 		public:
 			MYK_CLASS(RandomSampler);
 			RandomSampler() {}
-			RandomSampler(RNG rng, SamplerState state) :rng(std::move(rng)), state(std::move(state)) {}
+			RandomSampler(RNG rng, const SamplerState& state) :rng(std::move(rng)){
+				this->state = state;
+			}
 			virtual Box<Sampler> clone()const override {
-				auto sampler = Reflection::make_box<RandomSampler>(rng, state);
+				auto sampler = Reflection::makeBox<RandomSampler>(rng, state);
 				return std::move(sampler);
 			}
 			virtual Float get1D()override {
@@ -53,9 +63,6 @@ namespace Miyuki {
 			virtual void start(const SamplerState& state) override {
 				this->state = state;
 			}
-			virtual SamplerState getState()override {
-				return state;
-			}
 			virtual bool startNextSample()override {
 				state.sample++;
 				return state.sample < state.samplesPerPixel; 
@@ -64,19 +71,19 @@ namespace Miyuki {
 		MYK_IMPL(RandomSampler,  "Sampler.Random");
 		MYK_REFL(RandomSampler, (Sampler), MYK_REFL_NIL);
 
-		struct SobolSampler final: Sampler {
-			SamplerState state;
+		class SobolSampler final: public Sampler {
 			uint32_t dimension = 0;
 			RNG rng;
 			uint32_t rotation = 0;
 		public:
 			MYK_CLASS(SobolSampler);
 			SobolSampler() {}
-			SobolSampler(const SamplerState& state) :state(state) {
+			SobolSampler(const SamplerState& state) {
 				rotation = rng.uniformFloat();
+				this->state = state;
 			}
 			virtual Box<Sampler> clone()const override {
-				auto sampler = Reflection::make_box<SobolSampler>(*this);
+				auto sampler = Reflection::makeBox<SobolSampler>(*this);
 				return std::move(sampler);
 			}
 			virtual Point2f get2D() override {
@@ -89,9 +96,6 @@ namespace Miyuki {
 				rng = RNG(0);
 				rng.advance(state.pixel[0] + state.pixel[1] * state.resolution[0]);
 				rotation = rng.uniformUint32();
-			}
-			virtual SamplerState getState()override {
-				return state;
 			}
 			virtual bool startNextSample()override {
 				dimension = 0;

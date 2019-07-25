@@ -32,6 +32,7 @@ namespace Miyuki {
 			virtual void preprocess() {  }	
 			virtual Vec3f cameraToWorld(Vec3f w) const = 0;
 			virtual Vec3f worldToCamera(Vec3f w) const = 0;
+			virtual Box<Camera> clone()const = 0;
 
 			Vec3f viewpoint;
 			// euler angle;
@@ -72,6 +73,9 @@ namespace Miyuki {
 					const Point2i& raster,
 					RayDifferential* ray, Float* weight) override {
 				return 0.0;
+			}
+			Box<Camera> clone()const override {
+				return makeBox<PerspectiveCamera>(*this);
 			}
 		private:
 			void computeTransformMatrix();

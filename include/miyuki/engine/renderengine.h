@@ -11,6 +11,7 @@ namespace Miyuki {
 		std::string _filename;
 		Box<Core::Graph> graph;
 		std::unique_ptr<Core::Scene> scene;
+		std::unique_ptr<std::thread> renderThread;
 	public:
 		RenderEngine();
 		const std::string filename()const { return _filename; }
@@ -42,6 +43,19 @@ namespace Miyuki {
 		}
 		Core::Scene* getScene() {
 			return scene.get();
+		}
+		bool isRenderThreadStarted()const {
+			return renderThread != nullptr;
+		}
+		void requestAbortRender(){
+			if (graph && graph->integrator) {
+				graph->integrator->abort();
+			}
+		}
+		bool startProgressiveRender(Core::ProgressiveRenderCallback callback);
+		~RenderEngine() {
+			if(renderThread)
+				renderThread->join();
 		}
 	};
 }

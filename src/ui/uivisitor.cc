@@ -351,6 +351,18 @@ namespace Miyuki {
 			}
 			visit(integrator);
 			ImGui::PopID();
+
+			static TypeSelector selector;
+			static std::once_flag flag;
+			std::call_once(flag, [&]() {
+				selector.loadImpl<Core::Sampler>();
+			});
+			
+			ImGui::PushID("sampler");
+			if (auto r = selector.select<Core::Sampler>("sampler", graph->sampler.get())) {
+				graph->sampler = std::move(r.value());
+			}
+			ImGui::PopID();
 		}
 		void UIVisitor::visitFilm() {
 			auto graph = engine->getGraph();
@@ -358,17 +370,24 @@ namespace Miyuki {
 			visit(&graph->filmConfig);
 		}
 
+		void UIVisitor::loadWindowView(const Arc<Core::Film>& film) {
+			window.loadView(*film);
+		}
 		void UIVisitor::startInteractive() {
-			auto graph = engine->getGraph();
-			if (!graph)return;
-			auto integrator = Reflection::cast<Core::ProgressiveRenderer>(graph->integrator.get());
-			if (!integrator) {
-				window.showErrorModal("Error", 
-					"Cannot start rendering: no integrator or integrator does not support interactive\n");
-				return;
-			}
-			engine->commit();
-			
+			Core::ProgressiveRenderCallback cb = [=](Arc<Core::Film> film) {
+				std::unique_lock<std::mutex> lock(renderCBMutex, std::try_to_lock);
+				if(lock.owns_lock())
+					loadWindowView(film);
+			};			
+			std::thread th([=]() {
+				window.openModal("Starting rendering", []() {});
+				if (!engine->startProgressiveRender(cb)) {
+					window.showErrorModal("Error",
+						"Cannot start rendering: no integrator or integrator does not support interactive\n");
+				}
+				window.closeModal();
+			});
+			th.detach();
 		}
 		void UIVisitor::stopRender() {
 			auto graph = engine->getGraph();

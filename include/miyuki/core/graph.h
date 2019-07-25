@@ -5,6 +5,7 @@
 #include <utils/file.hpp>
 #include <core/cameras/camera.h>
 #include <core/integrators/integrator.h>
+#include <core/samplers/sampler.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -50,11 +51,12 @@ namespace Miyuki {
 			std::vector<Box<MeshFile>> meshes;
 			std::vector<Box<Camera>> cameras;
 			Box<Integrator> integrator;
+			Box<Sampler> sampler;
 			FilmConfig filmConfig;
 			Camera* activeCamera = nullptr;
 		};
 		MYK_IMPL(Graph, "Core.Graph");
-		MYK_REFL(Graph, (Reflective), (materials)(meshes)(cameras)(activeCamera)(integrator));
+		MYK_REFL(Graph, (Reflective), (materials)(meshes)(cameras)(activeCamera)(integrator)(sampler));
 	}
 }
 

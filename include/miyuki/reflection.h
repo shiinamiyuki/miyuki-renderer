@@ -38,7 +38,7 @@ namespace Miyuki {
 		using Box = std::unique_ptr<T, Deleter>;
 
 		template<class T, class... Args>
-		Box<T> make_box(Args... args) {
+		Box<T> makeBox(Args&&... args) {
 			return Box<T>(new T(args...), Deleter([](Reflective* p) {delete p; }));
 		}
 
@@ -442,7 +442,7 @@ namespace Miyuki {
 						save(dynamic_cast<const T&>(value), stream);
 					};
 					info->ctor = [=]()->Box<Reflective> {
-						return make_box<T>();
+						return makeBox<T>();
 					};
 					info->loader = [=](Reflective& value, InObjectStream& stream) {
 						load(dynamic_cast<T&>(value), stream);
@@ -546,7 +546,8 @@ namespace Miyuki {
 								}\
 								Miyuki::Reflection::TypeInfo* typeInfo() const{\
 									return Self::type();\
-								}
+								}\
+								static Miyuki::Reflection::Nil _MYK_REFL_NIL;
 
 #define MYK_META MYK_GET_SELF struct Meta;\
 		static inline Miyuki::Reflection::TypeInfo* type();\
@@ -721,6 +722,12 @@ if constexpr (!std::is_same_v<std::decay_t<Base>,Miyuki::Reflection::Nil>)Base::
 	template<class T>
 	using Arc = std::shared_ptr<T>;
 
+	using Reflection::makeBox;
+
+	template<class T, class... Args>
+	Arc<T> makeArc(Args&&... args) {
+		return std::make_shared<T>(args...);
+	}
 
 }
 #define MYK_REFL_IMPLEMENTATION Miyuki::Reflection::detail::Types* Miyuki::Reflection::detail::Types::all;\

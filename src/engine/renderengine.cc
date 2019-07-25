@@ -25,7 +25,7 @@ namespace Miyuki {
 		Log::log("Created meshfile {}\n", meshPath.string());
 		std::ofstream out(meshPath);
 		out << info.outputContent << std::endl;
-		auto mesh = Reflection::make_box<Core::MeshFile>();
+		auto mesh = Reflection::makeBox<Core::MeshFile>();
 		mesh->file = File(cxx::filesystem::relative(meshPath, cxx::filesystem::path(_filename).parent_path()));
 
 		std::unordered_map<std::string, Core::MaterialSlot*> map;
@@ -34,7 +34,7 @@ namespace Miyuki {
 		}
 
 		for (auto& s : info.shapeMat) {
-			auto object = Reflection::make_box<Core::Object>();
+			auto object = Reflection::makeBox<Core::Object>();
 			object->name = s.first;
 			object->material = map.at(s.second);
 			mesh->objects.emplace_back(std::move(object));
@@ -44,7 +44,7 @@ namespace Miyuki {
 	}
 
 	void RenderEngine::newGraph() {
-		graph = Reflection::make_box<Core::Graph>();
+		graph = Reflection::makeBox<Core::Graph>();
 		scene = std::make_unique<Core::Scene>();
 	}
 
@@ -79,9 +79,9 @@ namespace Miyuki {
 			Log::log("Loaded {} materials\n", graph->materials.size());
 
 			if (graph->cameras.empty()) {
-				auto camera = Reflection::make_box<Core::PerspectiveCamera>();
+				auto camera = Reflection::makeBox<Core::PerspectiveCamera>();
 				graph->activeCamera = camera.get();
-				graph->cameras.emplace_back(std::move(camera));				
+				graph->cameras.emplace_back(std::move(camera));
 			}
 			else if (!graph->activeCamera) {
 				graph->activeCamera = graph->cameras.front().get();
@@ -90,5 +90,24 @@ namespace Miyuki {
 		catch (std::runtime_error& e) {
 			Log::log("Failed to open {}; Error: {}\n", filename, e.what());
 		}
+	}
+	bool RenderEngine::startProgressiveRender(Core::ProgressiveRenderCallback callback) {
+		if (isRenderThreadStarted())
+			throw std::runtime_error("render thread is still alive!");
+		if (!graph)
+			return false;
+		auto integrator = Reflection::cast<Core::ProgressiveRenderer>(graph->integrator.get());
+		if (!integrator)return false;
+		commit();
+		renderThread = std::make_unique<std::thread>([=]() {
+			Core::IntegratorContext ctx;
+			ctx.camera = graph->activeCamera->clone();
+			ctx.film = makeArc<Core::Film>(graph->filmConfig.dimension);
+			ctx.sampler = graph->sampler->clone();
+			Log::log("render thread started\n");
+			integrator->renderProgressive(ctx, std::move(callback));
+		});
+		
+		return true;
 	}
 }

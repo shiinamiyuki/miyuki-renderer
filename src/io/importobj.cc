@@ -47,12 +47,12 @@ namespace Miyuki {
 					bool hasMapKs = false;
 					bool hasMapKa = false;
 					auto matName = tokens[1];
-					auto material = Reflection::make_box<Core::MixedMaterial>();
-					Box<Core::MaterialSlot> slot = Reflection::make_box<Core::MaterialSlot>();
+					auto material = Reflection::makeBox<Core::MixedMaterial>();
+					Box<Core::MaterialSlot> slot = Reflection::makeBox<Core::MaterialSlot>();
 					slot->name = matName;
-					auto kd = Reflection::make_box<Core::DiffuseMaterial>();
-					auto ks = Reflection::make_box<Core::GlossyMaterial>();
-					Box<Core::Shader> ka = Reflection::make_box<Core::FloatShader>(0);
+					auto kd = Reflection::makeBox<Core::DiffuseMaterial>();
+					auto ks = Reflection::makeBox<Core::GlossyMaterial>();
+					Box<Core::Shader> ka = Reflection::makeBox<Core::FloatShader>(0);
 					i++;
 					while (i < lines.size()) {
 						if (lines[i].empty()) { i++; continue; }
@@ -67,40 +67,40 @@ namespace Miyuki {
 						else if (tokens[0] == "Ns") {
 							auto Ns = std::stof(tokens[1]);
 							Float alpha = std::sqrt(2 / (2 + Ns));							
-							ks->roughness = Reflection::make_box<Core::FloatShader>(alpha);
+							ks->roughness = Reflection::makeBox<Core::FloatShader>(alpha);
 						}
 						else if (tokens[0] == "Ks") {
 							if (!hasMapKs) {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								ks->color = Reflection::make_box<Core::RGBShader>(v);
+								ks->color = Reflection::makeBox<Core::RGBShader>(v);
 							}
 						}
 						else if (tokens[0] == "Kd") {
 							if (!hasMapKd) {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								kd->color = Reflection::make_box<Core::RGBShader>(v);
+								kd->color = Reflection::makeBox<Core::RGBShader>(v);
 							}
 						}
 						else if (tokens[0] == "Ke") {
 							if (!hasMapKa) {
 								Vec3f v = __Internal::ParseFloat3(tokens);
-								ka = Reflection::make_box<Core::RGBShader>(v);
+								ka = Reflection::makeBox<Core::RGBShader>(v);
 							}
 						}//
 						else if (tokens[0] == "map_Ks") {							
 							auto s = cxx::filesystem::absolute(__Internal::ParseFilename(tokens));
-							ks->color = Reflection::make_box<Core::ImageTextureShader>(s);
+							ks->color = Reflection::makeBox<Core::ImageTextureShader>(s);
 							hasMapKs = true;
 
 						}
 						else if (tokens[0] == "map_Kd") {
 							auto s = cxx::filesystem::absolute(__Internal::ParseFilename(tokens));
-							kd->color = Reflection::make_box<Core::ImageTextureShader>(s);
+							kd->color = Reflection::makeBox<Core::ImageTextureShader>(s);
 							hasMapKd = true;
 						}
 						else if (tokens[0] == "map_Ke") {
 							auto s = cxx::filesystem::absolute(__Internal::ParseFilename(tokens));
-							ka = Reflection::make_box<Core::ImageTextureShader>(s);
+							ka = Reflection::makeBox<Core::ImageTextureShader>(s);
 							hasMapKa = true;
 						}
 						else if (tokens[0] == "newmtl")
@@ -109,7 +109,7 @@ namespace Miyuki {
 					}
 					material->matA = std::move(kd);
 					material->matB = std::move(ks);
-					material->fraction = Reflection::make_box<Core::FloatShader>(0.5f);
+					material->fraction = Reflection::makeBox<Core::FloatShader>(0.5f);
 					material->emissionShader = std::move(ka);
 					slot->material = std::move(material);
 					materials.emplace_back(std::move(slot));

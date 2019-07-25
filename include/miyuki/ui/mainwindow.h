@@ -26,6 +26,7 @@ namespace Miyuki {
 		class MainWindow {
 			friend class UIVisitor;
 			//Timer updateTimer;
+
 			std::mutex viewportMutex;
 			uint32_t vbo = -1;
 			std::unique_ptr<RenderEngine> engine;
@@ -35,8 +36,6 @@ namespace Miyuki {
 			std::unique_ptr<HW::Texture> viewport;
 			std::unique_ptr<HW::Texture> background;
 			std::unique_ptr<HW::ShaderProgram> backgroundShader;
-			std::unique_ptr<std::thread> renderThread;
-			std::mutex renderResultMutex;
 			cxx::filesystem::path programPath;
 			json config;
 			void loadBackGroundShader();
@@ -50,7 +49,7 @@ namespace Miyuki {
 			void update();
 			void loadConfig();
 			void saveConfig();
-			void loadViewport(Core::Film&);
+			void loadView(Core::Film&);
 			struct WindowFlags {
 				bool showLog = true;
 				bool showPreference = false;
@@ -61,10 +60,16 @@ namespace Miyuki {
 				std::atomic<bool> viewportUpdateAvailable;
 				WindowFlags() :viewportUpdateAvailable(false) {}
 			}windowFlags;
-			void startRenderThread();
-			void stopRenderThread();
 
 			Modal modal;
+			
+			UIVisitor visitor;
+			void newEngine() {
+				engine = std::make_unique<RenderEngine>();
+				visitor.reset();
+				visitor.engine = engine.get();
+			}
+		public:
 			void showModal() {
 				modal.show();
 			}
@@ -78,14 +83,6 @@ namespace Miyuki {
 				modal.open().with(true, f);
 			}
 			void showErrorModal(const std::string& title, const std::string& error);
-			UIVisitor visitor;
-			void newEngine() {
-				engine = std::make_unique<RenderEngine>();
-				visitor.reset();
-				visitor.engine = engine.get();
-			}
-			void handleRenderOutput(std::shared_ptr<Core::Film> film);
-		public:
 			MainWindow(int argc, char** argv);
 			void show();
 			~MainWindow() {}

@@ -15,7 +15,6 @@ namespace Miyuki {
 	namespace GUI {
 
 		void MainWindow::close() {
-			stopRenderThread();
 			ImGui_ImplOpenGL3_Shutdown();
 			ImGui_ImplGlfw_Shutdown();
 			ImGui::DestroyContext();
@@ -107,7 +106,9 @@ void main()
 		void MainWindow::viewportWindow() {
 			if (windowFlags.showView) {
 				Window().name("render view").with(true, [=]() {
-
+					if (!viewport)return;
+					std::lock_guard<std::mutex> lock(viewportMutex);
+					Draw(*viewport);
 				}).show();
 			}
 		}
@@ -315,7 +316,8 @@ void main()
 			out << config << std::endl;
 		}
 
-		void MainWindow::loadViewport(Core::Film& film) {
+		void MainWindow::loadView(Core::Film& film) {
+			std::lock_guard<std::mutex> lock(viewportMutex);
 			size_t w = film.width(), h = film.height();
 			std::vector<uint8_t> pixelData(w * h * 4ul);
 			size_t i = 0;
@@ -328,18 +330,6 @@ void main()
 				i++;
 			}
 			viewport = std::make_unique<HW::Texture>(w, h, &pixelData[0]);
-		}
-
-		void MainWindow::startRenderThread() {
-
-		}
-
-		void MainWindow::stopRenderThread() {
-			if (renderThread) {
-				//engine->stopRender();
-				renderThread->join();
-				renderThread = nullptr;
-			}
 		}
 
 		MainWindow::MainWindow(int argc, char** argv):visitor(*this) {
@@ -451,10 +441,5 @@ void main()
 			close();
 		}
 
-		void MainWindow::handleRenderOutput(std::shared_ptr<Core::Film> film) {
-			std::unique_lock<std::mutex> lock(renderResultMutex, std::try_to_lock);
-			if (!lock.owns_lock())
-				return;
-		}
 	}
 }

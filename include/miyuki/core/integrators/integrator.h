@@ -5,7 +5,7 @@
 #include <core/film.h>
 #include <core/aovrecord.hpp>
 #include <core/samplingcontext.hpp>
-#include <core/abortable.h>
+#include <utils/abortable.h>
 
 
 namespace Miyuki {
@@ -15,10 +15,15 @@ namespace Miyuki {
 		using RenderResultCallback = std::function<void(Arc<Film> film)>;
 		using ProgressiveRenderCallback = std::function<void(Arc<Film> film)>;
 
+	
 		struct IntegratorContext {
 			Scene* scene = nullptr;
-			Camera* camera = nullptr;
-			Sampler* sampler = nullptr;
+			Box<Camera> camera = nullptr;
+
+			/*
+			Integrator need to supply the sampler with required information
+			*/
+			Box<Sampler> sampler = nullptr;
 			Arc<Film> film = nullptr;
 			RenderResultCallback resultCallback;
 		};
