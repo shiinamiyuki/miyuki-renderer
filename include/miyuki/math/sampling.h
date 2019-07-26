@@ -26,6 +26,20 @@ namespace Miyuki {
         return PointOnTriangle(v0, v1, v2, u, v);
     }
 
+	inline Vec3f UniformTriangleSampling(const Point2f& u0, 
+		const Vec3f& v0,
+		const Vec3f& v1,
+		const Vec3f& v2,
+		Point2f* uv) {
+		Float u = u0[0], v = u0[1];
+		if (u + v >= 1) {
+			u = 1 - u;
+			v = 1 - v;
+		}
+		*uv = { u,v };
+		return PointOnTriangle(v0, v1, v2, u, v);
+	}
+
     inline Vec3f UniformSampleSphere(const Point2f &u) {
         Float z = 1 - 2 * u[0];
         Float r = std::sqrt(std::max((Float) 0, (Float) 1 - z * z));

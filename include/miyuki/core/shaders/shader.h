@@ -9,6 +9,7 @@ namespace Miyuki {
 	namespace Core {
 		struct ShadingPoint {
 			Point2f uv;
+			ShadingPoint(const Point2f& uv) :uv(uv){}
 		};
 
 		struct ShadingResult {
@@ -26,6 +27,7 @@ namespace Miyuki {
 		public:
 			MYK_INTERFACE(Shader);
 			virtual ShadingResult eval(ShadingPoint&) const = 0;
+			virtual ShadingResult average()const = 0;
 			virtual void preprocess() {}
 		};
 		MYK_REFL(Shader, (Reflective),MYK_REFL_NIL);
@@ -36,6 +38,9 @@ namespace Miyuki {
 			FloatShader() {}
 			FloatShader(Float v) :value(v) {}
 			virtual ShadingResult eval(ShadingPoint& p) const override {
+				return Vec3f(value);
+			}
+			virtual ShadingResult average()const override {
 				return Vec3f(value);
 			}
 			void setValue(Float value) { this->value = value; }
@@ -54,6 +59,9 @@ namespace Miyuki {
 			virtual ShadingResult eval(ShadingPoint& p) const override{
 				return value;
 			}
+			virtual ShadingResult average()const override {
+				return Vec3f(value);
+			}
 			void setValue(Spectrum value) { this->value = value; }
 			Spectrum getValue()const { return value; }
 		private:
@@ -71,6 +79,9 @@ namespace Miyuki {
 			ImageTextureShader() {}
 			ImageTextureShader(const File& f) :imageFile(f) {}
 			virtual ShadingResult eval(ShadingPoint&) const override {
+				return {};
+			}
+			virtual ShadingResult average()const override {
 				return {};
 			}
 		};

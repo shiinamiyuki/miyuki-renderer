@@ -2,6 +2,8 @@
 
 #include <miyuki.h>
 #include <core/bsdfs/scatteringfunction.hpp>
+#include <math/transform.h>
+
 namespace Miyuki {
 	namespace Core {
 		enum BSDFLobe {
@@ -33,13 +35,10 @@ namespace Miyuki {
 					wo = isct.world_to_local(isct.wo);
 				}*/
 		};
-
-		class BSDF {
+		class BSDFImpl {
 			BSDFLobe lobe;
-			CoordinateSystem localFrame;
-			Vec3f Ng;
 		public:
-			BSDF(BSDFLobe lobe) :lobe(lobe) {}
+			BSDFImpl(BSDFLobe lobe) :lobe(lobe) {}
 			BSDFLobe getLobe()const { return lobe; }
 			bool match(BSDFLobe lobe)const {
 				return this->lobe & lobe;
@@ -66,6 +65,34 @@ namespace Miyuki {
 				BSDFSampleOption option,
 				BSDFLobe lobe = BSDFLobe::EAll
 			)const = 0;
+
+		};
+		class BSDF {
+			CoordinateSystem localFrame;
+			Vec3f Ng;
+		protected:
+			BSDFImpl* impl;
+		public:
+			BSDF(BSDFImpl * impl):impl(impl) {}
+			void sample(
+				BSDFSample& sample
+			)const;
+
+			// evaluate bsdf according to wo, wi
+			Spectrum evaluate(
+				const Vec3f& wo,
+				const Vec3f& wi,
+				BSDFSampleOption option,
+				BSDFLobe lobe = BSDFLobe::EAll
+			)const;
+
+			// evaluate pdf according to wo, wi
+			Float evaluatePdf(
+				const Vec3f& wo,
+				const Vec3f& wi,
+				BSDFSampleOption option,
+				BSDFLobe lobe = BSDFLobe::EAll
+			)const;
 
 			Vec3f localToWorld(const Vec3f& w) const {
 				return localFrame.localToWorld(w);

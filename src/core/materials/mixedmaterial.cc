@@ -3,12 +3,12 @@
 
 namespace Miyuki {
 	namespace Core {
-		class MixedBSDFImpl : public BSDF {
-			BSDF* A;
-			BSDF* B;
+		class MixedBSDFImpl : public BSDFImpl {
+			BSDFImpl* A;
+			BSDFImpl* B;
 			Float fraction;
 
-			void combine(Float frac, BSDFSample& sample, BSDF* first, BSDF* other)const {
+			void combine(Float frac, BSDFSample& sample, BSDFImpl* first, BSDFImpl* other)const {
 				if (first->isDelta()) {
 					sample.f *= frac;
 					sample.pdf *= frac;
@@ -21,21 +21,29 @@ namespace Miyuki {
 				}
 			}
 		public:
-			MixedBSDFImpl(Float fraction, BSDF* A, BSDF* B)
-				:BSDF(BSDFLobe(A->getLobe() | B->getLobe())), A(A), B(B), fraction(fraction) {}
+			MixedBSDFImpl(Float fraction, BSDFImpl* A, BSDFImpl* B)
+				:BSDFImpl(BSDFLobe(A->getLobe() | B->getLobe())), A(A), B(B), fraction(fraction) {}
 
 			virtual void sample(
 				BSDFSample& sample
 			)const {
+				BSDFImpl* first, * second;
+				Float frac;
 				if (sample.uPick < fraction) {
 					sample.uPick /= fraction;
-					A->sample(sample);
-					combine(fraction, sample, A, B);
+					first = A;
+					second = B;
+					frac = fraction;
 				}
 				else {
 					sample.uPick = (sample.uPick - fraction) / (1.0f - fraction);
-					B->sample(sample);
-					combine(1.0f - fraction, sample, B, A);
+					first = B;
+					second = A;
+					frac = 1.0f - fraction;
+				}
+				first->sample(sample);
+				if (B->match(sample.lobe)) {
+					combine(frac, sample, first, second);
 				}
 			}
 
@@ -46,8 +54,17 @@ namespace Miyuki {
 				BSDFSampleOption option,
 				BSDFLobe lobe = BSDFLobe::EAll
 			)const {
-				return fraction * A->evaluate(wo, wi, option, lobe)
-					+ (1.0f - fraction) * B->evaluate(wo, wi, option, lobe);
+				Float sum = 0.0f;
+				Vec3f f;
+				if (A->match(lobe)) {
+					f += A->evaluate(wo, wi, option, lobe);
+					sum += fraction;
+				}
+				if (B->match(lobe)) {
+					f += B->evaluate(wo, wi, option, lobe);
+					sum += 1.0f - fraction;
+				}
+				return sum == 0.0f ? f : f / sum;
 			}
 
 			// evaluate pdf according to wo, wi
@@ -57,12 +74,21 @@ namespace Miyuki {
 				BSDFSampleOption option,
 				BSDFLobe lobe = BSDFLobe::EAll
 			)const {
-				return fraction * A->evaluatePdf(wo, wi, option, lobe)
-					+ (1.0f - fraction) * B->evaluatePdf(wo, wi, option, lobe);
+				Float sum = 0.0f;
+				Float pdf;
+				if (A->match(lobe)) {
+					pdf += A->evaluatePdf(wo, wi, option, lobe);
+					sum += fraction;
+				}
+				if (B->match(lobe)) {
+					pdf += B->evaluatePdf(wo, wi, option, lobe);
+					sum += 1.0f - fraction;
+				}
+				return sum == 0.0f ? pdf : pdf / sum;
 			}
 		};
 
-		BSDF* MixedMaterial::createBSDF(BSDFCreationContext& ctx)const {
+		BSDFImpl* MixedMaterial::createBSDF(BSDFCreationContext& ctx)const {
 			auto frac = fraction->eval(ctx.shadingPoint).toFloat();
 			auto A = matA->createBSDF(ctx); 
 			auto B = matB->createBSDF(ctx);

@@ -3,11 +3,11 @@
 #include <core/bsdfs/diffuse.hpp>
 namespace Miyuki {
 	namespace Core {
-		class DiffuseBSDFImpl : public BSDF {
+		class DiffuseBSDFImpl : public BSDFImpl {
 			Float roughness;
 			Spectrum R;
 		public:
-			DiffuseBSDFImpl(Float roughness, Spectrum R) :BSDF(BSDFLobe(EReflection | EDiffuse)) {}
+			DiffuseBSDFImpl(Float roughness, Spectrum R) :BSDFImpl(BSDFLobe(EReflection | EDiffuse)) {}
 
 			virtual void sample(
 				BSDFSample& sample
@@ -51,7 +51,7 @@ namespace Miyuki {
 			}
 		};
 
-		BSDF* DiffuseMaterial::createBSDF(BSDFCreationContext& ctx)const {
+		BSDFImpl* DiffuseMaterial::createBSDF(BSDFCreationContext& ctx)const {
 			Float _roughness = roughness->eval(ctx.shadingPoint).toFloat();
 			Spectrum R = color->eval(ctx.shadingPoint).toVec3f();
 			auto bsdf = ctx.alloc<DiffuseBSDFImpl>(_roughness, R);

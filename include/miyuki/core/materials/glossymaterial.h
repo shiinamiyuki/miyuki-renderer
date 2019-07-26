@@ -7,16 +7,12 @@ namespace Miyuki {
 		class GlossyMaterial final : public Material {
 		public:
 			MYK_CLASS(GlossyMaterial);
-			Box<Shader> emissionShader = nullptr;
 			Box<Shader> color = nullptr;
 			Box<Shader> roughness = nullptr;
-			virtual Shader* emission()const {
-				return emissionShader.get();
-			}
-			virtual BSDF* createBSDF(BSDFCreationContext&)const override;
+			virtual BSDFImpl* createBSDF(BSDFCreationContext&)const override;
 		};
 		MYK_IMPL(GlossyMaterial, "Material.Glossy");
-		MYK_REFL(GlossyMaterial, (Material), (emissionShader)(color)(roughness));
+		MYK_REFL(GlossyMaterial, (Material), (color)(roughness));
 
 	}
 }

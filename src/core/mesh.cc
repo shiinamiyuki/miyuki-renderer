@@ -202,6 +202,7 @@ namespace Miyuki {
 				isct->distance = t;
 				isct->p = ray.o + t * ray.d;
 				isct->Ng = Ng();
+				isct->uv = { u, v };
 				return true;
 			}
 			else

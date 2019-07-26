@@ -5,7 +5,7 @@
 
 namespace Miyuki {
 	namespace Core {
-		class GlossyBSDFImpl : public BSDF {
+		class GlossyBSDFImpl : public BSDFImpl {
 			MicrofacetWrapper microfacet;
 			FresnelWrapper fresnel;
 			Vec3f R; 
@@ -13,12 +13,13 @@ namespace Miyuki {
 		public:
 			GlossyBSDFImpl(Vec3f R, Float alpha)
 				:R(R), alpha(alpha), microfacet(EBeckmann, alpha),fresnel(EPerfectSpecular),
-				BSDF(BSDFLobe(EGlossy | EReflection)) {
+				BSDFImpl(BSDFLobe(EGlossy | EReflection)) {
 
 			}
 			virtual void sample(
 				BSDFSample& sample
 			)const override {
+
 				auto wh = microfacet.sampleWh(sample.wo, sample.u);
 				sample.wi = Reflect(sample.wo, wh);
 				if (!SameHemisphere(sample.wo, sample.wi)) {
@@ -61,7 +62,7 @@ namespace Miyuki {
 			}
 		};
 
-		BSDF* GlossyMaterial::createBSDF(BSDFCreationContext& ctx)const {
+		BSDFImpl* GlossyMaterial::createBSDF(BSDFCreationContext& ctx)const {
 			auto _roughness = roughness->eval(ctx.shadingPoint).toFloat();
 			auto _color = color->eval(ctx.shadingPoint).toVec3f();
 			return ctx.alloc<GlossyBSDFImpl>(_color, _roughness * _roughness);

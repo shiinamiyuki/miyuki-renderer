@@ -8,7 +8,7 @@
 
 namespace Miyuki {
 	namespace Core {
-
+		class BSDFImpl;
 		struct BSDFCreationContext {
 			MemoryArena* arena;
 			ShadingPoint shadingPoint;
@@ -22,11 +22,11 @@ namespace Miyuki {
 
 		class Material : public Reflective {
 		public:
-			MYK_INTERFACE(Material);
-			virtual Shader* emission()const = 0;
-			virtual BSDF* createBSDF(BSDFCreationContext&)const = 0;
+			MYK_ABSTRACT(Material);
+			Box<Shader> emission;
+			virtual BSDFImpl* createBSDF(BSDFCreationContext&)const = 0;
 		};
-		MYK_REFL(Material, (Reflective), MYK_REFL_NIL);		
+		MYK_REFL(Material, (Reflective), (emission));
 	}
 }
 

@@ -37,6 +37,8 @@ file(GLOB coreSRC
 	"src/engine/*.cc"
 	"src/core/samplers/*.cc"
 	"src/core/materials/*.cc"
+	"src/core/bsdfs/*.cc"
+	"src/core/lights/*.cc"
 	"src/core/cameras/*.cc"
 	"src/core/integrators/*.cc")
 
