@@ -325,26 +325,26 @@ void main()
 		}
 
 		void MainWindow::loadViewImpl() {
+			viewport = std::make_unique<HW::Texture>(viewportUpdate->width(), viewportUpdate->height(), &pixelData[0]);
 
-			auto& film = *viewportUpdate;
-			size_t w = film.width(), h = film.height();
-			std::vector<uint8_t> pixelData(w * h * 4ul);
+		}
+		void MainWindow::loadView(Arc<Core::Film> film) {
+			size_t w = film->width(), h = film->height();
+			pixelData.resize(w * h * 4ul);
 			size_t i = 0;
-			for (const auto& pixel : film.image) {
+			for (const auto& pixel : film->image) {
 				auto color = pixel.eval().toInt();
 				pixelData[4ul * i] = color.r();
 				pixelData[4ul * i + 1] = color.g();
 				pixelData[4ul * i + 2] = color.b();
 				pixelData[4ul * i + 3] = 255;
 				i++;
+			}			
+			viewportUpdate = film;
+			{
+				std::lock_guard<std::mutex> lock(viewportMutex);
+				windowFlags.viewportUpdateAvailable = true;
 			}
-			viewport = std::make_unique<HW::Texture>(w, h, &pixelData[0]);
-
-		}
-		void MainWindow::loadView(Arc<Core::Film> film) {
-			std::lock_guard<std::mutex> lock(viewportMutex);
-			windowFlags.viewportUpdateAvailable = true;
-			viewportUpdate = film;			
 		}
 
 		MainWindow::MainWindow(int argc, char** argv):visitor(*this) {

@@ -38,6 +38,8 @@ namespace Miyuki {
 			std::unique_ptr<HW::ShaderProgram> backgroundShader;
 			cxx::filesystem::path programPath;
 			json config;
+			Arc<Core::Film> viewportUpdate;
+			std::vector<uint8_t> pixelData;
 			void loadBackGroundShader();
 			void loadBackgroundImage();
 			void drawBackground();
@@ -49,7 +51,7 @@ namespace Miyuki {
 			void update();
 			void loadConfig();
 			void saveConfig();
-			Arc<Core::Film> viewportUpdate;;
+			
 			void loadViewImpl();
 			void loadView(Arc<Core::Film>);
 			struct WindowFlags {

@@ -1,14 +1,10 @@
 #ifndef MIYUKI_BSDF_DIFFUSE_HPP
 #define MIYUKI_BSDF_DIFFUSE_HPP
 #include <core/bsdfs/scatteringfunction.hpp>
+#include <core/bsdfs/trignometry.hpp>
 
 namespace Miyuki {
 	namespace Core {
-		template<class Derived>
-		struct MicrofacetModel {
-
-		};
-
 		struct OrenNayarReflection : ScatteringFunction<OrenNayarReflection> {
 			Spectrum R;
 			Float A, B;
@@ -24,8 +20,7 @@ namespace Miyuki {
 			}
 
 			Spectrum evaluateImpl(const Vec3f& wo, const Vec3f& wi)const {
-				void sampleImpl(
-					Float sinThetaI = SinTheta(wi);
+				Float sinThetaI = SinTheta(wi);
 				Float sinThetaO = SinTheta(wo);
 				Float maxCos = 0;
 				if (sinThetaI > 1e-4 && sinThetaO > 1e-4) {
@@ -48,7 +43,7 @@ namespace Miyuki {
 			}
 
 			Float evaluatePdfImpl(const Vec3f& wo, const Vec3f& wi)const {
-				return CosineHemispherePDF().evaluate(AbsCosTheta(wi));
+				return CosineHemispherePDF().evaluate(wi);
 			}
 		};
 
@@ -65,7 +60,7 @@ namespace Miyuki {
 			}
 
 			Float evaluatePdfImpl(const Vec3f& wo, const Vec3f& wi)const {
-				return CosineHemispherePDF().evaluate(AbsCosTheta(wi));
+				return CosineHemispherePDF().evaluate(wi);
 			}
 		};
 	}

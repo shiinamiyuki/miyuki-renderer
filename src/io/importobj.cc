@@ -1,6 +1,9 @@
 #include <io/importobj.h>
 #include <boost/algorithm/string.hpp>
 #include <utils/log.h>
+#include <core/materials/mixedmaterial.h>
+#include <core/materials/diffusematerial.h>
+#include <core/materials/glossymaterial.h>
 #if 1
 namespace Miyuki {
 	namespace IO {

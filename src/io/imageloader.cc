@@ -11,7 +11,7 @@ namespace Miyuki {
 			}
 			auto image = std::make_unique<Image>(filename);
 			Log::log("Loaded {}\n", filename);
-			images.insert(std::make_pair(filename, std::move(image)));
+			images[filename] = std::move(image);
 			return images.at(filename).get();
 		}
 		void ImageLoader::reloadAll() {

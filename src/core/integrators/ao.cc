@@ -9,16 +9,17 @@ namespace Miyuki {
 			auto& scene = *integratorContext.scene;
 			auto& sampler = *integratorContext.sampler;
 			Intersection isct;
-			bool flag = false;
+			Spectrum AO;
 			if (scene.intersect(ctx.primary, &isct)) {
 				CosineHemispherePDF pdf;
-				auto w = isct.localToWord(pdf.sample(sampler.get2D()));
+				Float p;
+				auto w = isct.localToWord(pdf.sample(sampler.get2D(), &p));
 				Ray ray = isct.spawnRay(w);
 				if (!scene.intersect(ray, &isct) || isct.distance >= occlusionDistance) {
-					flag = true;
+					AO = Spectrum(1);
 				}
 			}
-			film.addSample(ctx.cameraSample.pFilm,  flag * Spectrum(1));
+			film.addSample(ctx.cameraSample.pFilm,  AO);
 		}
 	}
 }

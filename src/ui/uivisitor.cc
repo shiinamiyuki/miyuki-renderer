@@ -3,6 +3,9 @@
 #include <utils/log.h>
 #include <ui/mainwindow.h>
 #include <core/integrators/ao.h>
+#include <core/materials/diffusematerial.h>
+#include <core/materials/glossymaterial.h>
+#include <core/materials/mixedmaterial.h>
 
 namespace Miyuki {
 	namespace GUI {

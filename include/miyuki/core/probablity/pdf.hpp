@@ -14,9 +14,9 @@ namespace Miyuki {
 			class ValueT=Float,
 			class SampleT=Point2f>
 		struct PDF {
-			DomainT sample(const SampleT& u, SampleT* pdf=nullptr)const {
+			DomainT sample(const SampleT& u, ValueT* pdf=nullptr)const {
 				auto tmp =  This().sampleImpl(u);
-				if (pdf)* pdf = evaluate(tmp);
+				if (pdf)*pdf = evaluate(tmp);
 				return tmp;
 			}
 			ValueT evaluate(const DomainT& p)const {

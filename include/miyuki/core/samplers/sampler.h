@@ -29,10 +29,10 @@ namespace Miyuki {
 			virtual Point2f get2D() = 0;
 			virtual void start(const SamplerState&) = 0;
 			virtual bool startNextSample() = 0;
-			SamplerState& getState() {
-				return state;
+			virtual void setState(const SamplerState& s) {
+				state = s;
 			}
-			const SamplerState& getState()const {
+			virtual const SamplerState& getState()const {
 				return state;
 			}
 		protected:
@@ -46,7 +46,7 @@ namespace Miyuki {
 			RNG rng;
 		public:
 			MYK_CLASS(RandomSampler);
-			RandomSampler() {}
+			RandomSampler():rng(RNG(0)) {}
 			RandomSampler(RNG rng, const SamplerState& state) :rng(std::move(rng)){
 				this->state = state;
 			}
@@ -66,6 +66,10 @@ namespace Miyuki {
 			virtual bool startNextSample()override {
 				state.sample++;
 				return state.sample < state.samplesPerPixel; 
+			}
+			virtual void setState(const SamplerState& _state)override {
+				state = _state;
+				rng = RNG(state.pixel[0] + state.pixel[1] * state.resolution[0]);
 			}
 		};
 		MYK_IMPL(RandomSampler,  "Sampler.Random");

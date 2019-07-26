@@ -25,7 +25,7 @@ Miyuki::Distribution1D::Distribution1D(const Float *data, uint32_t N) {
 }
 
 int Distribution1D::sampleInt(Float x) const {
-    return clamp<int>(binarySearch(x), 1, cdfArray.size() - 1) - 1 ;
+    return (int)clamp<size_t>(binarySearch(x), 1, cdfArray.size() - 1) - 1 ;
 }
 
 Float Distribution1D::sampleFloat(Float x) const {

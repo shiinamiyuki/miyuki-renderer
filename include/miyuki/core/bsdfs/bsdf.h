@@ -1,32 +1,33 @@
 #pragma once
 
-#include <materials/material.h>
-
+#include <miyuki.h>
+#include <core/bsdfs/scatteringfunction.hpp>
 namespace Miyuki {
 	namespace Core {
-		
+		enum BSDFLobe {
+			ENone = 0,
+			EDiffuse = 1 << 0,
+			EGlossy = 1 << 2,
+			ESpecular = 1 << 3,
+			EReflection = 1 << 4,
+			ETransmission = 1 << 5,
+			EAll = EDiffuse | ESpecular | EGlossy | EReflection | ETransmission,
+			EAllButSpecular = EAll & ~ESpecular
+		};
 
 		// Some user specific sample option
 		enum BSDFSampleOption {
-			kNoSampleOption = 0,
-			kUseStrictNormal = 1,
+			ENoSampleOption = 0,
+			EUseStrictNormal = 1,
 		};
 
 		class Sampler;
-		// Conventions:
-		// sampled directions w.r.t local frame
-		// sampled direction is always incoming direction (wi)
-		// pdf w.r.t solid angle
-		struct BSDFSample {
+		
+		struct BSDFSample : ScatteringFunctionSample {
 			Float uPick; // picking bsdf
-			Point2f uSample; //sampling bsdf
-			Vec3f wo;
-			Vec3f wi; // sampled direction
-			Float pdf; // pdf of the sampled direction
-			Spectrum f; // sampled bsdf
 			BSDFLobe lobe; //sampled lobe
 			BSDFSampleOption option;
-			BSDFSample(BSDFSampleOption opt) :option(opt), pdf(0) {}
+			
 			/*	BSDFSample(Intersection& isct, Sampler* sampler, BSDFSampleOption opt)
 					:option(opt), uSample(sampler->get2D()), uPick(sampler->get1D()) {
 					wo = isct.world_to_local(isct.wo);
@@ -38,25 +39,33 @@ namespace Miyuki {
 			CoordinateSystem localFrame;
 			Vec3f Ng;
 		public:
-			void sample(
+			BSDF(BSDFLobe lobe) :lobe(lobe) {}
+			BSDFLobe getLobe()const { return lobe; }
+			bool match(BSDFLobe lobe)const {
+				return this->lobe & lobe;
+			}
+			bool isDelta()const {
+				return match(ESpecular);
+			}
+			virtual void sample(
 				BSDFSample& sample
-			)const;
+			)const = 0;
 
 			// evaluate bsdf according to wo, wi
-			Spectrum evaluate(
+			virtual Spectrum evaluate(
 				const Vec3f& wo,
 				const Vec3f& wi,
 				BSDFSampleOption option,
-				BSDFLobe lobe = BSDFLobe::kAll
-			)const;
+				BSDFLobe lobe = BSDFLobe::EAll
+			)const = 0;
 
 			// evaluate pdf according to wo, wi
-			Float evaluatePdf(
+			virtual Float evaluatePdf(
 				const Vec3f& wo,
 				const Vec3f& wi,
 				BSDFSampleOption option,
-				BSDFLobe lobe = BSDFLobe::kAll
-			)const;
+				BSDFLobe lobe = BSDFLobe::EAll
+			)const = 0;
 
 			Vec3f localToWorld(const Vec3f& w) const {
 				return localFrame.localToWorld(w);

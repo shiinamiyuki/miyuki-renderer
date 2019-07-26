@@ -1,6 +1,11 @@
 #include <core/scene.h>
 #include <utils/log.h>
 
+#include <core/materials/mixedmaterial.h>
+#include <core/materials/diffusematerial.h>
+#include <core/materials/glossymaterial.h>
+
+
 namespace Miyuki {
 	namespace Core {
 		Scene::Scene() {
@@ -48,7 +53,8 @@ namespace Miyuki {
 				}
 			}
 			void loadImages(Core::Graph& graph) {
-				scene.imageLoader = std::make_unique<IO::ImageLoader>();
+				if(!scene.imageLoader)
+					scene.imageLoader = std::make_unique<IO::ImageLoader>();
 				Base::_map.clear();
 				visit<Core::GlossyMaterial>([=](Core::GlossyMaterial* mat) {
 					visit(mat->color);
