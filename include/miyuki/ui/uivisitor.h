@@ -43,6 +43,20 @@ namespace Miyuki {
 				changed = true;
 				selected = nullptr;
 			}
+			template<class T>
+			void visit(T* node) {
+				ImGui::PushID(node);
+				ComponentVisitor::visit(node);
+				ImGui::PopID();
+			}
+			template<class T>
+			void visit(Box<T>& node) {
+				visit(node.get());
+			}
+			template<class T, class F>
+			void visit(F&& arg) {
+				ComponentVisitor::visit<T>(std::move(arg));
+			}
 			void visitSelected();
 			void visitCamera();
 			void visitIntegrator();

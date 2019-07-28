@@ -113,7 +113,7 @@ namespace Miyuki {
 					material->matA = std::move(kd);
 					material->matB = std::move(ks);
 					material->fraction = Reflection::makeBox<Core::FloatShader>(0.5f);
-					material->emissionShader = std::move(ka);
+					material->emission = std::move(ka);
 					slot->material = std::move(material);
 					materials.emplace_back(std::move(slot));
 				}

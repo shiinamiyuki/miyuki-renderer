@@ -35,13 +35,18 @@ namespace Miyuki {
 			auto id = (uint32_t)instances.size();
 			embreeScene->addMesh(mesh, id);
 			meshToId[meshName] = id;
-			for (const auto& name : mesh->names) {
-				mesh->materials.push_back(materialAssignment.at(name));
-			}
+
 			instances.emplace_back(mesh);
 		}
 
+		void Scene::assignMaterial(std::shared_ptr<Mesh> mesh) {
+			mesh->materials.clear();
+			for (const auto& name : mesh->names) {
+				mesh->materials.push_back(materialAssignment.at(name));
+			}
+		}
 		struct Scene::Visitor : Reflection::ComponentVisitor {
+			std::vector<Preprocessable*> preprocessables;
 			using Base = Reflection::ComponentVisitor;
 			Scene& scene;
 			Visitor(Scene& scene) :scene(scene) {
@@ -52,8 +57,29 @@ namespace Miyuki {
 					scene.materials[name] = slot->material.get();
 				}
 			}
+			template<class T>
+			std::enable_if_t<std::is_base_of_v<Reflective, T>, void>
+				visit(const std::function<void(T*)>& f) {
+				ComponentVisitor::visit<T>(f);
+			}
+
+			template<class T>
+			std::enable_if_t<std::is_base_of_v<Preprocessable, T>, void> visit(T* p) {
+				preprocessables.emplace_back(p);
+				ComponentVisitor::visit(p);
+			}
+			template<class T>
+			std::enable_if_t<!std::is_base_of_v<Preprocessable, T>, void> visit(T* p) {
+				ComponentVisitor::visit(p);
+			}
+
+			template<class T>
+			std::enable_if_t<std::is_base_of_v<Reflective, T>, void> visit(Box<T>& p) {
+				visit<T>(p.get());
+			}
+
 			void loadImages(Core::Graph& graph) {
-				if(!scene.imageLoader)
+				if (!scene.imageLoader)
 					scene.imageLoader = std::make_unique<IO::ImageLoader>();
 				Base::_map.clear();
 				visit<Core::GlossyMaterial>([=](Core::GlossyMaterial* mat) {
@@ -68,11 +94,15 @@ namespace Miyuki {
 					visit(mat->matA);
 					visit(mat->matB);
 				});
-				visit<Core::FloatShader>([=](Core::FloatShader *) {});
-				visit<Core::RGBShader>([=](Core::RGBShader*) {});
+				visit<Core::FloatShader>([=](Core::FloatShader* shader) {
+
+				});
+				visit<Core::RGBShader>([=](Core::RGBShader* shader) {
+
+				});
 				auto& loader = scene.imageLoader;
 				visit<Core::ImageTextureShader>([=, &loader](Core::ImageTextureShader* shader) {
-					shader->texture = loader->load(shader->imageFile);
+					shader->texture = Texture(loader->load(shader->imageFile));
 				});
 				for (auto& material : graph.materials) {
 					visit(material->material);
@@ -86,6 +116,13 @@ namespace Miyuki {
 					scene.loadObjMeshAndInstantiate(mesh->file.fullpath().string(), mesh->name, mesh->transform);
 				}
 			}
+
+			void preprocessAll() {
+				for (auto p : preprocessables) {
+					if(p)
+						p->preprocess();
+				}
+			}
 		};
 
 		void Scene::commit(Core::Graph& graph) {
@@ -93,6 +130,10 @@ namespace Miyuki {
 			visitor.loadMaterials(graph);
 			visitor.loadMeshes(graph);
 			visitor.loadImages(graph);
+			for (auto& i : instances) {
+				assignMaterial(i);
+			}
+			visitor.preprocessAll();
 			embreeScene->commit();
 		}
 

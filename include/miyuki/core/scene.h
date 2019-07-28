@@ -6,6 +6,8 @@
 #include <core/mesh.h>
 #include <core/graph.h>
 #include <io/imageloader.h>
+#include <math/distribution.h>
+#include <core/lights/light.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -17,6 +19,8 @@ namespace Miyuki {
 			std::map<std::string, std::shared_ptr<Mesh>> meshes;
 			std::map<std::string, uint32_t> meshToId;
 			std::unique_ptr<IO::ImageLoader> imageLoader;
+			std::unique_ptr<Distribution1D> lightDistribution;
+			std::vector<std::unique_ptr<Light>> lights;
 			void loadObjMesh(const std::string& filename);
 
 			void loadObjMeshAndInstantiate(const std::string& filename, const std::string& meshName,
@@ -25,8 +29,14 @@ namespace Miyuki {
 			void instantiateMesh(const std::string& filename, const std::string& meshName, const Transform&);
 			struct Visitor;
 
+			
 			void postIntersect(Intersection*);
+
+			void assignMaterial(std::shared_ptr<Mesh> mesh);
 		public:
+			Mesh* getMeshById(uint32_t id) {
+				return instances[id].get();
+			}
 			Scene();
 			void commit(Core::Graph&);
 			bool intersect(const Ray& ray, Intersection* isct) {

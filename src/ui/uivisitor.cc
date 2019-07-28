@@ -3,6 +3,7 @@
 #include <utils/log.h>
 #include <ui/mainwindow.h>
 #include <core/integrators/ao.h>
+#include <core/integrators/pt.h>
 #include <core/materials/diffusematerial.h>
 #include <core/materials/glossymaterial.h>
 #include <core/materials/mixedmaterial.h>
@@ -157,6 +158,9 @@ namespace Miyuki {
 				if (auto r = GetInputWithSignal("value", value)) {
 					shader->setValue(r.value());
 				}
+				if (auto r = GetInputWithSignal("multiplier", shader->getMultiplier())) {
+					shader->setMultiplier(r.value());
+				}
 			});
 			visit<Core::ImageTextureShader>([=](Core::ImageTextureShader* shader) {
 				Text().name(shader->imageFile.path.string()).show();
@@ -207,18 +211,13 @@ namespace Miyuki {
 					}
 				}).show();
 
-				for (auto& slot : engine->getGraph()->materials) {
-					auto& material = slot->material;
-					if (material == node->material->material) {
-						visitMaterialAndSelect(slot->material, "type");
-						break;
-					}
-				}
+				visit(node->material);
 			});
 			visit<Core::MaterialSlot>([=](Core::MaterialSlot* slot) {
 				if (auto r = GetInputWithSignal("name", slot->name)) {
 					slot->name = r.value();
 				}
+				visitShaderAndSelect(slot->material->emission, "emission");
 				visit(slot->material);
 			});
 			visit<Core::PerspectiveCamera>([=](Core::PerspectiveCamera* camera) {
@@ -246,6 +245,11 @@ namespace Miyuki {
 					integrator->occlusionDistance = r.value();
 				}
 			});
+			visit<Core::PathTracerIntegrator>([=](Core::PathTracerIntegrator* integrator) {
+				if (auto r = GetInputWithSignal("samples", integrator->spp)) {
+					integrator->spp = r.value();
+				}
+			});
 			visit<Core::FilmConfig>([=](Core::FilmConfig* config) {
 				if (auto r = GetInputWithSignal("scale", 100 * config->scale)) {
 					config->scale = r.value() / 100.0f;
@@ -258,21 +262,22 @@ namespace Miyuki {
 		}
 
 		void UIVisitor::visitMaterialAndSelect(Box<Core::Material>& material, const std::string& label) {
-			ImGui::PushID(&material);
-			if (auto r = selectMaterial(material.get(), label)) {
-				material = std::move(r.value());
-			}
-			visit(material);
-			ImGui::PopID();
+			TreeNode().name(std::string("").append(label).append("##00")).with(true, [=, &material]() {
+				if (auto r = selectMaterial(material.get(), label)) {
+					material = std::move(r.value());
+				}
+				visit(material);
+			}).flag(ImGuiTreeNodeFlags_DefaultOpen).show();
 		}
 
+
 		void UIVisitor::visitShaderAndSelect(Box<Core::Shader>& shader, const std::string& label) {
-			ImGui::PushID(&shader);
-			if (auto r = selectShader(shader.get(), label)) {
-				shader = std::move(r.value());
-			}
-			visit(shader);
-			ImGui::PopID();
+			TreeNode().name(std::string("").append(label).append("##00")).with(true, [=, &shader]() {
+				if (auto r = selectShader(shader.get(), label)) {
+					shader = std::move(r.value());
+				}
+				visit(shader);
+			}).flag(ImGuiTreeNodeFlags_DefaultOpen).show();
 		}
 
 		void UIVisitor::visitSelected() {
@@ -363,7 +368,7 @@ namespace Miyuki {
 			std::call_once(flag, [&]() {
 				selector.loadImpl<Core::Sampler>();
 			});
-			
+
 			ImGui::PushID("sampler");
 			if (auto r = selector.select<Core::Sampler>("sampler", graph->sampler.get())) {
 				graph->sampler = std::move(r.value());
@@ -382,9 +387,9 @@ namespace Miyuki {
 		void UIVisitor::startInteractive() {
 			Core::ProgressiveRenderCallback cb = [=](Arc<Core::Film> film) {
 				std::unique_lock<std::mutex> lock(renderCBMutex, std::try_to_lock);
-				if(lock.owns_lock())
+				if (lock.owns_lock())
 					loadWindowView(film);
-			};			
+			};
 			std::thread th([=]() {
 				window.openModal("Starting rendering", []() {});
 				if (!engine->startProgressiveRender(cb)) {

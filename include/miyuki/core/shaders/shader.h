@@ -1,15 +1,16 @@
 #pragma once
-
-
 #include <miyuki.h>
 #include <reflection.h>
 #include <utils/file.hpp>
-#include <io/image.h>
+#include <utils/preprocessable.hpp>
+#include <core/texture.h>
+
+
 namespace Miyuki {
 	namespace Core {
 		struct ShadingPoint {
 			Point2f uv;
-			ShadingPoint(const Point2f& uv) :uv(uv){}
+			ShadingPoint(const Point2f& uv) :uv(uv) {}
 		};
 
 		struct ShadingResult {
@@ -23,14 +24,14 @@ namespace Miyuki {
 			Vec3f value;
 		};
 
-		class Shader : public Reflective {
+		class Shader : public Reflective, public Preprocessable {
 		public:
 			MYK_INTERFACE(Shader);
 			virtual ShadingResult eval(ShadingPoint&) const = 0;
 			virtual ShadingResult average()const = 0;
-			virtual void preprocess() {}
+			virtual void preprocess()override {}
 		};
-		MYK_REFL(Shader, (Reflective),MYK_REFL_NIL);
+		MYK_REFL(Shader, (Reflective), MYK_REFL_NIL);
 
 		class FloatShader final : public Shader {
 		public:
@@ -51,41 +52,52 @@ namespace Miyuki {
 		MYK_IMPL(FloatShader, "Shader.Float");
 		MYK_REFL(FloatShader, (Shader), (value));
 
-		class RGBShader final: public Shader{
+		class RGBShader final : public Shader {
 		public:
 			MYK_CLASS(RGBShader);
 			RGBShader() {}
-			RGBShader(Spectrum v) :value(v) {}
-			virtual ShadingResult eval(ShadingPoint& p) const override{
-				return value;
-			}
+			RGBShader(Spectrum v) { setValue(v); }
+			virtual ShadingResult eval(ShadingPoint& p) const override {
+				return value * multiplier;
+			} 
 			virtual ShadingResult average()const override {
-				return Vec3f(value);
+				return Vec3f(value * multiplier);
 			}
-			void setValue(Spectrum value) { this->value = value; }
+			void setValue(Spectrum value) {
+				if (value.max() > 1.0f) {
+					multiplier = value.max();
+					value /= multiplier;
+				}
+				this->value = value;
+			}
 			Spectrum getValue()const { return value; }
+			Float getMultiplier()const {
+				return multiplier;
+			}
+			void setMultiplier(Float val) {
+				multiplier = val;
+			}
 		private:
+			Float multiplier = 1.0f;
 			Spectrum value;
 		};
 
-		MYK_IMPL(RGBShader,  "Shader.RGB");
-		MYK_REFL(RGBShader, (Shader), (value));
+		MYK_IMPL(RGBShader, "Shader.RGB");
+		MYK_REFL(RGBShader, (Shader), (value)(multiplier));
 
 		class ImageTextureShader final : public Shader {
+			Spectrum _average;
 		public:
 			MYK_CLASS(ImageTextureShader);
 			File imageFile;
-			IO::Image* texture = nullptr;
+			Texture texture;
 			ImageTextureShader() {}
 			ImageTextureShader(const File& f) :imageFile(f) {}
-			virtual ShadingResult eval(ShadingPoint&) const override {
-				return {};
-			}
-			virtual ShadingResult average()const override {
-				return {};
-			}
+			virtual ShadingResult eval(ShadingPoint&) const override;
+			virtual ShadingResult average()const override;
+			virtual void preprocess()override;
 		};
-		MYK_IMPL(ImageTextureShader,  "Shader.ImageTexture");
+		MYK_IMPL(ImageTextureShader, "Shader.ImageTexture");
 		MYK_REFL(ImageTextureShader, (Shader), (imageFile));
 	}
 }

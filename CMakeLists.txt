@@ -38,6 +38,7 @@ file(GLOB coreSRC
 	"src/core/samplers/*.cc"
 	"src/core/materials/*.cc"
 	"src/core/bsdfs/*.cc"
+	"src/core/shaders/*.cc"
 	"src/core/lights/*.cc"
 	"src/core/cameras/*.cc"
 	"src/core/integrators/*.cc")

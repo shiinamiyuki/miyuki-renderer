@@ -54,7 +54,7 @@ namespace Miyuki {
 
 			virtual Float pdfLi(const Intersection&, const Vec3f& wi) const = 0;			
 		};
-
+		MYK_SAVE_LOAD_TRIVIAL(Light::Type);
 		MYK_REFL(Light, (Reflective), (lightType));
 	}
 }

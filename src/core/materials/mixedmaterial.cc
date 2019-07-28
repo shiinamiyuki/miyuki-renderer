@@ -75,7 +75,7 @@ namespace Miyuki {
 				BSDFLobe lobe = BSDFLobe::EAll
 			)const {
 				Float sum = 0.0f;
-				Float pdf;
+				Float pdf = 0.0f;
 				if (A->match(lobe)) {
 					pdf += A->evaluatePdf(wo, wi, option, lobe);
 					sum += fraction;
