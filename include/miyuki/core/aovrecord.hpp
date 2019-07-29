@@ -4,16 +4,16 @@
 namespace Miyuki {
 	namespace Core {
 		enum AOVType {
-			kDiffuseDirect,
-			kDiffuseIndirect,
-			kGlossyDirect,
-			kGlossyIndirect,
-			kSpecularAndTransmission,
-			kAOVCount
+			EDiffuseDirect,
+			EDiffuseIndirect,
+			EGlossyDirect,
+			EGlossyIndirect,
+			ESpecularAndTransmission,
+			AOVCount
 		};
 		struct AOVRecord {
 			Point2f pFilm;
-			Spectrum aovs[kAOVCount];
+			Spectrum aovs[AOVCount];
 			Spectrum L()const {
 				Spectrum color;
 				for (const auto& i : aovs) {

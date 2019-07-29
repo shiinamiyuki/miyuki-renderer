@@ -25,7 +25,7 @@ namespace Miyuki {
 				film.width(),
 				film.height());
 			ProgressReporter<size_t> reporter(spp, [&](size_t cur, size_t total) {
-				Log::log("Done sample {0}/{1}\n", cur, total);
+				Log::log("Done samples {0}/{1}\n", cur, total);
 				progressiveCallback(context.film);
 			});
 
@@ -36,7 +36,7 @@ namespace Miyuki {
 					auto ctx = CreateSamplingContext(&camera, &sampler, &arenas[threadId],
 						context.film->imageDimension(), idx);
 					Li(context, ctx);
-				
+					ctx.arena->reset();
 				}, TileSize* TileSize);
 				reporter.update();
 			}

@@ -4,6 +4,7 @@
 #include <core/materials/mixedmaterial.h>
 #include <core/materials/diffusematerial.h>
 #include <core/materials/glossymaterial.h>
+#include <core/lights/area.h>
 
 
 namespace Miyuki {
@@ -125,6 +126,41 @@ namespace Miyuki {
 			}
 		};
 
+		void Scene::computeLightDistribution() {
+			lights.clear();		
+
+			for (auto instance : instances) {
+				for (auto& primitive : instance->primitives) {
+					auto mat = primitive.material();
+					if (mat->emission) {
+						if (mat->emission->average().toVec3f().max() >= 1e-3f) {
+							auto light = makeBox<AreaLight>(&primitive);
+							primitive.setLight(light.get());
+							lights.emplace_back(std::move(light));
+						}
+					}
+				}
+			}
+
+			lightPdfMap.clear();
+			lightDistribution = nullptr;
+
+			if (lights.empty()) {
+				return;
+			}
+			std::vector<Float> power(lights.size());
+			for (int i = 0; i < lights.size(); i++) {
+				power[i] = lights[i]->power();
+			}
+			lightDistribution = std::make_unique<Distribution1D>(&power[0], lights.size());
+
+			for (int i = 0; i < lights.size(); i++) {
+				lightPdfMap[lights[i].get()] = lightDistribution->pdf(i);
+			}
+
+			Log::log("Important lights: {} Total power: {}\n", lights.size(), lightDistribution->funcInt);
+		}
+
 		void Scene::commit(Core::Graph& graph) {
 			Visitor visitor(*this);
 			visitor.loadMaterials(graph);
@@ -134,6 +170,7 @@ namespace Miyuki {
 				assignMaterial(i);
 			}
 			visitor.preprocessAll();
+			computeLightDistribution();
 			embreeScene->commit();
 		}
 

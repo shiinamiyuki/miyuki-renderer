@@ -22,7 +22,7 @@ namespace Miyuki {
 	void Log::_LogInternal(const std::string& s) {
 		std::lock_guard<std::mutex> lockGuard(mutex);
 		auto s2 = fmt::format("[{:.3}]  {}", timer.elapsedSeconds(), s);
-		std::cout << s2 << std::endl;
+		std::cout << s2;
 		GUI::LogWindowContent::GetInstance()->append(s2);
 		for (auto& f : handlers) {
 			f(s2);

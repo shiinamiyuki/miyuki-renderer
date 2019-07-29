@@ -3,10 +3,13 @@
 
 #include <core/integrators/samplerintegrator.h>
 
+
 namespace Miyuki {
 	namespace Core {
 		class PathTracerIntegrator : public SamplerIntegrator {
 		public:
+			int maxDepth = 5;
+			int minDepth = 3;
 			MYK_CLASS(PathTracerIntegrator);
 			void Li(const IntegratorContext& context, SamplingContext&)override;
 		};

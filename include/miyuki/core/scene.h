@@ -20,7 +20,8 @@ namespace Miyuki {
 			std::map<std::string, uint32_t> meshToId;
 			std::unique_ptr<IO::ImageLoader> imageLoader;
 			std::unique_ptr<Distribution1D> lightDistribution;
-			std::vector<std::unique_ptr<Light>> lights;
+			std::vector<Box<Light>> lights;
+			std::unordered_map<Light*, Float> lightPdfMap;
 			void loadObjMesh(const std::string& filename);
 
 			void loadObjMeshAndInstantiate(const std::string& filename, const std::string& meshName,
@@ -33,7 +34,18 @@ namespace Miyuki {
 			void postIntersect(Intersection*);
 
 			void assignMaterial(std::shared_ptr<Mesh> mesh);
+
+			void computeLightDistribution();
 		public:
+			const std::unique_ptr<Distribution1D>& getLightDistribution()const {
+				return lightDistribution;
+			}
+			const std::vector<Box<Light>>& getLights()const {
+				return lights;
+			}
+			const std::unordered_map<Light*, Float>& getLightPdfMap()const {
+				return lightPdfMap;
+			}
 			Mesh* getMeshById(uint32_t id) {
 				return instances[id].get();
 			}

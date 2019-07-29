@@ -3,6 +3,8 @@
 #include <miyuki.h>
 #include <core/bsdfs/scatteringfunction.hpp>
 #include <math/transform.h>
+#include <core/samplers/sampler.h>
+#include <core/intersection.hpp> 
 
 namespace Miyuki {
 	namespace Core {
@@ -24,16 +26,17 @@ namespace Miyuki {
 		};
 
 		class Sampler;
-		
+
 		struct BSDFSample : ScatteringFunctionSample {
 			Float uPick; // picking bsdf
 			BSDFLobe lobe; //sampled lobe
 			BSDFSampleOption option;
-			
-			/*	BSDFSample(Intersection& isct, Sampler* sampler, BSDFSampleOption opt)
-					:option(opt), uSample(sampler->get2D()), uPick(sampler->get1D()) {
-					wo = isct.world_to_local(isct.wo);
-				}*/
+
+			BSDFSample(Intersection& isct, Sampler* sampler, BSDFSampleOption opt)
+				:option(opt), uPick(sampler->get1D()) {
+				wo = isct.worldToLocal(isct.wo);
+				u = sampler->get2D();
+			}
 		};
 		class BSDFImpl {
 			BSDFLobe lobe;
@@ -73,7 +76,9 @@ namespace Miyuki {
 		protected:
 			BSDFImpl* impl;
 		public:
-			BSDF(BSDFImpl * impl):impl(impl) {}
+			BSDF(BSDFImpl* impl,
+				const Vec3f& Ng,
+				const CoordinateSystem& localFrame) :impl(impl), Ng(Ng), localFrame(localFrame) {}
 			void sample(
 				BSDFSample& sample
 			)const;
