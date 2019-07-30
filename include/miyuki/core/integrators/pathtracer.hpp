@@ -23,13 +23,14 @@ namespace Miyuki {
 				useNEE(useNEE),
 				aov(ctx.cameraSample.pFilm), ray(ctx.primary) {
 				option = ENoSampleOption;
+				beta = Spectrum(1,1,1);
 			}
 
 			const AOVRecord& getAOV()const {
 				return aov;
 			}
 
-			AOVRecord Li() {
+			AOVRecord trace() {
 				computeLi();
 				return getAOV();
 			}
@@ -50,6 +51,7 @@ namespace Miyuki {
 					primaryLobe = sample.lobe;
 				}
 				specular = sample.lobe & ESpecular;
+				//CHECK(!sample.f.hasNaNs());
 				if (sample.pdf <= 0 || sample.f.isBlack()) {
 					terminate();
 					return;
@@ -65,12 +67,15 @@ namespace Miyuki {
 
 			void nextIntersection() {
 				prevIsct = isct;
-				if (!scene.intersect(ray)) {
+				if (!intersect()) {
 					handleEnvMap();
 					terminate();
 				}
 				if (useNEE && isct.primitive->light() && !specular) {
 					MIS();
+				}
+				else {
+					addLighting(primaryLobe, beta * isct.Le(ray));
 				}
 			}
 
@@ -94,11 +99,11 @@ namespace Miyuki {
 				}
 				addLighting(EDiffuse, beta * isct.Le(ray));
 				while (continuable()) {
-					if (isct.hit())break;
+					if (!isct.hit())break;
 					if (++depth > maxDepth)break;
-					if (!isct.bsdf)break;
+					CHECK(isct.bsdf);
 
-					if (useNee) {
+					if (useNEE) {
 						lightSampling();
 						if (!continuable())break;
 					}
@@ -107,6 +112,7 @@ namespace Miyuki {
 					if (!continuable())break;
 
 					nextIntersection(); 
+					if (!continuable())break;
 
 					russianRoulette(); 
 
@@ -120,9 +126,7 @@ namespace Miyuki {
 				material = isct.primitive->material();
 				if (!material)
 					return false;
-				BSDFCreationContext bsdfCtx;
-				bsdfCtx.arena = ctx.arena;
-				bsdfCtx.shadingPoint = ShadingPoint(isct.textureUV);
+				BSDFCreationContext bsdfCtx(ShadingPoint(isct.textureUV), ctx.arena);
 				auto impl = material->createBSDF(bsdfCtx);
 				isct.bsdf = ARENA_ALLOC(*ctx.arena, BSDF)(impl, isct.Ng, isct.localFrame);
 				return isct.bsdf != nullptr;

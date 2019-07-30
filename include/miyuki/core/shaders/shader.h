@@ -30,6 +30,17 @@ namespace Miyuki {
 			virtual ShadingResult eval(ShadingPoint&) const = 0;
 			virtual ShadingResult average()const = 0;
 			virtual void preprocess()override {}
+			static ShadingResult evaluate(const Shader* shader, ShadingPoint& p) {
+				if (shader) {
+					return shader->eval(p);
+				}
+				else {
+					return ShadingResult{};
+				}
+			}
+			static ShadingResult evaluate(const Box<Shader>& shader, ShadingPoint& p) {
+				return evaluate(shader.get(), p);
+			}
 		};
 		MYK_REFL(Shader, (Reflective), MYK_REFL_NIL);
 
@@ -45,7 +56,7 @@ namespace Miyuki {
 				return Vec3f(value);
 			}
 			void setValue(Float value) { this->value = value; }
-			Float getValue()const { return value; }
+			Float getValue()const { return value; }			
 		private:
 			Float value = 0;
 		};

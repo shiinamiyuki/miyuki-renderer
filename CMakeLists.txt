@@ -47,5 +47,5 @@ add_executable (mykgui "src/main/main.cc"
 	${thirdpartySRC}
 	${guiSRC}
 	${coreSRC})
-
+set_target_properties(mykgui PROPERTIES LINK_FLAGS "/PROFILE")
 # TODO: Add tests and install targets if needed.

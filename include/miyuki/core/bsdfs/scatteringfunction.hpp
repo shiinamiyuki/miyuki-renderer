@@ -13,7 +13,7 @@ namespace Miyuki {
 			Point2f u;
 			Vec3f wo;
 			Vec3f wi; // sampled direction
-			Float pdf; // pdf of the sampled direction
+			Float pdf = 0; // pdf of the sampled direction
 			Spectrum f; // sampled bsdf
 		};
 

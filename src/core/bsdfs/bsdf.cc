@@ -5,9 +5,9 @@ namespace Miyuki {
 		void BSDF::sample(
 			BSDFSample& sample
 		)const {
-			if (impl->match(sample.lobe)) {
+			//if (impl->match(sample.lobe)) {
 				impl->sample(sample);
-			}
+			//}
 		}
 
 		// evaluate bsdf according to wo, wi

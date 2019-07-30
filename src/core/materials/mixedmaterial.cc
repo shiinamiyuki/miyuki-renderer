@@ -9,7 +9,7 @@ namespace Miyuki {
 			Float fraction;
 
 			void combine(Float frac, BSDFSample& sample, BSDFImpl* first, BSDFImpl* other)const {
-				if (first->isDelta()) {
+				if (first->isDelta() || other->isDelta()) {
 					sample.f *= frac;
 					sample.pdf *= frac;
 				}
@@ -27,6 +27,7 @@ namespace Miyuki {
 			virtual void sample(
 				BSDFSample& sample
 			)const {
+				//A->sample(sample);
 				BSDFImpl* first, * second;
 				Float frac;
 				if (sample.uPick < fraction) {
@@ -42,7 +43,7 @@ namespace Miyuki {
 					frac = 1.0f - fraction;
 				}
 				first->sample(sample);
-				if (B->match(sample.lobe)) {
+				if (second->match(sample.lobe)) {
 					combine(frac, sample, first, second);
 				}
 			}
@@ -89,7 +90,7 @@ namespace Miyuki {
 		};
 
 		BSDFImpl* MixedMaterial::createBSDF(BSDFCreationContext& ctx)const {
-			auto frac = fraction->eval(ctx.shadingPoint).toFloat();
+			auto frac = Shader::evaluate(fraction, ctx.shadingPoint).toFloat();
 			auto A = matA->createBSDF(ctx); 
 			auto B = matB->createBSDF(ctx);
 			return ctx.alloc<MixedBSDFImpl>(frac, A, B);

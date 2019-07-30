@@ -13,11 +13,12 @@ namespace Miyuki {
 			MemoryArena* arena;
 			ShadingPoint shadingPoint;
 			template<class T, class... Args >
-			T* alloc(Args&&... args) {
-				T * p =  (T*)arena->alloc(sizeof(T));
+			T* alloc(Args&& ... args) {
+				T* p = (T*)arena->alloc(sizeof(T));
 				new (p) T(args...);
 				return p;
 			}
+			BSDFCreationContext(const ShadingPoint& p, MemoryArena* arena) :shadingPoint(p), arena(arena) {}
 		};
 
 		class Material : public Reflective {

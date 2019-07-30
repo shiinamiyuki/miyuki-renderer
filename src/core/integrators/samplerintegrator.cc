@@ -2,9 +2,26 @@
 #include <utils/thread.h>
 #include <core/progress.h>
 #include <utils/log.h>
+#include <hilbert/hilbert_curve.hpp>
 
 namespace Miyuki {
 	namespace Core {
+		void HilbertMapping(const Point2i& nTiles, std::vector<Point2f>& hilbertMapping) {
+			int M = std::ceil(std::log2(std::max(nTiles.x(), nTiles.y())));
+
+			for (int i = 0; i < pow(2, M + M); i++) {
+				int tx, ty;
+				::d2xy(M, i, tx, ty);
+				if (tx >= nTiles.x() || ty >= nTiles.y())
+					continue;
+				hilbertMapping.emplace_back(tx, ty);
+			}
+			uint32_t mid = (hilbertMapping.size() / 2);
+			for (int i = 0; i < mid / 2; i++) {
+				std::swap(hilbertMapping[i], hilbertMapping[mid - i - 1]);
+			}
+		}
+
 		void SamplerIntegrator::renderProgressive(
 			const IntegratorContext& context,
 			ProgressiveRenderCallback progressiveCallback) {
@@ -19,6 +36,9 @@ namespace Miyuki {
 			for (auto& s:samplers) {
 				s = std::move(sampler.clone());
 			}
+			Point2i nTiles = film.imageDimension() / TileSize + Point2i{ 1, 1 };
+			std::vector<Point2f> hilbertMapping;
+			HilbertMapping(nTiles, hilbertMapping);
 			Log::log("Started {0}, total {1} samples, resolution {2}x{3}\n",
 				typeInfo()->name(),
 				spp,
@@ -31,13 +51,27 @@ namespace Miyuki {
 
 			for (size_t iter = 0; iter < spp && !_aborted; iter++) {
 				
-				Thread::ParallelFor2D(context.film->imageDimension(), [&](const Point2i& idx, uint32_t threadId) {				
-					if (_aborted)return;
-					auto ctx = CreateSamplingContext(&camera, &sampler, &arenas[threadId],
-						context.film->imageDimension(), idx);
-					Li(context, ctx);
-					ctx.arena->reset();
-				}, TileSize* TileSize);
+				Thread::ParallelFor(0u, hilbertMapping.size(), [&](uint32_t idx, uint32_t threadId) {
+					int tx, ty;
+					tx = hilbertMapping[idx].x();
+					ty = hilbertMapping[idx].y();
+					Point2i tilePos(tx, ty);
+					tilePos *= TileSize;
+					Bound2i tileBound(tilePos, tilePos + Point2i{ TileSize, TileSize });
+					for (int i = 0; i < TileSize; i++) {
+						for (int j = 0; j < TileSize; j++) {
+							int x = tx * TileSize + i;
+							int y = ty * TileSize + j;
+							if (x >= film.width() || y >= film.height())
+								continue;
+							auto raster = Point2i{ x, y };
+							SamplingContext ctx = CreateSamplingContext(&camera,
+								samplers[threadId].get(), &arenas[threadId], film.imageDimension(), raster);
+							Li(context, ctx);
+						}
+					}
+					arenas[threadId].reset();					
+				});
 				reporter.update();
 			}
 			context.resultCallback(context.film);

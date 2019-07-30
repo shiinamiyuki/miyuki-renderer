@@ -4,20 +4,22 @@
 namespace Miyuki {
 	namespace Core {
 		class DiffuseBSDFImpl : public BSDFImpl {
-			Float roughness;
-			Spectrum R;
+			const Float roughness;
+			const Spectrum R;
 		public:
-			DiffuseBSDFImpl(Float roughness, Spectrum R) :BSDFImpl(BSDFLobe(EReflection | EDiffuse)) {}
+			DiffuseBSDFImpl(Float roughness, Spectrum R)
+				:BSDFImpl(BSDFLobe(EReflection | EDiffuse)), R(R), roughness(roughness) {}
 
 			virtual void sample(
 				BSDFSample& sample
 			)const override {
-				if (roughness >= 0.0f) {
-					LambertianReflection(R).sample(sample);
-				}
-				else {
+				if (roughness >= 1e-6f) {
 					OrenNayarReflection(R, roughness).sample(sample);
 				}
+				else {
+					LambertianReflection(R).sample(sample);
+				}
+				sample.lobe = getLobe();
 			}
 
 			// evaluate bsdf according to wo, wi
@@ -27,8 +29,9 @@ namespace Miyuki {
 				BSDFSampleOption option,
 				BSDFLobe lobe = BSDFLobe::EAll
 			)const override {
-				if (roughness >= 0.0f) {
-					return LambertianReflection(R).evaluate(wo,wi);
+
+				if (roughness < 0.0f) {
+					return LambertianReflection(R).evaluate(wo, wi);
 				}
 				else {
 					return OrenNayarReflection(R, roughness).evaluate(wo, wi);
@@ -42,7 +45,8 @@ namespace Miyuki {
 				BSDFSampleOption option,
 				BSDFLobe lobe = BSDFLobe::EAll
 			)const override {
-				if (roughness >= 0.0f) {
+
+				if (roughness < 0.0f) {
 					return LambertianReflection(R).evaluatePdf(wo, wi);
 				}
 				else {
@@ -52,8 +56,8 @@ namespace Miyuki {
 		};
 
 		BSDFImpl* DiffuseMaterial::createBSDF(BSDFCreationContext& ctx)const {
-			Float _roughness = roughness->eval(ctx.shadingPoint).toFloat();
-			Spectrum R = color->eval(ctx.shadingPoint).toVec3f();
+			Float _roughness = Shader::evaluate(roughness, ctx.shadingPoint).toFloat();
+			Spectrum R = Shader::evaluate(color, ctx.shadingPoint).toVec3f();
 			auto bsdf = ctx.alloc<DiffuseBSDFImpl>(_roughness, R);
 			return bsdf;
 		}

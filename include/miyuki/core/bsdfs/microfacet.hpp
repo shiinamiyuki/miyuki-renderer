@@ -81,11 +81,10 @@ namespace Miyuki {
 			union {
 				BeckmannDistribution beckmann;
 			};
-			MicrofacetWrapper(MicrofacetType model, Float alpha) {
+			MicrofacetWrapper(MicrofacetType model, Float alpha):model(model) {
 				switch (model) {
 				case EBeckmann:
 					beckmann = BeckmannDistribution(alpha);
-					this->model = model;
 					break;
 				}
 			}

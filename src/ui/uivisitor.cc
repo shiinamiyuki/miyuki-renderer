@@ -249,6 +249,12 @@ namespace Miyuki {
 				if (auto r = GetInputWithSignal("samples", integrator->spp)) {
 					integrator->spp = r.value();
 				}
+				if (auto r = GetInputWithSignal("min depth", integrator->minDepth)) {
+					integrator->minDepth = r.value();
+				}
+				if (auto r = GetInputWithSignal("max depth", integrator->maxDepth)) {
+					integrator->maxDepth = r.value();
+				}
 			});
 			visit<Core::FilmConfig>([=](Core::FilmConfig* config) {
 				if (auto r = GetInputWithSignal("scale", 100 * config->scale)) {

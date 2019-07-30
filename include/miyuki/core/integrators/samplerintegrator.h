@@ -21,6 +21,8 @@ namespace Miyuki {
 			std::atomic<bool> _aborted;
 		};
 		MYK_REFL(SamplerIntegrator, (ProgressiveRenderer), (spp));
+
+		void HilbertMapping(const Point2i& nTiles, std::vector<Point2f>& hilbertMapping);
 	}
 }
 
