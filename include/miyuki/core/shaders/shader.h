@@ -20,9 +20,50 @@ namespace Miyuki {
 				return value;
 			}
 			Float toFloat()const { return value[0]; }
+			ShadingResult operator + (const Vec3f k)const {
+				return value + k;
+			}
+			ShadingResult operator - (const Vec3f k)const {
+				return value - k;
+			}
+			ShadingResult operator * (Float k)const {
+				return value * k;
+			}
+			ShadingResult operator / (Float k)const {
+				return value / k;
+			}
+			ShadingResult operator + (const ShadingResult k)const {
+				return value + k.value;
+			}
+			ShadingResult operator - (const ShadingResult k)const {
+				return value - k.value;
+			}
+			ShadingResult operator * (const ShadingResult& k)const {
+				return value * k.value;
+			}
+			ShadingResult operator / (const ShadingResult& k)const {
+				return value / k.value;
+			}
 		private:
+			friend ShadingResult operator + (Float k, const ShadingResult& r);
+			friend ShadingResult operator - (Float k, const ShadingResult& r);
+			friend ShadingResult operator * (Float k, const ShadingResult& r);
+			friend ShadingResult operator / (Float k, const ShadingResult& r);
 			Vec3f value;
 		};
+		inline ShadingResult operator + (Float k, const ShadingResult& r) {
+			return ShadingResult(Vec3f(k) + r.value);
+		}
+		inline ShadingResult operator - (Float k, const ShadingResult& r) {
+			return ShadingResult(Vec3f(k) - r.value);
+		}
+		inline ShadingResult operator * (Float k, const ShadingResult& r) {
+			return ShadingResult(Vec3f(k) *  r.value);
+		}
+		inline ShadingResult operator / (Float k, const ShadingResult& r) {
+			return ShadingResult(Vec3f(k) / r.value);
+		}
+
 
 		class Shader : public Reflective, public Preprocessable {
 		public:
@@ -56,7 +97,7 @@ namespace Miyuki {
 				return Vec3f(value);
 			}
 			void setValue(Float value) { this->value = value; }
-			Float getValue()const { return value; }			
+			Float getValue()const { return value; }
 		private:
 			Float value = 0;
 		};
@@ -70,7 +111,7 @@ namespace Miyuki {
 			RGBShader(Spectrum v) { setValue(v); }
 			virtual ShadingResult eval(ShadingPoint& p) const override {
 				return value * multiplier;
-			} 
+			}
 			virtual ShadingResult average()const override {
 				return Vec3f(value * multiplier);
 			}
@@ -110,5 +151,30 @@ namespace Miyuki {
 		};
 		MYK_IMPL(ImageTextureShader, "Shader.ImageTexture");
 		MYK_REFL(ImageTextureShader, (Shader), (imageFile));
+
+		class MixedShader final :public Shader {
+		public:
+			Box<Shader> fraction;
+			Box<Shader> shaderA, shaderB;
+			MYK_CLASS(MixedShader);
+			virtual ShadingResult eval(ShadingPoint& p) const override {
+				auto frac = Shader::evaluate(fraction, p);
+				return Shader::evaluate(shaderA, p) * frac + Shader::evaluate(shaderB, p) * (1.0f - frac);
+			}
+			virtual ShadingResult average()const override {
+				ShadingResult r;
+				auto frac = fraction ? fraction->average() : ShadingResult();
+				if (shaderA) {
+					r = r + shaderA->average() * frac;
+				}
+				if (shaderB) {
+					r = r + shaderB->average() * (1.0f - frac);
+				}
+				return r;
+			}
+		};
+		MYK_IMPL(MixedShader, "Shader.Mixed");
+		MYK_REFL(MixedShader, (Shader), (fraction)(shaderA)(shaderB));
+
 	}
 }

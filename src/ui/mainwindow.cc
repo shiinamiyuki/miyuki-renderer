@@ -300,7 +300,7 @@ void main()
 				explorerWindow();
 				attriubuteEditorWindow();
 			}
-			catch (std::runtime_error& e) {
+			catch (std::exception& e) {
 				Log::log("Unable to update ui dure to {}\n", e.what());
 			}
 		}

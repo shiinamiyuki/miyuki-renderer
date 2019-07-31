@@ -164,6 +164,19 @@ namespace Miyuki {
 			});
 			visit<Core::ImageTextureShader>([=](Core::ImageTextureShader* shader) {
 				Text().name(shader->imageFile.path.string()).show();
+				Button().name("Select").with(true, [=]() {
+					auto filename = IO::GetOpenFileNameWithDialog("Image\0 *.png;*.jpg\0Any File\0 * .*");
+					if (!filename.empty()) {
+						shader->imageFile = File(filename);
+					}
+				}).show();
+			});
+			visit<Core::MixedShader>([=](Core::MixedShader* shader) {
+				visitShaderAndSelect(shader->fraction, "fraction");
+				visitShaderAndSelect(shader->shaderA, "shader A");
+				Separator().show();
+				visitShaderAndSelect(shader->shaderB, "shader  B");
+				Separator().show();
 			});
 			visit<Core::GlossyMaterial>([=](Core::GlossyMaterial* node) {
 				visitShaderAndSelect(node->color, "color");
