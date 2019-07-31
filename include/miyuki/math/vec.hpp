@@ -2,8 +2,8 @@
 // Created by Shiina Miyuki on 2019/2/28.
 //
 
-#ifndef MIYUKI_GEOMETRY_H
-#define MIYUKI_GEOMETRY_H
+#ifndef MIYUKI_VEC_HPP
+#define MIYUKI_VEC_HPP
 
 #include "miyuki.h"
 
@@ -303,10 +303,6 @@ namespace Miyuki {
 
 		static Float absDot(const Vec3f & a, const Vec3f & b) {
 			return fabs(dot(a, b));
-		}
-
-		static Float matDot(const Vec3f & a, const Vec3f & b) {
-			return a.x()* b.x() + a.y() * b.y() + a.z() * b.z() + a.w() * b.w();
 		}
 
 		static Vec3f cross(const Vec3f & v1, const Vec3f & v2) {

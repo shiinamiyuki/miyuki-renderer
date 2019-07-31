@@ -79,11 +79,11 @@ Matrix4x4 Matrix4x4::operator/(const Matrix4x4& rhs) const {
 	return m;
 }
 
-Vec3f Matrix4x4::mult(const Vec3f& rhs) const {
-	Vec3f v = Vec3f{ Vec3f::matDot(m[0], rhs),
-					Vec3f::matDot(m[1], rhs),
-					Vec3f::matDot(m[2], rhs) };
-	v.w() = Vec3f::matDot(m[3], rhs);
+Vec4f Matrix4x4::mult(const Vec4f& rhs) const {
+	Vec4f v = Vec4f( Vec4f::dot(m[0], rhs),
+					Vec4f::dot(m[1], rhs),
+					Vec4f::dot(m[2], rhs),
+					Vec3f::dot(m[3], rhs) );
 	return v;
 }
 
@@ -127,7 +127,7 @@ Matrix4x4 Matrix4x4::mult(const Matrix4x4& rhs) const {
 	return m;
 }
 
-Matrix4x4::Matrix4x4(const Vec3f& r1, const Vec3f& r2, const Vec3f& r3, const Vec3f& r4) {
+Matrix4x4::Matrix4x4(const Vec4f& r1, const Vec4f& r2, const Vec4f& r3, const Vec4f& r4) {
 	m[0] = r1;
 	m[1] = r2;
 	m[2] = r3;
@@ -135,7 +135,7 @@ Matrix4x4::Matrix4x4(const Vec3f& r1, const Vec3f& r2, const Vec3f& r3, const Ve
 }
 
 bool Matrix4x4::inverse(const Matrix4x4& in, Matrix4x4& out) {
-	double inv[16], det;
+	float inv[16], det;
 	int i;
 	auto& m = in;
 	inv[0] = m[5] * m[10] * m[15] -

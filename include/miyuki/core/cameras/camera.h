@@ -30,8 +30,8 @@ namespace Miyuki {
 					RayDifferential* ray, Float* weight) = 0;
 
 			virtual void preprocess() {  }	
-			virtual Vec3f cameraToWorld(Vec3f w) const = 0;
-			virtual Vec3f worldToCamera(Vec3f w) const = 0;
+			virtual Vec4f cameraToWorld(const Vec4f& w) const = 0;
+			virtual Vec4f worldToCamera(const Vec4f& w) const = 0;
 			virtual Box<Camera> clone()const = 0;
 
 			Vec3f viewpoint;
@@ -50,16 +50,12 @@ namespace Miyuki {
 			MYK_CLASS(PerspectiveCamera);
 			virtual void preprocess()override;
 
-			virtual Vec3f cameraToWorld(Vec3f w) const override {
-				w.w() = 1;
-				w = rotationMatrix.mult(w);
-				return w;
+			virtual Vec4f cameraToWorld(const Vec4f& w) const override {
+				return rotationMatrix.mult(w);
 			}
 
-			virtual Vec3f worldToCamera(Vec3f w) const override {
-				w.w() = 1;
-				w = invMatrix.mult(w);
-				return w;
+			virtual Vec4f worldToCamera(const Vec4f& w) const override {
+				return invMatrix.mult(w);
 			}
 			virtual Float generateRay(Sampler& sampler,
 				const Point2i& filmDimension,

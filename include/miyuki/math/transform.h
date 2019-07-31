@@ -6,16 +6,16 @@
 #define MIYUKI_TRANSFORM_H
 
 #include "miyuki.h"
-#include "vec.hpp"
+#include "vec4.hpp"
 #include "func.h"
 #include <reflection.h>
 namespace Miyuki {
     struct Matrix4x4 {
-        Vec3f m[4];
+        Vec4f m[4];
 
         Matrix4x4();
 
-        Matrix4x4(const Vec3f &r1, const Vec3f &r2, const Vec3f &r3, const Vec3f &r4);
+        Matrix4x4(const Vec4f&r1, const Vec4f&r2, const Vec4f&r3, const Vec4f&r4);
 
         Matrix4x4(Float _m[4][4]);
 
@@ -35,7 +35,7 @@ namespace Miyuki {
 
         Matrix4x4 operator/(const Matrix4x4 &rhs) const;
 
-        Vec3f mult(const Vec3f &rhs) const;
+		Vec4f mult(const Vec4f& rhs) const;
 
         Matrix4x4 mult(const Matrix4x4 &rhs) const;
 

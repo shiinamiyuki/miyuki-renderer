@@ -45,10 +45,10 @@ namespace Miyuki {
 			else {
 				sample->pLens = {};
 			}
-			ro = cameraToWorld(ro);
+			ro = cameraToWorld(Vec4f(ro, 1));
 			ro += viewpoint;
 
-			rd = cameraToWorld(rd).normalized();
+			rd = cameraToWorld(Vec4f(rd, 1)).normalized();
 			*ray = Ray(ro, rd);
 			return 1;
 		}
