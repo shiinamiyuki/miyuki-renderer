@@ -1,6 +1,6 @@
 
 
-# Miyuki Renderer (Refactoring)
+# Miyuki Renderer
 
 ```
         _             _    _     __                _
