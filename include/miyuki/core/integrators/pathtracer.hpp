@@ -36,33 +36,80 @@ namespace Miyuki {
 			}
 
 		protected:
-			void handleEnvMap() {
+			void handleEnvMap() {				
 
 			}
 
 			void lightSampling() {
+				auto lightIdx = scene.getLightDistribution().sampleInt(ctx.sampler->get1D());
+				auto light = scene.getLights()[lightIdx].get();
 
+				LightSamplingRecord record;
+				VisibilityTester tester;
+				record.u = ctx.sampler->get2D();
+				light->sampleLi(isct, record, &tester);
+				Float lightPdf = scene.getLightDistribution().pdf(lightIdx) * record.pdf;
+				if (record.pdf > 0 && !record.Le.isBlack()) {
+					// evaluate BSDF
+					auto wo = isct.worldToLocal(isct.wo);
+					auto wi = isct.worldToLocal(record.wi);
+					Float cosTheta = Vec3f::absDot(isct.Ns, record.wi);
+					Spectrum f = isct.bsdf->evaluate(wo, wi, option) * cosTheta;
+
+					// Visible and non-zero BSDF
+					if (!f.isBlack() && tester.visible(scene)) {
+						Spectrum Ld = record.Le / lightPdf;
+						auto scatteringPdf = isct.bsdf->evaluatePdf(wo, wi, option);
+						Float weight;
+						if (!light->isDelta()) {
+							// power heurisitcs
+							weight = PowerHeuristics(lightPdf, scatteringPdf);
+						}
+						else {
+							weight = 1.0f;
+						}
+						if (depth == 1) {
+							static const BSDFLobe lobes[] = { BSDFLobe::EDiffuse, BSDFLobe::EGlossy };
+							Spectrum sum;
+							for (const auto lobe : lobes) {
+								auto fLobe = isct.bsdf->evaluate(wo, wi, option, lobe) * cosTheta;
+								sum += fLobe;
+								addLighting(lobe, beta * fLobe * Ld * weight);
+							}
+							addLighting(BSDFLobe::ESpecular, beta * (f - sum) * Ld * weight);
+						}
+						else {
+							addLighting(primaryLobe, beta * f * Ld * weight);
+						}
+					}
+				}
 			}
 
 			void BSDFSampling() {
-				BSDFSample sample(isct, ctx.sampler, option);
+				sample = BSDFSample(isct, ctx.sampler, option);
 				isct.bsdf->sample(sample);
 				if (depth == 1) {
 					primaryLobe = sample.lobe;
 				}
 				specular = sample.lobe & ESpecular;
-				//CHECK(!sample.f.hasNaNs());
 				if (sample.pdf <= 0 || sample.f.isBlack()) {
 					terminate();
 					return;
 				}
-				Vec3f wi = isct.localToWord(sample.wi);
+				wi = isct.localToWord(sample.wi);
 				ray = isct.spawnRay(wi);
 				beta *= sample.f * Vec3f::absDot(isct.Ns, wi) / sample.pdf;
 			}
 
 			void MIS() {
-
+				auto light = isct.primitive->light();
+				auto iter = scene.getLightPdfMap().find(light);
+				Assert(iter != scene.getLightPdfMap().end());
+				auto pdfLightSelect = iter->second;
+				auto pdfLi = light->pdfLi(prevIsct, wi);
+				auto lightPdf = pdfLightSelect * pdfLi;
+				auto weight = PowerHeuristics(sample.pdf, lightPdf);
+				addLighting(primaryLobe, beta * isct.Le(ray) * weight);
 			}
 
 			void nextIntersection() {
@@ -163,6 +210,8 @@ namespace Miyuki {
 				_continue = false;
 			}
 		private:
+			BSDFSample sample;
+			Vec3f wi;
 			bool specular = false;
 			BSDFLobe primaryLobe;
 			Ray ray;

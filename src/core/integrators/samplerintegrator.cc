@@ -9,16 +9,16 @@ namespace Miyuki {
 		void HilbertMapping(const Point2i& nTiles, std::vector<Point2f>& hilbertMapping) {
 			int M = std::ceil(std::log2(std::max(nTiles.x(), nTiles.y())));
 
-			for (int i = 0; i < pow(2, M + M); i++) {
+			for (size_t i = 0; i < pow(2, M + M); i++) {
 				int tx, ty;
 				::d2xy(M, i, tx, ty);
 				if (tx >= nTiles.x() || ty >= nTiles.y())
 					continue;
 				hilbertMapping.emplace_back(tx, ty);
 			}
-			uint32_t mid = (hilbertMapping.size() / 2);
-			for (int i = 0; i < mid / 2; i++) {
-				std::swap(hilbertMapping[i], hilbertMapping[mid - i - 1]);
+			size_t mid = (hilbertMapping.size() / 2);
+			for (size_t i = 0; i < mid / 2; i++) {
+				std::swap(hilbertMapping[i], hilbertMapping[mid - i - 1ULL]);
 			}
 		}
 

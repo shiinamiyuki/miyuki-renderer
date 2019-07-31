@@ -11,6 +11,7 @@ namespace Miyuki {
 				:BSDFImpl(BSDFLobe(EReflection | EDiffuse)), R(R), roughness(roughness) {}
 
 			virtual void sample(
+				BSDFEvaluationContext& ctx,
 				BSDFSample& sample
 			)const override {
 				if (roughness >= 1e-6f) {
@@ -20,16 +21,15 @@ namespace Miyuki {
 					LambertianReflection(R).sample(sample);
 				}
 				sample.lobe = getLobe();
+				ctx.assignWi(sample.wi);
 			}
 
 			// evaluate bsdf according to wo, wi
 			virtual Spectrum evaluate(
-				const Vec3f& wo,
-				const Vec3f& wi,
-				BSDFSampleOption option,
-				BSDFLobe lobe = BSDFLobe::EAll
+				const BSDFEvaluationContext& ctx
 			)const override {
-
+				auto& wo = ctx.wo();
+				auto& wi = ctx.wi();
 				if (roughness < 0.0f) {
 					return LambertianReflection(R).evaluate(wo, wi);
 				}
@@ -40,12 +40,10 @@ namespace Miyuki {
 
 			// evaluate pdf according to wo, wi
 			virtual Float evaluatePdf(
-				const Vec3f& wo,
-				const Vec3f& wi,
-				BSDFSampleOption option,
-				BSDFLobe lobe = BSDFLobe::EAll
+				const BSDFEvaluationContext& ctx
 			)const override {
-
+				auto& wo = ctx.wo();
+				auto& wi = ctx.wi();
 				if (roughness < 0.0f) {
 					return LambertianReflection(R).evaluatePdf(wo, wi);
 				}

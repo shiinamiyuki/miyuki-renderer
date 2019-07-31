@@ -17,6 +17,7 @@ namespace Miyuki {
 
 			}
 			virtual void sample(
+				BSDFEvaluationContext& ctx,
 				BSDFSample& sample
 			)const override {
 
@@ -27,19 +28,19 @@ namespace Miyuki {
 				}
 				else {
 					sample.pdf = microfacet.evaluatePdf(wh) / (4.0f * Vec3f::dot(sample.wo, wh));
-					sample.f = evaluate(sample.wo, sample.wi, sample.option, sample.lobe);
+					sample.f = evaluate(ctx);
 					//CHECK(!sample.f.hasNaNs());
 				}
 				sample.lobe = getLobe();
+				ctx.assignWi(sample.wi);
 			}
 
 			// evaluate bsdf according to wo, wi
 			virtual Spectrum evaluate(
-				const Vec3f& wo,
-				const Vec3f& wi,
-				BSDFSampleOption option,
-				BSDFLobe lobe = BSDFLobe::EAll
+				const BSDFEvaluationContext& ctx
 			)const override {
+				auto& wo = ctx.wo();
+				auto& wi = ctx.wi();
 				Float cosThetaO = AbsCosTheta(wo);
 				Float cosThetaI = AbsCosTheta(wi);
 				auto wh = (wo + wi);
@@ -55,11 +56,10 @@ namespace Miyuki {
 
 			// evaluate pdf according to wo, wi
 			virtual Float evaluatePdf(
-				const Vec3f& wo,
-				const Vec3f& wi,
-				BSDFSampleOption option,
-				BSDFLobe lobe = BSDFLobe::EAll
+				const BSDFEvaluationContext& ctx
 			) const override {
+				auto& wo = ctx.wo();
+				auto& wi = ctx.wi();
 				if (!SameHemisphere(wo, wi))return 0.0f;
 				auto wh = (wo + wi).normalized();
 				return microfacet.evaluatePdf(wh) / (4.0f * Vec3f::dot(wo, wh));
@@ -71,30 +71,26 @@ namespace Miyuki {
 		public:
 			SpecularBSDFImpl(const Vec3f& R) :R(R), BSDFImpl(BSDFLobe(ESpecular | EReflection)) {}
 			virtual void sample(
+				BSDFEvaluationContext& ctx,
 				BSDFSample& sample
 			)const override {
 				sample.wi = Reflect(sample.wo, Vec3f(0, 0, 1));
 				sample.f = R / AbsCosTheta(sample.wi);
 				sample.pdf = 1.0f;
 				sample.lobe = getLobe();
+				ctx.assignWi(sample.wi);
 			}
 
 			// evaluate bsdf according to wo, wi
 			virtual Spectrum evaluate(
-				const Vec3f& wo,
-				const Vec3f& wi,
-				BSDFSampleOption option,
-				BSDFLobe lobe = BSDFLobe::EAll
+				const BSDFEvaluationContext& ctx
 			)const override {
 				return {};
 			}
 
 			// evaluate pdf according to wo, wi
 			virtual Float evaluatePdf(
-				const Vec3f& wo,
-				const Vec3f& wi,
-				BSDFSampleOption option,
-				BSDFLobe lobe = BSDFLobe::EAll
+				const BSDFEvaluationContext& ctx
 			) const override {
 				return 0.0f;
 			}

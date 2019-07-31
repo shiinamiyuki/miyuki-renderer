@@ -37,8 +37,8 @@ namespace Miyuki {
 
 			void computeLightDistribution();
 		public:
-			const std::unique_ptr<Distribution1D>& getLightDistribution()const {
-				return lightDistribution;
+			const Distribution1D& getLightDistribution()const {
+				return *lightDistribution;
 			}
 			const std::vector<Box<Light>>& getLights()const {
 				return lights;

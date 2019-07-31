@@ -9,7 +9,7 @@ namespace Miyuki {
 			auto& film = *integratorContext.film;
 			auto& scene = *integratorContext.scene;
 			auto& sampler = *integratorContext.sampler;
-			PathTracer pathtracer(scene, ctx, minDepth, maxDepth, false);
+			PathTracer pathtracer(scene, ctx, minDepth, maxDepth, true);
 			auto record = pathtracer.trace();
 			
 			film.addSample(ctx.cameraSample.pFilm, removeNaNs(record.L()));
