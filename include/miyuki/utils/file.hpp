@@ -19,13 +19,16 @@ namespace Miyuki {
 		cxx::filesystem::path fullpath()const {
 			return cxx::filesystem::absolute(path);
 		}
+		cxx::filesystem::path relativePath()const {
+			return cxx::filesystem::relative(path);
+		}
 	};
 
 	inline void from_json(const json& j, File& file) {
 		file.path = j.get<std::string>();
 	}
 	inline void to_json(json& j, const File& file) {
-		j = file.path.string();
+		j = file.relativePath().string();
 	}
 	namespace Reflection {
 		MYK_SAVE_LOAD_TRIVIAL(File)
