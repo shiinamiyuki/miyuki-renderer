@@ -13,6 +13,8 @@ namespace Miyuki {
 			void abort()override {
 				_aborted = true;
 			}
+			virtual void renderStart(const IntegratorContext& context) {}
+			virtual void renderEnd(const IntegratorContext& context) {}
 			virtual void Li(const IntegratorContext& context, SamplingContext&) = 0;
 			void renderProgressive(
 				const IntegratorContext& context,

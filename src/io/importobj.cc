@@ -56,6 +56,7 @@ namespace Miyuki {
 					auto kd = Reflection::makeBox<Core::DiffuseMaterial>();
 					auto ks = Reflection::makeBox<Core::GlossyMaterial>();
 					Box<Core::Shader> ka = Reflection::makeBox<Core::FloatShader>(0);
+					Float fraction = -1.0f;
 					i++;
 					while (i < lines.size()) {
 						if (lines[i].empty()) { i++; continue; }
@@ -72,16 +73,24 @@ namespace Miyuki {
 							Float alpha = std::sqrt(2 / (2 + Ns));							
 							ks->roughness = Reflection::makeBox<Core::FloatShader>(alpha);
 						}
+						else if (tokens[0] == "Pr") {
+							auto Pr = std::stof(tokens[1]);
+							Float alpha = Pr ;
+							ks->roughness = Reflection::makeBox<Core::FloatShader>(alpha);
+						}
 						else if (tokens[0] == "Ks") {
 							if (!hasMapKs) {
 								Vec3f v = __Internal::ParseFloat3(tokens);
 								ks->color = Reflection::makeBox<Core::RGBShader>(v);
+								if(fraction < 0.0f)
+									fraction = 1 - v.max(); 
 							}
 						}
 						else if (tokens[0] == "Kd") {
 							if (!hasMapKd) {
 								Vec3f v = __Internal::ParseFloat3(tokens);
 								kd->color = Reflection::makeBox<Core::RGBShader>(v);
+								fraction = v.max(); 
 							}
 						}
 						else if (tokens[0] == "Ke") {
@@ -100,6 +109,9 @@ namespace Miyuki {
 							auto s = cxx::filesystem::absolute(__Internal::ParseFilename(tokens));
 							kd->color = Reflection::makeBox<Core::ImageTextureShader>(s);
 							hasMapKd = true;
+							if (fraction == 0.0f) {
+								fraction = 1.0f;
+							}
 						}
 						else if (tokens[0] == "map_Ke") {
 							auto s = cxx::filesystem::absolute(__Internal::ParseFilename(tokens));
@@ -112,7 +124,10 @@ namespace Miyuki {
 					}
 					material->matA = std::move(kd);
 					material->matB = std::move(ks);
-					material->fraction = Reflection::makeBox<Core::FloatShader>(0.5f);
+					if (fraction < -1.0f) {
+						Log::log("Error importing material {}\n", slot->name);
+					}
+					material->fraction = Reflection::makeBox<Core::FloatShader>(fraction);
 					material->emission = std::move(ka);
 					slot->material = std::move(material);
 					materials.emplace_back(std::move(slot));

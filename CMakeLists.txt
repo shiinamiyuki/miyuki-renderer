@@ -15,13 +15,16 @@ endif()
 # Add source to this project's executable.
 include_directories("include/")
 include_directories("include/miyuki/")
+include_directories("include/bcd/ext/eigen")
 link_libraries(glfw3 opengl32 embree3)
 file(GLOB thirdpartySRC
         "include/lodepng/lodepng.cpp"
         "include/tiny_obj_loader/tiny_obj_loader.cc"
         "include/fmt/format.cc"
         "include/fmt/posix/cc"
-        "include/hilbert/hilbert_curve.cpp")
+        "include/hilbert/hilbert_curve.cpp"
+		"include/bcd/bcd/*.cpp"
+		)
 
 file(GLOB guiSRC
 	"include/imgui/*.c"
@@ -41,7 +44,8 @@ file(GLOB coreSRC
 	"src/core/shaders/*.cc"
 	"src/core/lights/*.cc"
 	"src/core/cameras/*.cc"
-	"src/core/integrators/*.cc")
+	"src/core/integrators/*.cc"
+	"src/core/denoiser/*.cc")
 
 add_executable (mykgui "src/main/main.cc"
 	${thirdpartySRC}

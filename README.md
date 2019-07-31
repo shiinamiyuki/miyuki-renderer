@@ -61,7 +61,7 @@ Goal: a high performance pbrt-style renderer with low hardware requirements but 
 - [ ] Path tracing & denoiser
   - [x] Basic Path Tracer with MIS
   - [ ] Generic Path Tracer
-  - [ ] Denoiser (Using BCD)
+  - [x] Denoiser (Using BCD)
 - [ ] Path guiding
 - [ ] Command line rendering
 - [ ] Hybrid rendering

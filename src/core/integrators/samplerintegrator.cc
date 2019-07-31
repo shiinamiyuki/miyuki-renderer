@@ -48,8 +48,9 @@ namespace Miyuki {
 			ProgressReporter<size_t> reporter(spp, [&](size_t cur, size_t total) {
 				Log::log("Done samples {0}/{1}, traced {2} rays\n", cur, total, scene.getRayCount());
 				progressiveCallback(context.film);
-			});
+			});		
 			scene.resetRayCount();
+			renderStart(context);
 			for (size_t iter = 0; iter < spp && !_aborted; iter++) {
 				auto start = reporter.elapsedSeconds();
 				Thread::ParallelFor(0u, hilbertMapping.size(), [&](uint32_t idx, uint32_t threadId) {
@@ -75,6 +76,7 @@ namespace Miyuki {
 				});
 				reporter.update();
 			}
+			renderEnd(context);
 			context.resultCallback(context.film);
 		}
 	}
