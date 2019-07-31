@@ -134,6 +134,7 @@ namespace Miyuki {
 			}
 
 			const Vec3f& wi()const {
+				CHECK(assigned);
 				return _wi;
 			}
 			const Vec3f& wo()const {

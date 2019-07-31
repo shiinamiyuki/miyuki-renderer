@@ -10,11 +10,12 @@ namespace Miyuki {
 		public:
 			int maxDepth = 5;
 			int minDepth = 3;
+			bool useNEE = true;
 			MYK_CLASS(PathTracerIntegrator);
 			void Li(const IntegratorContext& context, SamplingContext&)override;
 		};
 		MYK_IMPL(PathTracerIntegrator, "Integrator.Path");
-		MYK_REFL(PathTracerIntegrator, (SamplerIntegrator), MYK_REFL_NIL);
+		MYK_REFL(PathTracerIntegrator, (SamplerIntegrator), (useNEE)(maxDepth)(minDepth));
 	}
 }
 #endif

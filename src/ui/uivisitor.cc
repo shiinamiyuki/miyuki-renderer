@@ -255,6 +255,9 @@ namespace Miyuki {
 				if (auto r = GetInputWithSignal("max depth", integrator->maxDepth)) {
 					integrator->maxDepth = r.value();
 				}
+				if (auto r = GetInputWithSignal("use NEE", integrator->useNEE)) {
+					integrator->useNEE = r.value();
+				}
 			});
 			visit<Core::FilmConfig>([=](Core::FilmConfig* config) {
 				if (auto r = GetInputWithSignal("scale", 100 * config->scale)) {

@@ -20,19 +20,21 @@ namespace Miyuki {
 				BSDFEvaluationContext& ctx,
 				BSDFSample& sample
 			)const override {
-
 				auto wh = microfacet.sampleWh(sample.wo, sample.u);
 				sample.wi = Reflect(sample.wo, wh);
+				ctx.assignWi(sample.wi);
 				if (!SameHemisphere(sample.wo, sample.wi)) {
+					sample.pdf = 0.0f;
 					sample.f = {};
 				}
 				else {
 					sample.pdf = microfacet.evaluatePdf(wh) / (4.0f * Vec3f::dot(sample.wo, wh));
 					sample.f = evaluate(ctx);
-					//CHECK(!sample.f.hasNaNs());
+				
 				}
+				CHECK(!sample.f.hasNaNs());
 				sample.lobe = getLobe();
-				ctx.assignWi(sample.wi);
+				
 			}
 
 			// evaluate bsdf according to wo, wi
@@ -48,9 +50,6 @@ namespace Miyuki {
 				if (wh.x() == 0 && wh.y() == 0 && wh.z() == 0)return {};
 				wh.normalize();
 				auto F = fresnel.evaluate(Vec3f::dot(wi, wh));
-			/*	if (std::isnan(microfacet.D(wh))) {
-					fmt::print("{} {} {}\n", microfacet.D(wh), alpha, alpha == 0.0f);
-				}*/
 				return R * F * microfacet.D(wh) * microfacet.G(wo, wi) * F / (4.0f * cosThetaI * cosThetaO);
 			}
 
