@@ -53,12 +53,13 @@ Goal: a high performance pbrt-style renderer with low hardware requirements but 
   - [ ] 2D discrete distribution
 - [ ] Basic Reflection Model
   - [x] Diffuse (lambertian/Oren-Nayar)
-  - [ ] Beckmann Microfacet Model
+  - [x] Beckmann Microfacet Model
   - [ ] GGX Microfacet Model
   - [ ] Specular Transmission/Refelection 
 - [ ] Disney BSDF
 - [ ] Volume rendering 
 - [ ] Path tracing & denoiser
+  - [x] Basic Path Tracer with MIS
   - [ ] Generic Path Tracer
   - [ ] Denoiser (Using BCD)
 - [ ] Path guiding

@@ -9,7 +9,7 @@
 
 namespace Miyuki {
 	namespace Core {
-		Scene::Scene() {
+		Scene::Scene():rayCounter(0) {
 			embreeScene = std::make_unique<EmbreeScene>();
 		}
 		void Scene::loadObjMesh(const std::string& filename) {

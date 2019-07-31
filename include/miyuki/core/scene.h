@@ -36,6 +36,7 @@ namespace Miyuki {
 			void assignMaterial(std::shared_ptr<Mesh> mesh);
 
 			void computeLightDistribution();
+			std::atomic<size_t> rayCounter;
 		public:
 			const Distribution1D& getLightDistribution()const {
 				return *lightDistribution;
@@ -51,7 +52,10 @@ namespace Miyuki {
 			}
 			Scene();
 			void commit(Core::Graph&);
+			void resetRayCount() { rayCounter = 0; }
+			size_t getRayCount()const { return rayCounter; }
 			bool intersect(const Ray& ray, Intersection* isct) {
+				rayCounter++;
 				if (embreeScene->intersect(ray, isct)) {
 					postIntersect(isct);
 					return true;

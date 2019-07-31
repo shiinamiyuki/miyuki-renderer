@@ -61,12 +61,27 @@ namespace Miyuki {
 			ctx.assignWi(wi);
 			return BSDFImpl::evaluatePdf(impl, ctx);
 		}
+
 		Spectrum BSDFImpl::evaluate(BSDFImpl* bsdf, const BSDFEvaluationContext& ctx) {
 			bool reflectStrict = Vec3f::dot(ctx.woW(), ctx.Ng()) * Vec3f::dot(ctx.wiW(), ctx.Ng()) > 0;
 			bool reflect = SameHemisphere(ctx.wi(), ctx.wo() );
 			if (bsdf->match(ctx.lobe)) {
-
-				return bsdf->evaluate(ctx);
+				bool valid = false;
+				if (ctx.option == ENoSampleOption) {
+					if ((reflectStrict && bsdf->match(EReflection))
+						|| (!reflectStrict && bsdf->match(ETransmission))) {
+						valid = true;
+					}
+				}
+				else {
+					CHECK(ctx.option == EUseStrictNormal);
+					if ((reflect && bsdf->match(EReflection))
+						|| (!reflect && bsdf->match(ETransmission))) {
+						valid = true;
+					}
+				}
+				if(valid)
+					return bsdf->evaluate(ctx);
 			}
 			return {};
 		}
