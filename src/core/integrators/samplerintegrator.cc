@@ -33,10 +33,17 @@ namespace Miyuki {
 			auto& film = *context.film;
 			auto nThreads = Thread::pool->numThreads();
 			std::vector<MemoryArena> arenas(nThreads);
-			std::vector<Box<Sampler>> samplers(nThreads);
-			for (auto& s:samplers) {
-				s = std::move(sampler.clone());
+			std::vector<Box<Sampler>> samplers;
+			samplers.reserve(film.width() * film.height());
+			for (auto i = 0; i < film.width(); i++) {
+				for (auto j = 0; j < film.height(); j++) {
+					auto s = sampler.clone();
+					SamplerState state(film.imageDimension(), Point2i(i, j), 0U, spp);
+					s->start(state);
+					samplers.emplace_back(std::move(s));
+				}
 			}
+
 			Point2i nTiles = film.imageDimension() / TileSize + Point2i{ 1, 1 };
 			std::vector<Point2f> hilbertMapping;
 			HilbertMapping(nTiles, hilbertMapping);
@@ -68,7 +75,7 @@ namespace Miyuki {
 								continue;
 							auto raster = Point2i{ x, y };
 							SamplingContext ctx = CreateSamplingContext(&camera,
-								samplers[threadId].get(), &arenas[threadId], film.imageDimension(), raster);
+								samplers[x + y * film.width()].get(), &arenas[threadId], film.imageDimension(), raster);
 							Li(context, ctx);
 						}
 					}

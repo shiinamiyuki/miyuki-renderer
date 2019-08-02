@@ -295,7 +295,7 @@ void main()
 			try {
 				showModal();
 				menuBar();
-				//ImGui::ShowDemoWindow();
+				ImGui::ShowDemoWindow();
 				viewportWindow();
 				explorerWindow();
 				attriubuteEditorWindow();

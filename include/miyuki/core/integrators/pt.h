@@ -13,13 +13,14 @@ namespace Miyuki {
 			int minDepth = 3;
 			Float maxRayIntensity = 10000.0f;
 			bool useNEE = true;
+			bool denoised = false;
 			MYK_CLASS(PathTracerIntegrator);
 			void renderStart(const IntegratorContext& context)override;
 			void renderEnd(const IntegratorContext& context)override;
 			void Li(const IntegratorContext& context, SamplingContext&)override;
 		};
 		MYK_IMPL(PathTracerIntegrator, "Integrator.Path");
-		MYK_REFL(PathTracerIntegrator, (SamplerIntegrator), (useNEE)(maxDepth)(minDepth));
+		MYK_REFL(PathTracerIntegrator, (SamplerIntegrator), (useNEE)(maxDepth)(minDepth)(maxRayIntensity)(denoised));
 	}
 }
 #endif

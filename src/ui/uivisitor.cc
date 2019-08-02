@@ -274,6 +274,9 @@ namespace Miyuki {
 				if (auto r = GetInputWithSignal("use NEE", integrator->useNEE)) {
 					integrator->useNEE = r.value();
 				}
+				if (auto r = GetInputWithSignal("denoised", integrator->denoised)) {
+					integrator->denoised = r.value();
+				}
 			});
 			visit<Core::FilmConfig>([=](Core::FilmConfig* config) {
 				if (auto r = GetInputWithSignal("scale", 100 * config->scale)) {
@@ -416,12 +419,17 @@ namespace Miyuki {
 					loadWindowView(film);
 			};
 			std::thread th([=]() {
-				window.openModal("Starting rendering", []() {});
-				if (!engine->startProgressiveRender(cb)) {
-					window.showErrorModal("Error",
-						"Cannot start rendering: no integrator or integrator does not support interactive\n");
+				try {
+					window.openModal("Starting rendering", []() {});
+					if (!engine->startProgressiveRender(cb)) {
+						window.showErrorModal("Error",
+							"Cannot start rendering: no integrator or integrator does not support interactive\n");
+					}
+					window.closeModal();
 				}
-				window.closeModal();
+				catch (std::exception& e) {
+					Log::log("error: {}\n", e.what());
+				}
 			});
 			th.detach();
 		}

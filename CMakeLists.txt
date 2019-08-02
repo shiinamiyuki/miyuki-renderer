@@ -45,7 +45,8 @@ file(GLOB coreSRC
 	"src/core/lights/*.cc"
 	"src/core/cameras/*.cc"
 	"src/core/integrators/*.cc"
-	"src/core/denoiser/*.cc")
+	"src/core/denoiser/*.cc"
+	"src/core/rasterzier/*.cc")
 
 add_executable (mykgui "src/main/main.cc"
 	${thirdpartySRC}

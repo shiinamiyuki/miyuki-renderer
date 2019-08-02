@@ -215,6 +215,18 @@ namespace Miyuki {
 				}
 			}
 		};
+		class ContextMenu : public Base<ContextMenu> {
+		public:
+			void showImpl() {
+				if (ImGui::BeginPopupContextItem(nameCStr())) {
+					active();
+					ImGui::EndPopup();
+				}
+				else {
+					inactive();
+				}
+			}
+		};
 		class Menu : public Base<Menu> {
 			std::vector<MenuItem> items;
 		public:

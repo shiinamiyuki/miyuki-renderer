@@ -74,9 +74,9 @@ namespace Miyuki {
 
 			const Point2i& imageDimension() const { return imageBound.pMax; }
 
-			int height() const { return imageBound.pMax.y(); }
+			size_t height() const { return imageBound.pMax.y(); }
 
-			int width() const { return imageBound.pMax.x(); }
+			size_t width() const { return imageBound.pMax.x(); }
 
 			Pixel& getPixel(const Point2f&);
 
