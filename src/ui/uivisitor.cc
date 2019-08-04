@@ -7,6 +7,7 @@
 #include <core/materials/diffusematerial.h>
 #include <core/materials/glossymaterial.h>
 #include <core/materials/mixedmaterial.h>
+#include <core/lights/infinite.h>
 
 namespace Miyuki {
 	namespace GUI {
@@ -171,6 +172,10 @@ namespace Miyuki {
 					}
 				}).show();
 			});
+			visit<Core::ScaledShader>([=](Core::ScaledShader* shader) {
+				visitShaderAndSelect(shader->scale, "scale");
+				visitShaderAndSelect(shader->shader, "shader");
+			});
 			visit<Core::MixedShader>([=](Core::MixedShader* shader) {
 				visitShaderAndSelect(shader->fraction, "fraction");
 				visitShaderAndSelect(shader->shaderA, "shader A");
@@ -231,7 +236,16 @@ namespace Miyuki {
 					slot->name = r.value();
 				}
 				visitShaderAndSelect(slot->material->emission, "emission");
-				visit(slot->material);
+				visitMaterialAndSelect(slot->material, "material");
+			});
+			visit<Core::WorldConfig>([=](Core::WorldConfig* world) {
+				if (!world->environmentMap) {
+					world->environmentMap = makeBox<Core::InfiniteAreaLight>();
+				}
+				visit(world->environmentMap);
+			});
+			visit<Core::InfiniteAreaLight>([=](Core::InfiniteAreaLight* light) {
+				visitShaderAndSelect(light->shader, "shader");
 			});
 			visit<Core::PerspectiveCamera>([=](Core::PerspectiveCamera* camera) {
 				if (auto r = GetInputWithSignal("viewpoint", camera->viewpoint)) {
@@ -313,7 +327,11 @@ namespace Miyuki {
 				visit(selected);
 			}
 		}
-
+		void UIVisitor::visitWorld() {
+			auto graph = engine->getGraph();
+			if (!graph)return;
+			visit(&graph->worldConfig);
+		}
 		void UIVisitor::visitGraph() {
 			auto graph = engine->getGraph();
 			if (!graph)return;
@@ -429,7 +447,9 @@ namespace Miyuki {
 				}
 				catch (std::exception& e) {
 					Log::log("error: {}\n", e.what());
+					window.closeModal();
 				}
+			
 			});
 			th.detach();
 		}

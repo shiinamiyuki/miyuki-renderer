@@ -19,7 +19,7 @@ namespace Miyuki {
         ~Timer();
     };
 	class Profiler : public Timer {
-
+	public:
 	};
 }
 #endif //MIYUKI_PROFILE_H

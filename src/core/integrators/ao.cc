@@ -7,7 +7,7 @@ namespace Miyuki {
 		void AOIntegrator::Li(const IntegratorContext& integratorContext, SamplingContext& ctx) {
 			auto& film = *integratorContext.film;
 			auto& scene = *integratorContext.scene;
-			auto& sampler = *integratorContext.sampler;
+			auto& sampler = *ctx.sampler;
 			Intersection isct;
 			Spectrum AO;
 			if (scene.intersect(ctx.primary, &isct)) {

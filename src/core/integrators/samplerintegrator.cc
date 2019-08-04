@@ -35,8 +35,9 @@ namespace Miyuki {
 			std::vector<MemoryArena> arenas(nThreads);
 			std::vector<Box<Sampler>> samplers;
 			samplers.reserve(film.width() * film.height());
-			for (auto i = 0; i < film.width(); i++) {
-				for (auto j = 0; j < film.height(); j++) {
+			for (auto j = 0; j < film.height(); j++) {
+				for (auto i = 0; i < film.width(); i++) {
+
 					auto s = sampler.clone();
 					SamplerState state(film.imageDimension(), Point2i(i, j), 0U, spp);
 					s->start(state);
@@ -55,7 +56,7 @@ namespace Miyuki {
 			ProgressReporter<size_t> reporter(spp, [&](size_t cur, size_t total) {
 				Log::log("Done samples {0}/{1}, traced {2} rays\n", cur, total, scene.getRayCount());
 				progressiveCallback(context.film);
-			});		
+			});
 			scene.resetRayCount();
 			renderStart(context);
 			for (size_t iter = 0; iter < spp && !_aborted; iter++) {
@@ -75,11 +76,11 @@ namespace Miyuki {
 								continue;
 							auto raster = Point2i{ x, y };
 							SamplingContext ctx = CreateSamplingContext(&camera,
-								samplers[x + y * film.width()].get(), &arenas[threadId], film.imageDimension(), raster);
+								samplers.at(x + y * film.width()).get(), &arenas[threadId], film.imageDimension(), raster);
 							Li(context, ctx);
 						}
 					}
-					arenas[threadId].reset();					
+					arenas[threadId].reset();
 				});
 				reporter.update();
 			}

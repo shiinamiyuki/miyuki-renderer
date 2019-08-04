@@ -61,6 +61,7 @@ namespace Miyuki {
 			void visitCamera();
 			void visitIntegrator();
 			void visitFilm();
+			void visitWorld();
 			void startInteractive();
 			void stopRender();
 			~UIVisitor();

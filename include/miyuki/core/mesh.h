@@ -28,23 +28,25 @@ namespace Miyuki {
 				return Vec3f::cross((v(1) - v(0)), v(2) - v(0)).length() / 2;
 			}
 
-			Primitive();
+			Primitive() : instance(nullptr), nameId(-1) {
 
-			Vec3f v(int32_t) const;
+			}
 
-			const Vec3f& n(int32_t) const;
+			inline Vec3f v(int32_t) const;
 
-			Vec3f Ns(const Point2f& uv) const;
+			inline const Vec3f& n(int32_t) const;
 
-			Material* material() const;
+			inline Vec3f Ns(const Point2f& uv) const;
 
-			const std::string& name() const;
+			inline Material* material() const;
 
-			bool intersect(const Ray&, Intersection*) const;
+			inline const std::string& name() const;
 
-			Light* light() const;
+			inline bool intersect(const Ray&, Intersection*) const;
 
-			void setLight(Light* light);
+			inline Light* light() const;
+
+			inline void setLight(Light* light);
 
 			Vec3f Ng() const {
 				auto edge1 = v(1) - v(0);
@@ -77,8 +79,87 @@ namespace Miyuki {
 
 			std::unordered_map<const Primitive*, Light*> lightMap;
 
+			void clearLightSetup() {
+				for (auto& p : primitives) {
+					p.setLight(nullptr);
+				}
+				lightMap.clear();
+			}
 			~Mesh();
 		};
+
+		inline Vec3f Primitive::v(int32_t i) const {
+#if USE_EMBREE_GEOMETRY == 1
+			auto vertices = (Float*)rtcGetGeometryBufferData(instance->rtcGeometry, RTC_BUFFER_TYPE_VERTEX, 0);
+			return Vec3f{ vertices[this->vertices[i] * 3],
+						 vertices[this->vertices[i] * 3 + 1],
+						 vertices[this->vertices[i] * 3 + 2] };
+#else
+			return instance->vertices[vertices[i]];
+#endif
+		}
+
+		inline const Vec3f& Primitive::n(int32_t i) const {
+			return instance->normals[normals[i]];
+		}
+
+		inline Vec3f Primitive::Ns(const Point2f& uv) const {
+			return PointOnTriangle(n(0), n(1), n(2), uv[0], uv[1]).normalized();
+		}
+
+		inline Material* Primitive::material() const {
+			return instance->materials[nameId];
+		}
+
+		inline const std::string& Primitive::name() const {
+			return instance->names[nameId];
+		}
+
+		inline bool Primitive::intersect(const Ray& ray, Intersection* isct) const {
+			const Float eps = 0.00001f;
+			Vec3f edge1, edge2, h, s, q;
+			Float a, f, u, v;
+			edge1 = this->v(1) - this->v(0);
+			edge2 = this->v(2) - this->v(0);
+			h = Vec3f::cross(ray.d, edge2);
+			a = Vec3f::dot(edge1, h);
+			if (a > -eps && a < eps)
+				return false;    // This ray is parallel to this triangle.
+			f = 1.0f / a;
+			s = ray.o - this->v(0);
+			u = f * (Vec3f::dot(s, h));
+			if (u < 0.0f || u > 1.0f)
+				return false;
+			q = Vec3f::cross(s, edge1);
+			v = f * Vec3f::dot(ray.d, q);
+			if (v < 0.0f || u + v > 1.0f)
+				return false;
+			float t = f * Vec3f::dot(edge2, q);
+			if (t > eps) // ray intersection
+			{
+				isct->distance = t;
+				isct->p = ray.o + t * ray.d;
+				isct->Ng = Ng();
+				isct->uv = { u, v };
+				return true;
+			}
+			else
+				return false;
+		}
+
+		inline Light* Primitive::light() const {
+			auto iter = instance->lightMap.find(this);
+			if (iter == instance->lightMap.end())
+				return nullptr;
+			return iter->second;
+		}
+
+		inline void Primitive::setLight(Light* light) {
+			if (!light)return;
+			instance->lightMap[this] = light;
+		}
+
+		
 	}
 }
 #endif

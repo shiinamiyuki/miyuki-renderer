@@ -5,11 +5,12 @@
 #include <core/materials/diffusematerial.h>
 #include <core/materials/glossymaterial.h>
 #include <core/lights/area.h>
+#include <core/lights/infinite.h>
 
 
 namespace Miyuki {
 	namespace Core {
-		Scene::Scene():rayCounter(0) {
+		Scene::Scene() :rayCounter(0) {
 			embreeScene = std::make_unique<EmbreeScene>();
 		}
 		void Scene::loadObjMesh(const std::string& filename) {
@@ -83,6 +84,12 @@ namespace Miyuki {
 				if (!scene.imageLoader)
 					scene.imageLoader = std::make_unique<IO::ImageLoader>();
 				Base::_map.clear();
+				visit<Core::AreaLight>([=](Core::AreaLight* light) {
+
+				});
+				visit<Core::InfiniteAreaLight>([=](Core::InfiniteAreaLight* light) {
+					visit(light->shader);
+				});
 				visit<Core::GlossyMaterial>([=](Core::GlossyMaterial* mat) {
 					visit(mat->color);
 					visit(mat->roughness);
@@ -94,6 +101,15 @@ namespace Miyuki {
 				visit<Core::MixedMaterial>([=](Core::MixedMaterial* mat) {
 					visit(mat->matA);
 					visit(mat->matB);
+				});
+				visit<Core::ScaledShader> ([=](Core::ScaledShader* shader) {
+					visit(shader->shader);
+					visit(shader->scale);
+				});
+				visit<Core::MixedShader>([=](Core::MixedShader* shader) {
+					visit(shader->fraction);
+					visit(shader->shaderA);
+					visit(shader->shaderB);
 				});
 				visit<Core::FloatShader>([=](Core::FloatShader* shader) {
 
@@ -120,14 +136,17 @@ namespace Miyuki {
 
 			void preprocessAll() {
 				for (auto p : preprocessables) {
-					if(p)
+					if (p)
 						p->preprocess();
 				}
 			}
 		};
 
 		void Scene::computeLightDistribution() {
-			lights.clear();		
+			for (auto& instance : instances) {
+				instance->clearLightSetup();
+			}
+			lights.clear();
 
 			for (auto instance : instances) {
 				for (auto& primitive : instance->primitives) {
@@ -170,6 +189,9 @@ namespace Miyuki {
 				assignMaterial(i);
 			}
 			visitor.preprocessAll();
+			if (graph.worldConfig.environmentMap)
+				visitor.visit(graph.worldConfig.environmentMap);
+			setEnvironmentLight(graph.worldConfig.environmentMap.get());
 			computeLightDistribution();
 			embreeScene->commit();
 		}

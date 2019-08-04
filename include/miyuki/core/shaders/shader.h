@@ -176,5 +176,26 @@ namespace Miyuki {
 		MYK_IMPL(MixedShader, "Shader.Mixed");
 		MYK_REFL(MixedShader, (Shader), (fraction)(shaderA)(shaderB));
 
+		class ScaledShader final :public Shader {
+		public:
+			Box<Shader> scale;
+			Box<Shader> shader;
+			MYK_CLASS(MixedShader);
+			virtual ShadingResult eval(ShadingPoint& p) const override {
+				auto k = Shader::evaluate(scale, p);
+				return Shader::evaluate(shader, p) * k;
+			}
+			virtual ShadingResult average()const override {
+				ShadingResult r;
+				auto k = scale ? scale->average() : ShadingResult();
+				if (shader) {
+					r = r + shader->average() * k;
+				}
+				return r;
+			}
+		};
+		MYK_IMPL(ScaledShader, "Shader.Scaled");
+		MYK_REFL(ScaledShader, (Shader), (shader)(scale));
+
 	}
 }

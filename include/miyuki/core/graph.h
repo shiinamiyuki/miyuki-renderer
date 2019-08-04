@@ -6,6 +6,7 @@
 #include <core/cameras/camera.h>
 #include <core/integrators/integrator.h>
 #include <core/samplers/sampler.h>
+#include <core/lights/light.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -16,7 +17,6 @@ namespace Miyuki {
 		};
 		MYK_IMPL(MaterialSlot, "Core.MaterialSlot");
 		MYK_REFL(MaterialSlot, (Reflective), (name)(material));
-
 
 		struct Object final : Reflective {
 			MYK_META;
@@ -45,6 +45,13 @@ namespace Miyuki {
 		MYK_IMPL(FilmConfig, "Core.FilmConfig");
 		MYK_REFL(FilmConfig, (Reflective), (scale)(dimension));
 
+		struct WorldConfig final :Reflective {
+			MYK_CLASS(WorldConfig);
+			Box<Light> environmentMap;
+		};
+		MYK_IMPL(WorldConfig, "Core.WorldConfig");
+		MYK_REFL(WorldConfig, (Reflective), (environmentMap));
+
 		struct Graph final : Reflective {
 			MYK_META;
 			std::vector<Box<MaterialSlot>> materials;
@@ -54,9 +61,10 @@ namespace Miyuki {
 			Box<Sampler> sampler;
 			FilmConfig filmConfig;
 			Camera* activeCamera = nullptr;
+			WorldConfig worldConfig;
 		};
 		MYK_IMPL(Graph, "Core.Graph");
-		MYK_REFL(Graph, (Reflective), (materials)(meshes)(cameras)(activeCamera)(integrator)(sampler)(filmConfig));
+		MYK_REFL(Graph, (Reflective), (materials)(meshes)(cameras)(activeCamera)(integrator)(sampler)(filmConfig)(worldConfig ));
 	}
 }
 

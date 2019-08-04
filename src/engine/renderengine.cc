@@ -61,7 +61,7 @@ namespace Miyuki {
 			out << stream.toJson().dump(1) << std::endl;
 			Log::log("Saved to {}\n", filename);
 		}
-		catch (std::runtime_error& e) {
+		catch (std::exception& e) {
 			std::cout << e.what() << std::endl;
 		}
 	}
@@ -71,6 +71,7 @@ namespace Miyuki {
 		std::string content((std::istreambuf_iterator<char>(in)),
 			std::istreambuf_iterator<char>());
 		json j = json::parse(content);
+		cxx::filesystem::current_path(cxx::filesystem::path(filename).parent_path());
 		try {
 			Reflection::InObjectStream in(j);
 			newGraph();
@@ -87,7 +88,7 @@ namespace Miyuki {
 				graph->activeCamera = graph->cameras.front().get();
 			}
 		}
-		catch (std::runtime_error& e) {
+		catch (std::exception& e) {
 			Log::log("Failed to open {}; Error: {}\n", filename, e.what());
 		}
 	}

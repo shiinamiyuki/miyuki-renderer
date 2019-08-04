@@ -36,11 +36,18 @@ namespace Miyuki {
 			}
 
 		protected:
-			void handleEnvMap() {				
-
+			void handleEnvMap() {	
+				auto light = scene.getEnvironmentLight();
+				if (!light)return;
+				auto L = light->L(ray);
+				if (depth == 0)
+					addLighting(EDiffuse, beta * L);
+				else
+					addLighting(primaryLobe, beta * L);
 			}
 
 			void lightSampling() {
+				if (scene.getLights().empty())return;
 				auto lightIdx = scene.getLightDistribution().sampleInt(ctx.sampler->get1D());
 				auto light = scene.getLights()[lightIdx].get();
 

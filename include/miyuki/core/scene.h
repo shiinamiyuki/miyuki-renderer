@@ -7,10 +7,10 @@
 #include <core/graph.h>
 #include <io/imageloader.h>
 #include <math/distribution.h>
-#include <core/lights/light.h>
 
 namespace Miyuki {
 	namespace Core {
+		class Light;
 		class Scene {
 			std::unique_ptr<EmbreeScene> embreeScene;
 			std::unordered_map<std::string, Core::Material*> materials;
@@ -37,7 +37,12 @@ namespace Miyuki {
 
 			void computeLightDistribution();
 			std::atomic<size_t> rayCounter;
+			Light* light = nullptr;
 		public:
+			void setEnvironmentLight(Light* light) {
+				this->light = light;
+			}
+			Light* getEnvironmentLight()const { return light; }
 			const Distribution1D& getLightDistribution()const {
 				return *lightDistribution;
 			}

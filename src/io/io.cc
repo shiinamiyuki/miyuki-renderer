@@ -16,8 +16,18 @@
 
 namespace Miyuki{
     namespace IO{
+		struct CurrentPathSaver {
+			CurrentPathSaver() {
+				current = cxx::filesystem::current_path();
+			}
+			~CurrentPathSaver() {
+				cxx::filesystem::current_path(current);
+			}
+		private:
+			cxx::filesystem::path current;
+		};
         void readUnderPath(const std::string &filename, std::function<void(const std::string &)> f){
-            cxx::filesystem::path currentPath = cxx::filesystem::current_path();
+			CurrentPathSaver saver;
 
             cxx::filesystem::path inputFile(filename);
             auto file = inputFile.filename().string();
@@ -26,9 +36,10 @@ namespace Miyuki{
                 cxx::filesystem::current_path(parent);
 
             f(file);
-            cxx::filesystem::current_path(currentPath);
+
         }
 		std::string GetOpenFileNameWithDialog(const char* filter)	{
+			CurrentPathSaver saver;
 			char filename[MAX_PATH];
 
 			OPENFILENAME ofn;
@@ -50,6 +61,7 @@ namespace Miyuki{
 		}
 
 		std::string GetSaveFileNameWithDialog(const char* filter) {
+			CurrentPathSaver saver;
 			char filename[MAX_PATH];
 
 			OPENFILENAME ofn;
