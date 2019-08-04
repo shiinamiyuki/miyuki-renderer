@@ -3,7 +3,7 @@
 
 #include <reflection.h>
 #include <core/ray.h>
-
+#include <utils/preprocessable.hpp>
 
 namespace Miyuki {
 	namespace Core {
@@ -26,7 +26,7 @@ namespace Miyuki {
 			Float pdf = 0; // sampled pdf
 		};
 
-		class Light : public Reflective {
+		class Light : public Reflective, public Preprocessable {
 		public:
 			enum Type {
 				EDeltaPosition = 1,
@@ -52,7 +52,9 @@ namespace Miyuki {
 			virtual void
 				sampleLi(const Intersection&, LightSamplingRecord&, VisibilityTester*) const = 0;
 
-			virtual Float pdfLi(const Intersection&, const Vec3f& wi) const = 0;			
+			virtual Float pdfLi(const Intersection&, const Vec3f& wi) const = 0;		
+
+			virtual void preprocess()override {}
 		};
 		MYK_SAVE_LOAD_TRIVIAL(Light::Type);
 		MYK_REFL(Light, (Reflective), (lightType));

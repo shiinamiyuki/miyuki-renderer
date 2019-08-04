@@ -21,13 +21,15 @@ namespace Miyuki {
 
         Distribution1D(const Float *data, uint32_t N);
 
-        int sampleInt(Float x) const;
+        int sampleDiscrete(Float x, Float *pdf = nullptr) const;
 
-        Float sampleFloat(Float x) const;
+        Float sampleContinuous(Float x, Float* pdf = nullptr, int *offset=nullptr) const;
 
         Float pdf(int x) const;
 
         Float cdf(Float x) const;
+
+		size_t count()const { return cdfArray.size() - 1; }
     };
 }
 #endif //MIYUKI_DISTRIBUTION_H

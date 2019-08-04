@@ -48,7 +48,7 @@ namespace Miyuki {
 
 			void lightSampling() {
 				if (scene.getLights().empty())return;
-				auto lightIdx = scene.getLightDistribution().sampleInt(ctx.sampler->get1D());
+				auto lightIdx = scene.getLightDistribution().sampleDiscrete(ctx.sampler->get1D());
 				auto light = scene.getLights()[lightIdx].get();
 
 				LightSamplingRecord record;

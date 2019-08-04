@@ -11,7 +11,7 @@ namespace Miyuki {
 		Spectrum InfiniteAreaLight::L(const Ray& ray) const {
 			Point2f uv;
 			uv[0] = 0.5f + std::atan2(ray.d.z(), ray.d.x()) / (2 * PI);
-			uv[1] = 1.0f - (0.5f - std::asin(ray.d.y()) * INVPI);
+			uv[1] = 0.5f + std::asin(ray.d.y()) * INVPI;
 			return Shader::evaluate(shader, ShadingPoint(uv)).toVec3f();
 		}
 
