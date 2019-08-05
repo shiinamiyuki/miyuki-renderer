@@ -1,6 +1,6 @@
 
 
-# Miyuki Renderer
+# MiyukiRenderer
 
 ```
         _             _    _     __                _

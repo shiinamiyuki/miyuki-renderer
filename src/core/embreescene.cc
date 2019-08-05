@@ -67,10 +67,6 @@ namespace Miyuki {
 #endif
 		}
 
-		
-
-		
-
 		EmbreeScene::~EmbreeScene() {
 			rtcReleaseScene(scene);
 		}
