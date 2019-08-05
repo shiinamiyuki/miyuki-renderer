@@ -47,7 +47,7 @@ namespace Miyuki {
 				VisibilityTester tester;
 				record.u = ctx.sampler->get2D();
 				light->sampleLi(isct, record, &tester);
-				Float lightPdf = scene.getLightDistribution().pdf(lightIdx) * record.pdf;
+				Float lightPdf = scene.getLightDistribution().pdfDiscrete(lightIdx) * record.pdf;
 				if (record.pdf > 0 && !record.Le.isBlack()) {
 					// evaluate BSDF
 					auto wo = isct.worldToLocal(isct.wo);

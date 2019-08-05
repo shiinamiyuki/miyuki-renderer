@@ -19,7 +19,7 @@ namespace Miyuki {
 		Float pdf(const Point2f& p)const {
 			auto iu = clamp<int>(p[0] * pConditionalV[0]->count(), 0, pConditionalV[0]->count() - 1);
 			auto iv = clamp<int>(p[1] * pMarginal->count(), 0, pMarginal->count() - 1);
-			return pMarginal->pdf(iv) * pConditionalV[0]->pdf(iu);
+			return pMarginal->pdfContinuous(iv) * pConditionalV[0]->pdfContinuous(iu);
 		}
 	};
 }

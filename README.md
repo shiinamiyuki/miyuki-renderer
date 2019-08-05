@@ -49,14 +49,15 @@ Goal: a high performance pbrt-style renderer with low hardware requirements but 
 - [ ] Custom BVH RT kernel
 - [ ] Generic Math Utils
   - [x] Probability Density Function
-  - [ ] 1D discrete distribution
-  - [ ] 2D discrete distribution
+  - [x] 1D discrete distribution
+  - [x] 2D discrete distribution
 - [ ] Basic Reflection Model
   - [x] Diffuse (lambertian/Oren-Nayar)
   - [x] Beckmann Microfacet Model
   - [ ] GGX Microfacet Model
   - [ ] Specular Transmission/Refelection 
 - [ ] Disney BSDF
+- [x] Environment Mapping
 - [ ] Volume rendering 
 - [ ] Path tracing & denoiser
   - [x] Basic Path Tracer with MIS
@@ -75,6 +76,11 @@ CMake everything.
 
 ## Gallery 
 ### Random test images
+
+![](gallery/envmap.png)
+
+From previous version
+
 ![](gallery/mc.png)
 
 ![](gallery/fireplace_room_8k.png)
@@ -85,7 +91,7 @@ CMake everything.
 
 ![](gallery/cornell_box.png)
 
-### From previous version
+
 
 ![](gallery/living_room.png)
 

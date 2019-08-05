@@ -45,7 +45,7 @@ namespace Miyuki {
 			uv[1] = 1.0f - uv[1];
 			record.Le = Shader::evaluate(shader, ShadingPoint(uv)).toVec3f();
 			tester->shadowRay = Ray(isct.p, record.wi, RayBias);
-			fmt::print("{} {} | {}  {}\n", uv[0], uv[1],record.Le.max(), mapPdf);
+			//zfmt::print("{} {} | {}  {}\n", uv[0], uv[1],record.Le.max(), mapPdf);
 		}
 
 		Float InfiniteAreaLight::pdfLi(const Intersection&isct, const Vec3f& wi)const {

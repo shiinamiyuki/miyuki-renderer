@@ -29,7 +29,7 @@ Miyuki::Distribution1D::Distribution1D(const Float* data, uint32_t N) {
 int Distribution1D::sampleDiscrete(Float x, Float* pdf) const {
 	auto i = (int)clamp<size_t>(binarySearch(x), 0, cdfArray.size() - 2);
 	if (pdf) {
-		*pdf = this->pdf(i);
+		*pdf = this->pdfDiscrete(i);
 	}
 	return i;
 }
@@ -40,7 +40,7 @@ Float Distribution1D::sampleContinuous(Float u, Float* pdf, int* off) const {
 		*off = offset;
 	}
 	if (pdf) {
-		*pdf = this->pdf(offset);
+		*pdf = this->pdfContinuous(offset);
 	}
 	auto du = u - cdfArray[offset];
 	du /= cdfArray[offset + 1] - cdfArray[offset];
@@ -70,8 +70,11 @@ Float Distribution1D::cdf(Float x) const {
 	return cdfArray[i];
 }
 
-Float Distribution1D::pdf(int x) const {
-	return cdfArray[x + 1] - cdfArray[x];
+Float Distribution1D::pdfDiscrete(int x) const {
+	return (cdfArray[x + 1] - cdfArray[x]);
+}
+Float Distribution1D::pdfContinuous(int x) const {
+	return (cdfArray[x + 1] - cdfArray[x]) * count();
 }
 
 

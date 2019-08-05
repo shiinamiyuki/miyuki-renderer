@@ -177,7 +177,7 @@ namespace Miyuki {
 			lightDistribution = std::make_unique<Distribution1D>(&power[0], lights.size());
 
 			for (int i = 0; i < lights.size(); i++) {
-				lightPdfMap[lights[i]] = lightDistribution->pdf(i);
+				lightPdfMap[lights[i]] = lightDistribution->pdfDiscrete(i);
 			}
 
 			Log::log("Important lights: {} Total power: {}\n", lights.size(), lightDistribution->funcInt);

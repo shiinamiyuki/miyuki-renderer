@@ -25,7 +25,8 @@ namespace Miyuki {
 
         Float sampleContinuous(Float x, Float* pdf = nullptr, int *offset=nullptr) const;
 
-        Float pdf(int x) const;
+        Float pdfContinuous(int x) const;
+		Float pdfDiscrete(int x)const;
 
         Float cdf(Float x) const;
 
