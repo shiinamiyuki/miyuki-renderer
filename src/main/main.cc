@@ -1,25 +1,24 @@
 #include <ui/mainwindow.h>
-#include <math/distribution.h>
+#include <math/distribution2d.h>
 #include <core/rng.h>
 
 int main(int argc, char** argv) {
 	using namespace Miyuki;
 	using namespace Miyuki::Reflection;
-	//GUI::MainWindow window(argc, argv);
-	//window.show();
-	std::vector<Float> v = { 2,0,4,1,8 };
-	Distribution1D dist(&v[0], v.size());
+	GUI::MainWindow window(argc, argv);
+	window.show();
+	/*std::vector<Float> v = {
+		1,1,1,1,1,1,
+		1,1,1,100,1,1,
+		1,1,1,1,1,1,
+		1,1,1,1,1,1
+	};
+	Distribution2D dist(&v[0], 6, 4);
 	Core::RNG rng(0);
-	std::vector<int> histo(5);
-	for (int i = 0; i < 1000; i++) {
-		int k = dist.sampleContinuous(rng.uniformFloat()) * 5;
-		histo[k]++;
-	}
-	for (int i = 0; i < 5; i++) {
-		fmt::print("{} {}\n", i, histo[i]);
-	}
-	for (int i = 0; i < 5; i++) {
-		fmt::print("pdf({}) = {}\n", i, dist.pdf(i));
-	}
+	for (int i = 0; i < 100; i++) {
+		Float pdf;
+		auto uv = dist.sampleContinuous(Point2f(rng.uniformFloat(), rng.uniformFloat()), &pdf);
+		fmt::print("{} {}   {}\n", uv[0], uv[1], pdf);
+	}*/
 	return 0;
 }

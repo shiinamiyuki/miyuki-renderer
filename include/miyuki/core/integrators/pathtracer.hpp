@@ -36,20 +36,12 @@ namespace Miyuki {
 			}
 
 		protected:
-			void handleEnvMap() {	
-				auto light = scene.getEnvironmentLight();
-				if (!light)return;
-				auto L = light->L(ray);
-				if (depth == 0)
-					addLighting(EDiffuse, beta * L);
-				else
-					addLighting(primaryLobe, beta * L);
-			}
+			
 
 			void lightSampling() {
 				if (scene.getLights().empty())return;
 				auto lightIdx = scene.getLightDistribution().sampleDiscrete(ctx.sampler->get1D());
-				auto light = scene.getLights()[lightIdx].get();
+				auto light = scene.getLights()[lightIdx];
 
 				LightSamplingRecord record;
 				VisibilityTester tester;
@@ -107,15 +99,29 @@ namespace Miyuki {
 				ray = isct.spawnRay(wi);
 				beta *= sample.f * Vec3f::absDot(isct.Ns, wi) / sample.pdf;
 			}
-
-			void MIS() {
-				auto light = isct.primitive->light();
+			void handleEnvMap() {
+				auto light = scene.getEnvironmentLight();
+				if (!light)return;
+				auto L = light->L(ray);
+				if (depth == 0)
+					addLighting(EDiffuse, beta * L);
+				else {
+					auto weight = computeMISWeight(light, sample.pdf);
+					addLighting(primaryLobe, weight * beta * L);
+				}
+			}
+			Float computeMISWeight(Light* light, Float scatterPdf) {
 				auto iter = scene.getLightPdfMap().find(light);
 				Assert(iter != scene.getLightPdfMap().end());
 				auto pdfLightSelect = iter->second;
 				auto pdfLi = light->pdfLi(prevIsct, wi);
 				auto lightPdf = pdfLightSelect * pdfLi;
-				auto weight = PowerHeuristics(sample.pdf, lightPdf);
+				auto weight = PowerHeuristics(scatterPdf, lightPdf);
+				return weight;
+			}
+			void MIS() {
+				auto light = isct.primitive->light();
+				auto weight = computeMISWeight(light, sample.pdf);
 				addLighting(primaryLobe, beta * isct.Le(ray) * weight);
 			}
 

@@ -71,6 +71,7 @@ namespace Miyuki {
 			virtual ShadingResult eval(ShadingPoint&) const = 0;
 			virtual ShadingResult average()const = 0;
 			virtual void preprocess()override {}
+			virtual Point2i resolution()const = 0;
 			static ShadingResult evaluate(const Shader* shader, ShadingPoint& p) {
 				if (shader) {
 					return shader->eval(p);
@@ -98,6 +99,9 @@ namespace Miyuki {
 			}
 			void setValue(Float value) { this->value = value; }
 			Float getValue()const { return value; }
+			virtual Point2i resolution()const override {
+				return Point2i(1, 1);
+			}
 		private:
 			Float value = 0;
 		};
@@ -129,6 +133,9 @@ namespace Miyuki {
 			void setMultiplier(Float val) {
 				multiplier = val;
 			}
+			virtual Point2i resolution()const override {
+				return Point2i(1, 1);
+			}
 		private:
 			Float multiplier = 1.0f;
 			Spectrum value;
@@ -148,6 +155,7 @@ namespace Miyuki {
 			virtual ShadingResult eval(ShadingPoint&) const override;
 			virtual ShadingResult average()const override;
 			virtual void preprocess()override;
+			virtual Point2i resolution()const override;
 		};
 		MYK_IMPL(ImageTextureShader, "Shader.ImageTexture");
 		MYK_REFL(ImageTextureShader, (Shader), (imageFile));
@@ -172,6 +180,16 @@ namespace Miyuki {
 				}
 				return r;
 			}
+			virtual Point2i resolution()const override {
+				Point2i r1(1,1), r2;
+				if (shaderA) {
+					r1 = shaderA->resolution();
+				}
+				if (shaderB) {
+					r2 = shaderB->resolution();
+				}
+				return Point2i(std::max(r1[0], r2[0]), std::max(r1[1], r2[1]));
+			}
 		};
 		MYK_IMPL(MixedShader, "Shader.Mixed");
 		MYK_REFL(MixedShader, (Shader), (fraction)(shaderA)(shaderB));
@@ -192,6 +210,14 @@ namespace Miyuki {
 					r = r + shader->average() * k;
 				}
 				return r;
+			}
+			virtual Point2i resolution()const override {
+				Point2i r1(1, 1), r2;
+				if (scale)
+					r1 = scale->resolution();
+				if (shader)
+					r2 = shader->resolution();
+				return Point2i(std::max(r1[0], r2[0]), std::max(r1[1], r2[1]));
 			}
 		};
 		MYK_IMPL(ScaledShader, "Shader.Scaled");

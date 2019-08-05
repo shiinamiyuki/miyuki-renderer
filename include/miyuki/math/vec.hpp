@@ -574,6 +574,16 @@ namespace Miyuki {
 	}
 
 	template<typename T, size_t N>
+	T distance(const Vec<T, N>& v1, const Vec<T, N>& v2) {
+		T dist = T();
+		for (auto i = 0; i < N; i++) {
+			auto d = v1[i] - v2[i];
+			dist += d * d;
+		}
+		return std::sqrt(dist);
+	}
+
+	template<typename T, size_t N>
 	struct Bound {
 		typedef Vec<T, N> Point;
 		Point pMin, pMax;

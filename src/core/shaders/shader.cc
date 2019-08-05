@@ -8,6 +8,11 @@ namespace Miyuki {
 		ShadingResult ImageTextureShader::average()const {
 			return _average;
 		}
+		Point2i ImageTextureShader::resolution()const {
+			if (texture.image)
+				return Point2i(texture.image->width, texture.image->height);
+			return Point2i{};
+		}
 		void ImageTextureShader::preprocess() {
 			Float cnt = 0;
 			_average = {};

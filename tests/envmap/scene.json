@@ -3,11 +3,11 @@
  "val": {
   "activeCamera": {
    "meta": "ref",
-   "val": 2997254480224
+   "val": 1850318092256
   },
   "cameras": [
    {
-    "addr": 2997254480224,
+    "addr": 1850318092256,
     "meta": "val",
     "val": {
      "type": "Camera.PerspectiveCamera",
@@ -40,7 +40,7 @@
    }
   },
   "integrator": {
-   "addr": 2997292105792,
+   "addr": 1850318877936,
    "meta": "val",
    "val": {
     "type": "Integrator.Path",
@@ -49,26 +49,26 @@
      "maxDepth": 5,
      "maxRayIntensity": 10000.0,
      "minDepth": 3,
-     "spp": 1,
+     "spp": 16,
      "useNEE": true
     }
    }
   },
   "materials": [
    {
-    "addr": 2997254643392,
+    "addr": 1850316956960,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2997292897760,
+       "addr": 1850317374928,
        "meta": "val",
        "val": {
         "type": "Material.Diffuse",
         "val": {
          "color": {
-          "addr": 2997292211872,
+          "addr": 1850318171728,
           "meta": "val",
           "val": {
            "type": "Shader.RGB",
@@ -92,19 +92,19 @@
     }
    },
    {
-    "addr": 2997254641728,
+    "addr": 1850316957088,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2997292892960,
+       "addr": 1850317377808,
        "meta": "val",
        "val": {
         "type": "Material.Diffuse",
         "val": {
          "color": {
-          "addr": 2997292210592,
+          "addr": 1850318172112,
           "meta": "val",
           "val": {
            "type": "Shader.RGB",
@@ -128,19 +128,19 @@
     }
    },
    {
-    "addr": 2997254643648,
+    "addr": 1850316957344,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2997292896080,
+       "addr": 1850317374688,
        "meta": "val",
        "val": {
         "type": "Material.Glossy",
         "val": {
          "color": {
-          "addr": 2997292210016,
+          "addr": 1850318172304,
           "meta": "val",
           "val": {
            "type": "Shader.RGB",
@@ -156,7 +156,7 @@
          },
          "emission": null,
          "roughness": {
-          "addr": 2997255576144,
+          "addr": 1850049297680,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -173,19 +173,19 @@
     }
    },
    {
-    "addr": 2997254638016,
+    "addr": 1850316957472,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2997292891040,
+       "addr": 1850317378048,
        "meta": "val",
        "val": {
         "type": "Material.Glossy",
         "val": {
          "color": {
-          "addr": 2997292209056,
+          "addr": 1850318172816,
           "meta": "val",
           "val": {
            "type": "Shader.RGB",
@@ -201,7 +201,7 @@
          },
          "emission": null,
          "roughness": {
-          "addr": 2997255575600,
+          "addr": 1850049298096,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -218,19 +218,19 @@
     }
    },
    {
-    "addr": 2997254641344,
+    "addr": 1850318554304,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2997292893680,
+       "addr": 1850317374448,
        "meta": "val",
        "val": {
         "type": "Material.Glossy",
         "val": {
          "color": {
-          "addr": 2997292210336,
+          "addr": 1850318172496,
           "meta": "val",
           "val": {
            "type": "Shader.RGB",
@@ -256,7 +256,7 @@
   ],
   "meshes": [
    {
-    "addr": 2997255217472,
+    "addr": 1850317201056,
     "meta": "val",
     "val": {
      "type": "Core.MeshFile",
@@ -265,70 +265,70 @@
       "name": "mesh0.obj",
       "objects": [
        {
-        "addr": 2997292209568,
+        "addr": 1850318172944,
         "meta": "val",
         "val": {
          "type": "Core.Object",
          "val": {
           "material": {
            "meta": "ref",
-           "val": 2997254641344
+           "val": 1850318554304
           },
           "name": "Icosphere.002.Mat_3.0"
          }
         }
        },
        {
-        "addr": 2997292212256,
+        "addr": 1850318173008,
         "meta": "val",
         "val": {
          "type": "Core.Object",
          "val": {
           "material": {
            "meta": "ref",
-           "val": 2997254643392
+           "val": 1850316956960
           },
           "name": "Plane.Mat_1.0"
          }
         }
        },
        {
-        "addr": 2997292212448,
+        "addr": 1850318173200,
         "meta": "val",
         "val": {
          "type": "Core.Object",
          "val": {
           "material": {
            "meta": "ref",
-           "val": 2997254641728
+           "val": 1850316957088
           },
           "name": "Icosphere.Mat_2.0"
          }
         }
        },
        {
-        "addr": 2997292210528,
+        "addr": 1850318171600,
         "meta": "val",
         "val": {
          "type": "Core.Object",
          "val": {
           "material": {
            "meta": "ref",
-           "val": 2997254643648
+           "val": 1850316957344
           },
           "name": "Icosphere.001.Mat_3.0"
          }
         }
        },
        {
-        "addr": 2997292212576,
+        "addr": 1850318171536,
         "meta": "val",
         "val": {
          "type": "Core.Object",
          "val": {
           "material": {
            "meta": "ref",
-           "val": 2997254638016
+           "val": 1850316957472
           },
           "name": "Icosphere.003.Mat_4.0"
          }
@@ -353,7 +353,7 @@
    }
   ],
   "sampler": {
-   "addr": 2997293387296,
+   "addr": 1850318547808,
    "meta": "val",
    "val": {
     "type": "Sampler.Sobol",
@@ -364,14 +364,14 @@
    "type": "Core.WorldConfig",
    "val": {
     "environmentMap": {
-     "addr": 2997292106784,
+     "addr": 1850318555456,
      "meta": "val",
      "val": {
       "type": "Light.InfiniteArea",
       "val": {
        "lightType": 12,
        "shader": {
-        "addr": 2997292103328,
+        "addr": 1850319583824,
         "meta": "val",
         "val": {
          "type": "Shader.ImageTexture",

@@ -34,6 +34,8 @@ namespace Miyuki {
 				return scene;
 			}
 			~EmbreeScene();
+
+			virtual Bound3f getWorldBound()const override;
 		private:
 			RTCScene scene;
 		};

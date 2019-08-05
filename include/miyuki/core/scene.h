@@ -20,7 +20,8 @@ namespace Miyuki {
 			std::map<std::string, uint32_t> meshToId;
 			std::unique_ptr<IO::ImageLoader> imageLoader;
 			std::unique_ptr<Distribution1D> lightDistribution;
-			std::vector<Box<Light>> lights;
+			std::vector<Box<Light>> meshLights;
+			std::vector<Light*> lights;
 			std::unordered_map<Light*, Float> lightPdfMap;
 			void loadObjMesh(const std::string& filename);
 
@@ -46,7 +47,7 @@ namespace Miyuki {
 			const Distribution1D& getLightDistribution()const {
 				return *lightDistribution;
 			}
-			const std::vector<Box<Light>>& getLights()const {
+			const std::vector<Light*>& getLights()const {
 				return lights;
 			}
 			const std::unordered_map<Light*, Float>& getLightPdfMap()const {

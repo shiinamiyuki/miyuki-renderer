@@ -75,7 +75,7 @@ Float Distribution1D::pdf(int x) const {
 }
 
 
-Distribution2D::Distribution2D(const Float* data, size_t nu, size_t nv)const {
+Distribution2D::Distribution2D(const Float* data, size_t nu, size_t nv) {
 	for (auto v = 0; v < nv; v++) {
 		pConditionalV.emplace_back(std::make_unique<Distribution1D>(&data[v * nu], nu));
 	}

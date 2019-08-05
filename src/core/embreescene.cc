@@ -109,5 +109,12 @@ namespace Miyuki {
 		EmbreeScene::~EmbreeScene() {
 			rtcReleaseScene(scene);
 		}
+		Bound3f EmbreeScene::getWorldBound()const {
+			RTCBounds bounds;
+			rtcGetSceneBounds(scene, &bounds);
+			return Bound3f(
+				 Point3f(bounds.lower_x, bounds.lower_y, bounds.lower_z),
+				Point3f(bounds.upper_x, bounds.upper_y, bounds.upper_z));
+		}
 	}
 }

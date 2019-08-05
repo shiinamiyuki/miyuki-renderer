@@ -12,6 +12,8 @@ namespace Miyuki {
 			virtual bool intersect(const Ray& ray, Intersection* isct) = 0;
 
 			//virtual void detachGeometry(int geomId) = 0;
+
+			virtual Bound3f getWorldBound()const = 0;
 		};
 		MYK_REFL(Accelerator, (Reflective), MYK_REFL_NIL);
 	}

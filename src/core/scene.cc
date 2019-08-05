@@ -147,7 +147,9 @@ namespace Miyuki {
 				instance->clearLightSetup();
 			}
 			lights.clear();
-
+			meshLights.clear();
+			if(getEnvironmentLight())
+				lights.emplace_back(getEnvironmentLight());
 			for (auto instance : instances) {
 				for (auto& primitive : instance->primitives) {
 					auto mat = primitive.material();
@@ -155,7 +157,8 @@ namespace Miyuki {
 						if (mat->emission->average().toVec3f().max() >= 1e-3f) {
 							auto light = makeBox<AreaLight>(&primitive);
 							primitive.setLight(light.get());
-							lights.emplace_back(std::move(light));
+							lights.emplace_back(light.get());
+							meshLights.emplace_back(std::move(light));
 						}
 					}
 				}
@@ -174,7 +177,7 @@ namespace Miyuki {
 			lightDistribution = std::make_unique<Distribution1D>(&power[0], lights.size());
 
 			for (int i = 0; i < lights.size(); i++) {
-				lightPdfMap[lights[i].get()] = lightDistribution->pdf(i);
+				lightPdfMap[lights[i]] = lightDistribution->pdf(i);
 			}
 
 			Log::log("Important lights: {} Total power: {}\n", lights.size(), lightDistribution->funcInt);
@@ -187,13 +190,22 @@ namespace Miyuki {
 			visitor.loadImages(graph);
 			for (auto& i : instances) {
 				assignMaterial(i);
-			}
-			visitor.preprocessAll();
-			if (graph.worldConfig.environmentMap)
+			}			
+	
+			if (graph.worldConfig.environmentMap) {
 				visitor.visit(graph.worldConfig.environmentMap);
+			}
 			setEnvironmentLight(graph.worldConfig.environmentMap.get());
-			computeLightDistribution();
+			visitor.preprocessAll();
 			embreeScene->commit();
+			auto bound = embreeScene->getWorldBound();
+			Point3f center;
+			Float radius;
+			bound.boundingSphere(&center, &radius);
+			if (auto light = dynamic_cast<InfiniteAreaLight*>(getEnvironmentLight())) {
+				light->setWorldRadius(radius);
+			}
+			computeLightDistribution();
 		}
 
 		static inline Float mod(Float a, Float b) {

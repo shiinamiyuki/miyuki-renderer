@@ -91,12 +91,13 @@ namespace Miyuki {
             int ch;
             auto data = stbi_loadf(filename.c_str(), &image.width, &image.height, &ch, 3);
             Assert(ch == 3);
+			Assert(data);
             image.pixelData.resize(image.width * image.height);
             Thread::ParallelFor(0u, image.width * image.height, [&](uint32_t i, uint32_t threadId) {
                 image.pixelData[i] = Spectrum(data[3 * i],
                                               data[3 * i + 1],
                                               data[3 * i + 2]);
-            }, 1024);
+            }, 4096);
             free(data);
 
         }
