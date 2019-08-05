@@ -4,6 +4,7 @@
 #include <core/materials/mixedmaterial.h>
 #include <core/materials/diffusematerial.h>
 #include <core/materials/glossymaterial.h>
+#include <core/materials/transparentmaterial.h>
 #include <core/lights/area.h>
 #include <core/lights/infinite.h>
 
@@ -101,6 +102,9 @@ namespace Miyuki {
 				visit<Core::MixedMaterial>([=](Core::MixedMaterial* mat) {
 					visit(mat->matA);
 					visit(mat->matB);
+				});
+				visit<Core::TransparentMaterial>([=](Core::TransparentMaterial* mat) {
+					visit(mat->color);
 				});
 				visit<Core::ScaledShader> ([=](Core::ScaledShader* shader) {
 					visit(shader->shader);

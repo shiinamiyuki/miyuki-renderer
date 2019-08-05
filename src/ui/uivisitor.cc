@@ -7,6 +7,7 @@
 #include <core/materials/diffusematerial.h>
 #include <core/materials/glossymaterial.h>
 #include <core/materials/mixedmaterial.h>
+#include <core/materials/transparentmaterial.h>
 #include <core/lights/infinite.h>
 
 namespace Miyuki {
@@ -183,6 +184,9 @@ namespace Miyuki {
 				visitShaderAndSelect(shader->shaderB, "shader  B");
 				Separator().show();
 			});
+			visit<Core::TransparentMaterial>([=](Core::TransparentMaterial* node) {
+				visitShaderAndSelect(node->color, "color");
+			});
 			visit<Core::GlossyMaterial>([=](Core::GlossyMaterial* node) {
 				visitShaderAndSelect(node->color, "color");
 				visitShaderAndSelect(node->roughness, "roughness");
@@ -238,7 +242,8 @@ namespace Miyuki {
 				if (auto r = GetInputWithSignal("name", slot->name)) {
 					slot->name = r.value();
 				}
-				visitShaderAndSelect(slot->material->emission, "emission");
+				if (slot->material)
+					visitShaderAndSelect(slot->material->emission, "emission");
 				visitMaterialAndSelect(slot->material, "material");
 			});
 			visit<Core::WorldConfig>([=](Core::WorldConfig* world) {
@@ -286,7 +291,7 @@ namespace Miyuki {
 					integrator->maxDepth = r.value();
 				}
 				if (auto r = GetInputWithSignal("ray clamp", integrator->maxRayIntensity)) {
-					integrator->maxRayIntensity  = r.value();
+					integrator->maxRayIntensity = r.value();
 				}
 				if (auto r = GetInputWithSignal("use NEE", integrator->useNEE)) {
 					integrator->useNEE = r.value();
@@ -464,7 +469,7 @@ namespace Miyuki {
 					Log::log("error: {}\n", e.what());
 					window.closeModal();
 				}
-			
+
 			});
 			th.detach();
 		}
