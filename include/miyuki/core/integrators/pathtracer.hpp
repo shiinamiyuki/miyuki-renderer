@@ -23,7 +23,7 @@ namespace Miyuki {
 				useNEE(useNEE),
 				aov(ctx.cameraSample.pFilm), ray(ctx.primary) {
 				option = ENoSampleOption;
-				beta = Spectrum(1,1,1);
+				beta = Spectrum(1, 1, 1);
 			}
 
 			const AOVRecord& getAOV()const {
@@ -36,7 +36,7 @@ namespace Miyuki {
 			}
 
 		protected:
-			
+
 
 			void lightSampling() {
 				if (scene.getLights().empty())return;
@@ -103,25 +103,28 @@ namespace Miyuki {
 				auto light = scene.getEnvironmentLight();
 				if (!light)return;
 				auto L = light->L(ray);
-				if (depth == 0 || specular)
+				if (depth == 0)
 					addLighting(EDiffuse, beta * L);
+				else if (specular) {
+					addLighting(primaryLobe, beta * L);
+				}
 				else {
-					auto weight = computeMISWeight(light, sample.pdf);
+					auto weight = computeMISWeight(light, sample.pdf, prevIsct);
 					addLighting(primaryLobe, weight * beta * L);
 				}
 			}
-			Float computeMISWeight(Light* light, Float scatterPdf) {
+			Float computeMISWeight(Light* light, Float scatterPdf, const Intersection& isct) {
 				auto iter = scene.getLightPdfMap().find(light);
 				Assert(iter != scene.getLightPdfMap().end());
 				auto pdfLightSelect = iter->second;
-				auto pdfLi = light->pdfLi(prevIsct, wi);
+				auto pdfLi = light->pdfLi(isct, wi);
 				auto lightPdf = pdfLightSelect * pdfLi;
 				auto weight = PowerHeuristics(scatterPdf, lightPdf);
 				return weight;
 			}
 			void MIS() {
 				auto light = isct.primitive->light();
-				auto weight = computeMISWeight(light, sample.pdf);
+				auto weight = computeMISWeight(light, sample.pdf, prevIsct);
 				addLighting(primaryLobe, beta * isct.Le(ray) * weight);
 			}
 
@@ -171,10 +174,10 @@ namespace Miyuki {
 					BSDFSampling();
 					if (!continuable())break;
 
-					nextIntersection(); 
+					nextIntersection();
 					if (!continuable())break;
 
-					russianRoulette(); 
+					russianRoulette();
 
 				}
 			}

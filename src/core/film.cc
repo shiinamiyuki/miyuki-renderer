@@ -5,6 +5,7 @@
 #include <core/film.h>
 #include <hw/texture.h>
 #include <filters/filter.h>
+#include <utils/log.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -63,7 +64,13 @@ namespace Miyuki {
 				pixelBuffer.emplace_back(out.b());
 				pixelBuffer.emplace_back(255);
 			}
-			lodepng::encode(filename, pixelBuffer, (uint32_t)width(), (uint32_t)height());
+			auto error = lodepng::encode(filename, pixelBuffer, (uint32_t)width(), (uint32_t)height());
+			if (error) {
+				Log::log("error saving {}: {}\n", filename, lodepng_error_text(error));
+			}
+			else {
+				Log::log("saved to {}\n", filename);
+			}
 		}
 
 		void Film::addSample(const Point2f& pos, const Spectrum& c, Float weight) {

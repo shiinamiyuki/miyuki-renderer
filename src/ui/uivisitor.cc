@@ -309,13 +309,13 @@ namespace Miyuki {
 					config->dimension = r.value();
 				}
 				Separator().show();
-				Text().name("output image");
+				Text().name("output image").show();
 				Text().name(config->outputImage.path.string()).show();
 				if (config->outputImage.str().empty()) {
 					config->outputImage = File(cxx::filesystem::path("out.png"));
 				}
 				Button().name("Select").with(true, [=]() {
-					auto filename = IO::GetOpenFileNameWithDialog("Image\0 *.png");
+					auto filename = IO::GetSaveFileNameWithDialog("Image\0 *.png");
 					if (!filename.empty()) {
 						config->outputImage = File(filename);
 					}

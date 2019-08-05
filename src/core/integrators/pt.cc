@@ -5,6 +5,13 @@
 
 namespace Miyuki {
 	namespace Core {
+		void imageToFilm(const IO::Image& image, Arc<Film>film) {
+			for (int j = 0; j < image.height; j++) {
+				for (int i = 0; i < image.width; i++) {
+					film->addSample(Point2f(i, j), image(i, j));
+				}
+			}
+		}
 		void PathTracerIntegrator::renderStart(const IntegratorContext& context) {
 			if(denoised)
 				denoiser = std::make_unique<DenoiserDriver>(
@@ -13,10 +20,12 @@ namespace Miyuki {
 		void PathTracerIntegrator::renderEnd(const IntegratorContext& context) {
 			if (denoised) {
 				try {
-					context.film->writePNG("pre_denoiser_out.png");
+					context.film->writePNG("temp/pre_denoiser_out.png");
 					IO::Image image;
 					denoiser->denoise(image);
-					image.save("denoised.png");
+					image.save("temp/post_denoiser_out.png");
+					context.film->clear();
+					imageToFilm(image, context.film);
 				}
 				catch (std::exception& e) {
 					std::cerr << e.what() << std::endl;

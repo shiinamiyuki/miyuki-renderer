@@ -75,6 +75,10 @@ Dependencies: Embree 3.0, boost, OpenEXR,  GLFW3
 CMake everything. 
 
 ## Gallery 
+## Editor
+
+![](gallery/editor_new.png)
+
 ### Random test images
 
 ![](gallery/envmap.png)

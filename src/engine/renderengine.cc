@@ -60,6 +60,9 @@ namespace Miyuki {
 			std::ofstream out(filename);
 			out << stream.toJson().dump(1) << std::endl;
 			Log::log("Saved to {}\n", filename);
+			if (!cxx::filesystem::exists("temp")) {
+				cxx::filesystem::create_directory("temp");
+			}
 		}
 		catch (std::exception& e) {
 			std::cout << e.what() << std::endl;
@@ -108,7 +111,7 @@ namespace Miyuki {
 			ctx.sampler = graph->sampler->clone();
 			ctx.scene = scene.get();
 			ctx.resultCallback = [=](Arc<Core::Film>film) {
-				film->writePNG("out.png");
+				film->writePNG(graph->filmConfig.outputImage.fullpath().string());
 				renderThread->detach();
 				renderThread = nullptr;
 			};

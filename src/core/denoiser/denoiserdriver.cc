@@ -78,7 +78,7 @@ namespace Miyuki {
 					Log::log("Denoising aov [{}] failed\n", AOVString((AOVType)i));
 					return false;
 				}
-				denoisedAOV[i].save(fmt::format("denoised {}.png", AOVString((AOVType)i)));
+				denoisedAOV[i].save(fmt::format("temp/denoised {}.png", AOVString((AOVType)i)));
 			}
 
 			for (int i = 0; i < image.pixelData.size(); i++) {
