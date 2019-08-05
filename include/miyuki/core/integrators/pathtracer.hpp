@@ -103,7 +103,7 @@ namespace Miyuki {
 				auto light = scene.getEnvironmentLight();
 				if (!light)return;
 				auto L = light->L(ray);
-				if (depth == 0)
+				if (depth == 0 || specular)
 					addLighting(EDiffuse, beta * L);
 				else {
 					auto weight = computeMISWeight(light, sample.pdf);

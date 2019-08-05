@@ -21,11 +21,14 @@ namespace Miyuki {
 		struct Object final : Reflective {
 			MYK_META;
 			std::string name;
+
+			// the name that is shown, and is modifiable
+			std::string alias;
 			MaterialSlot* material = nullptr;
 		};
 
 		MYK_IMPL(Object, "Core.Object");
-		MYK_REFL(Object, (Reflective), (name)(material));
+		MYK_REFL(Object, (Reflective), (name)(alias)(material));
 
 		struct MeshFile final : Reflective {
 			MYK_META;
@@ -41,9 +44,10 @@ namespace Miyuki {
 			MYK_META;
 			Point2i dimension;
 			Float scale;
+			File outputImage;
 		};
 		MYK_IMPL(FilmConfig, "Core.FilmConfig");
-		MYK_REFL(FilmConfig, (Reflective), (scale)(dimension));
+		MYK_REFL(FilmConfig, (Reflective), (scale)(dimension)(outputImage));
 
 		struct WorldConfig final :Reflective {
 			MYK_CLASS(WorldConfig);

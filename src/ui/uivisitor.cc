@@ -166,7 +166,7 @@ namespace Miyuki {
 			visit<Core::ImageTextureShader>([=](Core::ImageTextureShader* shader) {
 				Text().name(shader->imageFile.path.string()).show();
 				Button().name("Select").with(true, [=]() {
-					auto filename = IO::GetOpenFileNameWithDialog("Image\0 *.png;*.jpg\0Any File\0 * .*");
+					auto filename = IO::GetOpenFileNameWithDialog("Image\0 *.png;*.jpg;*.hdr\0Any File\0 * .*");
 					if (!filename.empty()) {
 						shader->imageFile = File(filename);
 					}
@@ -209,10 +209,13 @@ namespace Miyuki {
 			});
 			visit<Core::Object>([=](Core::Object* node) {
 				auto graph = engine->getGraph();
-				auto objectName = node->name;
+				auto objectName = node->alias;
 				auto matName = node->material->name;
+				if (node->alias.empty()) {
+					node->alias = node->name;
+				}
 				if (auto r = GetInputWithSignal("name", objectName)) {
-					node->name = r.value();
+					node->alias = r.value();
 				}
 				LineText("material");
 
@@ -300,6 +303,18 @@ namespace Miyuki {
 				if (auto r = GetInputWithSignal("dimension", config->dimension)) {
 					config->dimension = r.value();
 				}
+				Separator().show();
+				Text().name("output image");
+				Text().name(config->outputImage.path.string()).show();
+				if (config->outputImage.str().empty()) {
+					config->outputImage = File(cxx::filesystem::path("out.png"));
+				}
+				Button().name("Select").with(true, [=]() {
+					auto filename = IO::GetOpenFileNameWithDialog("Image\0 *.png");
+					if (!filename.empty()) {
+						config->outputImage = File(filename);
+					}
+				}).show();
 			});
 		}
 
