@@ -67,14 +67,14 @@ namespace Miyuki {
 			bool reflect = SameHemisphere(ctx.wi(), ctx.wo() );
 			if (bsdf->match(ctx.lobe)) {
 				bool valid = false;
-				if (ctx.option == ENoSampleOption) {
+				if (ctx.option == EUseStrictNormal) {
 					if ((reflectStrict && bsdf->match(EReflection))
 						|| (!reflectStrict && bsdf->match(ETransmission))) {
 						valid = true;
 					}
 				}
 				else {
-					CHECK(ctx.option == EUseStrictNormal);
+					CHECK(ctx.option == ENoSampleOption);
 					if ((reflect && bsdf->match(EReflection))
 						|| (!reflect && bsdf->match(ETransmission))) {
 						valid = true;
