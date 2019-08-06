@@ -6,25 +6,32 @@
 void test() {
 	using namespace Miyuki;
 	using namespace Miyuki::Kernel;
+	KernelGlobals globals;
+	ShaderProgram program;
+	program.program = new Shader * [32];
+	program.length = 32;
 
-	MixedShader shader;
-	Float3Shader A, B;
-	FloatShader fraction;
-	create_mixed_shader(&shader);
-	create_float_shader(&fraction);
-	fraction.value = 0.5f;
-	create_float3_shader(&A);
-	create_float3_shader(&B);
-	A.value = float3(1, 1, 1);
-	B.value = float3(0.5, 0, 0);
+	FloatShader s1;
+	s1.value = 1.0f;
+	FloatShader s2;
+	s2.value = 0.5f;
+	MixedShader s3;
+	EndShader s4;
+	create_float_shader(&s1);
+	create_float_shader(&s2);
+	create_mixed_shader(&s3);
+	create_end_shader(&s4);
+	program.program[0] = (Shader*)& s2;
+	program.program[1] = (Shader*)& s1;
+	program.program[2] = (Shader*)& s2;
+	program.program[3] = (Shader*)& s3;
+	program.program[4] = (Shader*)& s4;
+	globals.program = program;
 	ShadingPoint sp;
-	sp.uv = Point2f(1, 1);
-	shader.fraction = (Shader*)& fraction;
-	shader.shaderA = (Shader*)& A;
-	shader.shaderB = (Shader*)& B;
-	auto r = shader_eval((Shader*)& shader, &sp);
+	ShaderData data;
+	data.offset = 0;
+	auto r = svm_eval(&globals, sp, &data);
 	fmt::print("{} {} {}\n", r.x, r.y, r.z);
-	MYK_KERNEL_PANIC("");
 }
 
 int main(int argc, char** argv) {

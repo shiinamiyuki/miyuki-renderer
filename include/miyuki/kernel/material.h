@@ -5,7 +5,9 @@
 
 #include "material.generated.h"
 #include "sampler.h"
-#include "kernelfunc.h"
+#include "mathfunc.h"
+#include "svm.h"
+
 
 MYK_KERNEL_NS_BEGIN
 
@@ -30,9 +32,9 @@ void create_bsdf_sample(BSDFSample* sample, float3 wo, SamplerState* sampler) {
 }
 
 MYK_KERNEL_FUNC
-void diffuse_material_sample(DiffuseMaterial* mat, BSDFSample* sample, ShadingPoint *sp) {
-	float3 color = shader_eval(mat->color, sp);
-	float roughness = shader_eval(mat->roughness, sp).x;
+void diffuse_material_sample(DiffuseMaterial* mat, KernelGlobals* kg, BSDFSample* sample, ShadingPoint sp) {
+	float3 color = svm_eval(kg, sp, &mat->color);
+	float roughness = svm_eval(kg, sp, &mat->roughness).x;
 	sample->bsdf = color * INVPI;
 	sample->wi = cosine_hemisphere_sampling(sample->u_sample);
 	sample->pdf = cosine_hemiphsere_pdf(sample->wi);

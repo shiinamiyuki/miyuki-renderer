@@ -3,7 +3,7 @@
 #define MIYUKI_KERNEL_MATERIAL_GENERATED_H
 
 #include "kerneldef.h"
-#include "shader.h"
+#include "shaderdata.h"
 #include "bsdflobe.h"
 
 MYK_KERNEL_NS_BEGIN
@@ -40,42 +40,37 @@ MYK_KERNEL_FUNC_INLINE void create_material(Material* object){
 
 typedef struct DiffuseMaterial{
     Material _base;
-    Shader * roughness;
-    Shader * color;
+    ShaderData roughness;
+    ShaderData color;
 
 }DiffuseMaterial;
 
 MYK_KERNEL_FUNC_INLINE void create_diffuse_material(DiffuseMaterial* object){
-    object->roughness = NULL;
-    object->color = NULL;
     create_material((Material *)object);
     object->_base.type_tag = DIFFUSE_MATERIAL;
 }
 
 typedef struct GlossyMaterial{
     Material _base;
-    Shader * roughness;
-    Shader * color;
+    ShaderData roughness;
+    ShaderData color;
 
 }GlossyMaterial;
 
 MYK_KERNEL_FUNC_INLINE void create_glossy_material(GlossyMaterial* object){
-    object->roughness = NULL;
-    object->color = NULL;
     create_material((Material *)object);
     object->_base.type_tag = GLOSSY_MATERIAL;
 }
 
 typedef struct MixedMaterial{
     Material _base;
-    Shader * fraction;
+    ShaderData fraction;
     Material * matA;
     Material * matB;
 
 }MixedMaterial;
 
 MYK_KERNEL_FUNC_INLINE void create_mixed_material(MixedMaterial* object){
-    object->fraction = NULL;
     object->matA = NULL;
     object->matB = NULL;
     create_material((Material *)object);

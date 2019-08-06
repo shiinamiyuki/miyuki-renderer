@@ -27,9 +27,6 @@ float4 make_float4(Float x, Float y, Float z, Float w) {
 	return Vec4f(x, y, z, w);
 }
 
-typedef struct KernelGlobals {
-
-}KernelGlobals;
 
 Float dot(const float3& v1, const float3& v2) {
 	return Vec3f::dot(v1, v2);
@@ -66,8 +63,21 @@ inline float4 min(float4 a, float4 b) {
 	return make_float4(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z), min(a.w, b.w));
 }
 
-typedef float3 ShadingResult;
-
 #define MYK_KERNEL_PANIC(fmt, ...) printf("MYK_KERNEL_PANIC() called at %s:%d: " fmt, __FILE__,__LINE__, __VA_ARGS__ )
+
+
+
+typedef float3 ShadingResult;
+struct Shader;
+typedef struct ShaderProgram {
+	struct Shader** program;
+	int length;
+}ShaderProgram;
+typedef struct KernelGlobals {
+	ShaderProgram program;
+}KernelGlobals;
+
+
+
 MYK_KERNEL_NS_END
 #endif

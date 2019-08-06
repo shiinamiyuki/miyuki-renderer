@@ -99,6 +99,7 @@ class KernelClass:
         self.name = name
         self.type_tag = camel_to_snake(name, True)
         self.super = _super
+        self.comment = ''
         global globals
         if self.super:
             if self.super not in globals.supers:
@@ -126,6 +127,8 @@ class KernelClass:
         s += '}\n'
         return s
 
+    def gen_comment(self):
+        return '/*' + self.comment + '*/' if self.comment else ''
 
     def gen_def(self)->str:
         s = \
@@ -145,7 +148,7 @@ typedef struct #NAME{
 
         
     def to_str(self)->str:
-        return self.gen_def() + self.gen_ctor()
+        return self.gen_comment() + self.gen_def() + self.gen_ctor()
 
 
 def create_class(name, data:dict):
@@ -155,7 +158,9 @@ def create_class(name, data:dict):
         attrs = data['attr']
         for attr in attrs:
             ty = attrs[attr]
-            _class.add_attr(KernelAttribute(attr, ty))    
+            _class.add_attr(KernelAttribute(attr, ty))  
+    if 'comment' in data:
+        _class.comment = data['comment']
     return _class
 def create_classes(data):
     for i in data:

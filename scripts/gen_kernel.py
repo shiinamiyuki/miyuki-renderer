@@ -36,17 +36,19 @@ shaders = {
     'MixedShader':{
         'super':'Shader',
         'attr':{
-            'fraction':'Shader *',
-            'shaderA':'Shader *',
-            'shaderB':'Shader *'
-        }
+        },
+        'comment':
+            "eval B, A, fraction"
     },
     'ScaledShader':{
         'super':'Shader',
         'attr':{
-            'scale':'Shader *',
-            'shader':'Shader *',
-        }
+            
+        },'comment':
+            "eval v, k"
+    },
+    'EndShader':{
+        'super':'Shader'
     }
 }
 create_classes(shaders)
@@ -69,7 +71,7 @@ kernel_material =  \
 #define MIYUKI_KERNEL_MATERIAL_GENERATED_H
 
 #include "kerneldef.h"
-#include "shader.h"
+#include "shaderdata.h"
 #include "bsdflobe.h"
 
 MYK_KERNEL_NS_BEGIN
@@ -84,21 +86,21 @@ materials = {
     'DiffuseMaterial':{
         'super':'Material',
         'attr':{
-            'roughness':'Shader *',
-            'color':'Shader *'
+            'roughness':'ShaderData',
+            'color':'ShaderData'
         }
     }, 
     'GlossyMaterial':{
         'super':'Material',
         'attr':{
-            'roughness':'Shader *',
-            'color':'Shader *'
+            'roughness':'ShaderData',
+            'color':'ShaderData'
         }
     },
      'MixedMaterial':{
         'super':'Material',
         'attr':{
-            'fraction':'Shader *',
+            'fraction':'ShaderData',
             'matA':'Material *',
             'matB':'Material *'
         }

@@ -16,51 +16,59 @@ MYK_KERNEL_NS_END
 
 MYK_KERNEL_NS_BEGIN
 
-typedef struct ShadingPoint {
-	float2 uv;
-}ShadingPoint;
-
-MYK_KERNEL_FUNC ShadingResult shader_eval(const Shader* shader, const ShadingPoint* sp);
-
-MYK_KERNEL_FUNC ShadingResult float_shader_eval(const FloatShader* shader, const ShadingPoint* sp) {
+MYK_KERNEL_FUNC
+void float_shader_eval(FloatShader* shader, KernelGlobals*, SVM* svm) {
 	float v = shader->value;
-	return make_float3(v, v, v);
+	svm_push(svm, make_float3(v, v, v));
 }
 
-MYK_KERNEL_FUNC ShadingResult float3_shader_eval(const Float3Shader* shader, const ShadingPoint* sp) {
-	return shader->value;
+MYK_KERNEL_FUNC
+void float3_shader_eval(Float3Shader* shader, KernelGlobals*, SVM* svm) {
+	svm_push(svm, shader->value);
 }
 
-MYK_KERNEL_FUNC ShadingResult image_texture_shader_eval(const ImageTextureShader* shader, const ShadingPoint* sp) {
-	return fetch_image_texture(shader->texture, sp->uv);
+MYK_KERNEL_FUNC
+void image_texture_shader_eval(ImageTextureShader* shader, KernelGlobals*, SVM* svm) {
+	float3 value = fetch_image_texture(shader->texture, svm->shading_point.uv);
+	svm_push(svm, value);
 }
 
-MYK_KERNEL_FUNC ShadingResult scaled_shader_eval(const ScaledShader* shader, const ShadingPoint* sp) {
-	if (!shader->shader) {
-		return make_float3(0, 0, 0);
+MYK_KERNEL_FUNC
+void mixed_shader_eval(MixedShader* shader, KernelGlobals*, SVM* svm) {
+	ShadingResult fraction = svm_pop(svm);
+	ShadingResult A = svm_pop(svm);
+	ShadingResult B = svm_pop(svm);
+	svm_push(svm, fraction * A + (make_float3(1, 1, 1) - fraction) * B);
+}
+
+MYK_KERNEL_FUNC
+void scaled_shader_eval(ScaledShader* shader, KernelGlobals*, SVM* svm) {
+	ShadingResult k = svm_pop(svm);
+	ShadingResult v = svm_pop(svm);
+	svm_push(svm, k * v);
+}
+
+MYK_KERNEL_FUNC
+void end_shader_eval(EndShader* shader, KernelGlobals*, SVM* svm) {
+	svm->halt = true;
+}
+
+
+MYK_KERNEL_FUNC
+void shader_eval(KernelGlobals* globals, SVM* svm) {
+	Shader* s = read_next_shader(globals, svm);
+	svm_pc_advance(svm);
+	DISPATCH_SHADER(eval, s, globals, svm)
+}
+
+MYK_KERNEL_FUNC
+ShadingResult svm_eval(KernelGlobals* globals, ShadingPoint sp, ShaderData * data) {
+	SVM svm;
+	svm_init(&svm, data->offset, sp);
+	while (!svm.halt) {
+		shader_eval(globals, &svm);
 	}
-	ShadingResult r = shader_eval(shader->shader, sp);
-	if (!shader->scale) {
-		return r;
-	}
-	return r * shader_eval(shader->scale, sp);
-}
-
-MYK_KERNEL_FUNC ShadingResult mixed_shader_eval(const MixedShader* shader, const ShadingPoint* sp) {
-	if (!shader->fraction) {
-		return make_float3(0, 0, 0);
-	}
-	ShadingResult fraction = shader_eval(shader->fraction, sp);
-	ShadingResult a = shader_eval(shader->shaderA, sp);
-	ShadingResult b = shader_eval(shader->shaderB, sp);
-	return fraction * a + (make_float3(1, 1, 1) - fraction) * b;
-}
-
-MYK_KERNEL_FUNC ShadingResult shader_eval(const Shader* shader, const ShadingPoint* sp) {
-	if (!shader) {
-		return make_float3(0, 0, 0);
-	}
-	DISPATCH_SHADER(eval, shader, sp)
+	return svm_pop(&svm);
 }
 
 MYK_KERNEL_NS_END

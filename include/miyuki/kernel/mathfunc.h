@@ -1,5 +1,5 @@
-#ifndef MIYUKI_KERNEL_FUNC_H
-#define MIYUKI_KERNEL_FUNC_H
+#ifndef MIYUKI_KERNEL_MATH_FUNC_H
+#define MIYUKI_KERNEL_MATH_FUNC_H
 
 #include "kerneldef.h"
 
