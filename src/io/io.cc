@@ -26,6 +26,7 @@ namespace Miyuki{
 		private:
 			cxx::filesystem::path current;
 		};
+
         void readUnderPath(const std::string &filename, std::function<void(const std::string &)> f){
 			CurrentPathSaver saver;
 
