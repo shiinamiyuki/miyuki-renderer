@@ -4,13 +4,14 @@
 
 #include "kerneldef.h"
 #include "shader.h"
+#include "bsdflobe.h"
 
 MYK_KERNEL_NS_BEGIN
 enum MaterialType{
-    EMATERIAL_NONE,
-    EDIFFUSE_MATERIAL,
-    EGLOSSY_MATERIAL,
-    EMIXED_MATERIAL,
+    MATERIAL_NONE,
+    DIFFUSE_MATERIAL,
+    GLOSSY_MATERIAL,
+    MIXED_MATERIAL,
 };
 struct Material;
 struct DiffuseMaterial;
@@ -19,22 +20,22 @@ struct MixedMaterial;
 
 typedef struct Material{
     MaterialType type_tag;
-
+    BSDFLobe lobe;
 
 }Material;
 
 #define DISPATCH_MATERIAL(method,object, ...) \
     switch(object->type_tag) {\
-    case EDIFFUSE_MATERIAL:\
+    case DIFFUSE_MATERIAL:\
         return diffuse_material##_##method((DiffuseMaterial *)object, __VA_ARGS__);\
-    case EGLOSSY_MATERIAL:\
+    case GLOSSY_MATERIAL:\
         return glossy_material##_##method((GlossyMaterial *)object, __VA_ARGS__);\
-    case EMIXED_MATERIAL:\
+    case MIXED_MATERIAL:\
         return mixed_material##_##method((MixedMaterial *)object, __VA_ARGS__);\
     };\
     assert(0);
 
-void create_material(Material* object){
+MYK_KERNEL_FUNC_INLINE void create_material(Material* object){
 }
 
 typedef struct DiffuseMaterial{
@@ -44,11 +45,11 @@ typedef struct DiffuseMaterial{
 
 }DiffuseMaterial;
 
-void create_diffuse_material(DiffuseMaterial* object){
+MYK_KERNEL_FUNC_INLINE void create_diffuse_material(DiffuseMaterial* object){
     object->roughness = NULL;
     object->color = NULL;
     create_material((Material *)object);
-    object->_base.type_tag = EDIFFUSE_MATERIAL;
+    object->_base.type_tag = DIFFUSE_MATERIAL;
 }
 
 typedef struct GlossyMaterial{
@@ -58,11 +59,11 @@ typedef struct GlossyMaterial{
 
 }GlossyMaterial;
 
-void create_glossy_material(GlossyMaterial* object){
+MYK_KERNEL_FUNC_INLINE void create_glossy_material(GlossyMaterial* object){
     object->roughness = NULL;
     object->color = NULL;
     create_material((Material *)object);
-    object->_base.type_tag = EGLOSSY_MATERIAL;
+    object->_base.type_tag = GLOSSY_MATERIAL;
 }
 
 typedef struct MixedMaterial{
@@ -73,12 +74,12 @@ typedef struct MixedMaterial{
 
 }MixedMaterial;
 
-void create_mixed_material(MixedMaterial* object){
+MYK_KERNEL_FUNC_INLINE void create_mixed_material(MixedMaterial* object){
     object->fraction = NULL;
     object->matA = NULL;
     object->matB = NULL;
     create_material((Material *)object);
-    object->_base.type_tag = EMIXED_MATERIAL;
+    object->_base.type_tag = MIXED_MATERIAL;
 }
 
 MYK_KERNEL_NS_END

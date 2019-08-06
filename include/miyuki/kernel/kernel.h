@@ -5,5 +5,6 @@
 #include "shader.h"
 #include "texture.h"
 #include "sampler.h"
+#include "material.h"
 
 #endif

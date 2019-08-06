@@ -11,12 +11,14 @@
           |___/
 ```
 
-Goal: a high performance pbrt-style renderer with low hardware requirements but renders great images quickly (sounds like the ultimate goal for computer graphics though :D)
+Goal: a high performance pbrt-style renderer.
 
 
 ## File Structure:
 
 `miyuki/reflection`: A custom RTTI/Reflection/GC/Serialization library. 
+
+`miyuki/kernel`: A WIP CPU/GPU rendering kernel.
 
 `miyuki/core`: Core renderer code.
 

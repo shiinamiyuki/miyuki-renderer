@@ -11,7 +11,8 @@ MYK_KERNEL_NS_BEGIN
 
 shaders = {
     'Shader':{
-        'super':''
+        'super':'',
+        
     },
     'FloatShader':{
         'super':'Shader',
@@ -69,12 +70,16 @@ kernel_material =  \
 
 #include "kerneldef.h"
 #include "shader.h"
+#include "bsdflobe.h"
 
 MYK_KERNEL_NS_BEGIN
 """
 materials = {
     "Material":{
         'super':None,
+        'attr':{
+            'lobe':'BSDFLobe'
+        }
     },
     'DiffuseMaterial':{
         'super':'Material',

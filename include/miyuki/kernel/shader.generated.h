@@ -6,12 +6,12 @@
 
 MYK_KERNEL_NS_BEGIN
 enum ShaderType{
-    ESHADER_NONE,
-    EFLOAT_SHADER,
-    EFLOAT3_SHADER,
-    EIMAGE_TEXTURE_SHADER,
-    EMIXED_SHADER,
-    ESCALED_SHADER,
+    SHADER_NONE,
+    FLOAT_SHADER,
+    FLOAT3_SHADER,
+    IMAGE_TEXTURE_SHADER,
+    MIXED_SHADER,
+    SCALED_SHADER,
 };
 struct Shader;
 struct FloatShader;
@@ -23,25 +23,24 @@ struct ScaledShader;
 typedef struct Shader{
     ShaderType type_tag;
 
-
 }Shader;
 
 #define DISPATCH_SHADER(method,object, ...) \
     switch(object->type_tag) {\
-    case EFLOAT_SHADER:\
+    case FLOAT_SHADER:\
         return float_shader##_##method((FloatShader *)object, __VA_ARGS__);\
-    case EFLOAT3_SHADER:\
+    case FLOAT3_SHADER:\
         return float3_shader##_##method((Float3Shader *)object, __VA_ARGS__);\
-    case EIMAGE_TEXTURE_SHADER:\
+    case IMAGE_TEXTURE_SHADER:\
         return image_texture_shader##_##method((ImageTextureShader *)object, __VA_ARGS__);\
-    case EMIXED_SHADER:\
+    case MIXED_SHADER:\
         return mixed_shader##_##method((MixedShader *)object, __VA_ARGS__);\
-    case ESCALED_SHADER:\
+    case SCALED_SHADER:\
         return scaled_shader##_##method((ScaledShader *)object, __VA_ARGS__);\
     };\
     assert(0);
 
-void create_shader(Shader* object){
+MYK_KERNEL_FUNC_INLINE void create_shader(Shader* object){
 }
 
 typedef struct FloatShader{
@@ -50,9 +49,9 @@ typedef struct FloatShader{
 
 }FloatShader;
 
-void create_float_shader(FloatShader* object){
+MYK_KERNEL_FUNC_INLINE void create_float_shader(FloatShader* object){
     create_shader((Shader *)object);
-    object->_base.type_tag = EFLOAT_SHADER;
+    object->_base.type_tag = FLOAT_SHADER;
 }
 
 typedef struct Float3Shader{
@@ -62,9 +61,9 @@ typedef struct Float3Shader{
 
 }Float3Shader;
 
-void create_float3_shader(Float3Shader* object){
+MYK_KERNEL_FUNC_INLINE void create_float3_shader(Float3Shader* object){
     create_shader((Shader *)object);
-    object->_base.type_tag = EFLOAT3_SHADER;
+    object->_base.type_tag = FLOAT3_SHADER;
 }
 
 typedef struct ImageTextureShader{
@@ -73,10 +72,10 @@ typedef struct ImageTextureShader{
 
 }ImageTextureShader;
 
-void create_image_texture_shader(ImageTextureShader* object){
+MYK_KERNEL_FUNC_INLINE void create_image_texture_shader(ImageTextureShader* object){
     object->texture = NULL;
     create_shader((Shader *)object);
-    object->_base.type_tag = EIMAGE_TEXTURE_SHADER;
+    object->_base.type_tag = IMAGE_TEXTURE_SHADER;
 }
 
 typedef struct MixedShader{
@@ -87,12 +86,12 @@ typedef struct MixedShader{
 
 }MixedShader;
 
-void create_mixed_shader(MixedShader* object){
+MYK_KERNEL_FUNC_INLINE void create_mixed_shader(MixedShader* object){
     object->fraction = NULL;
     object->shaderA = NULL;
     object->shaderB = NULL;
     create_shader((Shader *)object);
-    object->_base.type_tag = EMIXED_SHADER;
+    object->_base.type_tag = MIXED_SHADER;
 }
 
 typedef struct ScaledShader{
@@ -102,11 +101,11 @@ typedef struct ScaledShader{
 
 }ScaledShader;
 
-void create_scaled_shader(ScaledShader* object){
+MYK_KERNEL_FUNC_INLINE void create_scaled_shader(ScaledShader* object){
     object->scale = NULL;
     object->shader = NULL;
     create_shader((Shader *)object);
-    object->_base.type_tag = ESCALED_SHADER;
+    object->_base.type_tag = SCALED_SHADER;
 }
 
 MYK_KERNEL_NS_END

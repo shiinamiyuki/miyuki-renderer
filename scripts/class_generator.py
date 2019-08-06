@@ -22,7 +22,7 @@ class Globals:
         self.classes = dict()
 
     def gen_super_meta(self, _super):
-        s = ' ' * 4 + _super + 'Type type_tag;\n'
+        s = ' ' * 4 + _super + 'Type type_tag;'
         return s
 
     def gen_dispatcher(self, _super):
@@ -42,7 +42,7 @@ class Globals:
         c = self.classes[_super]
         attrs = ''
         for i in c.attributes:
-            attrs += ' '* 8 + i.to_str() + ';\n'
+            attrs += ' '* 4 + i.to_str() + ';\n'
         s = \
         """
 typedef struct #NAME{
@@ -56,7 +56,7 @@ typedef struct #NAME{
     
     def gen_type_tag(self, _super):
         s = 'enum ' + _super + 'Type{\n'
-        s += ' ' *4 + 'E' + _super.upper() + '_NONE,\n'
+        s += ' ' *4  + _super.upper() + '_NONE,\n'
         for i in self.supers[_super]:
             s += ' ' * 4 + i.type_tag + ',\n'
         s += '};\n'
@@ -97,7 +97,7 @@ class KernelClass:
     def __init__(self, name:str, _super:str):
         self.attributes = []
         self.name = name
-        self.type_tag = 'E' + camel_to_snake(name, True)
+        self.type_tag = camel_to_snake(name, True)
         self.super = _super
         global globals
         if self.super:
@@ -115,7 +115,7 @@ class KernelClass:
         return self
 
     def gen_ctor(self):
-        s = 'void ' + self.get_ctor_name() + '(' + self.name + '* object){\n'
+        s = 'MYK_KERNEL_FUNC_INLINE void ' + self.get_ctor_name() + '(' + self.name + '* object){\n'
         for a in self.attributes:
             if a.is_pointer:
                 s += ' ' * 4 + 'object->' + a.name + ' = NULL;\n'
