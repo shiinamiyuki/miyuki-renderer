@@ -58,6 +58,9 @@ MYK_KERNEL_FUNC float3 mixed_shader_eval(const MixedShader* shader, const Shadin
 }
 
 MYK_KERNEL_FUNC float3 shader_eval(const Shader* shader, const ShadingPoint* sp) {
+	if (!shader) {
+		return make_float3(0, 0, 0);
+	}
 	DISPATCH_SHADER(eval, shader, sp)
 }
 

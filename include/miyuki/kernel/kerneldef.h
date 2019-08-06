@@ -6,12 +6,13 @@
 #define MYK_KERNEL_NS_BEGIN namespace Miyuki{namespace Kernel{
 #define MYK_KERNEL_NS_END }}
 #define MYK_KERNEL_FUNC  static
-#define MYK_KERNEL_FUNC_INLINE  inline
+#define MYK_KERNEL_FUNC_INLINE  static inline
 MYK_KERNEL_NS_BEGIN
 
 typedef Vec3f float3;
 typedef Vec4f float4;
 typedef Point2f float2;
+typedef Point2i int2;
 
 float2 make_float2(Float x, Float y) {
 	return Point2f(x, y);

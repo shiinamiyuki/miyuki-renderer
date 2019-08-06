@@ -15,9 +15,12 @@ def camel_to_snake(camel:str, upper:bool)->str:
 
 class Globals:
     def __init__(self):
+        self.clear()
+        
+    def clear(self):
         self.supers = dict()
         self.classes = dict()
-    
+
     def gen_super_meta(self, _super):
         s = ' ' * 4 + _super + 'Type type_tag;\n'
         return s
@@ -143,3 +146,17 @@ typedef struct #NAME{
         
     def to_str(self)->str:
         return self.gen_def() + self.gen_ctor()
+
+
+def create_class(name, data:dict):
+    _super = data['super']
+    _class = KernelClass(name,_super)
+    if 'attr' in data:
+        attrs = data['attr']
+        for attr in attrs:
+            ty = attrs[attr]
+            _class.add_attr(KernelAttribute(attr, ty))    
+    return _class
+def create_classes(data):
+    for i in data:
+        create_class(i, data[i])

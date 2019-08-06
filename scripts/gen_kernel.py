@@ -9,19 +9,6 @@ kernel_shader = \
 MYK_KERNEL_NS_BEGIN
 """
 
-
-def create_class(name, data:dict):
-    _super = data['super']
-    _class = KernelClass(name,_super)
-    if 'attr' in data:
-        attrs = data['attr']
-        for attr in attrs:
-            ty = attrs[attr]
-            _class.add_attr(KernelAttribute(attr, ty))    
-    return _class
-def create_classes(data):
-    for i in data:
-        create_class(i, data[i])
 shaders = {
     'Shader':{
         'super':''
@@ -72,3 +59,52 @@ MYK_KERNEL_NS_END
 """
 
 open("../include/miyuki/kernel/shader.generated.h", "w").write(kernel_shader)
+
+globals.clear()
+
+kernel_material =  \
+"""// AUTO GENERATED. DO NOT EDIT
+#ifndef MIYUKI_KERNEL_MATERIAL_GENERATED_H
+#define MIYUKI_KERNEL_MATERIAL_GENERATED_H
+
+#include "kerneldef.h"
+#include "shader.h"
+
+MYK_KERNEL_NS_BEGIN
+"""
+materials = {
+    "Material":{
+        'super':None,
+    },
+    'DiffuseMaterial':{
+        'super':'Material',
+        'attr':{
+            'roughness':'Shader *',
+            'color':'Shader *'
+        }
+    }, 
+    'GlossyMaterial':{
+        'super':'Material',
+        'attr':{
+            'roughness':'Shader *',
+            'color':'Shader *'
+        }
+    },
+     'MixedMaterial':{
+        'super':'Material',
+        'attr':{
+            'fraction':'Shader *',
+            'matA':'Material *',
+            'matB':'Material *'
+        }
+    }
+}
+create_classes(materials)
+kernel_material += globals.gen()
+kernel_material +=\
+"""
+MYK_KERNEL_NS_END
+
+#endif
+"""
+open("../include/miyuki/kernel/material.generated.h", "w").write(kernel_material)

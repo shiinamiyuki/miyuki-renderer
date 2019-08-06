@@ -4,5 +4,6 @@
 
 #include "shader.h"
 #include "texture.h"
+#include "sampler.h"
 
 #endif
