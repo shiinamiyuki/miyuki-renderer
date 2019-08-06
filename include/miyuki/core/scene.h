@@ -92,8 +92,8 @@ namespace Miyuki {
 				isct->primitive->textureCoord[2],
 				isct->uv[0],
 				isct->uv[1]);
-			uv.x() = mod(uv.x(), 1);
-			uv.y() = mod(uv.y(), 1);
+			uv.x = mod(uv.x, 1);
+			uv.y = mod(uv.y, 1);
 			isct->textureUV = uv;
 
 			// TODO: partial derivatives

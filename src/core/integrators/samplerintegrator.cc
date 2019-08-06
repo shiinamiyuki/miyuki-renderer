@@ -8,12 +8,12 @@
 namespace Miyuki {
 	namespace Core {
 		void HilbertMapping(const Point2i& nTiles, std::vector<Point2f>& hilbertMapping) {
-			int M = std::ceil(std::log2(std::max(nTiles.x(), nTiles.y())));
+			int M = std::ceil(std::log2(std::max(nTiles.x, nTiles.y)));
 
 			for (size_t i = 0; i < pow(2, M + M); i++) {
 				int tx, ty;
 				::d2xy(M, i, tx, ty);
-				if (tx >= nTiles.x() || ty >= nTiles.y())
+				if (tx >= nTiles.x || ty >= nTiles.y)
 					continue;
 				hilbertMapping.emplace_back(tx, ty);
 			}
@@ -63,8 +63,8 @@ namespace Miyuki {
 				auto start = reporter.elapsedSeconds();
 				Thread::ParallelFor(0u, hilbertMapping.size(), [&](uint32_t idx, uint32_t threadId) {
 					int tx, ty;
-					tx = hilbertMapping[idx].x();
-					ty = hilbertMapping[idx].y();
+					tx = hilbertMapping[idx].x;
+					ty = hilbertMapping[idx].y;
 					Point2i tilePos(tx, ty);
 					tilePos *= TileSize;
 					Bound2i tileBound(tilePos, tilePos + Point2i{ TileSize, TileSize });

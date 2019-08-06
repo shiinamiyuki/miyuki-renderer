@@ -69,9 +69,9 @@ namespace Miyuki {
                     std::vector<unsigned char> pixelBuffer;
                     for (const auto &i:pixelData) {
                         auto out = removeNaNs(i).toInt();
-                        pixelBuffer.emplace_back(out.r());
-                        pixelBuffer.emplace_back(out.g());
-                        pixelBuffer.emplace_back(out.b());
+                        pixelBuffer.emplace_back(out.r);
+                        pixelBuffer.emplace_back(out.g);
+                        pixelBuffer.emplace_back(out.b);
                         pixelBuffer.emplace_back(255);
                     }
                     lodepng::encode(filename, pixelBuffer, (uint32_t) width, (uint32_t) height);

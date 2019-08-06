@@ -335,9 +335,9 @@ void main()
 			size_t i = 0;
 			for (const auto& pixel : film->image) {
 				auto color = pixel.eval().toInt();
-				pixelData[4ul * i] = color.r();
-				pixelData[4ul * i + 1] = color.g();
-				pixelData[4ul * i + 2] = color.b();
+				pixelData[4ul * i] = color.r;
+				pixelData[4ul * i + 1] = color.g;
+				pixelData[4ul * i + 2] = color.b;
 				pixelData[4ul * i + 3] = 255;
 				i++;
 			}			

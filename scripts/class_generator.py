@@ -20,34 +20,18 @@ class Globals:
     
     def gen_super_meta(self, _super):
         s = ' ' * 4 + _super + 'Type type_tag;\n'
-        s += ' ' * 4 + 'union{\n'
-        for i in self.supers[_super]:
-            s += ' ' * 8 + i.name + ' ' +camel_to_snake(i.name , False) + ';\n'
-        s += ' '  * 4+ '};'
-        return s
-
-    def gen_super_ctor(self, _super):
-        s = '{0} create_{1}({2} type_tag){{\n'.format(_super, camel_to_snake(_super, False), _super + 'Type')
-        s += ' ' * 4 + 'switch(type_tag) {\n'
-        for i in self.supers[_super]:
-            s += ' ' * 4 + 'case {0}:\n'.format(i.type_tag)
-            s += ' ' * 8 + 'return ' + i.get_ctor_name() + '();\n'
-        s += ' ' * 4 + '};\n'
-        s += ' ' * 4 + 'assert(0);\n'
-        s += '}\n'
         return s
 
     def gen_dispatcher(self, _super):
         macro = 'DISPATCH_' + camel_to_snake(_super, True)
         s = '#define ' + macro + '(method,object, ...) \\\n'
         # s += 'ret ' + camel_to_snake(_super, False) + '##_##method(' + _super + '* pObject,' + '__VA_ARGS__){\\\n'
-        s += ' ' * 4 + 'switch(type_tag) {\\\n'
+        s += ' ' * 4 + 'switch(object->type_tag) {\\\n'
         for i in self.supers[_super]:
             s += ' ' * 4 + 'case {0}:\\\n'.format(i.type_tag)
-            s += ' ' * 8 + 'return ' + camel_to_snake(i.name, False) + '##_##method(object, __VA_ARGS__);\\\n'
+            s += ' ' * 8 + 'return ' + camel_to_snake(i.name, False) + '##_##method(({0} *)object, __VA_ARGS__);\\\n'.format(i.name)
         s += ' ' * 4 + '};\\\n'
-        s += ' ' * 4 + 'assert(0);\\\n'
-        s += '}\n'
+        s += ' ' * 4 + 'assert(0);\n\n'
         return s
 
 
@@ -68,8 +52,7 @@ typedef struct #NAME{
         return s
     
     def gen_type_tag(self, _super):
-        s ='struct ' + _super + ';\n'
-        s += 'enum ' + _super + 'Type{\n'
+        s = 'enum ' + _super + 'Type{\n'
         s += ' ' *4 + 'E' + _super.upper() + '_NONE,\n'
         for i in self.supers[_super]:
             s += ' ' * 4 + i.type_tag + ',\n'
@@ -86,13 +69,14 @@ typedef struct #NAME{
         s = ''
         s += self.gen_type_tags()
         for i in self.classes:
-            if self.classes[i].super:
-                s += self.classes[i].to_str()
+            s += 'struct ' + self.classes[i].name + ';\n'        
         for i in self.classes:
             if not self.classes[i].super:
                 s += self.gen_super(i)
-        for i in self.supers:
-            s += self.gen_super_ctor(i)
+                s += self.classes[i].gen_ctor()
+        for i in self.classes:
+            if self.classes[i].super:
+                s += self.classes[i].to_str() 
         return s
     
 globals = Globals()
@@ -122,17 +106,20 @@ class KernelClass:
 
     def get_ctor_name(self):
         return 'create_' + camel_to_snake(self.name, False)
+
     def add_attr(self, attr):
         self.attributes.append(attr)
         return self
 
     def gen_ctor(self):
-        s = self.name + ' ' + self.get_ctor_name() + '(){\n'
-        s += ' ' * 4 + self.name + ' object;\n'
+        s = 'void ' + self.get_ctor_name() + '(' + self.name + '* object){\n'
         for a in self.attributes:
             if a.is_pointer:
-                s += ' ' * 4 + 'object.' + a.name + '= NULL;\n'
-        s += '    return object;\n'
+                s += ' ' * 4 + 'object->' + a.name + ' = NULL;\n'
+        if self.super:
+            s += ' ' * 4 + 'create_' +camel_to_snake(self.super, False) + '(({0} *)object);\n'.format(self.super)
+            s += ' ' * 4 + 'object->_base.type_tag = ' + self.type_tag + ';\n'
+           
         s += '}\n'
         return s
 
@@ -141,6 +128,7 @@ class KernelClass:
         s = \
             """
 typedef struct #NAME{
+#BASE
 #ATTR
 }#NAME;
 
@@ -148,7 +136,8 @@ typedef struct #NAME{
         attrs = ''
         for i in self.attributes:
             attrs += ' '* 4 + i.to_str() + ';\n'
-        s = s.replace("#ATTR", attrs)
+        base = ' '* 4 + self.super + ' _base;'
+        s = s.replace("#ATTR", attrs).replace('#BASE', base)
         return s
 
         

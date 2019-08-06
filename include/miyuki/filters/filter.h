@@ -32,8 +32,8 @@ namespace Miyuki {
         TriangleFilter(const Point2f &radius) : Filter(radius) {}
 
         Float eval(const Point2f &p) const override {
-            return std::max((Float) 0, radius.x() - std::abs(p.x())) *
-                   std::max((Float) 0, radius.y() - std::abs(p.y()));
+            return std::max((Float) 0, radius.x - std::abs(p.x)) *
+                   std::max((Float) 0, radius.y - std::abs(p.y));
         }
     };
 
@@ -57,7 +57,7 @@ namespace Miyuki {
         }
 
         Float eval(const Point2f &p) const override {
-            return Mitchell1D(p.x() * invRadius.x()) * Mitchell1D(p.y() * invRadius.y());
+            return Mitchell1D(p.x * invRadius.x) * Mitchell1D(p.y * invRadius.y);
         }
     };
 }

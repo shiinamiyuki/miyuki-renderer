@@ -26,17 +26,17 @@ namespace Miyuki {
 		}
 
 		Pixel& Film::getPixel(const Point2f& p) {
-			return getPixel(std::lround(p.x()), std::lround(p.y()));
+			return getPixel(std::lround(p.x), std::lround(p.y));
 		}
 
 		Pixel& Film::getPixel(int32_t x, int32_t y) {
-			x = clamp<int32_t>(x, 0, imageBound.pMax.x() - 1);
-			y = clamp<int32_t>(y, 0, imageBound.pMax.y() - 1);
+			x = clamp<int32_t>(x, 0, imageBound.pMax.x - 1);
+			y = clamp<int32_t>(y, 0, imageBound.pMax.y - 1);
 			return image[x + width() * y];
 		}
 
 		Pixel& Film::getPixel(const Point2i& p) {
-			return getPixel(p.x(), p.y());
+			return getPixel(p.x, p.y);
 		}
 
 		Film::Film(int32_t w, int32_t h)
@@ -48,8 +48,8 @@ namespace Miyuki {
 			for (int y = 0; y < FilterTableWidth; y++) {
 				for (int x = 0; x < FilterTableWidth; x++) {
 					Point2f p;
-					p.x() = (x + 0.5f) * filter->radius.x() / FilterTableWidth;
-					p.y() = (y + 0.5f) * filter->radius.y() / FilterTableWidth;
+					p.x = (x + 0.5f) * filter->radius.x / FilterTableWidth;
+					p.y = (y + 0.5f) * filter->radius.y / FilterTableWidth;
 					filterTable[offset++] = filter->eval(p);
 				}
 			}
@@ -59,9 +59,9 @@ namespace Miyuki {
 			std::vector<unsigned char> pixelBuffer;
 			for (const auto& i : image) {
 				auto out = i.toInt();
-				pixelBuffer.emplace_back(out.r());
-				pixelBuffer.emplace_back(out.g());
-				pixelBuffer.emplace_back(out.b());
+				pixelBuffer.emplace_back(out.r);
+				pixelBuffer.emplace_back(out.g);
+				pixelBuffer.emplace_back(out.b);
 				pixelBuffer.emplace_back(255);
 			}
 			auto error = lodepng::encode(filename, pixelBuffer, (uint32_t)width(), (uint32_t)height());
@@ -89,10 +89,10 @@ namespace Miyuki {
 
 		Bound2i
 			Intersect(const Bound2i& b1, const Bound2i& b2) {
-			return Bound2i(Point2i(std::max(b1.pMin.x(), b2.pMin.x()),
-				std::max(b1.pMin.y(), b2.pMin.y())),
-				Point2i(std::min(b1.pMax.x(), b2.pMax.x()),
-					std::min(b1.pMax.y(), b2.pMax.y())));
+			return Bound2i(Point2i(std::max(b1.pMin.x, b2.pMin.x),
+				std::max(b1.pMin.y, b2.pMin.y)),
+				Point2i(std::min(b1.pMax.x, b2.pMax.x),
+					std::min(b1.pMax.y, b2.pMax.y)));
 		}
 
 		std::unique_ptr<FilmTile> Film::getFilmTile(const Bound2i& bounds) {
@@ -108,8 +108,8 @@ namespace Miyuki {
 
 		void Film::mergeFilmTile(const FilmTile& tile) {
 			std::lock_guard<std::mutex> lockGuard(lock);
-			for (int x = tile.pixelBounds.pMin.x(); x < tile.pixelBounds.pMax.x(); x++) {
-				for (int y = tile.pixelBounds.pMin.y(); y < tile.pixelBounds.pMax.y(); y++) {
+			for (int x = tile.pixelBounds.pMin.x; x < tile.pixelBounds.pMax.x; x++) {
+				for (int y = tile.pixelBounds.pMin.y; y < tile.pixelBounds.pMax.y; y++) {
 					getPixel(x, y).value += tile.getPixel({ x, y }).value;
 					getPixel(x, y).filterWeightSum += tile.getPixel({ x, y }).filterWeightSum;
 				}
@@ -119,8 +119,8 @@ namespace Miyuki {
 
 		FilmTile::FilmTile(const Bound2i& bound2i, const Float* filterTable, const Filter* filter)
 			: pixelBounds(bound2i), filterTable(filterTable), filter(filter) {
-			int area = (pixelBounds.pMax.x() - pixelBounds.pMin.x())
-				* (pixelBounds.pMax.y() - pixelBounds.pMin.y());
+			int area = (pixelBounds.pMax.x - pixelBounds.pMin.x)
+				* (pixelBounds.pMax.y - pixelBounds.pMin.y);
 			pixels.resize(area);
 		}
 
@@ -130,16 +130,16 @@ namespace Miyuki {
 			Point2i p1 = (Point2i)Floor(raster + filter->radius) + Point2i(1, 1);
 			p0 = Max(p0, pixelBounds.pMin);
 			p1 = Min(p1, pixelBounds.pMax);
-			for (int y = p0.y(); y < p1.y(); ++y) {
-				for (int x = p0.x(); x < p1.x(); ++x) {
+			for (int y = p0.y; y < p1.y; ++y) {
+				for (int x = p0.x; x < p1.x; ++x) {
 					auto pos = Point2i(x, y);
 					auto& pixel = getPixel(pos);
 					auto offset = raster - Point2f(pos);
 					offset /= filter->radius;
 					offset = Point2f(std::abs(offset[0]), std::abs(offset[1]));
 					offset *= FilterTableWidth;
-					int i = clamp<int>(std::floor(offset.x())
-						+ FilterTableWidth * std::floor(offset.y()), 0,
+					int i = clamp<int>(std::floor(offset.x)
+						+ FilterTableWidth * std::floor(offset.y), 0,
 						FilterTableWidth * FilterTableWidth - 1);
 					auto filterWeight = filterTable[i];
 					pixel.filterWeightSum += filterWeight;
@@ -152,13 +152,13 @@ namespace Miyuki {
 
 		TilePixel& FilmTile::getPixel(const Point2i& raster) {
 			auto p = raster - pixelBounds.pMin;
-			int i = (int)clamp<size_t>(std::lround(p.x()) + TileSize * std::lround(p.y()), 0, pixels.size() - 1);
+			int i = (int)clamp<size_t>(std::lround(p.x) + TileSize * std::lround(p.y), 0, pixels.size() - 1);
 			return pixels[i];
 		}
 
 		const TilePixel& FilmTile::getPixel(const Point2i& raster) const {
 			auto p = raster - pixelBounds.pMin;
-			int i = (int)clamp<size_t>(std::lround(p.x()) + TileSize * std::lround(p.y()), 0, pixels.size() - 1);
+			int i = (int)clamp<size_t>(std::lround(p.x) + TileSize * std::lround(p.y), 0, pixels.size() - 1);
 			return pixels[i];
 		}
 	}

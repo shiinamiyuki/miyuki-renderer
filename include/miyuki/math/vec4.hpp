@@ -1,5 +1,5 @@
 #pragma once
-#include "vec.hpp"
+#include "vec3.hpp"
 
 namespace Miyuki {
 	struct Vec4f : Vec3f {
@@ -20,7 +20,7 @@ namespace Miyuki {
 			v[3] = w;
 		}
 		static Float dot(const Vec4f& a, const Vec4f& b) {
-			return a.x() * b.x() + a.y() * b.y() + a.z() * b.z() + a.w() * b.w();
+			return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 		}
 
 		static Float absDot(const Vec4f& a, const Vec4f& b) {
@@ -38,11 +38,11 @@ namespace Miyuki {
 		}
 
 		Float max() const {
-			return std::max(std::max(x(), std::max(y(), z())), w());
+			return std::max(std::max(x, std::max(y, z)), w);
 		}
 
 		Float min() const {
-			return std::min(std::min(x(), std::min(y(), z())), w());
+			return std::min(std::min(x, std::min(y, z)), w);
 		}
 		Float lengthSquared() const {
 			return Vec4f::dot(*this, *this);

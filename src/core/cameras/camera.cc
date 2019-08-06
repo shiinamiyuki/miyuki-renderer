@@ -8,9 +8,9 @@ namespace Miyuki {
 			computeTransformMatrix();
 		}
 		void PerspectiveCamera::computeTransformMatrix() {
-			rotationMatrix = Matrix4x4::rotation(Vec3f(0, 0, 1), direction.z());
-			rotationMatrix = rotationMatrix.mult(Matrix4x4::rotation(Vec3f(0, 1, 0), direction.x()));
-			rotationMatrix = rotationMatrix.mult(Matrix4x4::rotation(Vec3f(1, 0, 0), -direction.y()));
+			rotationMatrix = Matrix4x4::rotation(Vec3f(0, 0, 1), direction.z);
+			rotationMatrix = rotationMatrix.mult(Matrix4x4::rotation(Vec3f(0, 1, 0), direction.x));
+			rotationMatrix = rotationMatrix.mult(Matrix4x4::rotation(Vec3f(1, 0, 0), -direction.y));
 			Matrix4x4::inverse(rotationMatrix, invMatrix);
 		}
 		Float PerspectiveCamera::generateRay(Sampler& sampler,
@@ -18,16 +18,16 @@ namespace Miyuki {
 			const Point2i& raster,
 			Ray* ray,
 			CameraSample* sample) {
-			Float x = raster.x();
-			Float y = raster.y();
+			Float x = raster.x;
+			Float y = raster.y;
 			Float rx = 0.5f * (2 * sampler.get1D() - 1);
 			Float ry = 0.5f * (2 * sampler.get1D() - 1);
 			x += rx;
 			y += ry;
 			sample->pFilm = Point2f(x, y);
-			x = -(2 * x / filmDimension.x() - 1) * static_cast<Float>(filmDimension.x()) /
-				filmDimension.y();
-			y = 2 * (1 - y / filmDimension.y()) - 1;
+			x = -(2 * x / filmDimension.x - 1) * static_cast<Float>(filmDimension.x) /
+				filmDimension.y;
+			y = 2 * (1 - y / filmDimension.y) - 1;
 
 			Vec3f ro(0, 0, 0);
 			auto z = (Float)(2.0 / std::tan(fov / 2));
@@ -36,9 +36,9 @@ namespace Miyuki {
 			rd.normalize();
 			if (lensRadius > 0) {
 				Point2f pLens = Point2f(lensRadius, lensRadius) * ConcentricSampleDisk(sampler.get2D());
-				Float ft = focalDistance / rd.z();
+				Float ft = focalDistance / rd.z;
 				auto pFocus = ro + ft * rd;
-				ro = Vec3f(pLens.x(), pLens.y(), 0);
+				ro = Vec3f(pLens.x, pLens.y, 0);
 				rd = (pFocus - ro).normalized();
 				sample->pLens = pLens;
 			}

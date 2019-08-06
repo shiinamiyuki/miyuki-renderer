@@ -3,11 +3,11 @@
 namespace Miyuki {
 	namespace Core {
 		inline bool SameHemisphere(const Vec3f& w1, const Vec3f& w2) {
-			return w1.z() * w2.z() >= 0;
+			return w1.z * w2.z >= 0;
 		}
 
 		inline Float CosTheta(const Vec3f& w) {
-			return w.z();
+			return w.z;
 		}
 
 		inline Float AbsCosTheta(const Vec3f& w) {
@@ -15,7 +15,7 @@ namespace Miyuki {
 		}
 
 		inline Float Cos2Theta(const Vec3f& w) {
-			return w.z() * w.z();
+			return w.z * w.z;
 		}
 
 		inline Float Sin2Theta(const Vec3f& w) {
@@ -36,12 +36,12 @@ namespace Miyuki {
 
 		inline Float CosPhi(const Vec3f& w) {
 			auto s = SinTheta(w);
-			return s == 0 ? 1.0f : clamp(w.x() / s, -1.0f, 1.0f);
+			return s == 0 ? 1.0f : clamp(w.x / s, -1.0f, 1.0f);
 		}
 
 		inline Float SinPhi(const Vec3f& w) {
 			auto s = SinTheta(w);
-			return s == 0 ? 0.0f : clamp(w.y() / s, -1.0f, 1.0f);
+			return s == 0 ? 0.0f : clamp(w.y / s, -1.0f, 1.0f);
 		}
 
 		inline Float Cos2Phi(const Vec3f& w) {
@@ -55,9 +55,9 @@ namespace Miyuki {
 		}
 
 		inline Float CosDPhi(const Vec3f& wa, const Vec3f& wb) {
-			return clamp<Float>((wa.x() * wb.x() + wa.y() * wb.y()) /
-				std::sqrt((wa.x() * wa.x() + wa.y() * wa.y()) *
-				(wb.x() * wb.x() + wb.y() * wb.y())), -1.0f, 1.0f);
+			return clamp<Float>((wa.x * wb.x + wa.y * wb.y) /
+				std::sqrt((wa.x * wa.x + wa.y * wa.y) *
+				(wb.x * wb.x + wb.y * wb.y)), -1.0f, 1.0f);
 		}
 
 		inline Vec3f Reflect(const Vec3f& wo, const Vec3f& n) {

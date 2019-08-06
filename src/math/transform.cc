@@ -80,17 +80,17 @@ Matrix4x4 Matrix4x4::operator/(const Matrix4x4& rhs) const {
 }
 
 Vec4f Matrix4x4::mult(const Vec4f& rhs) const {
-	Vec4f v = Vec4f( Vec4f::dot(m[0], rhs),
-					Vec4f::dot(m[1], rhs),
-					Vec4f::dot(m[2], rhs),
-					Vec3f::dot(m[3], rhs) );
+	Vec4f v = Vec4f(Vec4f::dot(m[0], rhs),
+		Vec4f::dot(m[1], rhs),
+		Vec4f::dot(m[2], rhs),
+		Vec3f::dot(m[3], rhs));
 	return v;
 }
 
 Matrix4x4 Matrix4x4::translation(const Vec3f& rhs) {
-	Float m[4][4] = { {1, 0, 0, rhs.x()},
-					 {0, 1, 0, rhs.y()},
-					 {0, 0, 1, rhs.z()},
+	Float m[4][4] = { {1, 0, 0, rhs.x},
+					 {0, 1, 0, rhs.y},
+					 {0, 0, 1, rhs.z},
 					 {0, 0, 0, 1} };
 	return { m };
 }
@@ -100,16 +100,16 @@ Matrix4x4 Matrix4x4::rotation(const Vec3f& axis, const Float angle) {
 	const Float c = cos(angle);
 	const Float oc = Float(1.0) - c;
 	Float m[4][4] = {
-			{oc * axis.x() * axis.x() + c,
-					oc * axis.x() * axis.y() - axis.z() * s,
-					   oc * axis.z() * axis.x() + axis.y() * s, 0},
-			{oc * axis.x() * axis.y() + axis.z() * s,
-					oc * axis.y() * axis.y() + c,
-					   oc * axis.y() * axis.z() - axis.x() * s, 0},
+			{oc * axis.x * axis.x + c,
+					oc * axis.x * axis.y - axis.z * s,
+					   oc * axis.z * axis.x + axis.y * s, 0},
+			{oc * axis.x * axis.y + axis.z * s,
+					oc * axis.y * axis.y + c,
+					   oc * axis.y * axis.z - axis.x * s, 0},
 
-			{oc * axis.z() * axis.x() - axis.y() * s,
-					oc * axis.y() * axis.z() + axis.x() * s,
-					   oc * axis.z() * axis.z() + c,            0},
+			{oc * axis.z * axis.x - axis.y * s,
+					oc * axis.y * axis.z + axis.x * s,
+					   oc * axis.z * axis.z + c,            0},
 			{0,     0, 0,                                       1} };
 	return Matrix4x4(m);
 }
@@ -268,41 +268,41 @@ Transform::Transform()
 
 }
 
-Transform::Transform(const Vec3f & t, const Vec3f & r, Float s)
+Transform::Transform(const Vec3f& t, const Vec3f& r, Float s)
 	: translation(t), rotation(r), scale(s) {
 
 }
 
-Vec3f Transform::apply(const Vec3f & _v, bool inverse) const {
+Vec3f Transform::apply(const Vec3f& _v, bool inverse) const {
 	if (!inverse) {
 		auto v = _v * scale;
-		v = rotate(v, Vec3f(1, 0, 0), -rotation.y());
-		v = rotate(v, Vec3f(0, 1, 0), rotation.x());
-		v = rotate(v, Vec3f(0, 0, 1), rotation.z());
+		v = rotate(v, Vec3f(1, 0, 0), -rotation.y);
+		v = rotate(v, Vec3f(0, 1, 0), rotation.x);
+		v = rotate(v, Vec3f(0, 0, 1), rotation.z);
 		return v + translation;
 	}
 	else {
 		auto v = _v - translation;
-		v = rotate(v, Vec3f(0, 0, 1), -rotation.z());
-		v = rotate(v, Vec3f(0, 1, 0), -rotation.x());
-		v = rotate(v, Vec3f(1, 0, 0), rotation.y());
+		v = rotate(v, Vec3f(0, 0, 1), -rotation.z);
+		v = rotate(v, Vec3f(0, 1, 0), -rotation.x);
+		v = rotate(v, Vec3f(1, 0, 0), rotation.y);
 		return v / scale;
 	}
 }
 
-Vec3f Transform::applyRotation(const Vec3f & _v, bool inverse) const {
+Vec3f Transform::applyRotation(const Vec3f& _v, bool inverse) const {
 	if (!inverse) {
 		auto v = _v;
-		v = rotate(v, Vec3f(1, 0, 0), -rotation.y());
-		v = rotate(v, Vec3f(0, 1, 0), rotation.x());
-		v = rotate(v, Vec3f(0, 0, 1), rotation.z());
+		v = rotate(v, Vec3f(1, 0, 0), -rotation.y);
+		v = rotate(v, Vec3f(0, 1, 0), rotation.x);
+		v = rotate(v, Vec3f(0, 0, 1), rotation.z);
 		return v;
 	}
 	else {
 		auto v = _v;
-		v = rotate(v, Vec3f(0, 0, 1), -rotation.z());
-		v = rotate(v, Vec3f(0, 1, 0), -rotation.x());
-		v = rotate(v, Vec3f(1, 0, 0), rotation.y());
+		v = rotate(v, Vec3f(0, 0, 1), -rotation.z);
+		v = rotate(v, Vec3f(0, 1, 0), -rotation.x);
+		v = rotate(v, Vec3f(1, 0, 0), rotation.y);
 		return v;
 	}
 }

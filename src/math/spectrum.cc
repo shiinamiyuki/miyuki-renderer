@@ -8,15 +8,15 @@ static auto gamma = [](Float x) -> int {
 };
 
 RGBSpectrum RGBSpectrum::toInt() const {
-    return RGBSpectrum(gamma(r()), gamma(g()), gamma(b()));
+    return RGBSpectrum(gamma(r), gamma(g), gamma(b));
 }
 
 bool RGBSpectrum::hasNaNs() const {
-    return std::isnan(r()) || std::isnan(g()) || std::isnan(b());
+    return std::isnan(r) || std::isnan(g) || std::isnan(b);
 }
 
 bool RGBSpectrum::isBlack() const {
-    return r() <= 0 && g() <= 0 && b() <= 0;
+    return r <= 0 && g <= 0 && b <= 0;
 
 }
 
@@ -26,5 +26,5 @@ static Float removeNaN(Float x) {
 }
 
 RGBSpectrum Miyuki::removeNaNs(const RGBSpectrum &spectrum) {
-    return RGBSpectrum(removeNaN(spectrum.r()), removeNaN(spectrum.g()), removeNaN(spectrum.b()));
+    return RGBSpectrum(removeNaN(spectrum.r), removeNaN(spectrum.g), removeNaN(spectrum.b));
 }

@@ -47,7 +47,7 @@ namespace Miyuki {
 				Float cosThetaI = AbsCosTheta(wi);
 				auto wh = (wo + wi);
 				if (cosThetaI == 0 || cosThetaO == 0)return {};
-				if (wh.x() == 0 && wh.y() == 0 && wh.z() == 0)return {};
+				if (wh.x == 0 && wh.y == 0 && wh.z == 0)return {};
 				wh.normalize();
 				auto F = fresnel.evaluate(Vec3f::dot(wi, wh));
 				return R * F * microfacet.D(wh) * microfacet.G(wo, wi) * F / (4.0f * cosThetaI * cosThetaO);

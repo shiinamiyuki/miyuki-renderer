@@ -11,8 +11,8 @@ namespace Miyuki {
 		}
 
 		void AOVDenoiser::addSample(const Point2f& p, const Spectrum& color, Float weight) {
-			int x = clamp(lroundf(p.x()), 0, dimension[0] - 1);
-			int y = clamp(lroundf(p.y()), 0, dimension[1] - 1);
+			int x = clamp(lroundf(p.x), 0, dimension[0] - 1);
+			int y = clamp(lroundf(p.y), 0, dimension[1] - 1);
 			accumulator.addSample(y, x, color[0], color[1], color[2], weight);
 		}
 

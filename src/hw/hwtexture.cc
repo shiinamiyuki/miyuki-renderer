@@ -42,9 +42,9 @@ namespace Miyuki {
 			std::vector<unsigned char> pixelBuffer;
 			for (const auto& i : image.pixelData) {
 				auto out = removeNaNs(i).toInt();
-				pixelBuffer.emplace_back(out.r());
-				pixelBuffer.emplace_back(out.g());
-				pixelBuffer.emplace_back(out.b());
+				pixelBuffer.emplace_back(out.r);
+				pixelBuffer.emplace_back(out.g);
+				pixelBuffer.emplace_back(out.b);
 				pixelBuffer.emplace_back(255);
 			}	PrintGLError();
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,

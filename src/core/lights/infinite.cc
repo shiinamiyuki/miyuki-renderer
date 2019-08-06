@@ -9,7 +9,7 @@ namespace Miyuki {
 		}
 
 		static Point2f getUV(const Vec3f& wi) {
-			auto w = Vec3f(wi.x(), wi.z(), wi.y());
+			auto w = Vec3f(wi.x, wi.z, wi.y);
 			auto theta = SphericalTheta(w);
 			auto sinTheta = std::sin(theta);
 			auto phi = SphericalPhi(w);
@@ -49,7 +49,7 @@ namespace Miyuki {
 		}
 
 		Float InfiniteAreaLight::pdfLi(const Intersection&isct, const Vec3f& wi)const {
-			auto w = Vec3f(wi.x(), wi.z(), wi.y());
+			auto w = Vec3f(wi.x, wi.z, wi.y);
 			auto theta = SphericalTheta(w);
 			auto sinTheta = std::sin(theta);
 			auto phi = SphericalPhi(w);

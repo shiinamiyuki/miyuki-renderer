@@ -92,11 +92,11 @@ namespace Miyuki {
 	}
 
 	inline Float SphericalTheta(const Vec3f& v) {
-		return std::acos(clamp<Float>(v.z(), -1.0f, 1.0f));
+		return std::acos(clamp<Float>(v.z, -1.0f, 1.0f));
 	}
 
 	inline Float SphericalPhi(const Vec3f& v) {
-		auto p = std::atan2(v.y(), v.x());
+		auto p = std::atan2(v.y, v.x);
 		return p < 0 ? (p + 2 * PI) : p;
 	}
 }

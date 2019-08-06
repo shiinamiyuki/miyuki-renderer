@@ -92,7 +92,7 @@ namespace Miyuki {
 
         CoordinateSystem(const Vec3f &N) : normal(N) {
             const auto &w = normal;
-            localX = Vec3f::cross((abs(w.x()) > 0.1) ? Vec3f{0, 1, 0} : Vec3f{1, 0, 0}, w);
+            localX = Vec3f::cross((abs(w.x) > 0.1) ? Vec3f{0, 1, 0} : Vec3f{1, 0, 0}, w);
             localX.normalize();
             localY = Vec3f::cross(w, localX);
             localY.normalize();
@@ -103,7 +103,7 @@ namespace Miyuki {
         }
 
         Vec3f localToWorld(const Vec3f &v) const {
-            return (v.x() * localX + v.y() * localY + v.z() * normal).normalized();
+            return (v.x * localX + v.y * localY + v.z * normal).normalized();
         }
 
 		bool valid()const {

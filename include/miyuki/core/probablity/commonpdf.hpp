@@ -11,7 +11,7 @@ namespace Miyuki {
 				return CosineWeightedHemisphereSampling(u);
 			}
 			Float evaluateImpl(const Vec3f& p)const {
-				return std::abs(p.z()) * INVPI;
+				return std::abs(p.z) * INVPI;
 			}
 		};
 		struct UniformspherePDF : PDF<UniformspherePDF> {

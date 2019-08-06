@@ -75,13 +75,13 @@ namespace Miyuki {
         bool hasNaNs() const;
 
         bool nonNeg() const {
-            return r() >= 0 && g() >= 0 && b() >= 0;
+            return r >= 0 && g >= 0 && b >= 0;
         }
 
         bool isBlack() const;
 
         inline Float luminance() const {
-            return Float(0.299) * r() + Float(0.587) * g() + Float(0.114) * b();
+            return Float(0.299) * r + Float(0.587) * g + Float(0.114) * b;
         }
     };
 
@@ -90,7 +90,7 @@ namespace Miyuki {
     using Spectrum = RGBSpectrum;
 
     inline Spectrum clampRadiance(const Spectrum &s, Float maxR) {
-        return {clamp<Float>(s.r(), 0, maxR), clamp<Float>(s.g(), 0, maxR), clamp<Float>(s.b(), 0, maxR)};
+        return {clamp<Float>(s.r, 0, maxR), clamp<Float>(s.g, 0, maxR), clamp<Float>(s.b, 0, maxR)};
     }
 
 	inline void to_json(json& j, const Spectrum& v) {
