@@ -17,7 +17,7 @@ namespace Miyuki {
 		}
 
 		Spectrum InfiniteAreaLight::L(const Ray& ray) const {
-			Point2f uv = getUV(ray.d);
+			Point2f uv = getUV(worldToLight(Vec4f(ray.d, 1.0f)));
 			return Shader::evaluate(shader, ShadingPoint(uv)).toVec3f();
 		}
 
@@ -37,7 +37,7 @@ namespace Miyuki {
 			Float sinTheta = std::sin(theta);
 			Float sinPhi = std::sin(phi);
 			Float cosPhi = std::cos(phi);
-			record.wi = Vec3f(sinTheta * cosPhi, cosTheta, sinTheta * sinPhi);
+			record.wi = lightToWorld(Vec4f(sinTheta * cosPhi, cosTheta, sinTheta * sinPhi, 1));
 			if (sinTheta == 0.0f)
 				record.pdf = 0.0f;
 			else
@@ -49,7 +49,7 @@ namespace Miyuki {
 		}
 
 		Float InfiniteAreaLight::pdfLi(const Intersection&isct, const Vec3f& wi)const {
-			auto w = Vec3f(wi.x, wi.z, wi.y);
+			auto w = worldToLight(Vec4f(wi.x, wi.z, wi.y, 1));
 			auto theta = SphericalTheta(w);
 			auto sinTheta = std::sin(theta);
 			auto phi = SphericalPhi(w);
@@ -59,6 +59,11 @@ namespace Miyuki {
 		}
 
 		void InfiniteAreaLight::preprocess() {
+			trans = Matrix4x4::rotation(Vec3f(0, 0, 1), rotation.z);
+			trans = trans.mult(Matrix4x4::rotation(Vec3f(0, 1, 0), rotation.x));
+			trans = trans.mult(Matrix4x4::rotation(Vec3f(1, 0, 0), -rotation.y));
+			Matrix4x4::inverse(trans, invtrans);
+
 			if (!shader)return;
 			auto resolution = shader->resolution();
 			if (resolution[0] * resolution[1] == 0)return;
@@ -73,6 +78,8 @@ namespace Miyuki {
 				}
 			}
 			distribution = std::make_unique<Distribution2D>(&v[0], resolution[0], resolution[1]);
+
+
 		}
 	}
 }

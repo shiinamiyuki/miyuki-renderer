@@ -97,7 +97,7 @@ namespace Miyuki {
                 image.pixelData[i] = Spectrum(data[3 * i],
                                               data[3 * i + 1],
                                               data[3 * i + 2]);
-            }, 4096);
+            }, image.width);
             free(data);
 
         }

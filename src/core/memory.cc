@@ -70,31 +70,3 @@ void *MemoryArena::alloc(size_t bytes) {
     return ret;
 }
 
-void *ConcurrentMemoryArena::alloc(size_t bytes) {
-    std::lock_guard<std::mutex> guard(mutex);
-    return MemoryArena::alloc(bytes);
-}
-
-void ConcurrentMemoryArena::reset() {
-    std::lock_guard<std::mutex> guard(mutex);
-    MemoryArena::reset();
-}
-
-ConcurrentMemoryArenaAllocator::ArenaInfo
-ConcurrentMemoryArenaAllocator::getAvailableArena() {
-    std::lock_guard<std::mutex> lockGuard(mutex);
-    for (auto &i : arenas) {
-        if (i.second) {
-            i.second = false;
-            return {i.first, i.second};
-        }
-    }
-    arenas.emplace_back(std::make_pair(MemoryArena(), false));
-    return {arenas.back().first, arenas.back().second};
-}
-
-ConcurrentMemoryArenaAllocator::ConcurrentMemoryArenaAllocator() : arenas(Thread::pool->numThreads()) {
-    for (auto &i:arenas) {
-        i.second = true;
-    }
-}

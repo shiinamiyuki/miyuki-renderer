@@ -16,26 +16,38 @@ typedef Vec4f float4;
 typedef Point2f float2;
 typedef Point2i int2;
 
-
+MYK_KERNEL_FUNC_INLINE
 float2 make_float2(Float x, Float y) {
 	return Point2f(x, y);
 }
+
+MYK_KERNEL_FUNC_INLINE
 float3 make_float3(Float x, Float y, Float z) {
 	return Vec3f(x, y, z);
 }
+
+MYK_KERNEL_FUNC_INLINE
 float4 make_float4(Float x, Float y, Float z, Float w) {
 	return Vec4f(x, y, z, w);
 }
 
-
+MYK_KERNEL_FUNC_INLINE
 Float dot(const float3& v1, const float3& v2) {
 	return Vec3f::dot(v1, v2);
 }
+MYK_KERNEL_FUNC_INLINE
 Float dot(const float4& v1, const float4& v2) {
 	return Vec3f::dot(v1, v2);
 }
+
+MYK_KERNEL_FUNC_INLINE
 float3 cross(const float3& v1, const float3& v2) {
 	return Vec3f::cross(v1, v2);
+}
+
+MYK_KERNEL_FUNC_INLINE
+float3 normalize(const float3& v) {
+	return v.normalized(); 
 }
 
 inline float max(float a, float b) {
@@ -73,10 +85,6 @@ typedef struct ShaderProgram {
 	struct Shader** program;
 	int length;
 }ShaderProgram;
-typedef struct KernelGlobals {
-	ShaderProgram program;
-}KernelGlobals;
-
 
 
 MYK_KERNEL_NS_END

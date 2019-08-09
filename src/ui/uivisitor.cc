@@ -254,6 +254,9 @@ namespace Miyuki {
 			});
 			visit<Core::InfiniteAreaLight>([=](Core::InfiniteAreaLight* light) {
 				visitShaderAndSelect(light->shader, "shader");
+				if (auto r = GetInputWithSignal("rotation", light->rotation)) {
+					light->rotation = r.value();
+				}
 			});
 			visit<Core::PerspectiveCamera>([=](Core::PerspectiveCamera* camera) {
 				if (auto r = GetInputWithSignal("viewpoint", camera->viewpoint)) {

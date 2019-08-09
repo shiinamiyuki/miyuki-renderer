@@ -7,6 +7,7 @@
 
 #include "miyuki.h"
 #include <list>
+#include <core/allocator.h>
 
 namespace Miyuki {
 #define ALLOCA(TYPE, COUNT) (TYPE *)alloca((COUNT) * sizeof(TYPE))
@@ -53,36 +54,18 @@ namespace Miyuki {
             availableBlocks.splice(availableBlocks.begin(), usedBlocks);
         }
     };
-
-    class ConcurrentMemoryArena : public MemoryArena {
-    private:
-        std::mutex mutex;
-    public:
-        ConcurrentMemoryArena(size_t blockSize = 262144) : MemoryArena(blockSize) {}
-
-        void *alloc(size_t bytes);
-
-        void reset();
-    };
-
-    class ConcurrentMemoryArenaAllocator {
-    public:
-        struct ArenaInfo {
-            MemoryArena &arena;
-            bool &availability;
-
-            ArenaInfo(MemoryArena &arena, bool &availability) : arena(arena), availability(availability) {}
-
-            ~ArenaInfo() { availability = true; }
-        };
-
-    private:
-        std::list<std::pair<MemoryArena, bool>> arenas;
-        std::mutex mutex;
-    public:
-        ConcurrentMemoryArenaAllocator();
-
-        ArenaInfo getAvailableArena();
-    };
+	namespace Core {
+		class ArenaAllocator : public Allocator {
+			MemoryArena arena;
+		public:
+			void* alloc(size_t bytes) {
+				return arena.alloc(bytes);
+			}
+			void free()override {
+				arena.reset();
+			}
+		};
+	}
+   
 }
 #endif //MIYUKI_MEMORY_H

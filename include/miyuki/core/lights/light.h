@@ -4,20 +4,13 @@
 #include <reflection.h>
 #include <core/ray.h>
 #include <utils/preprocessable.hpp>
+#include <core/visibilitytester.h>
 
 namespace Miyuki {
 	namespace Core {
 		class Scene;
 		struct Intersection;
-		struct VisibilityTester {
-			Ray shadowRay;
-			int32_t geomId, primId;
-
-			VisibilityTester() : geomId(-1), primId(-1) {}
-
-			bool visible(Scene& scene);
-		};
-
+		
 		struct LightSamplingRecord {
 			Point2f u;
 			Vec3f p; // point on light

@@ -77,5 +77,9 @@ namespace Miyuki {
 				 Point3f(bounds.lower_x, bounds.lower_y, bounds.lower_z),
 				Point3f(bounds.upper_x, bounds.upper_y, bounds.upper_z));
 		}
+
+		void EmbreeScene::detachGeometry(int id) {
+			rtcDetachGeometry(scene, id);
+		}
 	}
 }

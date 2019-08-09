@@ -1,3 +1,4 @@
+#pragma once
 #include <miyuki.h>
 
 #include <io/image.h>

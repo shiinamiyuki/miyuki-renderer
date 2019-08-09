@@ -3,13 +3,17 @@
 #include <core/lights/light.h>
 #include <core/shaders/shader.h>
 #include <math/distribution2d.h>
+#include <math/transform.h>
 
 namespace Miyuki {
 	namespace Core {
 		class InfiniteAreaLight : public Light {
 			Float worldRadius = -1.0f;
 			std::unique_ptr<Distribution2D> distribution;
+			
+			Matrix4x4 trans, invtrans;
 		public:
+			Vec3f rotation;
 			MYK_CLASS(InfiniteAreaLight);
 			Box<Shader> shader;
 			InfiniteAreaLight() :Light(Light::Type(EArea|EInfinite)) {}
@@ -27,8 +31,16 @@ namespace Miyuki {
 				worldRadius = r;
 			}
 			virtual void preprocess()override;
+
+			Vec4f lightToWorld(const Vec4f& w) const {
+				return trans.mult(w);
+			}
+
+			Vec4f worldToLight(const Vec4f& w) const  {
+				return invtrans.mult(w);
+			}
 		};
 		MYK_IMPL(InfiniteAreaLight, "Light.InfiniteArea");
-		MYK_REFL(InfiniteAreaLight, (Light), (shader));
+		MYK_REFL(InfiniteAreaLight, (Light), (shader)(rotation));
 	}
 }

@@ -3,10 +3,10 @@
 
 #include "kerneldef.h"
 
-#include "material.generated.h"
-#include "sampler.h"
-#include "mathfunc.h"
-#include "svm.h"
+#include "generated.material.h"
+#include "kernel_sampler.h"
+#include "kernel_func.h"
+#include "kernel_svm.h"
 
 
 MYK_KERNEL_NS_BEGIN

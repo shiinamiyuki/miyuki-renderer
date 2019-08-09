@@ -2,7 +2,8 @@
 #define MIYUKI_KERNEL_SVM_H
 
 #include "kerneldef.h"
-#include "shaderdata.h"
+#include "kernel_globals.h"
+#include "kernel_shaderdata.h"
 MYK_KERNEL_NS_BEGIN
 
 #define MYK_SVM_STACK_DEPTH 64

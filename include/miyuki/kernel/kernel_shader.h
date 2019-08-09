@@ -10,9 +10,9 @@ MYK_KERNEL_FUNC float3 fetch_image_texture(struct ImageTexture* texture, float2 
 
 MYK_KERNEL_NS_END
 
-
-#include "shader.generated.h"
-#include "svm.h"
+#include "kernel_texture.h"
+#include "generated.shader.h"
+#include "kernel_svm.h"
 
 MYK_KERNEL_NS_BEGIN
 
@@ -29,7 +29,7 @@ void float3_shader_eval(Float3Shader* shader, KernelGlobals*, SVM* svm) {
 
 MYK_KERNEL_FUNC
 void image_texture_shader_eval(ImageTextureShader* shader, KernelGlobals*, SVM* svm) {
-	float3 value = fetch_image_texture(shader->texture, svm->shading_point.uv);
+	float3 value = fetch_image_texture(&shader->texture, svm->shading_point.uv);
 	svm_push(svm, value);
 }
 

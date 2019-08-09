@@ -30,7 +30,7 @@ shaders = {
     'ImageTextureShader':{
         'super':'Shader',
         'attr':{
-            'texture':'ImageTexture *',
+            'texture':'ImageTexture',
         }
     },
     'MixedShader':{
@@ -61,7 +61,7 @@ MYK_KERNEL_NS_END
 #endif
 """
 
-open("../include/miyuki/kernel/shader.generated.h", "w").write(kernel_shader)
+open("../include/miyuki/kernel/generated.shader.h", "w").write(kernel_shader)
 
 globals.clear()
 
@@ -71,8 +71,8 @@ kernel_material =  \
 #define MIYUKI_KERNEL_MATERIAL_GENERATED_H
 
 #include "kerneldef.h"
-#include "shaderdata.h"
-#include "bsdflobe.h"
+#include "kernel_shaderdata.h"
+#include "kernel_bsdf.h"
 
 MYK_KERNEL_NS_BEGIN
 """
@@ -114,4 +114,48 @@ MYK_KERNEL_NS_END
 
 #endif
 """
-open("../include/miyuki/kernel/material.generated.h", "w").write(kernel_material)
+open("../include/miyuki/kernel/generated.material.h", "w").write(kernel_material)
+globals.clear()
+ 
+kernel_light = \
+"""// AUTO GENERATED. DO NOT EDIT
+#ifndef MIYUKI_KERNEL_LIGHT_GENERATED_H
+#define MIYUKI_KERNEL_LIGHTL_GENERATED_H
+
+#include "kerneldef.h"
+#include "kernel_shader.h"
+MYK_KERNEL_NS_BEGIN
+"""
+
+lights = {
+    "Light":{
+        'super':None,
+        'attr':{
+            
+        }
+    },
+    "AreaLight":{
+        'super':'Light',
+        'attr':{
+            'primitive':'Primitive * '
+        }
+    },
+    "InfiniteAreaLight":{
+        'super':'Light',
+        'attr':{
+            'shader':'Shader *',
+            'distribution':'Distribution2D'
+        }
+    }
+
+}
+create_classes(lights)
+kernel_light += globals.gen()
+
+kernel_light +=\
+"""
+MYK_KERNEL_NS_END
+
+#endif
+"""
+open("../include/miyuki/kernel/generated.light.h", "w").write(kernel_light)
