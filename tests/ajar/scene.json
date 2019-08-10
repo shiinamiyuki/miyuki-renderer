@@ -1,0 +1,268 @@
+{
+  "objects" :[
+      {
+          "file" :"mesh0.obj",
+          "name" :"mesh0",
+          "transform" :{
+              "rotation" :[
+                  0,
+                  0,
+                  0
+                ],
+              "translation" :[
+                  0,
+                  0,
+                  0
+                ],
+              "scale" :1
+            }
+        }
+    ],
+  "render" :{
+      "output" :"ajar.png",
+      "resolution" :"240p"
+    },
+  "camera" :{
+      "focalDistance" :0,
+      "lensRadius" :0,
+      "fov" :90,
+      "translation" :[
+          15,
+          5,
+          4
+        ],
+      "rotation" :[
+          -90,
+          0,
+          0
+        ]
+    },
+  "materials" :{
+      "None" :{
+          "roughness" :1,
+          "ka" :{
+              "albedo" :[
+                  0,
+                  0,
+                  0
+                ],
+              "texture" :""
+            },
+          "kd" :{
+              "albedo" :[
+                  0.661765,
+                  0.603374,
+                  0.441176
+                ],
+              "texture" :""
+            },
+          "Tr" :0,
+          "alphaY" :0.0001,
+          "Ni" :1,
+          "emission" :1,
+          "ks" :{
+              "albedo" :[
+                  1e-06,
+                  9.9999e-07,
+                  9.9999e-07
+                ],
+              "texture" :""
+            },
+          "alphaX" :0.0001
+        },
+      "Material.002" :{
+          "ks" :{
+              "albedo" :[
+                  1e-06,
+                  9.9999e-07,
+                  9.9999e-07
+                ],
+              "texture" :""
+            },
+          "alphaX" :0.0001,
+          "emission" :1,
+          "Ni" :1,
+          "ka" :{
+              "albedo" :[
+                  0,
+                  0,
+                  0
+                ],
+              "texture" :""
+            },
+          "roughness" :0.1428,
+          "alphaY" :0.0001,
+          "kd" :{
+              "albedo" :[
+                  1,
+                  0.99999,
+                  0.99999
+                ],
+              "texture" :""
+            },
+          "Tr" :0
+        },
+      "Material.001" :{
+          "ks" :{
+              "albedo" :[
+                  0.5,
+                  0.5,
+                  0.5
+                ],
+              "texture" :""
+            },
+          "alphaX" :0.0001,
+          "emission" :30,
+          "Ni" :1,
+          "ka" :{
+              "albedo" :[
+                  1,
+                  0.99999,
+                  0.99999
+                ],
+              "texture" :""
+            },
+          "roughness" :0.1428,
+          "alphaY" :0.0001,
+          "kd" :{
+              "albedo" :[
+                  0.56,
+                  0.56,
+                  0.56
+                ],
+              "texture" :""
+            },
+          "Tr" :0
+        },
+      "Material.003" :{
+          "ks" :{
+              "albedo" :[
+                  0.348039,
+                  0.342921,
+                  0.342921
+                ],
+              "texture" :""
+            },
+          "alphaX" :0.0001,
+          "Ni" :1,
+          "emission" :1,
+          "roughness" :0.6,
+          "ka" :{
+              "albedo" :[
+                  0,
+                  0,
+                  0
+                ],
+              "texture" :""
+            },
+          "alphaY" :0.0001,
+          "kd" :{
+              "albedo" :[
+                  0.588235,
+                  0.588229,
+                  0.588229
+                ],
+              "texture" :""
+            },
+          "Tr" :0
+        },
+      "Material.004" :{
+          "Tr" :0,
+          "kd" :{
+              "albedo" :[
+                  0.232411,
+                  0.398354,
+                  0.509804
+                ],
+              "texture" :""
+            },
+          "alphaY" :0.0001,
+          "ks" :{
+              "albedo" :[
+                  0.205882,
+                  0.299598,
+                  0.333333
+                ],
+              "texture" :""
+            },
+          "alphaX" :0.0001,
+          "emission" :1,
+          "Ni" :1,
+          "ka" :{
+              "albedo" :[
+                  0,
+                  0,
+                  0
+                ],
+              "texture" :""
+            },
+          "roughness" :0.1428
+        },
+      "Material.Cone" :{
+          "ks" :{
+              "albedo" :[
+                  0.823529,
+                  0.726211,
+                  0.278547
+                ],
+              "texture" :""
+            },
+          "alphaX" :0.0001,
+          "emission" :1,
+          "Ni" :1,
+          "ka" :{
+              "albedo" :[
+                  0,
+                  0,
+                  0
+                ],
+              "texture" :""
+            },
+          "roughness" :0.1428,
+          "alphaY" :0.0001,
+          "kd" :{
+              "albedo" :[
+                  0.176471,
+                  0.14675,
+                  0.0415225
+                ],
+              "texture" :""
+            },
+          "Tr" :0
+        }
+    },
+  "integrator" :{
+      "minDepth" :3,
+      "type" :"pssmlt",
+      "maxDepth" :10,
+      "maxError" :0,
+      "nChains" :8192,
+      "ambientLight" :[
+          1e-06,
+          9.9999e-07,
+          9.9999e-07
+        ],
+      "spp" :32,
+      "largeStep" :0.25,
+      "envMap" :"",
+      "heuristic" :0,
+      "maxRayIntensity" :1000,
+      "pValue" :0,
+      "adaptive" :0,
+      "progressive" :0,
+      "maxSampleFactor" :-1,
+      "nDirect" :0,
+      "caustics" :1
+    },
+  "shapes" :{
+      "mesh0" :{
+          "mesh0.objPlane.003.None.0" :"None",
+          "mesh0.objSuzanne.Material.004.0" :"Material.004",
+          "mesh0.objRoom_Cube.001.Material.002.0" :"Material.002",
+          "mesh0.objPlane.001.Material.001.0" :"Material.001",
+          "mesh0.objPlane.Material.003.0" :"Material.003",
+          "mesh0.objCone.None.0" :"Material.Cone",
+          "mesh0.objPlane.002.None.0" :"None"
+        }
+    }
+}

@@ -1,0 +1,78 @@
+# Blender MTL File: 'veach.blend'
+# Material Count: 10
+
+newmtl Material.001
+Ke 4 4 4
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.002
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1 1 1
+Ks 0 0 0
+Ke 0 0 0
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.003
+Ke 4 4 4
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.004
+Ke 4 4 4
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.005
+Ke 4 4 4
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.006
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1 1 1
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.007
+Pr 0.1
+Ka 1.000000 1.000000 1.000000
+Ks 1 1 1 
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.008
+Pr 0.3
+Ka 1.000000 1.000000 1.000000
+Ks 1 1 1
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.009
+Pr 0.8
+Ka 1.000000 1.000000 1.000000
+Ks 1 1 1
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+
+newmtl Material.010
+Pr 0.5
+Ka 1.000000 1.000000 1.000000
+Ks 1 1 1
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2

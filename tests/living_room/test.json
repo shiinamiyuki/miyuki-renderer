@@ -1,0 +1,4822 @@
+{
+ "type": "Core.Graph",
+ "val": {
+  "activeCamera": {
+   "meta": "ref",
+   "val": 1941778656640
+  },
+  "cameras": [
+   {
+    "addr": 1941778656640,
+    "meta": "val",
+    "val": {
+     "type": "Camera.PerspectiveCamera",
+     "val": {
+      "direction": [
+       3.5081119537353516,
+       0.0,
+       0.0
+      ],
+      "focalDistance": 0.0,
+      "fov": 1.3962634801864624,
+      "lensRadius": 0.0,
+      "viewpoint": [
+       2.0,
+       1.2000000476837158,
+       7.0
+      ]
+     }
+    }
+   }
+  ],
+  "filmConfig": {
+   "type": "Core.FilmConfig",
+   "val": {
+    "dimension": [
+     1280,
+     720
+    ],
+    "scale": 0.0
+   }
+  },
+  "integrator": {
+   "addr": 1941825770664,
+   "meta": "val",
+   "val": {
+    "type": "Integrator.Path",
+    "val": {
+     "maxDepth": 5,
+     "minDepth": 3,
+     "spp": 16,
+     "useNEE": false
+    }
+   }
+  },
+  "materials": [
+   {
+    "addr": 1941825414176,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825187488,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819635120,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819634416,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941778052864,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822464128,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\apple.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941778045184,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729498144,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.029999999329447746,
+                0.029999999329447746,
+                0.029999999329447746
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819634864,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.4714045226573944
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Apple"
+     }
+    }
+   },
+   {
+    "addr": 1941825412768,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825185360,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941729497312,
+          "meta": "val",
+          "val": {
+           "type": "Shader.RGB",
+           "val": {
+            "multiplier": 6.0,
+            "value": [
+             1.0,
+             1.0,
+             1.0
+            ]
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819635600,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941778045664,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941729498592,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.800000011920929,
+                0.800000011920929,
+                0.800000011920929
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941778049264,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729498208,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819637264,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "BackLight"
+     }
+    }
+   },
+   {
+    "addr": 1941825413408,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825184144,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819635056,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819635440,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941778046144,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941729498016,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941778047344,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729497120,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.009999999776482582,
+                0.009999999776482582,
+                0.009999999776482582
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819636720,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.30151134729385376
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "BlackMarble"
+     }
+    }
+   },
+   {
+    "addr": 1941825413792,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825188096,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819634832,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819634256,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941778047104,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941729497696,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.07999999821186066,
+                0.05999999865889549,
+                0.054999999701976776
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941778047584,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729497568,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.10000000149011612,
+                0.09000000357627869,
+                0.09000000357627869
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819637424,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.6324555277824402
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "BlackWroughtIron"
+     }
+    }
+   },
+   {
+    "addr": 1941825414432,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825189312,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819634160,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819636560,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941778047824,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941729498528,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.949999988079071,
+                0.949999988079071,
+                0.949999988079071
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941778049744,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729497952,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.05000000074505806,
+                0.05000000074505806,
+                0.05000000074505806
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819637968,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.8164966106414795
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "BlindMaterial"
+     }
+    }
+   },
+   {
+    "addr": 1941825411616,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825194784,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819634352,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819634768,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941778049504,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822463552,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\book-spines.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941778048304,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729497504,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.05000000074505806,
+                0.05000000074505806,
+                0.05000000074505806
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819636496,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.30151134729385376
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Books"
+     }
+    }
+   },
+   {
+    "addr": 1941825414048,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825191744,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636016,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819636624,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941778049984,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941729498464,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941778048544,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729497184,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819637008,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.34299716353416443
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "CandleHolders"
+     }
+    }
+   },
+   {
+    "addr": 1941825413664,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825197216,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636240,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819636944,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941778048784,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822463360,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\carpet-text3b.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941819990976,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729498400,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819636112,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Carpet"
+     }
+    }
+   },
+   {
+    "addr": 1941825413920,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825188704,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819637744,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637904,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941819996496,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822465088,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\Shade-paper.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941819991216,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729497440,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819637520,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.01580941304564476
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "CeilingLampshade"
+     }
+    }
+   },
+   {
+    "addr": 1941825412128,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825190224,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636688,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819636048,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941819991696,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941729497888,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.30000001192092896,
+                0.30000001192092896,
+                0.30000001192092896
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941819996256,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729496992,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819636592,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.4472135901451111
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Ceramic"
+     }
+    }
+   },
+   {
+    "addr": 1941825413280,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825190832,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636656,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637680,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941819990736,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822464224,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\cushion-green-circles.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941819992176,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729496928,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819636752,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Cushion"
+     }
+    }
+   },
+   {
+    "addr": 1941825411744,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825197520,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636784,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637104,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941819992656,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822464416,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\cushion-stripe-purple.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941819995296,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729498784,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819637840,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Cushion1"
+     }
+    }
+   },
+   {
+    "addr": 1941825414304,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825192048,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636400,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819636816,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941819994576,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822463648,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\cushion-purple-yellow-stripe.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941819992896,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729498720,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819636976,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Cushion3"
+     }
+    }
+   },
+   {
+    "addr": 1941825411104,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825196608,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819637136,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637360,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941819997456,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941777722368,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941819997696,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777722240,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819636912,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Default"
+     }
+    }
+   },
+   {
+    "addr": 1941825411872,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825192656,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819637776,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637168,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941819993136,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941777722752,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941819994816,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777721984,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819636176,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.5
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "DullSteel"
+     }
+    }
+   },
+   {
+    "addr": 1941825412896,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825193568,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819637200,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637808,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941819993856,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822463744,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\wood4.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941819995056,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777722176,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.8571428656578064,
+                0.8571342825889587,
+                0.8571342825889587
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819637712,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.11999999731779099
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Floor"
+     }
+    }
+   },
+   {
+    "addr": 1941825412384,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825183232,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636080,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819636848,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941819991456,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941777722560,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.8999999761581421,
+                0.8999999761581421,
+                0.8999999761581421
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941819997936,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777722816,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819637296,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.40824830532073975
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "LampStand"
+     }
+    }
+   },
+   {
+    "addr": 1941825412000,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825183536,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819637232,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637872,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941819998176,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822464032,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\shade-stripes.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941819996016,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777721152,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819637072,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "LampshaderOuter"
+     }
+    }
+   },
+   {
+    "addr": 1941825412256,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825192960,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819637488,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819636368,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941549918720,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822464992,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\pic5wide.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941549918240,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777722112,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819637552,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.044676706194877625
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "LargePicture"
+     }
+    }
+   },
+   {
+    "addr": 1941825411360,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825185968,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941777721216,
+          "meta": "val",
+          "val": {
+           "type": "Shader.RGB",
+           "val": {
+            "multiplier": 34.0,
+            "value": [
+             1.0,
+             1.0,
+             1.0
+            ]
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637392,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941549921120,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941777721792,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941777702640,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777722944,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819636464,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "LeftLight"
+     }
+    }
+   },
+   {
+    "addr": 1941825411488,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825198736,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636880,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637328,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823435392,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941777721920,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.10000000149011612,
+                0.019999999552965164,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823437312,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777721280,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819636272,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "LoveLettersBack"
+     }
+    }
+   },
+   {
+    "addr": 1941825411232,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825193872,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636144,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637584,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823435632,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822465856,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\magazine.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823436352,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777722432,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.05000000074505806,
+                0.05000000074505806,
+                0.05000000074505806
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819635984,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.30151134729385376
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Magazine"
+     }
+    }
+   },
+   {
+    "addr": 1941825410848,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825194176,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941777721408,
+          "meta": "val",
+          "val": {
+           "type": "Shader.RGB",
+           "val": {
+            "multiplier": 34.0,
+            "value": [
+             1.0,
+             1.0,
+             1.0
+            ]
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819636208,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823435872,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941777721728,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823436592,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777722496,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638128,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "MiddleLight"
+     }
+    }
+   },
+   {
+    "addr": 1941825412512,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825194480,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819637456,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637616,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823436112,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822465952,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\picture11-vert.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823437072,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777722880,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638416,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.01580941304564476
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Picture"
+     }
+    }
+   },
+   {
+    "addr": 1941825412640,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825195088,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636304,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637040,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823438032,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822464320,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\photo1.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823438272,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777721472,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819639760,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.01580941304564476
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Picture1"
+     }
+    }
+   },
+   {
+    "addr": 1941825413024,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825195392,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636528,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819638000,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823437552,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822465568,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\photo3.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823437792,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777722304,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638448,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.01580941304564476
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Picture2"
+     }
+    }
+   },
+   {
+    "addr": 1941825413536,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825199040,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819636336,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819636432,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823438512,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822464704,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\photo2.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823438752,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777722688,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638032,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.01580941304564476
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Picture4"
+     }
+    }
+   },
+   {
+    "addr": 1941825413152,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825196000,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819637648,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819637936,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941777564320,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941822466048,
+             "meta": "val",
+             "val": {
+              "type": "Shader.ImageTexture",
+              "val": {
+               "imageFile": "C:\\Users\\xiaoc\\source\\repos\\_MiyukiRenderer\\MiyukiRenderer\\test-scenes\\living_room\\textures\\photo4.png"
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941777564560,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777722624,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638960,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.01580941304564476
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Picture5"
+     }
+    }
+   },
+   {
+    "addr": 1941825414560,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825184448,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819638064,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819639248,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941777565760,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941777722048,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.800000011920929,
+                0.009999999776482582,
+                0.009999999776482582
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941777562400,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941729497760,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638768,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.40824830532073975
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "RadiatorKnobOuter"
+     }
+    }
+   },
+   {
+    "addr": 1941825410720,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825184752,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819639408,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819639504,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941777562640,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941777721344,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.949999988079071,
+                0.949999988079071,
+                0.949999988079071
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941777563600,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941777721600,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819639152,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.5773502588272095
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "RadiatorPanelsEnamel"
+     }
+    }
+   },
+   {
+    "addr": 1941825410976,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825186272,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819639664,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819639024,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941777562880,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941729497056,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941777564080,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778825888,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819639792,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "RadioInside"
+     }
+    }
+   },
+   {
+    "addr": 1941820288064,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825185664,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819639472,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819639440,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941777563120,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941778825760,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.6499999761581421,
+                0.5699999928474426,
+                0.4000000059604645
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941777563840,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778825568,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638640,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.6324555277824402
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "RadioPlastic"
+     }
+    }
+   },
+   {
+    "addr": 1941820286912,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941825186576,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819638800,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819639888,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941777563360,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941778825696,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.10000000149011612,
+                0.009999999776482582
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941777564800,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778826464,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638320,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.40824830532073975
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "RadioSurround"
+     }
+    }
+   },
+   {
+    "addr": 1941820287424,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941819892672,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941778826656,
+          "meta": "val",
+          "val": {
+           "type": "Shader.RGB",
+           "val": {
+            "multiplier": 34.0,
+            "value": [
+             1.0,
+             1.0,
+             1.0
+            ]
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819638160,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941777565040,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941778826976,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941777565280,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778826720,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819639536,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "RightLight"
+     }
+    }
+   },
+   {
+    "addr": 1941820287552,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941819892064,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819638288,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819639728,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941777565520,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941778825632,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941777566000,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778826144,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819639696,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.5773502588272095
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "SmallPictureFrame"
+     }
+    }
+   },
+   {
+    "addr": 1941820286528,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941819899056,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819639184,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819638832,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823667696,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941778826784,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.8999999761581421,
+                0.8999999761581421,
+                0.8999999761581421
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823667216,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778826080,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819639824,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.40824830532073975
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "SofaLeather"
+     }
+    }
+   },
+   {
+    "addr": 1941820288704,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941819895712,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819639312,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819638992,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823666256,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941778826336,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.9900000095367432,
+                0.9900000095367432,
+                0.9900000095367432
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823667936,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778826400,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638576,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.031234752386808395
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "TableGlossy"
+     }
+    }
+   },
+   {
+    "addr": 1941820288448,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941819898752,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819638672,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819639568,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823671056,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941778825824,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.949999988079071,
+                0.949999988079071,
+                0.949999988079071
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823665536,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778826912,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.03999999910593033,
+                0.03999999910593033,
+                0.03999999910593033
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819639984,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.6324555277824402
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Trim"
+     }
+    }
+   },
+   {
+    "addr": 1941820286656,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941819898144,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819639920,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819640016,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823670096,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941778826848,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823669616,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778826208,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.05000000074505806,
+                0.05000000074505806,
+                0.05000000074505806
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638192,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.5
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "TvBevel"
+     }
+    }
+   },
+   {
+    "addr": 1941820288832,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941819896016,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819640048,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819639952,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823670576,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941778827040,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.009999999776482582,
+                0.009999999776482582,
+                0.009999999776482582
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823670816,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778825184,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638704,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.6324555277824402
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "TvScreen"
+     }
+    }
+   },
+   {
+    "addr": 1941820287680,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941819892976,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819639280,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819638096,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823668896,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941778826016,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.6000000238418579,
+                0.6000000238418579,
+                0.6000000238418579
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823666976,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778825504,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.0,
+                0.0,
+                0.0
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638544,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.08804509043693542
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "Walls"
+     }
+    }
+   },
+   {
+    "addr": 1941820286784,
+    "meta": "val",
+    "val": {
+     "type": "Core.MaterialSlot",
+     "val": {
+      "material": {
+       "addr": 1941819893280,
+       "meta": "val",
+       "val": {
+        "type": "Material.Mixed",
+        "val": {
+         "emission": {
+          "addr": 1941819639600,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.0
+           }
+          }
+         },
+         "fraction": {
+          "addr": 1941819639376,
+          "meta": "val",
+          "val": {
+           "type": "Shader.Float",
+           "val": {
+            "value": 0.5
+           }
+          }
+         },
+         "matA": {
+          "addr": 1941823671296,
+          "meta": "val",
+          "val": {
+           "type": "Material.Diffuse",
+           "val": {
+            "color": {
+             "addr": 1941778826592,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.949999988079071,
+                0.949999988079071,
+                0.949999988079071
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": null
+           }
+          }
+         },
+         "matB": {
+          "addr": 1941823667456,
+          "meta": "val",
+          "val": {
+           "type": "Material.Glossy",
+           "val": {
+            "color": {
+             "addr": 1941778825376,
+             "meta": "val",
+             "val": {
+              "type": "Shader.RGB",
+              "val": {
+               "multiplier": 1.0,
+               "value": [
+                0.03999999910593033,
+                0.03999999910593033,
+                0.03999999910593033
+               ]
+              }
+             }
+            },
+            "emission": null,
+            "roughness": {
+             "addr": 1941819638512,
+             "meta": "val",
+             "val": {
+              "type": "Shader.Float",
+              "val": {
+               "value": 0.6324555277824402
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "name": "WhitePaint"
+     }
+    }
+   }
+  ],
+  "meshes": [
+   {
+    "addr": 1941823749616,
+    "meta": "val",
+    "val": {
+     "type": "Core.MeshFile",
+     "val": {
+      "file": "mesh\\mesh0.obj",
+      "name": "mesh0.obj",
+      "objects": [
+       {
+        "addr": 1941778825248,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825410848
+          },
+          "name": "Lights.MiddleLight.0"
+         }
+        }
+       },
+       {
+        "addr": 1941778826272,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825411360
+          },
+          "name": "Lights.LeftLight.1"
+         }
+        }
+       },
+       {
+        "addr": 1941778826528,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941820287424
+          },
+          "name": "Lights.RightLight.2"
+         }
+        }
+       },
+       {
+        "addr": 1941778825312,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825414432
+          },
+          "name": "Mesh.BlindMaterial.0"
+         }
+        }
+       },
+       {
+        "addr": 1941777723008,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825413152
+          },
+          "name": "Mesh.Picture5.0"
+         }
+        }
+       },
+       {
+        "addr": 1941777721536,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941820288064
+          },
+          "name": "Mesh.RadioPlastic.0"
+         }
+        }
+       },
+       {
+        "addr": 1941777721664,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825411616
+          },
+          "name": "Mesh.Books.0"
+         }
+        }
+       },
+       {
+        "addr": 1941777721856,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825412000
+          },
+          "name": "Mesh.LampshaderOuter.0"
+         }
+        }
+       },
+       {
+        "addr": 1941729498336,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825411872
+          },
+          "name": "Mesh.DullSteel.0"
+         }
+        }
+       },
+       {
+        "addr": 1941729498656,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825412256
+          },
+          "name": "Mesh.LargePicture.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820238880,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825410720
+          },
+          "name": "Mesh.RadiatorPanelsEnamel.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820238560,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941820286528
+          },
+          "name": "Mesh.SofaLeather.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820238816,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825414176
+          },
+          "name": "Mesh.Apple.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239200,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941820287680
+          },
+          "name": "Mesh.Walls.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239648,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825413280
+          },
+          "name": "Mesh.Cushion.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239072,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941820288704
+          },
+          "name": "Mesh.TableGlossy.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239904,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825412512
+          },
+          "name": "Mesh.Picture.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239520,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825411744
+          },
+          "name": "Mesh.Cushion1.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239712,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941820286656
+          },
+          "name": "Mesh.TvBevel.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820240224,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825411488
+          },
+          "name": "Mesh.LoveLettersBack.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239968,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941820288832
+          },
+          "name": "Mesh.TvScreen.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239840,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825412384
+          },
+          "name": "Mesh.LampStand.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820240032,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825411104
+          },
+          "name": "Mesh.Default.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239776,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825412128
+          },
+          "name": "Mesh.Ceramic.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239584,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941820287552
+          },
+          "name": "Mesh.SmallPictureFrame.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820238432,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825413024
+          },
+          "name": "Mesh.Picture2.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820238944,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825413536
+          },
+          "name": "Mesh.Picture4.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820240096,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825413920
+          },
+          "name": "Mesh.CeilingLampshade.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239456,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825411232
+          },
+          "name": "Mesh.Magazine.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820240160,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825413408
+          },
+          "name": "Mesh.BlackMarble.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820238368,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941820288448
+          },
+          "name": "Mesh.Trim.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820238496,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825414048
+          },
+          "name": "Mesh.CandleHolders.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820238624,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825414304
+          },
+          "name": "Mesh.Cushion3.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820238688,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825413792
+          },
+          "name": "Mesh.BlackWroughtIron.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820238752,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941820286912
+          },
+          "name": "Mesh.RadioSurround.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239008,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825412640
+          },
+          "name": "Mesh.Picture1.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239136,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825410976
+          },
+          "name": "Mesh.RadioInside.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239328,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825414560
+          },
+          "name": "Mesh.RadiatorKnobOuter.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239264,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825412896
+          },
+          "name": "Mesh.Floor.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820239392,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825413664
+          },
+          "name": "Mesh.Carpet.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820291024,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941825412768
+          },
+          "name": "Back.BackLight.0"
+         }
+        }
+       },
+       {
+        "addr": 1941820291536,
+        "meta": "val",
+        "val": {
+         "type": "Core.Object",
+         "val": {
+          "material": {
+           "meta": "ref",
+           "val": 1941820286784
+          },
+          "name": "WhitePaint.WhitePaint.0"
+         }
+        }
+       }
+      ],
+      "transform": {
+       "rotation": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "scale": 1.0,
+       "translation": [
+        0.0,
+        0.0,
+        0.0
+       ]
+      }
+     }
+    }
+   }
+  ],
+  "sampler": {
+   "addr": 1941820291600,
+   "meta": "val",
+   "val": {
+    "type": "Sampler.Random",
+    "val": null
+   }
+  }
+ }
+}

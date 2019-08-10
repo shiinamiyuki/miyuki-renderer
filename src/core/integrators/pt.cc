@@ -30,6 +30,7 @@ namespace Miyuki {
 				catch (std::exception& e) {
 					std::cerr << e.what() << std::endl;
 				}
+				denoiser = nullptr;
 			}
 		}
 		void PathTracerIntegrator::Li(const IntegratorContext& integratorContext, SamplingContext& ctx) {

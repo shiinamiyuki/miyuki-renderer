@@ -50,6 +50,7 @@ namespace Miyuki {
 			}
 		}
 
+
 		void ParallelFor(uint32_t begin, uint32_t end, TaskFunc task, size_t workSize) {
 			while (begin + workSize < end) {
 				pool->enqueue(task, begin, begin + workSize);

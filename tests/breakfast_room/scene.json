@@ -1,0 +1,823 @@
+{
+  "objects": [
+    {
+      "file": "mesh0.obj",
+      "transform": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          0,
+          0
+        ],
+        "scale": 10
+      }
+    },
+    {
+      "file": "plane.obj",
+      "transform": {
+        "rotation": [
+          0,
+          0,
+          -90
+        ],
+        "translation": [
+          100,
+          0,
+          -200
+        ],
+        "scale": 0.1
+      }
+    },
+    {
+      "file": "plane2.obj",
+      "transform": {
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "translation": [
+          111,
+          0,
+          -20
+        ],
+        "scale": 0.1
+      }
+    }
+  ],
+  "camera": {
+    "translation": [
+      0,
+      20,
+      40
+    ],
+    "rotation": [
+      180,
+      0,
+      0
+    ],
+    "lensRadius": 0,
+    "focalDistance": 0
+  },
+  "integrator": {
+    "type": "mlt",
+    "minDepth": 3,
+    "maxDepth": 5,
+    "spp": 4096,
+    "maxRayIntensity": 100,
+    "nDirect": 0,
+    "ambientLight": [
+      0.3,
+      0.3,
+      0.3
+    ],
+    "progressive": true
+  },
+  "render": {
+    "resolution": "240p",
+    "output": "data/image/breakfast_room.png"
+  },
+  "materials": {
+    "light": {
+      "Tr": 0,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          1,
+          1,
+          1
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          3,
+          3,
+          3
+        ]
+      }
+    },
+    "glass": {
+      "Tr": 1,
+      "roughness": 0,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Ni": 1,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "breakfast_room:Artwork": {
+      "Tr": 0,
+      "roughness": 0.816496580927726,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.3,
+          0.3,
+          0.3
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "picture3.png",
+        "albedo": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      }
+    },
+    "breakfast_room:Black_Rubber": {
+      "Tr": 0,
+      "roughness": 0.14279886949438497,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.64,
+          0.64,
+          0.64
+        ]
+      }
+    },
+    "breakfast_room:Ceramic": {
+      "Tr": 0,
+      "roughness": 0.14002800840280097,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "breakfast_room:Ceramic_001": {
+      "Tr": 0,
+      "roughness": 0.31622776601683794,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    },
+    "breakfast_room:Chrome": {
+      "Tr": 0,
+      "roughness": 0.14002800840280097,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "breakfast_room:Floor_Tiles": {
+      "Tr": 0,
+      "roughness": 0.25,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.2,
+          0.2,
+          0.2
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "tiles.png",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "breakfast_room:Frosted_Glass": {
+      "Tr": 0,
+      "roughness": 0.30151134457776363,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.08,
+          0.04,
+          0.0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.9,
+          0.08,
+          0.01
+        ]
+      }
+    },
+    "breakfast_room:Gold_Paint": {
+      "Tr": 0,
+      "roughness": 0.408248290463863,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.7,
+          0.5,
+          0.0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.2,
+          0.1,
+          0.0
+        ]
+      }
+    },
+    "breakfast_room:Material_002": {
+      "Tr": 0,
+      "roughness": 0.31622776601683794,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    },
+    "breakfast_room:Material_005": {
+      "Tr": 0,
+      "roughness": 0.31622776601683794,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    },
+    "breakfast_room:Paint___Black_Satin": {
+      "Tr": 0,
+      "roughness": 0.30151134457776363,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.1,
+          0.1,
+          0.1
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "breakfast_room:Paint___White_Gloss": {
+      "Tr": 0,
+      "roughness": 0.5345224838248488,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.1,
+          0.1,
+          0.1
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "breakfast_room:Paint___White_Matt": {
+      "Tr": 0,
+      "roughness": 0.816496580927726,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.9,
+          0.9,
+          0.9
+        ]
+      }
+    },
+    "breakfast_room:White_Marble": {
+      "Tr": 0,
+      "roughness": 0.408248290463863,
+      "ks": {
+        "texture": "marble.png",
+        "albedo": [
+          0.2,
+          0.2,
+          0.2
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          0.7,
+          0.7,
+          0.7
+        ]
+      }
+    },
+    "breakfast_room:White_Plastic": {
+      "Tr": 0,
+      "roughness": 0.408248290463863,
+      "ks": {
+        "texture": "",
+        "albedo": [
+          0.2,
+          0.2,
+          0.2
+        ]
+      },
+      "Ni": 1.0,
+      "ka": {
+        "texture": "",
+        "albedo": [
+          0,
+          0,
+          0
+        ]
+      },
+      "kd": {
+        "texture": "",
+        "albedo": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    }
+  },
+  "shapes": {
+    "mesh0.obj.breakfast_room:Frosted_Glass.0": "breakfast_room:Frosted_Glass",
+    "mesh0.obj.breakfast_room:White_Plastic.1": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Frosted_Glass.2": "breakfast_room:Frosted_Glass",
+    "mesh0.obj.breakfast_room:White_Plastic.3": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Paint___Black_Satin.4": "breakfast_room:Paint___Black_Satin",
+    "mesh0.obj.breakfast_room:Ceramic_001.5": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.6": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_005.7": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Material_002.8": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.9": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.10": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.11": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_002.12": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.13": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.14": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Material_005.15": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Ceramic.16": "breakfast_room:Ceramic",
+    "mesh0.obj.breakfast_room:White_Plastic.17": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.18": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.19": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.20": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.21": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.22": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.23": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.24": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.25": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.26": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.27": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.28": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.29": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.30": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.31": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Marble.32": "breakfast_room:White_Marble",
+    "mesh0.obj.breakfast_room:Floor_Tiles.33": "breakfast_room:Floor_Tiles",
+    "mesh0.obj.breakfast_room:Paint___White_Matt.34": "breakfast_room:Paint___White_Matt",
+    "mesh0.obj.breakfast_room:White_Plastic.35": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.36": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.37": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:Ceramic.38": "breakfast_room:Ceramic",
+    "mesh0.obj.breakfast_room:Ceramic_001.39": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.40": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_005.41": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Material_002.42": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.43": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.44": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Artwork.45": "breakfast_room:Artwork",
+    "mesh0.obj.breakfast_room:Paint___White_Gloss.46": "breakfast_room:Paint___White_Gloss",
+    "mesh0.obj.breakfast_room:Frosted_Glass.47": "breakfast_room:Frosted_Glass",
+    "mesh0.obj.breakfast_room:White_Plastic.48": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Frosted_Glass.49": "breakfast_room:Frosted_Glass",
+    "mesh0.obj.breakfast_room:White_Plastic.50": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Paint___White_Matt.51": "breakfast_room:Paint___White_Matt",
+    "mesh0.obj.breakfast_room:Paint___Black_Satin.52": "breakfast_room:Paint___Black_Satin",
+    "mesh0.obj.breakfast_room:Ceramic_001.53": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.54": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_005.55": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Material_002.56": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.57": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.58": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.59": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_002.60": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.61": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.62": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Material_005.63": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Ceramic.64": "breakfast_room:Ceramic",
+    "mesh0.obj.breakfast_room:White_Plastic.65": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.66": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.67": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.68": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.69": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.70": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.71": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.72": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.73": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.74": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.75": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.76": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.77": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.78": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.79": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Marble.80": "breakfast_room:White_Marble",
+    "mesh0.obj.breakfast_room:Floor_Tiles.81": "breakfast_room:Floor_Tiles",
+    "mesh0.obj.breakfast_room:Paint___White_Matt.82": "breakfast_room:Paint___White_Matt",
+    "mesh0.obj.breakfast_room:White_Plastic.83": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.84": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.85": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:Ceramic.86": "breakfast_room:Ceramic",
+    "mesh0.obj.breakfast_room:Ceramic_001.87": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.88": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_005.89": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Material_002.90": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.91": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.92": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Artwork.93": "breakfast_room:Artwork",
+    "mesh0.obj.breakfast_room:Paint___White_Gloss.94": "breakfast_room:Paint___White_Gloss",
+    "mesh0.obj.breakfast_room:Paint___White_Matt.95": "breakfast_room:Paint___White_Matt",
+    "mesh0.obj.breakfast_room:Frosted_Glass.96": "breakfast_room:Frosted_Glass",
+    "mesh0.obj.breakfast_room:White_Plastic.97": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Frosted_Glass.98": "breakfast_room:Frosted_Glass",
+    "mesh0.obj.breakfast_room:White_Plastic.99": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Paint___Black_Satin.100": "breakfast_room:Paint___Black_Satin",
+    "mesh0.obj.breakfast_room:Ceramic_001.101": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.102": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_005.103": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Material_002.104": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.105": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.106": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.107": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_002.108": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.109": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.110": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Material_005.111": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Ceramic.112": "breakfast_room:Ceramic",
+    "mesh0.obj.breakfast_room:White_Plastic.113": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.114": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.115": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.116": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.117": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.118": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.119": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.120": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.121": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.122": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.123": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.124": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.125": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.126": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.127": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Marble.128": "breakfast_room:White_Marble",
+    "mesh0.obj.breakfast_room:Floor_Tiles.129": "breakfast_room:Floor_Tiles",
+    "mesh0.obj.breakfast_room:Paint___White_Matt.130": "breakfast_room:Paint___White_Matt",
+    "mesh0.obj.breakfast_room:White_Plastic.131": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.132": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.133": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:Ceramic.134": "breakfast_room:Ceramic",
+    "mesh0.obj.breakfast_room:Ceramic_001.135": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.136": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_005.137": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Material_002.138": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.139": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.140": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Artwork.141": "breakfast_room:Artwork",
+    "mesh0.obj.breakfast_room:Paint___White_Gloss.142": "breakfast_room:Paint___White_Gloss",
+    "mesh0.obj.breakfast_room:Paint___White_Matt.143": "breakfast_room:Paint___White_Matt",
+    "mesh0.obj.breakfast_room:Frosted_Glass.144": "breakfast_room:Frosted_Glass",
+    "mesh0.obj.breakfast_room:White_Plastic.145": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Frosted_Glass.146": "breakfast_room:Frosted_Glass",
+    "mesh0.obj.breakfast_room:White_Plastic.147": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Paint___Black_Satin.148": "breakfast_room:Paint___Black_Satin",
+    "mesh0.obj.breakfast_room:Ceramic_001.149": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.150": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_005.151": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Material_002.152": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.153": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.154": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.155": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_002.156": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.157": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.158": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Material_005.159": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Ceramic.160": "breakfast_room:Ceramic",
+    "mesh0.obj.breakfast_room:White_Plastic.161": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.162": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.163": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.164": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.165": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.166": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.167": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.168": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.169": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.170": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.171": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.172": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.173": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.174": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.175": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Marble.176": "breakfast_room:White_Marble",
+    "mesh0.obj.breakfast_room:Floor_Tiles.177": "breakfast_room:Floor_Tiles",
+    "mesh0.obj.breakfast_room:Paint___White_Matt.178": "breakfast_room:Paint___White_Matt",
+    "mesh0.obj.breakfast_room:White_Plastic.179": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.180": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.181": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:Ceramic.182": "breakfast_room:Ceramic",
+    "mesh0.obj.breakfast_room:Ceramic_001.183": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.184": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_005.185": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Material_002.186": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.187": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.188": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Artwork.189": "breakfast_room:Artwork",
+    "mesh0.obj.breakfast_room:Paint___White_Gloss.190": "breakfast_room:Paint___White_Gloss",
+    "mesh0.obj.breakfast_room:Frosted_Glass.191": "breakfast_room:Frosted_Glass",
+    "mesh0.obj.breakfast_room:White_Plastic.192": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Frosted_Glass.193": "breakfast_room:Frosted_Glass",
+    "mesh0.obj.breakfast_room:White_Plastic.194": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Paint___White_Matt.195": "breakfast_room:Paint___White_Matt",
+    "mesh0.obj.breakfast_room:Paint___Black_Satin.196": "breakfast_room:Paint___Black_Satin",
+    "mesh0.obj.breakfast_room:Ceramic_001.197": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.198": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_005.199": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Material_002.200": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.201": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.202": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.203": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_002.204": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.205": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.206": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Material_005.207": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Ceramic.208": "breakfast_room:Ceramic",
+    "mesh0.obj.breakfast_room:White_Plastic.209": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.210": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.211": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.212": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.213": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.214": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.215": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.216": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.217": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.218": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.219": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.220": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Plastic.221": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.222": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.223": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:White_Marble.224": "breakfast_room:White_Marble",
+    "mesh0.obj.breakfast_room:Floor_Tiles.225": "breakfast_room:Floor_Tiles",
+    "mesh0.obj.breakfast_room:Paint___White_Matt.226": "breakfast_room:Paint___White_Matt",
+    "mesh0.obj.breakfast_room:White_Plastic.227": "breakfast_room:White_Plastic",
+    "mesh0.obj.breakfast_room:Chrome.228": "breakfast_room:Chrome",
+    "mesh0.obj.breakfast_room:Black_Rubber.229": "breakfast_room:Black_Rubber",
+    "mesh0.obj.breakfast_room:Ceramic.230": "breakfast_room:Ceramic",
+    "mesh0.obj.breakfast_room:Ceramic_001.231": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Gold_Paint.232": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Material_005.233": "breakfast_room:Material_005",
+    "mesh0.obj.breakfast_room:Material_002.234": "breakfast_room:Material_002",
+    "mesh0.obj.breakfast_room:Gold_Paint.235": "breakfast_room:Gold_Paint",
+    "mesh0.obj.breakfast_room:Ceramic_001.236": "breakfast_room:Ceramic_001",
+    "mesh0.obj.breakfast_room:Artwork.237": "breakfast_room:Artwork",
+    "mesh0.obj.breakfast_room:Paint___White_Gloss.238": "breakfast_room:Paint___White_Gloss",
+    "mesh0.obj.breakfast_room:Paint___White_Matt.239": "breakfast_room:Paint___White_Matt",
+    "Plane": "light",
+    "Plane2": "glass"
+  }
+}

@@ -1,0 +1,1468 @@
+{
+ "id": "b5f871f8-2ef8-4199-96cf-003d14d39ddf",
+ "properties": {
+  "integrator": null,
+  "materials": {
+   "array": [
+    {
+     "id": "94349c0f-11c3-4ccb-84ea-6329bea20c89",
+     "properties": {
+      "emission": {
+       "id": "7cdf702d-3113-4762-869f-b340ed985a91",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "37435541-9d29-4ce5-a3e1-01b84db5f3fc",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "f43ec23e-9733-44d7-bab7-51dab1acc8df",
+       "properties": {
+        "color": {
+         "id": "6afc4fbc-f11b-4b55-8046-ccb74c01a896",
+         "properties": {
+          "value": {
+           "id": "47783e22-5d66-4305-a1b8-d943302b72ec",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.46000000834465027,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "1fc4b998-fb2c-4a09-8349-e9d1e7d4a5f9",
+       "properties": {
+        "color": null,
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "b85639c0-a92c-4820-876c-d6110fc76e54",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:BottleCap"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "81feadb3-dd9f-4a99-8f09-3e066e3856a5",
+     "properties": {
+      "emission": {
+       "id": "b424956f-5079-424c-8325-e850d797099b",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "c7545c32-652a-4d90-9bda-db212c959f9b",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "23817653-fded-46e3-a712-63733ebd05a8",
+       "properties": {
+        "color": {
+         "id": "53d5b0f2-9137-463f-8247-980def848ca3",
+         "properties": {
+          "value": {
+           "id": "b8520191-948e-4f79-9817-d78a1f41150f",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.1599999964237213,
+            0.07999999821186066,
+            0.019999999552965164
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "4fe86223-a9c5-460f-b0bc-94ee5d5e7e36",
+       "properties": {
+        "color": null,
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "ace0e498-aac2-4613-a1cb-62c6793165e2",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:Branches"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "ab03b967-6296-46d9-829e-7a115f79641e",
+     "properties": {
+      "emission": {
+       "id": "68af24a0-bbd1-45c2-89b5-6db544af1a22",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "77682240-aaa5-4e4b-8e5e-7e440b022e47",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "d24911ea-94d7-4847-87a2-2469fd641dd6",
+       "properties": {
+        "color": {
+         "id": "bf91ac97-1827-4ca8-ae22-f3846f80afd5",
+         "properties": {
+          "value": {
+           "id": "c7aa6b3a-d167-470d-8b89-75b2d7c7629b",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "75be7053-3f39-455d-bfc1-beeb4aba4792",
+       "properties": {
+        "color": {
+         "id": "08653262-5c79-4c48-96bc-98567bf3fa48",
+         "properties": {
+          "value": {
+           "id": "a4dbbfea-338e-4914-bf3d-43858cdc8867",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.8500000238418579,
+            0.7799999713897705,
+            0.550000011920929
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": {
+         "id": "8bcb4fad-1b45-48d4-a460-8475361b157e",
+         "properties": {
+          "value": {
+           "id": "02fcfe14-472a-4da2-9938-1266eac651f4",
+           "type": "Primitive::Float",
+           "value": 0.5345224738121033
+          }
+         },
+         "type": "FloatNode"
+        }
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "00c570d3-12dd-44b7-ab9b-a1ef03a5b2de",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:BrushedStainlessSteel"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "2d08bfcc-9fcb-463a-bde2-8bf35dc784a3",
+     "properties": {
+      "emission": {
+       "id": "982c542d-5043-4ae1-b4c3-4f094716cf7c",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "a80ba443-0d1a-489f-9a69-50ffdb428d00",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "7cb3904f-6b60-49ee-a6ee-89019387c7f0",
+       "properties": {
+        "color": {
+         "id": "23f86d87-afc6-4e42-bd70-79179ed89f45",
+         "properties": {
+          "value": {
+           "id": "1da3e91b-0497-4e6b-9fc6-041baf36918b",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.10000000149011612,
+            0.05000000074505806,
+            0.03999999910593033
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "0b8c55d3-0228-469c-afbe-5af978da1b8a",
+       "properties": {
+        "color": null,
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "02f9b887-692b-4cee-9a45-216bbea73458",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:Dirt"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "14b63f9c-f10a-401b-85c5-627e29621eb4",
+     "properties": {
+      "emission": {
+       "id": "1454ab7f-bd30-44e3-acde-cca9bd4b5689",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "418576d4-f129-4247-a189-58617e2a9d83",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "0f8bdb4c-9ac1-4781-a0cc-c86c5051d053",
+       "properties": {
+        "color": {
+         "id": "c8b6c500-7d0f-48dc-b94d-bc85ac0c3a26",
+         "properties": {
+          "value": {
+           "id": "a31255f1-4f20-45cb-b2a2-f1f9ffc00d9e",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "56905770-46b6-47f6-85df-d51347814bb1",
+       "properties": {
+        "color": {
+         "id": "0550f64f-56d3-4652-8186-050e3093594b",
+         "properties": {
+          "value": {
+           "id": "235e610d-1d36-4f2c-a80a-e5707527dbef",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": {
+         "id": "98fc5378-4e6f-4e30-b907-3685d1c14b1e",
+         "properties": {
+          "value": {
+           "id": "8ddcafd1-e820-4c53-8000-bc9ed9de4fca",
+           "type": "Primitive::Float",
+           "value": 0.14002801477909088
+          }
+         },
+         "type": "FloatNode"
+        }
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "453bb8c9-b924-4526-a321-31ae9cf876ff",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:FireplaceGlass"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "7813d5a3-252a-463b-9a8e-93aab23e7168",
+     "properties": {
+      "emission": {
+       "id": "0fdeb64c-9265-4184-aa43-00ed856bfcfa",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "20988809-7c57-4aab-ab55-3c64925c3800",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "c4ce5f33-f4e7-4b01-84d0-eecd450779fa",
+       "properties": {
+        "color": {
+         "id": "11bfff69-fa51-41b2-b337-f5b23b81dfd5",
+         "properties": {
+          "file": {
+           "id": "2e7632c3-b184-44c7-9ae9-fc9720562214",
+           "type": "Primitive::File",
+           "value": "textures/wood.png"
+          }
+         },
+         "type": "ImageTextureNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "c22098cd-8970-4fbd-9a57-439bbb28b6a9",
+       "properties": {
+        "color": {
+         "id": "8a7db89e-760f-4cd1-9bea-29ad747b3d8f",
+         "properties": {
+          "value": {
+           "id": "b28ad8e1-972d-45bc-8e65-dd8994d0f334",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.019999999552965164,
+            0.019999999552965164,
+            0.019999999552965164
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": {
+         "id": "e042735c-a391-444d-b1df-07d6bb8b738c",
+         "properties": {
+          "value": {
+           "id": "e4e004d9-53c7-4c8b-8a96-2e3c0c15f12c",
+           "type": "Primitive::Float",
+           "value": 0.40824830532073975
+          }
+         },
+         "type": "FloatNode"
+        }
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "949959af-853c-4a15-adab-f4516467ee32",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:Floor"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "fabf2adb-6814-4fb8-891a-eacabf5f258c",
+     "properties": {
+      "emission": {
+       "id": "35009588-25a6-4ca7-b387-58bbd8734c3a",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "302f805d-bd14-4a0c-8b6b-aa5ddddc03ef",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "4402c0d7-57ec-41f3-b6ce-64b9f8c3c585",
+       "properties": {
+        "color": {
+         "id": "3461f920-5216-41fc-b752-de5844a27ba1",
+         "properties": {
+          "value": {
+           "id": "436d9c5e-23f3-407e-8148-b309d4537385",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "7f3ad775-66fd-41fe-a00b-a1b3aaf610d1",
+       "properties": {
+        "color": {
+         "id": "dc3db3d3-e2f9-480a-920b-a28b33dc0a36",
+         "properties": {
+          "value": {
+           "id": "7c0f3a7d-151c-48ec-baaf-a20938289240",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.5,
+            0.5,
+            0.5
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": {
+         "id": "c54d57a7-842e-42a8-b638-4b17e2026549",
+         "properties": {
+          "value": {
+           "id": "1e04007d-b1bd-4f4e-908b-4a86e8f259ba",
+           "type": "Primitive::Float",
+           "value": 0.044676706194877625
+          }
+         },
+         "type": "FloatNode"
+        }
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "97db8c27-0ce8-4add-922d-c67735b42ace",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:Glass"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "dd4a8ef6-35d6-49a8-8086-a6ea4455b4a8",
+     "properties": {
+      "emission": {
+       "id": "885251ff-ae92-485b-aa33-762e3bb9559c",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "91db097c-6258-43a4-8717-c9195f1db301",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "6b65c8aa-55af-4982-8f7a-a5bb98c1b917",
+       "properties": {
+        "color": {
+         "id": "75579558-2cea-4aa5-b56f-40b314e8c28c",
+         "properties": {
+          "file": {
+           "id": "a42e7f44-fd75-49f0-99dd-5836660c3ea7",
+           "type": "Primitive::File",
+           "value": "textures/leaf.png"
+          }
+         },
+         "type": "ImageTextureNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "a3e6e549-8264-4772-90fb-e3a193ea30c7",
+       "properties": {
+        "color": {
+         "id": "bda68420-1af4-4bb6-98c3-27195373818a",
+         "properties": {
+          "value": {
+           "id": "285f3f93-1f83-445a-a601-a144e160bd2e",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": {
+         "id": "436b9c8c-e3dd-4cfa-86ea-6ae131e20edc",
+         "properties": {
+          "value": {
+           "id": "dfe0ff8d-7f1f-4743-a93d-eb17e1c19771",
+           "type": "Primitive::Float",
+           "value": 0.9853293299674988
+          }
+         },
+         "type": "FloatNode"
+        }
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "f61c4b98-1843-4f95-abae-20fe47ba0acc",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:Leaves"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "56d599b4-cb9e-4391-9af8-0b5200f5f686",
+     "properties": {
+      "emission": {
+       "id": "e13b5754-ef24-47b5-92d9-6d36068c9ba9",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "4c2b5e80-da6b-4ec0-a434-9950c4c5d49d",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "a5c06aae-0782-47c5-954a-646e76166aae",
+       "properties": {
+        "color": {
+         "id": "a49e4c9e-8f9a-40bd-b65f-455ea1d4064c",
+         "properties": {
+          "value": {
+           "id": "d70c46ec-2add-48fc-9ba9-1aa7b062f60b",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.8999999761581421,
+            0.8999999761581421,
+            0.8999999761581421
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "0cbf186b-1588-4b54-afdd-7b5550e17aeb",
+       "properties": {
+        "color": {
+         "id": "24fa2c6a-5d3b-4716-8369-68e3dd9e862c",
+         "properties": {
+          "value": {
+           "id": "6520db28-f70e-4b62-b7de-c28031f80f11",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "7d571102-6913-4eb9-a141-bb99b9449a73",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:MattePaint"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "9eb53399-5e2f-4577-82bd-673c842dd1c7",
+     "properties": {
+      "emission": {
+       "id": "cf631c44-bc7c-45cf-a0cb-264ad7e2b503",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "63506df6-7844-4108-b65b-7568680bcebf",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "4a69e5df-bc70-4c64-9f11-f4c510d56eec",
+       "properties": {
+        "color": {
+         "id": "2376460a-a9ae-43c3-b1d9-aa1cb61961aa",
+         "properties": {
+          "value": {
+           "id": "e33948aa-5b04-4251-97f9-73201c39c0bb",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "e0640f3e-ac10-42df-b613-7d5087a65d04",
+       "properties": {
+        "color": {
+         "id": "f7cc6cde-9ca9-4054-95e9-93c0088a0412",
+         "properties": {
+          "value": {
+           "id": "8766764c-0cd0-48f6-8586-4e46e26a1c75",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.949999988079071,
+            0.949999988079071,
+            0.949999988079071
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": {
+         "id": "01de0c6b-35f7-45aa-8871-7b6a83e7891c",
+         "properties": {
+          "value": {
+           "id": "0362433d-0a11-4dd0-982f-11f43d08a3b7",
+           "type": "Primitive::Float",
+           "value": 0.00447209132835269
+          }
+         },
+         "type": "FloatNode"
+        }
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "7bd22201-bb25-4a74-b588-1ca38111d232",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:Mirror"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "9dd0a753-57a0-49f4-8a96-d28d22fc5e7e",
+     "properties": {
+      "emission": {
+       "id": "6ce67320-2faa-48c1-97a3-aa23fb3df8ba",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "b85ec465-f491-41f7-b7dc-32441295dc05",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "6d676dc7-ff03-4d77-9cfa-a7c89824eedd",
+       "properties": {
+        "color": {
+         "id": "7e35c09b-4eec-4ef4-9ba7-478245628583",
+         "properties": {
+          "file": {
+           "id": "8ae1b0bb-9c3c-4ed1-9177-cd8d0ee5378a",
+           "type": "Primitive::File",
+           "value": "textures/picture8.png"
+          }
+         },
+         "type": "ImageTextureNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "4b60624c-cd69-4651-94da-02d198d134b5",
+       "properties": {
+        "color": null,
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "16c5f530-df6a-480c-8842-3aa995cba7af",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:Painting"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "ed64426f-62cd-4638-b1c3-7a0ef6ae8705",
+     "properties": {
+      "emission": {
+       "id": "ea4693e2-dc07-4038-9d80-d0ba7a870123",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "a2a6b535-e7a9-473e-9105-96695be4676d",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "fdefd199-4ab1-401f-b228-9b4aee557d1e",
+       "properties": {
+        "color": {
+         "id": "2d3d445d-de5f-4543-bfe3-815b1531581f",
+         "properties": {
+          "value": {
+           "id": "5d0fb25c-5dd2-402d-a902-7b66934f5136",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.25999999046325684,
+            0.25,
+            0.14000000059604645
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "828d9fab-9449-404f-9241-c27499cd2a44",
+       "properties": {
+        "color": null,
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "5ece8e90-55c9-4c3e-b3e6-0d5a1815daf2",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:PaintingBack"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "199567f8-7cfd-4307-a18e-924e46a2537f",
+     "properties": {
+      "emission": {
+       "id": "1cc242ed-1647-493a-9d8b-21bc98e0d68d",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "50cad31f-0e9b-4302-a698-0d290a6d8b32",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "6ed658a8-e6ac-4543-82db-715cd5b7c873",
+       "properties": {
+        "color": {
+         "id": "314c5879-118f-4276-bc67-ecc0681807ea",
+         "properties": {
+          "value": {
+           "id": "8baeac49-0aa7-442d-ac01-eaae1051cad5",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.8999999761581421,
+            0.8999999761581421,
+            0.8999999761581421
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "56450869-fe29-4ded-bf74-cbb9a4f97525",
+       "properties": {
+        "color": {
+         "id": "009f7b03-330b-4241-a969-a5857e2ffd92",
+         "properties": {
+          "value": {
+           "id": "50c1d10a-fc0b-40b5-acfc-3fac8626ea96",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": {
+         "id": "57623517-b738-4685-9d84-741ad415e36f",
+         "properties": {
+          "value": {
+           "id": "74df9c00-2b1a-4edb-8981-175ce1eca158",
+           "type": "Primitive::Float",
+           "value": 0.5345224738121033
+          }
+         },
+         "type": "FloatNode"
+        }
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "0a9dbe10-6b10-4a37-95ff-56ec1ec686e0",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:Paneling"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "c8c6b552-e154-4098-bc2d-89ec5e946797",
+     "properties": {
+      "emission": {
+       "id": "ad61c6bf-0ff9-4282-becb-29fb322d96c0",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "eb05b98a-12d5-4844-bf2e-619e5955bbf2",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "6ec3d925-1580-4d5f-9816-14c68c253adc",
+       "properties": {
+        "color": {
+         "id": "3b42ab78-ea2e-4d98-a4ba-68b876cf28dc",
+         "properties": {
+          "value": {
+           "id": "4fbf0495-1036-46b2-ae70-b4d0a03e4c6d",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "92549393-9bc7-4f42-b7a4-f7e827e1410a",
+       "properties": {
+        "color": null,
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "49fb69e7-84d6-46ac-a3d0-ef8058e9ecc6",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:PlantPot"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "3e8b1bcd-6d34-4e79-a592-afd28efa9356",
+     "properties": {
+      "emission": {
+       "id": "4aa240f6-ae99-4327-8698-ccb066acc9ed",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "9c42d296-93df-4e65-9b68-cb31a4a8fd7a",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "b0103cc9-96b2-4ddf-84cf-204483bfdd1c",
+       "properties": {
+        "color": {
+         "id": "1b97832f-f6f1-4b5d-9d68-bc15b3e345e4",
+         "properties": {
+          "value": {
+           "id": "d169d5f6-5108-40b3-ba1d-c8107a3560bd",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.8999999761581421,
+            0.8999999761581421,
+            0.8799999952316284
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "fc628e4b-f845-4777-b796-78e1e04ae5b7",
+       "properties": {
+        "color": {
+         "id": "85471807-3e95-47d8-b83b-7a78a0ca1f1e",
+         "properties": {
+          "value": {
+           "id": "4c3d63ad-fd63-4315-9db8-27c96c41338f",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "fb6f2c76-55bd-46f1-949e-a074cb847128",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:Sofa"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "5c50aac3-9097-4fe4-abfe-f0ebfaedccf5",
+     "properties": {
+      "emission": {
+       "id": "f0c083ba-c654-47dc-8c02-7a7e29089353",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "15ccd1d6-bcad-417f-8bd1-f304f6b01e27",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "eae20d80-2b3a-4bd0-a0f9-13407ac19fd4",
+       "properties": {
+        "color": {
+         "id": "b8fe445a-e44d-467e-a17c-ba5b6edc1bcb",
+         "properties": {
+          "value": {
+           "id": "7b654b86-6124-4e47-b2c0-ba1ea98680ad",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "b7e3d6c8-7e20-4222-bc7c-8adc9c4f7dc3",
+       "properties": {
+        "color": null,
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "2c5a2594-f9c0-475c-8830-c1161c22343f",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:SofaLegs"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "28b90001-4eb7-4174-b4fb-8d75e8d2e919",
+     "properties": {
+      "emission": {
+       "id": "4bc1945b-3d1c-47a9-90da-1e25a0f2d7d2",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "44a697d5-4363-48b7-bb7a-408a679401a9",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "1cbeff4b-1dd3-4270-9f36-ddd98f2aea99",
+       "properties": {
+        "color": {
+         "id": "ed787b41-2084-4ea5-9b91-bcf76a1b021d",
+         "properties": {
+          "file": {
+           "id": "28c3b408-1287-4264-9124-528621a9d09d",
+           "type": "Primitive::File",
+           "value": "textures/wood5.png"
+          }
+         },
+         "type": "ImageTextureNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "fe6c18c8-96a9-4c95-ba40-e954bd5b7911",
+       "properties": {
+        "color": {
+         "id": "38cbc969-859c-4897-9d54-8bf906a1cbf3",
+         "properties": {
+          "value": {
+           "id": "80909391-71aa-4cd0-8698-ea41087422fa",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.03999999910593033,
+            0.03999999910593033,
+            0.03999999910593033
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": {
+         "id": "4721e118-6e34-472a-96d2-c780dd693a12",
+         "properties": {
+          "value": {
+           "id": "34005389-2e69-4975-893b-eb14074165d2",
+           "type": "Primitive::Float",
+           "value": 0.9853293299674988
+          }
+         },
+         "type": "FloatNode"
+        }
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "f90fb150-73e3-45da-a546-5a868b820e0a",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:TableWood"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "48b3b656-af0c-45a1-b84e-38e4135f9e32",
+     "properties": {
+      "emission": {
+       "id": "8fbe1e35-22e5-45e1-89b8-b13be1ab07bd",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "ddc6f153-771c-47c2-ba6b-0ed649e0e8de",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "c68f6810-aa5a-4ecc-b6da-8bdda7a8edc5",
+       "properties": {
+        "color": {
+         "id": "3193b80e-14d2-407d-a8dc-3431f9fe9686",
+         "properties": {
+          "value": {
+           "id": "9d634407-ec3e-4289-b148-e3207a01bad9",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.30000001192092896,
+            0.30000001192092896,
+            0.30000001192092896
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "90339390-bd38-453e-a3ab-9c488f0feb6d",
+       "properties": {
+        "color": null,
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "9cc17f59-2562-4c8d-b6af-5fd09188f014",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:Transluscent"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "9fcc247e-fb0f-48fa-ba37-47ab65205cb3",
+     "properties": {
+      "emission": {
+       "id": "59e5bed3-5e20-49c2-87a6-e14d37fc0f1f",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "49ede04d-d141-4c1e-9587-c1933ad6e7d6",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "379535a8-6216-49f5-924a-627558126da0",
+       "properties": {
+        "color": {
+         "id": "8f3decde-9ff2-4d0a-93c3-25c155492adc",
+         "properties": {
+          "value": {
+           "id": "dbb25896-ab76-4f00-8c51-fee049499a14",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.17000000178813934,
+            0.13199999928474426,
+            0.10000000149011612
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "a9612f58-53b1-48d4-a351-8683b96ea8aa",
+       "properties": {
+        "color": {
+         "id": "a060fd9b-6e43-4473-b4ab-73e6f10ba626",
+         "properties": {
+          "value": {
+           "id": "2c6a81f3-2cbb-486c-ad01-d4460387a1cf",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "a13bd471-9494-4d26-810d-922f9f3be7c0",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:Walls"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "2deca9dc-5db7-436a-857a-fcbc6c852deb",
+     "properties": {
+      "emission": {
+       "id": "98864cf3-6561-4769-b8e0-1b4662a64439",
+       "properties": {},
+       "type": "ShaderNode"
+      },
+      "fraction": {
+       "id": "b9118273-395f-436c-99dd-654d7c8f516e",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "d7b30d00-a2b0-4303-ad47-5517497163ed",
+       "properties": {
+        "color": {
+         "id": "e700054a-5126-491f-a9e5-68654c6b8faa",
+         "properties": {
+          "value": {
+           "id": "50bb8cec-5fe2-4284-90d4-bfae9252218a",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.5,
+            0.5,
+            0.5
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "3370a6c2-4e6b-4074-9292-4b3d6fb7f1ee",
+       "properties": {
+        "color": null,
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "f097df5e-9d60-4c0c-9734-1cc1fdb2ef85",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:initialShadingGroup"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "274a2843-2b22-47fa-8939-986a08841fef",
+     "properties": {
+      "emission": {
+       "id": "55be66f3-fd7c-44c7-b12c-ca6713405c16",
+       "properties": {
+        "value": {
+         "id": "df571b22-2609-47ff-b395-3f55679913bd",
+         "type": "Primitive::Vec3f",
+         "value": [
+          4.0,
+          4.0,
+          4.0
+         ]
+        }
+       },
+       "type": "RGBNode"
+      },
+      "fraction": {
+       "id": "82dce906-cf04-4e5d-b69e-cf0add92dbc8",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "1ce1d35d-dea0-4cda-b1cd-860bc7ecb9b6",
+       "properties": {
+        "color": {
+         "id": "feea8667-6093-498d-b613-773425278fbb",
+         "properties": {
+          "value": {
+           "id": "234b7a3e-3dc3-46ff-9388-0394d152d42d",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "66425ad3-a3e2-4bbf-9d40-1190c3cec07d",
+       "properties": {
+        "color": null,
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "8a9bc5a2-19a7-4066-9d28-f803420ffb3c",
+       "type": "Primitive::std::string",
+       "value": "grey_and_white_room:lambert2SG_light"
+      }
+     },
+     "type": "MixedMaterialNode"
+    },
+    {
+     "id": "0ec38ff7-80da-4904-94dd-299aec1eac56",
+     "properties": {
+      "emission": {
+       "id": "d66e17b5-2b35-4f53-a8e4-7cee4b54b25c",
+       "properties": {
+        "value": {
+         "id": "db8149c2-8104-4e87-889e-d9ea4bebb15e",
+         "type": "Primitive::Vec3f",
+         "value": [
+          4.0,
+          4.0,
+          4.0
+         ]
+        }
+       },
+       "type": "RGBNode"
+      },
+      "fraction": {
+       "id": "9186d47f-f0c2-4b15-83e9-2fa56677afb8",
+       "type": "Primitive::Float",
+       "value": 0.5
+      },
+      "matA": {
+       "id": "e8794804-f9d4-4c5a-869d-dd5089372999",
+       "properties": {
+        "color": {
+         "id": "142c556d-d130-4143-9a6c-2496c53fa21e",
+         "properties": {
+          "value": {
+           "id": "27624fb9-d825-4748-b593-f5f80e8d3725",
+           "type": "Primitive::Vec3f",
+           "value": [
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         "type": "RGBNode"
+        },
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "DiffuseMaterialNode"
+      },
+      "matB": {
+       "id": "b5898bc6-596e-4201-a5e9-e6310af099f0",
+       "properties": {
+        "color": null,
+        "emission": null,
+        "name": null,
+        "roughness": null
+       },
+       "type": "GlossyMaterialNode"
+      },
+      "name": {
+       "id": "04e6716b-eadf-4ba0-8c54-6ab75d74d66e",
+       "type": "Primitive::std::string",
+       "value": "lambert3SG"
+      }
+     },
+     "type": "MixedMaterialNode"
+    }
+   ],
+   "id": "a73d7a31-9d5c-45af-8b99-b08725719de1",
+   "properties": {},
+   "type": "Miyuki::Reflection::Array<MaterialNode>"
+  },
+  "meshes": {
+   "array": [],
+   "id": "1241fcde-6005-4ff4-a7d4-89aa7235c8b5",
+   "properties": {},
+   "type": "Miyuki::Reflection::Array<MeshNode>"
+  }
+ },
+ "type": "Graph"
+}

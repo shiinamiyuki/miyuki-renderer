@@ -81,7 +81,7 @@ namespace Miyuki {
 						}
 					}
 					arenas[threadId].reset();
-				});
+				},64);
 				reporter.update();
 			}
 			renderEnd(context);
