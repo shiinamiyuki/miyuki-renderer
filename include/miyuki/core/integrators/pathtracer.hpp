@@ -30,8 +30,8 @@ namespace Miyuki {
 				return aov;
 			}
 
-			AOVRecord trace() {
-				computeLi();
+			AOVRecord trace(Intersection* firstIsct) {
+				computeLi(firstIsct);
 				return getAOV();
 			}
 
@@ -155,12 +155,30 @@ namespace Miyuki {
 				}
 			}
 
-			void computeLi() {
-				if (!intersect()) {
-					handleEnvMap();
-					terminate();
+			void computeLi(Intersection* firstIsct) {
+				if (firstIsct) {
+					if (!firstIsct->hit()) {
+						handleEnvMap();
+						terminate();
+					}
+					else {
+						isct = *firstIsct;
+						if (!loadMaterial(isct)) {
+							terminate();
+						}
+					}
+					addLighting(EDiffuse, beta * firstIsct-> Le(ray));
+					
 				}
-				addLighting(EDiffuse, beta * isct.Le(ray));
+				else {
+					if (!intersect()) {
+						handleEnvMap();
+						terminate();
+					}
+					addLighting(EDiffuse, beta * isct.Le(ray));
+					
+				}
+				
 				while (continuable()) {
 					if (!isct.hit())break;
 					if (++depth > maxDepth)break;
@@ -181,11 +199,7 @@ namespace Miyuki {
 
 				}
 			}
-
-			bool intersect() {
-				if (!scene.intersect(ray, &isct)) {
-					return false;
-				}
+			bool loadMaterial(Intersection & isct) {
 				material = isct.primitive->material();
 				if (!material)
 					return false;
@@ -193,6 +207,12 @@ namespace Miyuki {
 				auto impl = material->createBSDF(bsdfCtx);
 				isct.bsdf = ARENA_ALLOC(*ctx.arena, BSDF)(impl, isct.Ng, isct.localFrame);
 				return isct.bsdf != nullptr;
+			}
+			bool intersect() {
+				if (!scene.intersect(ray, &isct)) {
+					return false;
+				}
+				return loadMaterial(isct);
 			}
 
 			void addLighting(BSDFLobe lobe, const Spectrum& lighting) {

@@ -22,7 +22,7 @@ namespace Miyuki {
 				std::swap(hilbertMapping[i], hilbertMapping[mid - i - 1ULL]);
 			}
 		}
-
+		constexpr size_t rayN = 8;
 		void SamplerIntegrator::renderProgressive(
 			const IntegratorContext& context,
 			ProgressiveRenderCallback progressiveCallback) {
@@ -68,20 +68,50 @@ namespace Miyuki {
 					Point2i tilePos(tx, ty);
 					tilePos *= TileSize;
 					Bound2i tileBound(tilePos, tilePos + Point2i{ TileSize, TileSize });
-					for (int i = 0; i < TileSize; i++) {
-						for (int j = 0; j < TileSize; j++) {
-							int x = tx * TileSize + i;
-							int y = ty * TileSize + j;
-							if (x >= film.width() || y >= film.height())
-								continue;
-							auto raster = Point2i{ x, y };
-							SamplingContext ctx = CreateSamplingContext(&camera,
-								samplers.at(x + y * film.width()).get(), &arenas[threadId], film.imageDimension(), raster);
-							Li(context, ctx);
+					if constexpr (rayN == 1) {
+						for (int i = 0; i < TileSize; i++) {
+							for (int j = 0; j < TileSize; j++) {
+								int x = tx * TileSize + i;
+								int y = ty * TileSize + j;
+								if (x >= film.width() || y >= film.height())
+									continue;
+								auto raster = Point2i{ x, y };
+								SamplingContext ctx = CreateSamplingContext(&camera,
+									samplers.at(x + y * film.width()).get(), &arenas[threadId], film.imageDimension(), raster);
+								Intersection isct;
+								scene.intersect(ctx.primary, &isct);
+								Li(&isct, context, ctx);
+							}
+						}
+					}
+					else if (rayN == 8) {
+						for (int i = 0; i < TileSize; i += 2) {
+							for (int j = 0; j < TileSize; j += 4) {
+								Ray8 ray8;
+								Intersection8 isct8;
+								SamplingContext ctx[8];
+								for (int k = 0; k < 2; k++) {
+									for (int m = 0; m < 4; m++) {
+										int x = tx * TileSize + i + k;
+										int y = ty * TileSize + j + m;
+										if (x >= film.width() || y >= film.height())
+											continue;
+										auto raster = Point2i{ x, y };
+										ctx[4 *k + m] = CreateSamplingContext(&camera,
+											samplers.at(x + y * film.width()).get(), &arenas[threadId], film.imageDimension(), raster);
+										ray8.rays[4 * k + m] = ctx[4 * k + m].primary;
+									}
+								}
+								scene.intersect8(ray8, &isct8);
+								for (int idx = 0; idx < 8; idx++) {
+									if(ray8.rays[idx].valid())
+										Li(&isct8.isct[idx], context, ctx[idx]);
+								}
+							}
 						}
 					}
 					arenas[threadId].reset();
-				},64);
+				}, 64);
 				reporter.update();
 			}
 			renderEnd(context);

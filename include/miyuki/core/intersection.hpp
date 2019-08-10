@@ -69,5 +69,9 @@ namespace Miyuki {
 		struct Intersection4 {
 			Intersection isct[4];
 		};
+
+		struct Intersection8 {
+			Intersection isct[8];
+		};
 	}
 }

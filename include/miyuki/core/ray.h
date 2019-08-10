@@ -16,9 +16,13 @@ namespace Miyuki {
 				: o(o), d(d), tMin(RayBias), tMax(INF), time(0) {}
 			Ray(const Vec3f& o, const Vec3f& d, Float tMin, Float tMax = INF, Float time = 0)
 				:o(o), d(d), tMin(tMin), tMax(tMax), time(time) {}
+			bool valid()const {
+				return tMin >= 0;
+			}
 		};
 
 		struct RayDifferential : Ray {
+			RayDifferential() :Ray(){}
 			RayDifferential(const Ray& ray) :Ray(ray) {}
 		};
 
@@ -26,6 +30,9 @@ namespace Miyuki {
 			Ray rays[4];
 		};
 
+		struct Ray8 {
+			Ray rays[8];
+		};
 	}
 }
 #endif // MIYUKI_RAY_H

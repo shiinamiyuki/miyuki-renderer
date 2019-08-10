@@ -33,12 +33,12 @@ namespace Miyuki {
 				denoiser = nullptr;
 			}
 		}
-		void PathTracerIntegrator::Li(const IntegratorContext& integratorContext, SamplingContext& ctx) {
+		void PathTracerIntegrator::Li(Intersection* firstIsct, const IntegratorContext& integratorContext, SamplingContext& ctx) {
 			auto& film = *integratorContext.film;
 			auto& scene = *integratorContext.scene;
 			auto& sampler = *integratorContext.sampler;
 			PathTracer pathtracer(scene, ctx, minDepth, maxDepth, useNEE);
-			auto record = pathtracer.trace();
+			auto record = pathtracer.trace(firstIsct);
 			for (int i = 0; i < AOVCount; i++) {
 				record.aovs[i] = clampRadiance(record.aovs[i], maxRayIntensity);
 			}

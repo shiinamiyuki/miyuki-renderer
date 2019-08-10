@@ -5,24 +5,29 @@
 #include <core/embreescene.h>
 
 namespace Miyuki {
+	RTCDevice rtcDevice = nullptr;
+	RTCDevice Core::GetEmbreeDevice() {
+		if (!rtcDevice) {
+			rtcDevice = rtcNewDevice(nullptr);
+		}
+		Assert(rtcDevice);
+		return rtcDevice;
+	}
+#define QUERY_PROP(prop) \
+			fmt::print("{}: {}\n",#prop, rtcGetDeviceProperty(Core::GetEmbreeDevice(), prop) ? true : false)		
+	void Init() {
+		Core::GetEmbreeDevice();
+		QUERY_PROP(RTC_DEVICE_PROPERTY_NATIVE_RAY4_SUPPORTED);
+		QUERY_PROP(RTC_DEVICE_PROPERTY_NATIVE_RAY8_SUPPORTED);
+		QUERY_PROP(RTC_DEVICE_PROPERTY_NATIVE_RAY16_SUPPORTED);
+	}
+
+	void Exit() {
+		rtcReleaseDevice(rtcDevice);
+	}
+	
 	namespace Core {
-		RTCDevice rtcDevice = nullptr;
 
-		void Init() {
-			GetEmbreeDevice();
-		}
-
-		void Exit() {
-			rtcReleaseDevice(rtcDevice);
-		}
-
-		RTCDevice GetEmbreeDevice() {
-			if (!rtcDevice) {
-				rtcDevice = rtcNewDevice(nullptr);
-			}
-			Assert(rtcDevice);
-			return rtcDevice;
-		}
 
 		void EmbreeScene::commit() {
 			rtcCommitScene(scene);

@@ -4,17 +4,25 @@
 
 namespace Miyuki {
 	namespace Core {
-		void AOIntegrator::Li(const IntegratorContext& integratorContext, SamplingContext& ctx) {
+		void AOIntegrator::Li(Intersection* firstIsct, const IntegratorContext& integratorContext, SamplingContext& ctx) {
 			auto& film = *integratorContext.film;
 			auto& scene = *integratorContext.scene;
 			auto& sampler = *ctx.sampler;
 			Intersection isct;
 			Spectrum AO;
-			if (scene.intersect(ctx.primary, &isct)) {
+			Intersection* pIsct;
+			if (firstIsct) {
+				pIsct = firstIsct;
+			}
+			else {
+				pIsct = &isct;
+				scene.intersect(ctx.primary, &isct);
+			}
+			if (pIsct->hit()) {
 				CosineHemispherePDF pdf;
 				Float p;
-				auto w = isct.localToWord(pdf.sample(sampler.get2D(), &p));
-				Ray ray = isct.spawnRay(w);
+				auto w = pIsct->localToWord(pdf.sample(sampler.get2D(), &p));
+				Ray ray = pIsct->spawnRay(w);
 				if (!scene.intersect(ray, &isct) || isct.distance >= occlusionDistance) {
 					AO = Spectrum(1);
 				}

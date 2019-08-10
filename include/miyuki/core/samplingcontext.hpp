@@ -13,6 +13,7 @@ namespace Miyuki {
 			MemoryArena* arena;
 			CameraSample cameraSample;
 			RayDifferential primary;
+			SamplingContext() :camera(nullptr), sampler(nullptr), arena(nullptr) {}
 			SamplingContext(Camera* camera,
 				Sampler* sampler,
 				MemoryArena* arena,

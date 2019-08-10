@@ -11,6 +11,10 @@ namespace Miyuki {
 
 			virtual bool intersect(const Ray& ray, Intersection* isct) = 0;
 
+			virtual void intersect4(const Ray4& ray, Intersection4* isct) { }
+
+			virtual void intersect8(const Ray8& ray, Intersection8* isct) { }
+
 			virtual void detachGeometry(int geomId) = 0;
 
 			virtual Bound3f getWorldBound()const = 0;

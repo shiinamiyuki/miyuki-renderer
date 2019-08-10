@@ -32,7 +32,7 @@ namespace Miyuki {
 			struct Visitor;
 
 			
-			inline void postIntersect(Intersection*);
+			
 
 			void assignMaterial(std::shared_ptr<Mesh> mesh);
 
@@ -40,6 +40,7 @@ namespace Miyuki {
 			std::atomic<size_t> rayCounter;
 			Light* light = nullptr;
 		public:
+			inline void postIntersect(Intersection*);
 			void setEnvironmentLight(Light* light) {
 				this->light = light;
 			}
@@ -67,6 +68,24 @@ namespace Miyuki {
 					return true;
 				}
 				return false;
+			}
+			void intersect4(const Ray4& ray, Intersection4* isct) {
+				rayCounter += 4;
+				embreeScene->intersect4(ray, isct);
+				for (int i = 0; i < 4; i++) {
+					if (ray.rays[i].valid() && isct->isct[i].hit()) {
+						postIntersect(&isct->isct[i]);
+					}
+				}
+			}
+			void intersect8(const Ray8& ray, Intersection8* isct) {
+				rayCounter += 8;
+				embreeScene->intersect8(ray, isct);
+				for (int i = 0; i < 8; i++) {
+					if (ray.rays[i].valid() && isct->isct[i].hit()) {
+						postIntersect(&isct->isct[i]);
+					}
+				}
 			}
 		};
 

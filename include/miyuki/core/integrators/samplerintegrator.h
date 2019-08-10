@@ -2,6 +2,7 @@
 #define MIYUKI_SAMPLER_INTEGRATOR_H
 
 #include <core/integrators/integrator.h>
+#include <core/intersection.hpp>
 
 namespace Miyuki {
 	namespace Core {
@@ -15,7 +16,7 @@ namespace Miyuki {
 			}
 			virtual void renderStart(const IntegratorContext& context) {}
 			virtual void renderEnd(const IntegratorContext& context) {}
-			virtual void Li(const IntegratorContext& context, SamplingContext&) = 0;
+			virtual void Li(Intersection * isct, const IntegratorContext& context, SamplingContext&) = 0;
 			void renderProgressive(
 				const IntegratorContext& context,
 				ProgressiveRenderCallback progressiveCallback)override;
