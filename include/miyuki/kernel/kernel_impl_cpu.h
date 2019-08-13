@@ -4,9 +4,8 @@
 /*  An implementation in CPU, using Embree
 */
 #include "kerneldef.h"
-
+#include <core/scene.h>
 MYK_KERNEL_NS_BEGIN
-
 
 
 MYK_KERNEL_NS_END

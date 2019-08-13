@@ -117,6 +117,27 @@ float fr_dielectric(float cosThetaI, float etaI, float etaT) {
 }
 
 MYK_KERNEL_FUNC_INLINE
+float2
+concetric_disk_sampling(float2 u) {
+	float2 uOffset = make_float2(2.0f, 2.0f) * u - make_float2(1, 1);
+
+	if (uOffset.x == 0 && uOffset.y == 0)
+		return make_float2(0, 0);
+
+	Float theta, r;
+	if (abs(uOffset.x) > abs(uOffset.y)) {
+		r = uOffset.x;
+		theta = PI / 4.0f * (uOffset.y / uOffset.x);
+	}
+	else {
+		r = uOffset.y;
+		theta = PI / 2.0f - PI / 4.0f * (uOffset.x / uOffset.y);
+	}
+	return make_float2(r, r) * make_float2(cos(theta), sin(theta));
+}
+
+
+MYK_KERNEL_FUNC_INLINE
 float3 cosine_hemisphere_sampling(float2 u) {
 	float theta = u.x * 2 * PI;
 	float r = sqrt(u.y);

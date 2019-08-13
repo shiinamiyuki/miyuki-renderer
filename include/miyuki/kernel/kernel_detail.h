@@ -9,11 +9,6 @@
 
 MYK_KERNEL_NS_BEGIN
 
-MYK_KERNEL_FUNC
-bool intersect(KernelGlobals * globals, const Ray* ray, Intersection* isct) {
-	
-}
-
 
 MYK_KERNEL_NS_END
 

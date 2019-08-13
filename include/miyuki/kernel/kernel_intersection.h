@@ -41,7 +41,6 @@ MYK_KERNEL_FUNC_INLINE
 void init_intersection(Intersection* isct) {
 	isct->geom_id = -1;
 	isct->prim_id = -1;
-	isct->primitive = NULL;
 }
 
 typedef struct Ray {

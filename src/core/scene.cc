@@ -1,6 +1,6 @@
 #include <core/scene.h>
 #include <utils/log.h>
-
+#include <core/kernelrecord.h>
 #include <core/materials/mixedmaterial.h>
 #include <core/materials/diffusematerial.h>
 #include <core/materials/glossymaterial.h>
@@ -210,8 +210,12 @@ namespace Miyuki {
 				light->setWorldRadius(radius);
 			}
 			computeLightDistribution();
-		}
 
-		
+			kernelRecord.reset(new KernelRecord(makeArc<ArenaAllocator>()));
+			auto compiler = makeArc<GraphCompiler>(kernelRecord);
+			for (auto& m : graph.materials) {
+				m->material->compileToKernelMaterial(*compiler);
+			}
+		}		
 	}
 }

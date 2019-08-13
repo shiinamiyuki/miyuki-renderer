@@ -7,5 +7,7 @@
 #include "kernel_sampler.h"
 #include "kernel_material.h"
 #include "kernel_detail.h"
+#include "kernel_camera_sample.h"
+#include "kernel_material_sample.h"
 
 #endif

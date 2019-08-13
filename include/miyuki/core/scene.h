@@ -8,7 +8,12 @@
 #include <io/imageloader.h>
 #include <math/distribution.h>
 
+
 namespace Miyuki {
+	namespace Kernel {
+		struct Ray;
+		struct Intersection;
+	}
 	namespace Core {
 		class Light;
 		class Scene {
@@ -39,7 +44,11 @@ namespace Miyuki {
 			void computeLightDistribution();
 			std::atomic<size_t> rayCounter;
 			Light* light = nullptr;
+			std::shared_ptr<KernelRecord> kernelRecord;
 		public:
+			std::shared_ptr<KernelRecord> getKernelRecord()const {
+				return kernelRecord;
+			}
 			inline void postIntersect(Intersection*);
 			void setEnvironmentLight(Light* light) {
 				this->light = light;
@@ -61,6 +70,7 @@ namespace Miyuki {
 			void commit(Core::Graph&);
 			void resetRayCount() { rayCounter = 0; }
 			size_t getRayCount()const { return rayCounter; }
+
 			bool intersect(const Ray& ray, Intersection* isct) {
 				rayCounter++;
 				if (embreeScene->intersect(ray, isct)) {

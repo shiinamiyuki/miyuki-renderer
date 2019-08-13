@@ -1,10 +1,14 @@
 #include <core/graphcompiler.h>
 #include <kernel/kernel_shader.h>
+#include <core/kernelrecord.h>
+
 namespace Miyuki {
 	namespace Core {
+		std::shared_ptr<Allocator> GraphCompiler::getAllocator()const { return record->allocator; }
 		int GraphCompiler::getLastAddedMaterialId()const {
 			return record->materials.size() - 1;
 		}
+		void GraphCompiler::push(const Kernel::Shader& shader) { record->shaderProgram.emplace_back(shader); }
 		void GraphCompiler::addMaterial(const Kernel::Material& mat) {
 			record->materials.push_back(mat);
 		}
@@ -44,7 +48,7 @@ namespace Miyuki {
 		}
 
 		GraphCompiler::GraphCompiler(std::shared_ptr<KernelRecord> record) {
-			 
+
 		}
 	}
 }

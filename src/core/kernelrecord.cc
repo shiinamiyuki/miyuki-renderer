@@ -6,6 +6,7 @@ namespace Miyuki {
 			Kernel::KernelGlobals globals;
 			globals.program.program = &shaderProgram[0];
 			globals.program.length = shaderProgram.size();
+			globals.materials = &materials[0];
 			return globals;
 		}
 		KernelRecord::KernelRecord(Arc<Allocator> alloc) :allocator(alloc) {
