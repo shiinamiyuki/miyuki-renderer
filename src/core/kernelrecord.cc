@@ -8,5 +8,10 @@ namespace Miyuki {
 			globals.program.length = shaderProgram.size();
 			return globals;
 		}
+		KernelRecord::KernelRecord(Arc<Allocator> alloc) :allocator(alloc) {
+			Kernel::Material nullMat;
+			Kernel::create_null_material(&nullMat);
+			materials.push_back(nullMat);
+		}
 	}
 }

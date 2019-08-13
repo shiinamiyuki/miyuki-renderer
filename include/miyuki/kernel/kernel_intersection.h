@@ -6,6 +6,7 @@
 
 MYK_KERNEL_NS_BEGIN
 
+
 typedef struct CoordinateSystem {
 	float3 local_x, local_y, normal;
 }CoordinateSystem;
@@ -20,9 +21,14 @@ void create_coordinate_system(CoordinateSystem* frame, float3 N) {
 struct Primitive;
 struct Material;
 
+typedef struct PrimitiveData {
+	int mesh_id;
+	int primitive_id;
+	int material_id;
+}PrimitiveData;
+
 typedef struct Intersection {
-	struct Primitive* primitive;
-	struct Material* material;
+	PrimitiveData primitive;
 	float distance;
 	float2 uv, texture_uv;
 	float3 p;
@@ -39,8 +45,8 @@ void init_intersection(Intersection* isct) {
 }
 
 typedef struct Ray {
-	float3 o, d;
-	float t_min, t_max;
+	float3 origin, direction;
+	float tmin, tmax;
 	float time;
 }Ray;
 

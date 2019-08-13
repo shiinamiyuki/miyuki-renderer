@@ -5,6 +5,7 @@
 #include <core/intersection.hpp>
 #include <core/shaders/shader.h>
 #include <core/memory.h>
+#include <core/graphcompiler.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -21,11 +22,15 @@ namespace Miyuki {
 			BSDFCreationContext(const ShadingPoint& p, MemoryArena* arena) :shadingPoint(p), arena(arena) {}
 		};
 
-		class Material : public Reflective {
+		class Material : public Reflective, public Compilable {
 		public:
 			MYK_ABSTRACT(Material);
 			Box<Shader> emission;
 			virtual BSDFImpl* createBSDF(BSDFCreationContext&)const = 0;
+			int compileToKernelMaterial(GraphCompiler& compiler)const {
+				compile(compiler);
+				return compiler.getLastAddedMaterialId();
+			}
 		};
 		MYK_REFL(Material, (Reflective), (emission));
 	}

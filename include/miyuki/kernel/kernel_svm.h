@@ -55,7 +55,7 @@ MYK_KERNEL_FUNC_INLINE ShadingResult svm_pop(SVM* svm) {
 
 MYK_KERNEL_FUNC_INLINE
 Shader* read_next_shader(KernelGlobals*globals, SVM* svm) {
-	return globals->program.program[svm->pc];
+	return &globals->program.program[svm->pc];
 }
 
 MYK_KERNEL_FUNC

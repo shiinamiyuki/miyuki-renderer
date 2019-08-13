@@ -37,7 +37,7 @@ MYK_KERNEL_FUNC void start_next_sample(SamplerState* state) {
 
 MYK_KERNEL_FUNC_INLINE float next1d(SamplerState* state);
 
-float2 next2d(SamplerState* state) {
+MYK_KERNEL_FUNC float2 next2d(SamplerState* state) {
 	return make_float2(next1d(state), next1d(state));
 }
 MYK_KERNEL_NS_END

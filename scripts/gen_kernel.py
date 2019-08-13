@@ -101,9 +101,13 @@ materials = {
         'super':'Material',
         'attr':{
             'fraction':'ShaderData',
-            'matA':'Material *',
-            'matB':'Material *'
+            'matA':'int',
+            'matB':'int'
         }
+    },
+    'NullMaterial':{
+        'super':'Material',
+        'attr':{}
     }
 }
 create_classes(materials)

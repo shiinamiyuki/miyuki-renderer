@@ -92,7 +92,7 @@ inline float4 min(float4 a, float4 b) {
 typedef float3 ShadingResult;
 struct Shader;
 typedef struct ShaderProgram {
-	struct Shader** program;
+	struct Shader* program;
 	int length;
 }ShaderProgram;
 

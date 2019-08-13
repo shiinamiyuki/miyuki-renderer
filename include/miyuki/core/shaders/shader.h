@@ -4,7 +4,8 @@
 #include <utils/file.hpp>
 #include <utils/preprocessable.hpp>
 #include <core/texture.h>
-#include <core/graphcompiler.h>
+#include <core/compilable.h>
+#include <kernel/kernel_shaderdata.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -82,6 +83,10 @@ namespace Miyuki {
 			}
 			static ShadingResult evaluate(const Box<Shader>& shader, ShadingPoint& p) {
 				return evaluate(shader.get(), p);
+			}
+			static Kernel::ShaderData compileToKernelShader(const Shader*, GraphCompiler& compiler);
+			static Kernel::ShaderData compileToKernelShader(const Box<Shader>& shader, GraphCompiler& compiler) {
+				return compileToKernelShader(shader.get(), compiler);
 			}
 		};
 		MYK_REFL(Shader, (Reflective), MYK_REFL_NIL);

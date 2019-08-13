@@ -6,6 +6,13 @@
 
 MYK_KERNEL_NS_BEGIN
 
+typedef struct Mat4x4 {
+	float4 m[4];
+}Mat4x4;
+
+MYK_KERNEL_FUNC_INLINE float4 mat4x4_mult(const Mat4x4 m, float4 v) {
+	return make_float4(dot(m.m[0], v), dot(m.m[1], v), dot(m.m[2], v), dot(m.m[3], v));
+}
 MYK_KERNEL_FUNC_INLINE
 float3 reflect(float3 wo, float3 n) {
 	return -1.0f * wo + 2 * dot(wo, n) * n;
@@ -124,7 +131,7 @@ float cosine_hemiphsere_pdf(float3 v) {
 
 
 MYK_KERNEL_FUNC_INLINE
- float3 spherical_to_xyz(Float sinTheta, Float cosTheta, Float phi) {
+float3 spherical_to_xyz(Float sinTheta, Float cosTheta, Float phi) {
 	return make_float3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
 }
 
@@ -139,7 +146,7 @@ Float spherical_phi(const float3 v) {
 	return p < 0 ? (p + 2 * PI) : p;
 }
 
- 
+
 MYK_KERNEL_FUNC_INLINE Float power_heuristics(Float pdf1, Float pdf2) {
 	Float p1 = pdf1 * pdf1;
 	Float p2 = pdf2 * pdf2;
@@ -148,7 +155,7 @@ MYK_KERNEL_FUNC_INLINE Float power_heuristics(Float pdf1, Float pdf2) {
 
 #pragma region error function
 // From pbrt
-MYK_KERNEL_FUNC_INLINE 
+MYK_KERNEL_FUNC_INLINE
 Float erfinv(Float x) {
 	Float w, p;
 	x = clamp(x, -.99999f, .99999f);
@@ -181,7 +188,7 @@ Float erfinv(Float x) {
 }
 
 // From pbrt
-MYK_KERNEL_FUNC_INLINE 
+MYK_KERNEL_FUNC_INLINE
 Float fasterf(Float x) {
 	// constants
 	Float a1 = 0.254829592f;

@@ -4,7 +4,9 @@
 #include <core/allocator.h>
 #include <core/kernelrecord.h>
 #include <core/texture.h>
-
+#include <kernel/kernel_shader.h>
+#include <kernel/kernel_shaderdata.h>
+#include <kernel/kernel_material.h>
 namespace Miyuki {
 	namespace Kernel {
 		struct Shader;
@@ -14,20 +16,18 @@ namespace Miyuki {
 			std::shared_ptr<KernelRecord> record;
 
 		public:
-			void push(Kernel::Shader* shader) { record->shaderProgram.emplace_back(shader); }
+			int getNullMaterialId()const {
+				return 0;
+			}
+			int getLastAddedMaterialId()const;
+			void addMaterial(const Kernel::Material&);
+			void push(const Kernel::Shader& shader) { record->shaderProgram.emplace_back(shader); }
 			void push(const Vec3f&);
-			void newProgram();
+			Kernel::ShaderData newProgram();
 			void programEnd();
 			Kernel::ImageTexture createTexture(const Texture& texture);
-			GraphCompiler(std::shared_ptr<KernelRecord> record) :record(record) {}
+			GraphCompiler(std::shared_ptr<KernelRecord> record);
 			std::shared_ptr<Allocator> getAllocator()const { return record->allocator; }
-		};
-
-		class Compilable {
-		public:
-			virtual void compile(GraphCompiler&)const {
-				throw std::runtime_error("Not implemented");
-			}
 		};
 	}
 }

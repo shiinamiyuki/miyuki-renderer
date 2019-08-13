@@ -22,7 +22,12 @@ class Globals:
         self.classes = dict()
 
     def gen_super_meta(self, _super):
-        s = ' ' * 4 + _super + 'Type type_tag;'
+        s = ' ' * 4 + _super + 'Type type_tag;\n'
+        s += ' ' * 4 + 'union{\n'
+        for i in self.supers[_super]:
+            s += ' ' * 8 + i.name + ' ' + camel_to_snake(i.name, False) + ';\n'
+        s += ' ' * 4 + '};\n'
+        s += ' ' * 4 + 'META_' + camel_to_snake(_super, True) + '()\n'
         return s
 
     def gen_dispatcher(self, _super):
@@ -32,7 +37,7 @@ class Globals:
         s += ' ' * 4 + 'switch(object->type_tag) {\\\n'
         for i in self.supers[_super]:
             s += ' ' * 4 + 'case {0}:\\\n'.format(i.type_tag)
-            s += ' ' * 8 + 'return ' + camel_to_snake(i.name, False) + '##_##method(({0} *)object, __VA_ARGS__);\\\n'.format(i.name)
+            s += ' ' * 8 + 'return ' + camel_to_snake(i.name, False) + '##_##method(({0} *)&object->{1}, __VA_ARGS__);\\\n'.format(i.name, camel_to_snake(i.name, False))
         s += ' ' * 4 + '};\\\n'
         s += ' ' * 4 + 'assert(0);\n\n'
         return s
@@ -74,12 +79,16 @@ typedef struct #NAME{
         for i in self.classes:
             s += 'struct ' + self.classes[i].name + ';\n'        
         for i in self.classes:
+            if self.classes[i].super:
+                s += self.classes[i].gen_def()
+            if self.classes[i].is_super():
+                s += self.classes[i].gen_meta()
+        for i in self.classes:
             if not self.classes[i].super:
                 s += self.gen_super(i)
                 s += self.classes[i].gen_ctor()
-        for i in self.classes:
-            if self.classes[i].super:
-                s += self.classes[i].to_str() 
+            else:
+                s += self.classes[i].gen_ctor()
         return s
     
 globals = Globals()
@@ -116,25 +125,43 @@ class KernelClass:
         return self
 
     def gen_ctor(self):
-        s = 'MYK_KERNEL_FUNC_INLINE void ' + self.get_ctor_name() + '(' + self.name + '* object){\n'
+        arg_type = self.name 
+        if self.super:
+            arg_type = self.super
+        s = 'MYK_KERNEL_FUNC_INLINE void ' + self.get_ctor_name() + '(' + arg_type + '* object){\n'
+        o = 'object->'
+        if self.super:
+            o = 'object->' + camel_to_snake(self.name, False) + '.'
         for a in self.attributes:
             if a.is_pointer:
-                s += ' ' * 4 + 'object->' + a.name + ' = NULL;\n'
+                s += ' ' * 4 + o + a.name + ' = NULL;\n'
         if self.super:
-            s += ' ' * 4 + 'create_' +camel_to_snake(self.super, False) + '(({0} *)object);\n'.format(self.super)
-            s += ' ' * 4 + 'object->_base.type_tag = ' + self.type_tag + ';\n'
-           
+            s += ' ' * 4 + 'object->type_tag = ' + self.type_tag + ';\n'
         s += '}\n'
+        return s
+    def is_super(self):
+        return not self.super
+
+    def gen_meta(self):
+        assert self.is_super()
+        s = '#define META_' + camel_to_snake(self.name, True) + '() '
+        s += "{0}()=default;{0}(const {0}& rhs)".format(self.name) + '{'
+        global globals
+        s += 'switch(type_tag){'
+        for i in globals.supers[self.name]:
+            d = i
+            s += 'case {0}:'.format(camel_to_snake(d.name, True)) + '  '
+            s += '{0} = rhs.{0};'.format(camel_to_snake(d.name, 0))
+        s += '} }\n'
         return s
 
     def gen_comment(self):
         return '/*' + self.comment + '*/' if self.comment else ''
 
     def gen_def(self)->str:
-        s = \
+        s = self.gen_comment() + \
             """
 typedef struct #NAME{
-#BASE
 #ATTR
 }#NAME;
 
@@ -142,13 +169,9 @@ typedef struct #NAME{
         attrs = ''
         for i in self.attributes:
             attrs += ' '* 4 + i.to_str() + ';\n'
-        base = ' '* 4 + self.super + ' _base;'
-        s = s.replace("#ATTR", attrs).replace('#BASE', base)
-        return s
 
-        
-    def to_str(self)->str:
-        return self.gen_comment() + self.gen_def() + self.gen_ctor()
+        s = s.replace("#ATTR", attrs)
+        return s
 
 
 def create_class(name, data:dict):

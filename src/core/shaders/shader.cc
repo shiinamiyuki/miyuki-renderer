@@ -1,8 +1,18 @@
 #include <core/shaders/shader.h>
+#include <core/graphcompiler.h>
 #include <kernel/kernel_shader.h>
 #include <kernel/kernel_texture.h>
+
 namespace Miyuki {
 	namespace Core {
+		Kernel::ShaderData Shader::compileToKernelShader(const Shader* shader, GraphCompiler& compiler) {
+			auto data = compiler.newProgram();
+			if (shader) {
+				shader->compile(compiler);
+			}
+			compiler.programEnd();
+			return data;
+		}
 		ShadingResult ImageTextureShader::eval(ShadingPoint& p)const {
 			return texture.evalUV(p.uv);
 		}
@@ -31,19 +41,18 @@ namespace Miyuki {
 			compiler.push(value);
 		}
 		void ImageTextureShader::compile(GraphCompiler& compiler)const {
-			auto allocator = compiler.getAllocator();
-			auto shader = allocator->allocT<Kernel::ImageTextureShader>();
-			Kernel::create_image_texture_shader(shader);
-			shader->texture = compiler.createTexture(texture);
-			CHECK(shader->texture.data);
-			CHECK(shader->texture.width >= 0);
-			CHECK(shader->texture.height >= 0);
+			Kernel::Shader shader;
+			Kernel::create_image_texture_shader(&shader);
+			shader.image_texture_shader.texture = compiler.createTexture(texture);
+			compiler.push(shader);
+			CHECK(shader.image_texture_shader.texture.data);
+			CHECK(shader.image_texture_shader.texture.width >= 0);
+			CHECK(shader.image_texture_shader.texture.height >= 0);
 		}
 
 		void MixedShader::compile(GraphCompiler& compiler)const {
-			auto allocator = compiler.getAllocator();
-			auto shader = allocator->allocT<Kernel::MixedShader>();
-			Kernel::create_mixed_shader(shader);
+			Kernel::Shader shader;
+			Kernel::create_mixed_shader(&shader);
 			if (shaderB)
 				shaderB->compile(compiler);
 			else {
@@ -60,13 +69,12 @@ namespace Miyuki {
 			else {
 				compiler.push(Vec3f(0.5f));
 			}
-			compiler.push((Kernel::Shader*)shader);
+			compiler.push(shader);
 		}
 
 		void ScaledShader::compile(GraphCompiler& compiler)const {
-			auto allocator = compiler.getAllocator();
-			auto shader = allocator->allocT<Kernel::ScaledShader>();
-			Kernel::create_scaled_shader(shader);
+			Kernel::Shader shader;
+			Kernel::create_scaled_shader(&shader);
 			if (this->shader) {
 				this->shader->compile(compiler);
 			}
@@ -80,7 +88,7 @@ namespace Miyuki {
 				compiler.push(Vec3f(1.0f));
 			}
 
-			compiler.push((Kernel::Shader*)shader);
+			compiler.push(shader);
 		}
 	}
 }
