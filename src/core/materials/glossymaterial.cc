@@ -96,15 +96,6 @@ namespace Miyuki {
 
 		};
 
-		void GlossyMaterial::compile(GraphCompiler& compiler)const {
-			Kernel::Material mat;
-			Kernel::create_glossy_material(&mat);
-			auto glossy = &mat.glossy_material;
-			glossy->color = Shader::compileToKernelShader(color, compiler);
-			glossy->roughness = Shader::compileToKernelShader(roughness, compiler);
-			compiler.addMaterial(mat);
-		}
-
 		BSDFImpl* GlossyMaterial::createBSDF(BSDFCreationContext& ctx)const {
 			auto _roughness = Shader::evaluate(roughness, ctx.shadingPoint).toFloat();
 			auto _color = Shader::evaluate(color, ctx.shadingPoint).toVec3f();

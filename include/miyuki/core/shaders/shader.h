@@ -4,8 +4,6 @@
 #include <utils/file.hpp>
 #include <utils/preprocessable.hpp>
 #include <core/texture.h>
-#include <core/compilable.h>
-#include <kernel/kernel_shaderdata.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -66,7 +64,7 @@ namespace Miyuki {
 		}
 
 
-		class Shader : public Reflective, public Preprocessable, public Compilable {
+		class Shader : public Reflective, public Preprocessable {
 		public:
 			MYK_INTERFACE(Shader);
 			virtual ShadingResult eval(ShadingPoint&) const = 0;
@@ -83,10 +81,6 @@ namespace Miyuki {
 			}
 			static ShadingResult evaluate(const Box<Shader>& shader, ShadingPoint& p) {
 				return evaluate(shader.get(), p);
-			}
-			static Kernel::ShaderData compileToKernelShader(const Shader*, GraphCompiler& compiler);
-			static Kernel::ShaderData compileToKernelShader(const Box<Shader>& shader, GraphCompiler& compiler) {
-				return compileToKernelShader(shader.get(), compiler);
 			}
 		};
 		MYK_REFL(Shader, (Reflective), MYK_REFL_NIL);
@@ -107,7 +101,6 @@ namespace Miyuki {
 			virtual Point2i resolution()const override {
 				return Point2i(1, 1);
 			}
-			virtual void compile(GraphCompiler&)const override;
 		private:
 			Float value = 0;
 		};
@@ -142,7 +135,6 @@ namespace Miyuki {
 			virtual Point2i resolution()const override {
 				return Point2i(1, 1);
 			}
-			virtual void compile(GraphCompiler&)const override;
 		private:
 			Float multiplier = 1.0f;
 			Spectrum value;
@@ -163,7 +155,6 @@ namespace Miyuki {
 			virtual ShadingResult average()const override;
 			virtual void preprocess()override;
 			virtual Point2i resolution()const override;
-			virtual void compile(GraphCompiler&)const override;
 		};
 		MYK_IMPL(ImageTextureShader, "Shader.ImageTexture");
 		MYK_REFL(ImageTextureShader, (Shader), (imageFile));
@@ -198,7 +189,6 @@ namespace Miyuki {
 				}
 				return Point2i(std::max(r1[0], r2[0]), std::max(r1[1], r2[1]));
 			}
-			virtual void compile(GraphCompiler&)const override;
 		};
 		MYK_IMPL(MixedShader, "Shader.Mixed");
 		MYK_REFL(MixedShader, (Shader), (fraction)(shaderA)(shaderB));
@@ -228,7 +218,6 @@ namespace Miyuki {
 					r2 = shader->resolution();
 				return Point2i(std::max(r1[0], r2[0]), std::max(r1[1], r2[1]));
 			}
-			virtual void compile(GraphCompiler&)const override;
 		};
 		MYK_IMPL(ScaledShader, "Shader.Scaled");
 		MYK_REFL(ScaledShader, (Shader), (shader)(scale));

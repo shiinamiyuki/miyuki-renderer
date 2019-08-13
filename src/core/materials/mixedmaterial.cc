@@ -65,20 +65,7 @@ namespace Miyuki {
 				return fraction * BSDFImpl::evaluatePdf(A, ctx) + (1.0f - fraction) * BSDFImpl::evaluatePdf(B, ctx);
 			}
 		};
-		void MixedMaterial::compile(GraphCompiler& compiler)const {
-			Kernel::Material mat;
-			Kernel::create_mixed_material(&mat);
-			auto mixed = &mat.mixed_material;
-			mixed->fraction = Shader::compileToKernelShader(fraction, compiler);
-			if (matA)
-				mixed->matA = matA->compileToKernelMaterial(compiler);
-			else
-				mixed->matA = compiler.getNullMaterialId();
-			if (matB)
-				mixed->matB = matB->compileToKernelMaterial(compiler);
-			else
-				mixed->matB = compiler.getNullMaterialId();
-		}
+
 		BSDFImpl* MixedMaterial::createBSDF(BSDFCreationContext& ctx)const {
 			auto frac = Shader::evaluate(fraction, ctx.shadingPoint).toFloat();
 			auto A = matA->createBSDF(ctx);

@@ -10,10 +10,6 @@
 
 
 namespace Miyuki {
-	namespace Kernel {
-		struct Ray;
-		struct Intersection;
-	}
 	namespace Core {
 		class Light;
 		class Scene {
@@ -44,11 +40,7 @@ namespace Miyuki {
 			void computeLightDistribution();
 			std::atomic<size_t> rayCounter;
 			Light* light = nullptr;
-			std::shared_ptr<KernelRecord> kernelRecord;
 		public:
-			std::shared_ptr<KernelRecord> getKernelRecord()const {
-				return kernelRecord;
-			}
 			inline void postIntersect(Intersection*);
 			void setEnvironmentLight(Light* light) {
 				this->light = light;

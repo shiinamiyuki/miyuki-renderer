@@ -4,7 +4,7 @@
 #include <ui/mainwindow.h>
 #include <core/integrators/ao.h>
 #include <core/integrators/pt.h>
-#include <core/integrators/kpt.h>
+
 #include <core/materials/diffusematerial.h>
 #include <core/materials/glossymaterial.h>
 #include <core/materials/mixedmaterial.h>
@@ -282,11 +282,6 @@ namespace Miyuki {
 				}
 				if (auto r = GetInputWithSignal("occlusion distance", integrator->occlusionDistance)) {
 					integrator->occlusionDistance = r.value();
-				}
-			});
-			visit<Core::KernelPathTracer>([=](Core::KernelPathTracer* integrator) {
-				if (auto r = GetInputWithSignal("samples", integrator->spp)) {
-					integrator->spp = r.value();
 				}
 			});
 			visit<Core::PathTracerIntegrator>([=](Core::PathTracerIntegrator* integrator) {

@@ -1,7 +1,7 @@
 #include <core/materials/diffusematerial.h>
 #include <core/bsdfs/bsdf.h>
 #include <core/bsdfs/diffuse.hpp>
-#include <kernel/kernel_material.h>
+
 namespace Miyuki {
 	namespace Core {
 		class DiffuseBSDFImpl : public BSDFImpl {
@@ -53,14 +53,6 @@ namespace Miyuki {
 				}
 			}
 		};
-		void DiffuseMaterial::compile(GraphCompiler& compiler)const  {
-			Kernel::Material mat;
-			Kernel::create_diffuse_material(&mat);
-			auto diffuse = &mat.diffuse_material;
-			diffuse->color = Shader::compileToKernelShader(color, compiler);
-			diffuse->roughness = Shader::compileToKernelShader(roughness, compiler);
-			compiler.addMaterial(mat);
-		}
 
 		BSDFImpl* DiffuseMaterial::createBSDF(BSDFCreationContext& ctx)const {
 			Float _roughness = Shader::evaluate(roughness, ctx.shadingPoint).toFloat();
