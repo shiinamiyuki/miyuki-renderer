@@ -111,7 +111,7 @@ namespace Miyuki {
 		static constexpr size_t width() { return 4; }
 	};
 
-	struct Vec3f {
+	struct _Vec3f {
 		union {
 			Float4 v;
 			struct {
@@ -142,24 +142,24 @@ namespace Miyuki {
 			return v[n];
 		}
 
-		Vec3f operator - ()const {
-			return Vec3f{ -v[0], -v[1], -v[2], -v[3] };
+		_Vec3f operator - ()const {
+			return _Vec3f{ -v[0], -v[1], -v[2], -v[3] };
 		}
 
-		explicit Vec3f(Float x) { v[0] = v[1] = v[2] = x; }
+		explicit _Vec3f(Float x) { v[0] = v[1] = v[2] = x; }
 
-		Vec3f(Float a, Float b, Float c) {
+		_Vec3f(Float a, Float b, Float c) {
 			v[0] = a;
 			v[1] = b;
 			v[2] = c;
 			v[3] = 0;
 		}
 
-		Vec3f() { for (auto i = 0; i < 3; i++) { v[i] = 0; } }
+		
 
-		explicit Vec3f(const Float4& f) : v(f) {}
+		explicit _Vec3f(const Float4& f) : v(f) {}
 
-		Vec3f(const Vec3f& rhs) {
+		_Vec3f(const _Vec3f& rhs) {
 
 			v[0] = rhs.v[0];
 			v[1] = rhs.v[1];
@@ -167,7 +167,7 @@ namespace Miyuki {
 			v[3] = rhs.v[3];
 		}
 
-		explicit Vec3f(const std::initializer_list<Float>& list) {
+		explicit _Vec3f(const std::initializer_list<Float>& list) {
 			auto iter = list.begin();
 			assert(list.size() <= 4);
 			for (size_t i = 0; i < list.size(); i++) {
@@ -179,28 +179,28 @@ namespace Miyuki {
 			}
 		}
 
-		Vec3f(const Float _v[3]) {
+		_Vec3f(const Float _v[3]) {
 			for (auto i = 0; i < 3; i++)
 				v[i] = _v[i];
 			v[3] = 0;
 		}
 
-		Vec3f& operator+=(const Vec3f& rhs) {
+		_Vec3f& operator+=(const _Vec3f& rhs) {
 			v += rhs.v;
 			return *this;
 		}
 
-		Vec3f& operator-=(const Vec3f& rhs) {
+		_Vec3f& operator-=(const _Vec3f& rhs) {
 			v -= rhs.v;
 			return *this;
 		}
 
-		Vec3f& operator*=(const Vec3f& rhs) {
+		_Vec3f& operator*=(const _Vec3f& rhs) {
 			v *= rhs.v;
 			return *this;
 		}
 
-		Vec3f& operator*=(const Float& rhs) {
+		_Vec3f& operator*=(const Float& rhs) {
 			v[0] *= rhs;
 			v[1] *= rhs;
 			v[2] *= rhs;
@@ -208,7 +208,7 @@ namespace Miyuki {
 			return *this;
 		}
 
-		Vec3f& operator/=(const Float& rhs) {
+		_Vec3f& operator/=(const Float& rhs) {
 			v[0] /= rhs;
 			v[1] /= rhs;
 			v[2] /= rhs;
@@ -216,36 +216,36 @@ namespace Miyuki {
 			return *this;
 		}
 
-		Vec3f& operator/=(const Vec3f& rhs) {
+		_Vec3f& operator/=(const _Vec3f& rhs) {
 			v /= rhs.v;
 			return *this;
 		}
 
-		Vec3f operator*(const Vec3f& rhs) const {
-			return Vec3f(v * rhs.v);
+		_Vec3f operator*(const _Vec3f& rhs) const {
+			return _Vec3f(v * rhs.v);
 
 		}
 
-		Vec3f operator/(const Vec3f& rhs) const {
-			return Vec3f(v / rhs.v);
+		_Vec3f operator/(const _Vec3f& rhs) const {
+			return _Vec3f(v / rhs.v);
 
 		}
 
-		Vec3f operator+(const Vec3f& rhs) const {
-			return Vec3f(v + rhs.v);
+		_Vec3f operator+(const _Vec3f& rhs) const {
+			return _Vec3f(v + rhs.v);
 
 		}
 
-		Vec3f operator-(const Vec3f& rhs) const {
-			return Vec3f(v - rhs.v);
+		_Vec3f operator-(const _Vec3f& rhs) const {
+			return _Vec3f(v - rhs.v);
 
 		}
 
-		bool operator==(const Vec3f& rhs) const {
+		bool operator==(const _Vec3f& rhs) const {
 			return v[0] == rhs.v[0] && v[1] == rhs.v[1] && v[2] == rhs.v[2];
 		}
 
-		bool operator!=(const Vec3f& rhs) const {
+		bool operator!=(const _Vec3f& rhs) const {
 			return !(*this == rhs);
 		}
 
@@ -257,22 +257,22 @@ namespace Miyuki {
 			return std::min(x, std::min(y, z));
 		}
 
-		static Float dot(const Vec3f& a, const Vec3f& b) {
+		static Float dot(const _Vec3f& a, const _Vec3f& b) {
 			return a.x * b.x + a.y * b.y + a.z * b.z;
 		}
 
-		static Float absDot(const Vec3f& a, const Vec3f& b) {
+		static Float absDot(const _Vec3f& a, const _Vec3f& b) {
 			return fabs(dot(a, b));
 		}
 
-		static Vec3f cross(const Vec3f& v1, const Vec3f& v2) {
-			return Vec3f{ v1.y * v2.z - v1.z * v2.y,
+		static _Vec3f cross(const _Vec3f& v1, const _Vec3f& v2) {
+			return _Vec3f{ v1.y * v2.z - v1.z * v2.y,
 						 v1.z * v2.x - v1.x * v2.z,
 						 v1.x * v2.y - v1.y * v2.x };
 		}
 
 		Float lengthSquared() const {
-			return Vec3f::dot(*this, *this);
+			return _Vec3f::dot(*this, *this);
 		}
 
 		Float length() const {
@@ -283,25 +283,35 @@ namespace Miyuki {
 			*this /= length();
 		}
 
-		const Vec3f normalized() const {
+		const _Vec3f normalized() const {
 			auto v = *this;
 			v.normalize();
 			return v;
 		}
+		_Vec3f() = default;
+	};
+	struct Vec3f :_Vec3f {
+		using _Vec3f::_Vec3f;
+		Vec3f() { for (auto i = 0; i < 3; i++) { v[i] = 0; } }
+		Vec3f(const _Vec3f& v) {
+			x = v.x;
+			y = v.y;
+			z = v.z;
+		}
 	};
 
-	inline Vec3f operator*(const Vec3f& a, Float k) {
-		Vec3f _v(a);
+	inline _Vec3f operator*(const _Vec3f& a, Float k) {
+		_Vec3f _v(a);
 		_v *= k;
 		return _v;
 	}
 
-	inline Vec3f operator*(Float k, const Vec3f& a) {
+	inline _Vec3f operator*(Float k, const _Vec3f& a) {
 		return a * k;
 	}
 
-	inline Vec3f operator/(const Vec3f& a, Float k) {
-		Vec3f _v(a);
+	inline _Vec3f operator/(const _Vec3f& a, Float k) {
+		_Vec3f _v(a);
 		_v /= k;
 		return _v;
 	}
@@ -313,35 +323,35 @@ namespace Miyuki {
 		return x;
 	}
 
-	inline Vec3f min(const Vec3f& a, const Vec3f& b) {
-		return Vec3f(std::min(a.x, b.x),
+	inline _Vec3f min(const _Vec3f& a, const _Vec3f& b) {
+		return _Vec3f(std::min(a.x, b.x),
 			std::min(a.y, b.y),
 			std::min(a.z, b.z));
 	}
 
-	inline Vec3f max(const Vec3f& a, const Vec3f& b) {
-		return Vec3f(std::max(a.x, b.x),
+	inline _Vec3f max(const _Vec3f& a, const _Vec3f& b) {
+		return _Vec3f(std::max(a.x, b.x),
 			std::max(a.y, b.y),
 			std::max(a.z, b.z));
 	}
 
 
-	inline Vec3f rgb(int32_t r, int32_t g, int32_t b) {
-		return Vec3f{ (Float)r, (Float)g, (Float)b } / 255.0;
+	inline _Vec3f rgb(int32_t r, int32_t g, int32_t b) {
+		return _Vec3f{ (Float)r, (Float)g, (Float)b } / 255.0;
 	}
 
 	/// axis is normalized
-	inline Vec3f rotate(const Vec3f& x, const Vec3f& axis, const Float angle) {
+	inline _Vec3f rotate(const _Vec3f& x, const _Vec3f& axis, const Float angle) {
 		const Float s = sin(angle);
 		const Float c = cos(angle);
 		const Float oc = Float(1.0) - c;
-		Vec3f u({ oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s,
+		_Vec3f u({ oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s,
 				 oc * axis.z * axis.x + axis.y * s });
-		Vec3f v({ oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c,
+		_Vec3f v({ oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c,
 				 oc * axis.y * axis.z - axis.x * s });
-		Vec3f w({ oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s,
+		_Vec3f w({ oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s,
 				 oc * axis.z * axis.z + c });
-		return Vec3f{ Vec3f::dot(u, x), Vec3f::dot(v, x), Vec3f::dot(w, x) };
+		return _Vec3f{ _Vec3f::dot(u, x), _Vec3f::dot(v, x), _Vec3f::dot(w, x) };
 	}
 	template<typename T, size_t N>
 	struct VecData {
@@ -375,23 +385,19 @@ namespace Miyuki {
 		};
 	};
 	template<typename T, size_t N>
-	struct Vec : VecData<T, N> {
+	struct _Vec : VecData<T, N> {
 		typedef T ValueType;
 
-		Vec() {
-			for (int32_t i = 0; i < N; i++) {
-				v[i] = 0;
-			}
-		}
+		
 
-		Vec(T x) {
+		_Vec(T x) {
 			static_assert(N >= 1, "no x component");
 			v[0] = x;
 			for (int32_t i = 1; i < N; i++)
 				v[i] = 0;
 		}
 
-		Vec(T x, T y) {
+		_Vec(T x, T y) {
 			static_assert(N >= 2, "no y component");
 			v[0] = x;
 			v[1] = y;
@@ -399,7 +405,7 @@ namespace Miyuki {
 				v[i] = 0;
 		}
 
-		Vec(T x, T y, T z) {
+		_Vec(T x, T y, T z) {
 			static_assert(N >= 3, "no z component");
 			v[0] = x;
 			v[1] = y;
@@ -408,20 +414,20 @@ namespace Miyuki {
 				v[i] = 0;
 		}
 
-		Vec(const Vec& rhs) {
+		_Vec(const _Vec& rhs) {
 			for (int32_t i = 0; i < N; i++)
 				v[i] = rhs.v[i];
 
 		}
 
 		template<typename U>
-		explicit Vec(const Vec<U, N>& rhs) {
+		explicit _Vec(const _Vec<U, N>& rhs) {
 			for (int32_t i = 0; i < N; i++)
 				v[i] = static_cast<T>(rhs.v[i]);
 
 		}
 
-		Vec(const std::initializer_list<T>& list) {
+		_Vec(const std::initializer_list<T>& list) {
 			auto iter = list.begin();
 			assert(list.size() == N);
 			for (int32_t i = 0; i < N; i++) {
@@ -430,79 +436,79 @@ namespace Miyuki {
 			}
 		}
 
-		Vec(const T _v[N]) {
+		_Vec(const T _v[N]) {
 			for (auto i = 0; i < N; i++)
 				v[i] = _v[i];
 
 		}
 
-		Vec& operator+=(const Vec& rhs) {
+		_Vec& operator+=(const _Vec& rhs) {
 			for (int32_t i = 0; i < N; i++)
 				v[i] += rhs.v[i];
 			return *this;
 		}
 
-		Vec& operator-=(const Vec& rhs) {
+		_Vec& operator-=(const _Vec& rhs) {
 			for (int32_t i = 0; i < N; i++)
 				v[i] -= rhs.v[i];
 			return *this;
 		}
 
-		Vec& operator*=(const Vec& rhs) {
+		_Vec& operator*=(const _Vec& rhs) {
 			for (int32_t i = 0; i < N; i++)
 				v[i] *= rhs.v[i];
 			return *this;
 		}
 
-		Vec& operator*=(const T& rhs) {
+		_Vec& operator*=(const T& rhs) {
 			for (int32_t i = 0; i < N; i++)
 				v[i] *= rhs;
 			return *this;
 		}
 
-		Vec& operator/=(const T& rhs) {
+		_Vec& operator/=(const T& rhs) {
 			for (int32_t i = 0; i < N; i++)
 				v[i] /= rhs;
 			return *this;
 		}
 
-		Vec& operator/=(const Vec& rhs) {
+		_Vec& operator/=(const _Vec& rhs) {
 			for (int32_t i = 0; i < N; i++)
 				v[i] /= rhs.v[i];
 			return *this;
 		}
 
-		Vec operator*(const Vec& rhs) const {
+		_Vec operator*(const _Vec& rhs) const {
 			auto x = *this;
 			x *= rhs;
 			return x;
 		}
 
-		Vec operator/(const Vec& rhs) const {
+		_Vec operator/(const _Vec& rhs) const {
 			auto x = *this;
 			x /= rhs;
 			return x;
 		}
 
-		Vec operator*(const T& rhs) const {
+		_Vec operator*(const T& rhs) const {
 			auto x = *this;
 			x *= rhs;
 			return x;
 		}
 
-		Vec operator/(const T& rhs) const {
+		_Vec operator/(const T& rhs) const {
 			auto x = *this;
 			x /= rhs;
 			return x;
 		}
 
-		Vec operator+(const Vec& rhs) const {
+		_Vec operator+(const _Vec& rhs) const {
 			auto x = *this;
 			x += rhs;
 			return x;
 		}
 
-		Vec operator-(const Vec& rhs) const {
+		_Vec operator-(const _Vec& rhs) const {
 			auto x = *this;
 			x -= rhs;
 			return x;
@@ -514,12 +520,28 @@ namespace Miyuki {
 
 		size_t size() const { return N; }
 
-		bool operator==(const Vec& rhs) const {
+		bool operator==(const _Vec& rhs) const {
 			for (int i = 0; i < N; i++) {
 				if (v[i] != rhs.v[i])
 					return false;
 			}
 			return true;
+		}
+		_Vec() = default;
+	};
+
+	template<class T, size_t N>
+	struct Vec : _Vec<T,N> {
+		using _Vec::_Vec;
+		Vec() {
+			for (int32_t i = 0; i < N; i++) {
+				v[i] = 0;
+			}
+		}
+		Vec(const _Vec<T, N>& rhs) {
+			for (int32_t i = 0; i < N; i++) {
+				v[i] = rhs.v[i];
+			}
 		}
 	};
 

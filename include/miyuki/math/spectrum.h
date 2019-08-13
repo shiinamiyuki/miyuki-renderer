@@ -17,11 +17,13 @@ namespace Miyuki {
 
     template<>
     class CoefficientSpectrum<3> : public Vec3f {
+		using Vec3f::Vec3f;
     };
 
     class RGBSpectrum : public CoefficientSpectrum<3> {
 
     public:
+		using CoefficientSpectrum::CoefficientSpectrum;
         RGBSpectrum(const Vec3f &c) {
             v[0] = c[0];
             v[1] = c[1];
@@ -90,7 +92,7 @@ namespace Miyuki {
     using Spectrum = RGBSpectrum;
 
     inline Spectrum clampRadiance(const Spectrum &s, Float maxR) {
-        return {clamp<Float>(s.r, 0, maxR), clamp<Float>(s.g, 0, maxR), clamp<Float>(s.b, 0, maxR)};
+        return Spectrum(clamp<Float>(s.r, 0, maxR), clamp<Float>(s.g, 0, maxR), clamp<Float>(s.b, 0, maxR));
     }
 
 	inline void to_json(json& j, const Spectrum& v) {

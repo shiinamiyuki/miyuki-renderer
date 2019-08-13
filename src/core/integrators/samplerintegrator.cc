@@ -53,14 +53,20 @@ namespace Miyuki {
 				spp,
 				film.width(),
 				film.height());
-			ProgressReporter<size_t> reporter(spp, [&](size_t cur, size_t total) {
-				Log::log("Done samples {0}/{1}, traced {2} rays\n", cur, total, scene.getRayCount());
+			double elapsedRenderTime = 0;
+			std::unique_ptr<ProgressReporter<size_t>> reporter;
+			reporter.reset(new ProgressReporter<size_t>(spp, [&](size_t cur, size_t total) {
+				Log::log("Done samples {0}/{1}, traced {2} rays, {3}M rays/sec\n",
+					cur,
+					total,
+					scene.getRayCount(),
+					scene.getRayCount() / elapsedRenderTime /1e6);
 				progressiveCallback(context.film);
-			});
+			}));
 			scene.resetRayCount();
 			renderStart(context);
 			for (size_t iter = 0; iter < spp && !_aborted; iter++) {
-				auto start = reporter.elapsedSeconds();
+				double start = reporter->elapsedSeconds();
 				Thread::ParallelFor(0u, hilbertMapping.size(), [&](uint32_t idx, uint32_t threadId) {
 					int tx, ty;
 					tx = hilbertMapping[idx].x;
@@ -112,7 +118,8 @@ namespace Miyuki {
 					}
 					arenas[threadId].reset();
 				}, 64);
-				reporter.update();
+				elapsedRenderTime += reporter->elapsedSeconds() - start;
+				reporter->update();
 			}
 			renderEnd(context);
 			context.resultCallback(context.film);

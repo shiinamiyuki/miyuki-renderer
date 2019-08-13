@@ -5,30 +5,40 @@
 #include <math/func.h>
 #include <cmath>
 #include <algorithm>
-#define MYK_KERNEL_NS_BEGIN namespace Miyuki{namespace Kernel{
-#define MYK_KERNEL_NS_END }}
+
+#ifdef _MSC_VER 
+
+#define MYK_KERNEL_NS_BEGIN namespace Miyuki{namespace Kernel{ __pragma(pack(push, 1))
+#define MYK_KERNEL_NS_END }}  __pragma(pack(pop))
+
+#define KNL_PACKED 
+
+#endif
+
 #define MYK_KERNEL_FUNC  static
 #define MYK_KERNEL_FUNC_INLINE  static inline
+
+
 MYK_KERNEL_NS_BEGIN
 
-typedef Vec3f float3;
-typedef Vec4f float4;
-typedef Point2f float2;
-typedef Point2i int2;
+typedef _Vec3f float3;
+typedef _Vec4f float4;
+typedef _Vec<Float, 2> float2;
+typedef _Vec<int, 2> int2;
 
 MYK_KERNEL_FUNC_INLINE
 float2 make_float2(Float x, Float y) {
-	return Point2f(x, y);
+	return float2(x, y);
 }
 
 MYK_KERNEL_FUNC_INLINE
 float3 make_float3(Float x, Float y, Float z) {
-	return Vec3f(x, y, z);
+	return float3(x, y, z);
 }
 
 MYK_KERNEL_FUNC_INLINE
 float4 make_float4(Float x, Float y, Float z, Float w) {
-	return Vec4f(x, y, z, w);
+	return float4(x, y, z, w);
 }
 
 MYK_KERNEL_FUNC_INLINE
@@ -85,6 +95,7 @@ typedef struct ShaderProgram {
 	struct Shader** program;
 	int length;
 }ShaderProgram;
+
 
 
 MYK_KERNEL_NS_END

@@ -175,12 +175,12 @@ namespace Miyuki {
 				return;
 			}
 			std::vector<Float> power(lights.size());
-			for (int i = 0; i < lights.size(); i++) {
+			for (size_t i = 0; i < lights.size(); i++) {
 				power[i] = lights[i]->power();
 			}
 			lightDistribution = std::make_unique<Distribution1D>(&power[0], lights.size());
 
-			for (int i = 0; i < lights.size(); i++) {
+			for (size_t i = 0; i < lights.size(); i++) {
 				lightPdfMap[lights[i]] = lightDistribution->pdfDiscrete(i);
 			}
 

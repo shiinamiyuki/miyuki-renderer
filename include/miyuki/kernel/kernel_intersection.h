@@ -48,7 +48,7 @@ MYK_KERNEL_FUNC
 bool intersect(KernelGlobals* globals, const Ray* ray, Intersection* isct);
 
 MYK_KERNEL_FUNC
-bool  occluded(KernelGlobals* globals, const Ray* ray);
+bool occluded(KernelGlobals* globals, const Ray* ray);
 
 MYK_KERNEL_FUNC
 bool intersect_primitive(KernelGlobals* globals, const Ray* ray, const Primitive* primitive);
