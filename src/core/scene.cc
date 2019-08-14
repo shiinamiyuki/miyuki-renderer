@@ -126,6 +126,8 @@ namespace Miyuki {
 				});
 				for (auto& material : graph.materials) {
 					visit(material->material);
+					visit(material->material->emission);
+					visit(material->material->normalMap);
 				}
 			}
 			void loadMeshes(Core::Graph& graph) {

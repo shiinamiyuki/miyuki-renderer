@@ -95,7 +95,7 @@ namespace Miyuki {
 					terminate();
 					return;
 				}
-				wi = isct.localToWord(sample.wi);
+				wi = isct.localToWorld(sample.wi);
 				ray = isct.spawnRay(wi);
 				beta *= sample.f * Vec3f::absDot(isct.Ns, wi) / sample.pdf;
 			}

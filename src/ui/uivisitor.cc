@@ -243,8 +243,10 @@ namespace Miyuki {
 				if (auto r = GetInputWithSignal("name", slot->name)) {
 					slot->name = r.value();
 				}
-				if (slot->material)
+				if (slot->material) {
 					visitShaderAndSelect(slot->material->emission, "emission");
+					visitShaderAndSelect(slot->material->normalMap, "normal");
+				}
 				visitMaterialAndSelect(slot->material, "material");
 			});
 			visit<Core::WorldConfig>([=](Core::WorldConfig* world) {
@@ -478,12 +480,7 @@ namespace Miyuki {
 			th.detach();
 		}
 		void UIVisitor::stopRender() {
-			auto graph = engine->getGraph();
-			if (!graph)return;
-			auto& integrator = graph->integrator;
-			if (integrator) {
-				integrator->abort();
-			}
+			engine->requestAbortRender();
 		}
 	}
 }

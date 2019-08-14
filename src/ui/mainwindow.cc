@@ -1,6 +1,7 @@
 #include <ui/mainwindow.h>
 #include <ui/logwindow.h>
 #include <utils/future.hpp>
+#include <utils/thread.h>
 
 static void glfw_error_callback(int error, const char* description) {
 	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -104,18 +105,77 @@ void main()
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 		void MainWindow::viewportWindow() {
-		
+
 			if (windowFlags.showView) {
-				ImGui::PushID("render view texture");					
+				ImGui::PushID("render view texture");
 				if (windowFlags.viewportUpdateAvailable) {
 					std::lock_guard<std::mutex> lock(viewportMutex);
 					loadViewImpl();
 					windowFlags.viewportUpdateAvailable = false;
 				}
-				Window().name("render view").open(&windowFlags.showView).with(true, [=]() {
-					if (!viewport)return;				
+				WindowFlag flag = 0;
+				if (engine->getStatus() == RenderEngine::ERenderInteractive) {
+					flag |= ImGuiWindowFlags_NoMove;
+				}
+				Window().name("render view").open(&windowFlags.showView).flag(flag).with(true, [=]() {
+					if (!viewport)return;
 					Draw(*viewport);
-					
+					auto graph = engine->getGraph();
+					if (!graph)return;
+					auto cam = graph->activeCamera;
+					if (!cam)return;
+					ImGuiIO& io = ImGui::GetIO();
+					if (engine->getStatus() != RenderEngine::ERenderInteractive) {
+						return;
+					}
+					auto pos = io.MousePos;
+					if (!lastViewportMouseDown) {
+						if (io.MouseDown[1]) {
+							auto windowPos = ImGui::GetWindowPos();
+							auto size = ImGui::GetWindowSize();
+							if (pos.x >= windowPos.x && pos.y >= windowPos.y
+								&& pos.x < windowPos.x + size.x && pos.y < windowPos.y + size.y) {
+								lastViewportMouseDown = Point2i(pos.x, pos.y);
+								cameraDir = cam->direction;
+								cameraPos = cam->viewpoint;
+								distance = (cameraPos - center).length();
+							}
+						}
+					}
+					else if (!io.MouseDown[1]) {
+						lastViewportMouseDown = {};
+					}
+					else {
+						bool restart = false;
+						if (io.MouseWheel > 0) {
+							distance /= 1.1; restart = true;
+						}
+						else if (io.MouseWheel < 0) {
+							distance *= 1.1; restart = true;
+						}
+						auto delta = io.MouseDelta;
+						if (delta.x != 0 || delta.y != 0) {
+							restart = true;
+							
+						}
+						if (restart) {
+							engine->requestAbortRender();
+							auto last = lastViewportMouseDown.value();
+							Log::log("{} {} | {} {}\n", pos.x, pos.y, last.x, last.y);
+							auto offset = -Vec3f(pos.x - last.x, (pos.y - last.y), 0.0f) / 500;
+							auto newDir = cameraDir + Vec3f(offset.x, offset.y, 0);
+							auto dir = Vec3f(
+								std::sin(newDir.x) * std::cos(newDir.y),
+								std::sin(newDir.y),
+								std::cos(newDir.x) * std::cos(newDir.y));
+							cam->viewpoint = -dir * distance + center;
+							cam->direction = newDir;
+							engine->startInteractiveRender([=](Arc<Core::Film> film) {
+								loadView(film);
+							}, false);
+						}
+					}
+
 				}).show();
 				ImGui::PopID();
 			}
@@ -224,6 +284,18 @@ void main()
 				newEngine();
 			};
 			auto startInteractive = [=]() {
+				engine->commit();
+				auto scene = engine->getScene();
+				auto bound = scene->getWorldBound();
+				float r;
+				Point3f center;
+				bound.boundingSphere(&center, &r);
+				this->center = Vec3f(center.x, center.y, center.z);
+				engine->startInteractiveRender([=](Arc<Core::Film> film) {
+					loadView(film);
+				}, true);
+			};
+			auto startProgressive = [=]() {
 				visitor.startInteractive();
 			};
 			auto stopRender = [=]() {
@@ -246,9 +318,10 @@ void main()
 					.item(MenuItem().name("Preference").selected(&windowFlags.showPreference)))
 				.menu(Menu().name("Render")
 					.item(MenuItem().name("Start Interactive").with(true, startInteractive))
+					.item(MenuItem().name("Start Progressive (Final)").with(true, startProgressive))
 					.item(MenuItem().name("Stop").with(true, stopRender)))
 				.menu(Menu().name("Help"))
-				.show(); 
+				.show();
 			if (windowFlags.showPreference) {
 				Window().name("Preference").open(&windowFlags.showPreference).with(true, [=]() {
 					/*if (ImGui::Button("Background Image")) {
@@ -326,21 +399,54 @@ void main()
 		}
 
 		void MainWindow::loadViewImpl() {
-			viewport = std::make_unique<HW::Texture>(viewportUpdate->width(), viewportUpdate->height(), &pixelData[0]);
-
+			auto graph = engine->getGraph();
+			viewport = std::make_unique<HW::Texture>(graph->filmConfig.dimension[0],
+				graph->filmConfig.dimension[1],
+				&pixelData[0]);
 		}
 		void MainWindow::loadView(Arc<Core::Film> film) {
+			static std::mutex mutex;
+			std::lock_guard<std::mutex> lock(mutex);
+			auto graph = engine->getGraph();
 			size_t w = film->width(), h = film->height();
-			pixelData.resize(w * h * 4ul);
-			size_t i = 0;
-			for (const auto& pixel : film->image) {
-				auto color = pixel.eval().toInt();
-				pixelData[4ul * i] = color.r;
-				pixelData[4ul * i + 1] = color.g;
-				pixelData[4ul * i + 2] = color.b;
-				pixelData[4ul * i + 3] = 255;
-				i++;
-			}			
+			if (w == graph->filmConfig.dimension[0] && h == graph->filmConfig.dimension[1]) {
+				pixelData.resize(w * h * 4ul);
+				/*size_t i = 0;
+				for (const auto& pixel : film->image) {
+					auto color = pixel.eval().toInt();
+					pixelData[4ul * i] = color.r;
+					pixelData[4ul * i + 1] = color.g;
+					pixelData[4ul * i + 2] = color.b;
+					pixelData[4ul * i + 3] = 255;
+					i++;
+				}*/
+				Thread::ParallelFor(0, graph->filmConfig.dimension[1], [&](int j, int) {
+					for (int i = 0; i < graph->filmConfig.dimension[0]; i++) {
+						auto offset = i + j * graph->filmConfig.dimension[0];
+						auto color = film->getPixel(Point2f(i, j)).toInt();
+						pixelData[4ul * offset] = color.r;
+						pixelData[4ul * offset + 1] = color.g;
+						pixelData[4ul * offset + 2] = color.b;
+						pixelData[4ul * offset + 3] = 255;
+					}
+				});
+			}
+			else {
+				pixelData.resize(graph->filmConfig.dimension[0] * graph->filmConfig.dimension[1] * 4ul);
+				Point2f scale = Point2f(w, h) / Point2f(graph->filmConfig.dimension[0],
+					graph->filmConfig.dimension[1]);
+			//	for (int j = 0; j < graph->filmConfig.dimension[1]; j++) {
+				Thread::ParallelFor(0, graph->filmConfig.dimension[1], [&](int j, int) {
+					for (int i = 0; i < graph->filmConfig.dimension[0]; i++) {
+						auto offset = i + j * graph->filmConfig.dimension[0];
+						auto color = film->getPixel(Point2f(i, j) * scale).toInt();
+						pixelData[4ul * offset] = color.r;
+						pixelData[4ul * offset + 1] = color.g;
+						pixelData[4ul * offset + 2] = color.b;
+						pixelData[4ul * offset + 3] = 255;
+					}
+				});
+			}
 			viewportUpdate = film;
 			{
 				std::lock_guard<std::mutex> lock(viewportMutex);
@@ -348,7 +454,7 @@ void main()
 			}
 		}
 
-		MainWindow::MainWindow(int argc, char** argv):visitor(*this) {
+		MainWindow::MainWindow(int argc, char** argv) :visitor(*this) {
 			LogWindowContent::GetInstance();
 			programPath = cxx::filesystem::current_path();
 			glfwSetErrorCallback(glfw_error_callback);
@@ -426,7 +532,7 @@ void main()
 			ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 			// Main loop
 			while (!glfwWindowShouldClose(window)) {
-	
+
 				glfwPollEvents();
 
 				// Start the Dear ImGui frame
@@ -451,7 +557,7 @@ void main()
 				glfwSwapBuffers(window);
 
 			}
-
+			engine = nullptr;
 		}
 		void MainWindow::show() {
 			mainLoop();

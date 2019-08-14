@@ -3,11 +3,11 @@
  "val": {
   "activeCamera": {
    "meta": "ref",
-   "val": 2426017701952
+   "val": 2633213590800
   },
   "cameras": [
    {
-    "addr": 2426017701952,
+    "addr": 2633213590800,
     "meta": "val",
     "val": {
      "type": "Camera.PerspectiveCamera",
@@ -41,7 +41,7 @@
    }
   },
   "integrator": {
-   "addr": 2426019173760,
+   "addr": 2633417993504,
    "meta": "val",
    "val": {
     "type": "Integrator.Path",
@@ -57,19 +57,19 @@
   },
   "materials": [
    {
-    "addr": 2426018193120,
+    "addr": 2633255155392,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426016227344,
+       "addr": 2633253433856,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978468304,
+          "addr": 2633255482112,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -79,7 +79,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978468784,
+          "addr": 2633255481824,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -89,13 +89,13 @@
           }
          },
          "matA": {
-          "addr": 2426016353632,
+          "addr": 2633252708800,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019132144,
+             "addr": 2633417949776,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -105,18 +105,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2426016352672,
+          "addr": 2633252709104,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425976569344,
+             "addr": 2633251371008,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -131,8 +132,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978468080,
+             "addr": 2633255481408,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -143,7 +145,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -152,19 +155,19 @@
     }
    },
    {
-    "addr": 2426018192864,
+    "addr": 2633255155264,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426016225824,
+       "addr": 2633253435776,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425976570112,
+          "addr": 2633251371904,
           "meta": "val",
           "val": {
            "type": "Shader.RGB",
@@ -179,7 +182,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978467824,
+          "addr": 2633255482400,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -189,13 +192,13 @@
           }
          },
          "matA": {
-          "addr": 2426016352432,
+          "addr": 2633252707888,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425976569664,
+             "addr": 2633467888848,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -210,18 +213,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2426016352912,
+          "addr": 2633252708192,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016314480,
+             "addr": 2633467887888,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -236,8 +240,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978466960,
+             "addr": 2633255482560,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -248,7 +253,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -257,19 +263,19 @@
     }
    },
    {
-    "addr": 2426018193248,
+    "addr": 2633255156416,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426016227040,
+       "addr": 2633253430016,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978468272,
+          "addr": 2633255483232,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -279,7 +285,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978467152,
+          "addr": 2633255481888,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -289,13 +295,13 @@
           }
          },
          "matA": {
-          "addr": 2426016353152,
+          "addr": 2633252708496,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425976569920,
+             "addr": 2633467889360,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -310,18 +316,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977933056,
+          "addr": 2633252709408,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425976569984,
+             "addr": 2633467889232,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -336,8 +343,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978467280,
+             "addr": 2633255482432,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -348,7 +356,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -357,19 +366,19 @@
     }
    },
    {
-    "addr": 2426018193376,
+    "addr": 2633255155904,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426016226128,
+       "addr": 2633253430784,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978467376,
+          "addr": 2633255482624,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -379,7 +388,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978468432,
+          "addr": 2633255482752,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -389,13 +398,13 @@
           }
          },
          "matA": {
-          "addr": 2425977930656,
+          "addr": 2633252715584,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426016961104,
+             "addr": 2633467888784,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -410,18 +419,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977931376,
+          "addr": 2633252714368,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016960912,
+             "addr": 2633467889296,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -436,8 +446,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978468944,
+             "addr": 2633255482080,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -448,7 +459,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -457,19 +469,19 @@
     }
    },
    {
-    "addr": 2426018194400,
+    "addr": 2633255156160,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425977743488,
+       "addr": 2633253434624,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978467408,
+          "addr": 2633255481920,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -479,7 +491,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978468368,
+          "addr": 2633255481792,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -489,13 +501,13 @@
           }
          },
          "matA": {
-          "addr": 2425977930416,
+          "addr": 2633252714672,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426016960976,
+             "addr": 2633467889040,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -510,18 +522,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977929936,
+          "addr": 2633252714976,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016962256,
+             "addr": 2633467888720,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -536,8 +549,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978467600,
+             "addr": 2633255481984,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -548,7 +562,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -557,19 +572,19 @@
     }
    },
    {
-    "addr": 2426018192992,
+    "addr": 2633255157056,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425977740144,
+       "addr": 2633253431552,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978466992,
+          "addr": 2633255482688,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -579,7 +594,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978467216,
+          "addr": 2633255482592,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -589,13 +604,13 @@
           }
          },
          "matA": {
-          "addr": 2425977933296,
+          "addr": 2633252714064,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019130032,
+             "addr": 2633417953040,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -605,18 +620,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977931856,
+          "addr": 2633252715280,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016961808,
+             "addr": 2633467889424,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -631,8 +647,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978468336,
+             "addr": 2633255483200,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -643,7 +660,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -652,19 +670,19 @@
     }
    },
    {
-    "addr": 2426018193504,
+    "addr": 2633255155520,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425977741968,
+       "addr": 2633253431936,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978467920,
+          "addr": 2633255483168,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -674,7 +692,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978467856,
+          "addr": 2633255482048,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -684,13 +702,13 @@
           }
          },
          "matA": {
-          "addr": 2425977932576,
+          "addr": 2633252715888,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426016961552,
+             "addr": 2633467889488,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -705,18 +723,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977929696,
+          "addr": 2633252716800,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016960848,
+             "addr": 2633467888080,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -731,8 +750,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978467568,
+             "addr": 2633255481280,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -743,7 +763,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -752,19 +773,19 @@
     }
    },
    {
-    "addr": 2426018193760,
+    "addr": 2633255155648,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425977744400,
+       "addr": 2633253428480,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978468464,
+          "addr": 2633255481376,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -774,7 +795,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978468496,
+          "addr": 2633255483264,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -784,13 +805,13 @@
           }
          },
          "matA": {
-          "addr": 2425977930896,
+          "addr": 2633252716192,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019131376,
+             "addr": 2633417952368,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -800,18 +821,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977930176,
+          "addr": 2633252716496,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016961616,
+             "addr": 2633467889680,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -826,8 +848,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978468592,
+             "addr": 2633255482368,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -838,7 +861,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -847,19 +871,19 @@
     }
    },
    {
-    "addr": 2426018194272,
+    "addr": 2633255156672,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425977738016,
+       "addr": 2633253432704,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978467504,
+          "addr": 2633255481856,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -869,7 +893,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978468624,
+          "addr": 2633255481440,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -879,13 +903,13 @@
           }
          },
          "matA": {
-          "addr": 2425977932096,
+          "addr": 2633252717104,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019130224,
+             "addr": 2633417950160,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -895,18 +919,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977932336,
+          "addr": 2633252717408,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016962448,
+             "addr": 2633467888400,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -921,8 +946,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978467024,
+             "addr": 2633255482176,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -933,7 +959,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -942,19 +969,19 @@
     }
    },
    {
-    "addr": 2426018194016,
+    "addr": 2633255156800,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425977740448,
+       "addr": 2633253433088,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978468848,
+          "addr": 2633255481600,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -964,7 +991,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978467472,
+          "addr": 2633255482848,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -974,13 +1001,13 @@
           }
          },
          "matA": {
-          "addr": 2425977931616,
+          "addr": 2633252713760,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426016961872,
+             "addr": 2633467888976,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -995,18 +1022,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977931136,
+          "addr": 2633255302864,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016961936,
+             "addr": 2633467888656,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1021,8 +1049,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978468176,
+             "addr": 2633255481696,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -1033,7 +1062,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -1042,19 +1072,19 @@
     }
    },
    {
-    "addr": 2426018193632,
+    "addr": 2633255155776,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426017402432,
+       "addr": 2633253433472,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978468560,
+          "addr": 2633255483008,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1064,7 +1094,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978467952,
+          "addr": 2633255481664,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1074,13 +1104,13 @@
           }
          },
          "matA": {
-          "addr": 2425977932816,
+          "addr": 2633255304080,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019131280,
+             "addr": 2633417949968,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -1090,18 +1120,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425976391872,
+          "addr": 2633255306208,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016960784,
+             "addr": 2633467887824,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1116,8 +1147,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978467312,
+             "addr": 2633255482304,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -1128,7 +1160,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -1137,19 +1170,19 @@
     }
    },
    {
-    "addr": 2426018193888,
+    "addr": 2633255156288,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426017399088,
+       "addr": 2633253434240,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978467760,
+          "addr": 2633255482144,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1159,7 +1192,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978468528,
+          "addr": 2633255481728,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1169,13 +1202,13 @@
           }
          },
          "matA": {
-          "addr": 2425976392112,
+          "addr": 2633255305296,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019133872,
+             "addr": 2633417952464,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -1185,18 +1218,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425976389952,
+          "addr": 2633255306512,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016961360,
+             "addr": 2633467888912,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1211,8 +1245,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978468816,
+             "addr": 2633255482816,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -1223,7 +1258,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -1232,19 +1268,19 @@
     }
    },
    {
-    "addr": 2426016177968,
+    "addr": 2633255156544,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426017405168,
+       "addr": 2633253435008,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978467440,
+          "addr": 2633255482912,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1254,7 +1290,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978467056,
+          "addr": 2633255482496,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1264,13 +1300,13 @@
           }
          },
          "matA": {
-          "addr": 2425976388512,
+          "addr": 2633255303168,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019130800,
+             "addr": 2633417950064,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -1280,18 +1316,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425976389232,
+          "addr": 2633255303776,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016961296,
+             "addr": 2633467887952,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1306,8 +1343,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978467728,
+             "addr": 2633255481536,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -1318,7 +1356,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -1327,19 +1366,19 @@
     }
    },
    {
-    "addr": 2426016175280,
+    "addr": 2633255202880,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426017404560,
+       "addr": 2633253435392,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978467984,
+          "addr": 2633255483104,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1349,7 +1388,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978468912,
+          "addr": 2633255482240,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1359,13 +1398,13 @@
           }
          },
          "matA": {
-          "addr": 2425976388752,
+          "addr": 2633255304992,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426016961232,
+             "addr": 2633467888144,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1380,18 +1419,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425976390192,
+          "addr": 2633255303472,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016962320,
+             "addr": 2633467888208,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1406,8 +1446,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978467536,
+             "addr": 2633467677136,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -1418,7 +1459,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -1427,19 +1469,19 @@
     }
    },
    {
-    "addr": 2426016175408,
+    "addr": 2633255200320,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426017405776,
+       "addr": 2633467671392,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978468400,
+          "addr": 2633467677872,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1449,7 +1491,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978467632,
+          "addr": 2633467678032,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1459,13 +1501,13 @@
           }
          },
          "matA": {
-          "addr": 2425976388992,
+          "addr": 2633255304384,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426016961680,
+             "addr": 2633467888016,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1480,18 +1522,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425976389472,
+          "addr": 2633255305600,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016961488,
+             "addr": 2633467889552,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1506,8 +1549,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978466928,
+             "addr": 2633467679600,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -1518,7 +1562,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -1527,19 +1572,19 @@
     }
    },
    {
-    "addr": 2426016176432,
+    "addr": 2633255201728,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425976869872,
+       "addr": 2633467670240,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978468048,
+          "addr": 2633467676368,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1549,7 +1594,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978467792,
+          "addr": 2633467677712,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1559,13 +1604,13 @@
           }
          },
          "matA": {
-          "addr": 2425976391152,
+          "addr": 2633255305904,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019134064,
+             "addr": 2633417952656,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -1575,18 +1620,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425976389712,
+          "addr": 2633255304688,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016961168,
+             "addr": 2633467888528,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1601,8 +1647,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978468752,
+             "addr": 2633467678320,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -1611,6 +1658,16 @@
               }
              }
             }
+           }
+          }
+         },
+         "normalMap": {
+          "addr": 2633213325520,
+          "meta": "val",
+          "val": {
+           "type": "Shader.ImageTexture",
+           "val": {
+            "imageFile": "..\\cornell_box\\normal.jpg"
            }
           }
          }
@@ -1622,19 +1679,19 @@
     }
    },
    {
-    "addr": 2426016177712,
+    "addr": 2633255202496,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425976871392,
+       "addr": 2633467665248,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978467184,
+          "addr": 2633467677520,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1644,7 +1701,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978467888,
+          "addr": 2633467677584,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1654,13 +1711,13 @@
           }
          },
          "matA": {
-          "addr": 2425976390432,
+          "addr": 2633212849088,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426016962192,
+             "addr": 2633251372032,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1675,18 +1732,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425976390672,
+          "addr": 2633212849392,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016960592,
+             "addr": 2633251370944,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1701,8 +1759,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469200,
+             "addr": 2633467678384,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -1713,7 +1772,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -1722,19 +1782,19 @@
     }
    },
    {
-    "addr": 2426016177456,
+    "addr": 2633255202112,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425976870480,
+       "addr": 2633467663712,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978468144,
+          "addr": 2633467677072,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1744,7 +1804,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978468688,
+          "addr": 2633467677104,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1754,13 +1814,13 @@
           }
          },
          "matA": {
-          "addr": 2425976390912,
+          "addr": 2633212850304,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019133392,
+             "addr": 2633417951312,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -1770,18 +1830,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425976391392,
+          "addr": 2633212851824,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016962064,
+             "addr": 2633251372096,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1796,8 +1857,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469072,
+             "addr": 2633467678192,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -1808,7 +1870,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -1817,19 +1880,19 @@
     }
    },
    {
-    "addr": 2426016175536,
+    "addr": 2633255199936,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425976866528,
+       "addr": 2633467666400,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978468656,
+          "addr": 2633467676528,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1839,7 +1902,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978467664,
+          "addr": 2633467676976,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1849,13 +1912,13 @@
           }
          },
          "matA": {
-          "addr": 2425976391632,
+          "addr": 2633212849696,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019129264,
+             "addr": 2633417949584,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -1865,18 +1928,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425978428448,
+          "addr": 2633212851216,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016961424,
+             "addr": 2633467888464,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1891,8 +1955,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469136,
+             "addr": 2633467678544,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -1903,7 +1968,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -1912,19 +1978,19 @@
     }
    },
    {
-    "addr": 2426016174256,
+    "addr": 2633255202240,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425976870784,
+       "addr": 2633467666784,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425976569472,
+          "addr": 2633251371648,
           "meta": "val",
           "val": {
            "type": "Shader.RGB",
@@ -1939,7 +2005,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978469040,
+          "addr": 2633467679696,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -1949,13 +2015,13 @@
           }
          },
          "matA": {
-          "addr": 2425978425808,
+          "addr": 2633212851520,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425976569728,
+             "addr": 2633211816880,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1970,18 +2036,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425978425568,
+          "addr": 2633212848176,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425976569600,
+             "addr": 2633211816752,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -1996,8 +2063,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978470736,
+             "addr": 2633467678704,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -2008,7 +2076,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -2017,19 +2086,19 @@
     }
    },
    {
-    "addr": 2426016174128,
+    "addr": 2633255203008,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426016860208,
+       "addr": 2633467670624,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978468880,
+          "addr": 2633467678288,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2039,7 +2108,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978469936,
+          "addr": 2633467679664,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2049,13 +2118,13 @@
           }
          },
          "matA": {
-          "addr": 2425978425328,
+          "addr": 2633212848480,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426016961040,
+             "addr": 2633211816944,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2070,18 +2139,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425978428688,
+          "addr": 2633212848784,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2426016960720,
+             "addr": 2633211816624,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2096,8 +2166,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469968,
+             "addr": 2633467678160,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -2108,7 +2179,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -2117,19 +2189,19 @@
     }
    },
    {
-    "addr": 2426016177840,
+    "addr": 2633255199808,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426016860816,
+       "addr": 2633467671008,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978467248,
+          "addr": 2633467678416,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2139,7 +2211,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978468240,
+          "addr": 2633467678672,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2149,13 +2221,13 @@
           }
          },
          "matA": {
-          "addr": 2425978427008,
+          "addr": 2633212850000,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019139728,
+             "addr": 2633417950640,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -2165,18 +2237,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425978426528,
+          "addr": 2633212850608,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425976569408,
+             "addr": 2633211816368,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2191,8 +2264,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978470064,
+             "addr": 2633467678480,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -2203,7 +2277,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -2212,19 +2287,19 @@
     }
    },
    {
-    "addr": 2426016174896,
+    "addr": 2633255202624,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426016856560,
+       "addr": 2633467664096,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425975777968,
+          "addr": 2633211816688,
           "meta": "val",
           "val": {
            "type": "Shader.RGB",
@@ -2239,7 +2314,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978469456,
+          "addr": 2633467679728,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2249,13 +2324,13 @@
           }
          },
          "matA": {
-          "addr": 2425978428928,
+          "addr": 2633212850912,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425975778224,
+             "addr": 2633211816304,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2270,18 +2345,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425978426048,
+          "addr": 2633256682720,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975777200,
+             "addr": 2633211816496,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2296,8 +2372,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978470448,
+             "addr": 2633467679056,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -2308,7 +2385,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -2317,19 +2395,19 @@
     }
    },
    {
-    "addr": 2426016177072,
+    "addr": 2633255201088,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2426016227648,
+       "addr": 2633467667168,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978470832,
+          "addr": 2633467678224,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2339,7 +2417,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978470960,
+          "addr": 2633467678512,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2349,13 +2427,13 @@
           }
          },
          "matA": {
-          "addr": 2425978427728,
+          "addr": 2633256681504,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019137808,
+             "addr": 2633417954192,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -2365,18 +2443,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425978426288,
+          "addr": 2633256680896,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975776816,
+             "addr": 2633211816048,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2391,8 +2470,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469296,
+             "addr": 2633467679344,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -2403,7 +2483,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -2412,19 +2493,19 @@
     }
    },
    {
-    "addr": 2426016176944,
+    "addr": 2633255202752,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425750062192,
+       "addr": 2633467664480,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978470256,
+          "addr": 2633467679120,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2434,7 +2515,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978470768,
+          "addr": 2633467678608,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2444,13 +2525,13 @@
           }
          },
          "matA": {
-          "addr": 2425978426768,
+          "addr": 2633256679984,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019135984,
+             "addr": 2633417953328,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -2460,18 +2541,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425978427248,
+          "addr": 2633256681808,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975777136,
+             "addr": 2633211817136,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2486,8 +2568,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469648,
+             "addr": 2633467678352,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -2498,7 +2581,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -2507,19 +2591,19 @@
     }
    },
    {
-    "addr": 2426016174384,
+    "addr": 2633255203136,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978435824,
+       "addr": 2633467667552,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978470000,
+          "addr": 2633467679088,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2529,7 +2613,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978470288,
+          "addr": 2633467679440,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2539,13 +2623,13 @@
           }
          },
          "matA": {
-          "addr": 2425978427968,
+          "addr": 2633256682112,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019140304,
+             "addr": 2633417955248,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -2555,18 +2639,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425978427488,
+          "addr": 2633256682416,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975777584,
+             "addr": 2633211816112,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2581,8 +2666,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469264,
+             "addr": 2633467678768,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -2593,7 +2679,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -2602,19 +2689,19 @@
     }
    },
    {
-    "addr": 2426016177584,
+    "addr": 2633255200448,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978432784,
+       "addr": 2633467667936,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978470576,
+          "addr": 2633467679920,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2624,7 +2711,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978470608,
+          "addr": 2633467678576,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2634,13 +2721,13 @@
           }
          },
          "matA": {
-          "addr": 2425978428208,
+          "addr": 2633256679072,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019135600,
+             "addr": 2633417951216,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -2650,18 +2737,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977975776,
+          "addr": 2633256680592,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975776688,
+             "addr": 2633211817264,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2676,8 +2764,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469360,
+             "addr": 2633467679632,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -2688,7 +2777,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -2697,19 +2787,19 @@
     }
    },
    {
-    "addr": 2426016176688,
+    "addr": 2633255201856,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978434304,
+       "addr": 2633467668320,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978470992,
+          "addr": 2633467679216,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2719,7 +2809,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978470480,
+          "addr": 2633467678256,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2729,13 +2819,13 @@
           }
          },
          "matA": {
-          "addr": 2425977973136,
+          "addr": 2633256679376,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426019136272,
+             "addr": 2633417955344,
              "meta": "val",
              "val": {
               "type": "Shader.ImageTexture",
@@ -2745,18 +2835,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977975536,
+          "addr": 2633256679680,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975777008,
+             "addr": 2633211816240,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2771,8 +2862,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469680,
+             "addr": 2633467678928,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -2783,7 +2875,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -2792,19 +2885,19 @@
     }
    },
    {
-    "addr": 2426016177200,
+    "addr": 2633255201344,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978431872,
+       "addr": 2633467665632,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978469008,
+          "addr": 2633467679760,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2814,7 +2907,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978470032,
+          "addr": 2633467679376,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2824,13 +2917,13 @@
           }
          },
          "matA": {
-          "addr": 2425977974096,
+          "addr": 2633256680288,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425975777264,
+             "addr": 2633211817520,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2845,18 +2938,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977973616,
+          "addr": 2633256681200,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975777072,
+             "addr": 2633211815792,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2871,8 +2965,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978470512,
+             "addr": 2633467678832,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -2883,7 +2978,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -2892,19 +2988,19 @@
     }
    },
    {
-    "addr": 2426016176176,
+    "addr": 2633255199552,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978435520,
+       "addr": 2633467668704,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978470384,
+          "addr": 2633467678864,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2914,7 +3010,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978470416,
+          "addr": 2633467678448,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -2924,13 +3020,13 @@
           }
          },
          "matA": {
-          "addr": 2425977973376,
+          "addr": 2633255342640,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425975777776,
+             "addr": 2633211815920,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2945,18 +3041,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977975296,
+          "addr": 2633255342336,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975778352,
+             "addr": 2633211816176,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -2971,8 +3068,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978470128,
+             "addr": 2633467679248,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -2983,7 +3081,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -2992,19 +3091,19 @@
     }
    },
    {
-    "addr": 2426016174640,
+    "addr": 2633255200704,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978432480,
+       "addr": 2633467664864,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978470096,
+          "addr": 2633467678128,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3014,7 +3113,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978469232,
+          "addr": 2633467679792,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3024,13 +3123,13 @@
           }
          },
          "matA": {
-          "addr": 2425977974816,
+          "addr": 2633255342944,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425975778032,
+             "addr": 2633211815856,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3045,18 +3144,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977973856,
+          "addr": 2633255341424,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975777648,
+             "addr": 2633211816560,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3071,8 +3171,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978470192,
+             "addr": 2633467679824,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -3083,7 +3184,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -3092,19 +3194,19 @@
     }
    },
    {
-    "addr": 2426016177328,
+    "addr": 2633255201984,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978436128,
+       "addr": 2633467669088,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978469104,
+          "addr": 2633467678640,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3114,7 +3216,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978468976,
+          "addr": 2633467679472,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3124,13 +3226,13 @@
           }
          },
          "matA": {
-          "addr": 2425977976256,
+          "addr": 2633255342032,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425975778416,
+             "addr": 2633467889104,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3145,18 +3247,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977976016,
+          "addr": 2633255343552,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975776624,
+             "addr": 2633467889616,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3171,8 +3274,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469168,
+             "addr": 2633467678960,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -3183,7 +3287,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -3192,19 +3297,19 @@
     }
    },
    {
-    "addr": 2426016175664,
+    "addr": 2633255203264,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978429744,
+       "addr": 2633467669472,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978469776,
+          "addr": 2633467678736,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3214,7 +3319,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978469392,
+          "addr": 2633467678800,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3224,13 +3329,13 @@
           }
          },
          "matA": {
-          "addr": 2425977972656,
+          "addr": 2633255343248,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425975776880,
+             "addr": 2633211817456,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3245,18 +3350,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977972896,
+          "addr": 2633255344160,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975777840,
+             "addr": 2633211817392,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3271,8 +3377,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978470800,
+             "addr": 2633467679504,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -3283,7 +3390,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -3292,19 +3400,19 @@
     }
    },
    {
-    "addr": 2426016175920,
+    "addr": 2633255200064,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978430960,
+       "addr": 2633467669856,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425975777392,
+          "addr": 2633251371264,
           "meta": "val",
           "val": {
            "type": "Shader.RGB",
@@ -3319,7 +3427,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978469520,
+          "addr": 2633467679024,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3329,13 +3437,13 @@
           }
          },
          "matA": {
-          "addr": 2425977974336,
+          "addr": 2633255341728,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426016961744,
+             "addr": 2633467888592,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3350,18 +3458,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977974576,
+          "addr": 2633255344464,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425976569024,
+             "addr": 2633401567184,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3376,8 +3485,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978470320,
+             "addr": 2633467679984,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -3388,7 +3498,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -3397,19 +3508,19 @@
     }
    },
    {
-    "addr": 2426016175792,
+    "addr": 2633255200192,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978434000,
+       "addr": 2633211557904,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978469808,
+          "addr": 2633467679952,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3419,7 +3530,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978470640,
+          "addr": 2633467679536,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3429,13 +3540,13 @@
           }
          },
          "matA": {
-          "addr": 2425977975056,
+          "addr": 2633255344768,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425975777328,
+             "addr": 2633401566672,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3450,18 +3561,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977976768,
+          "addr": 2633255343856,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425975778480,
+             "addr": 2633401567248,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3476,8 +3588,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469872,
+             "addr": 2633467672560,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -3488,7 +3601,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -3497,19 +3611,19 @@
     }
    },
    {
-    "addr": 2426016174512,
+    "addr": 2633255202368,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978434608,
+       "addr": 2633211558672,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978470544,
+          "addr": 2633467678992,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3519,7 +3633,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978469424,
+          "addr": 2633467678896,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3529,13 +3643,13 @@
           }
          },
          "matA": {
-          "addr": 2425977978928,
+          "addr": 2633255345072,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2426016960656,
+             "addr": 2633401565904,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3550,18 +3664,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977979648,
+          "addr": 2633255098864,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425978438224,
+             "addr": 2633401565776,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3576,8 +3691,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978470896,
+             "addr": 2633467672336,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -3588,7 +3704,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -3597,19 +3714,19 @@
     }
    },
    {
-    "addr": 2426016174768,
+    "addr": 2633255199424,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978430048,
+       "addr": 2633211559440,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978469552,
+          "addr": 2633467679184,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3619,7 +3736,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978470672,
+          "addr": 2633467679856,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3629,13 +3746,13 @@
           }
          },
          "matA": {
-          "addr": 2425977979888,
+          "addr": 2633255099168,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425978438864,
+             "addr": 2633401566992,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3650,18 +3767,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977978448,
+          "addr": 2633255098560,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425978438544,
+             "addr": 2633401565456,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3676,8 +3794,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978469904,
+             "addr": 2633467673008,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -3688,7 +3807,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -3697,19 +3817,19 @@
     }
    },
    {
-    "addr": 2426016175024,
+    "addr": 2633255199680,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978433088,
+       "addr": 2633211558288,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978470704,
+          "addr": 2633467679568,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3719,7 +3839,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978470160,
+          "addr": 2633467679312,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3729,13 +3849,13 @@
           }
          },
          "matA": {
-          "addr": 2425977979408,
+          "addr": 2633255097344,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425978438992,
+             "addr": 2633401566352,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3750,18 +3870,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977979168,
+          "addr": 2633255097648,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425978438160,
+             "addr": 2633401566288,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3776,8 +3897,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978472464,
+             "addr": 2633467671952,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -3788,7 +3910,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -3797,19 +3920,19 @@
     }
    },
    {
-    "addr": 2426016175152,
+    "addr": 2633255200960,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978433392,
+       "addr": 2633251597008,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978470928,
+          "addr": 2633467678096,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3819,7 +3942,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978469328,
+          "addr": 2633467679408,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3829,13 +3952,13 @@
           }
          },
          "matA": {
-          "addr": 2425977980128,
+          "addr": 2633255097040,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425978438800,
+             "addr": 2633401566224,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3850,18 +3973,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977980368,
+          "addr": 2633255095520,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425978438032,
+             "addr": 2633401566416,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3876,8 +4000,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978471728,
+             "addr": 2633467673904,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -3888,7 +4013,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -3897,19 +4023,19 @@
     }
    },
    {
-    "addr": 2426016176048,
+    "addr": 2633255201216,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978436432,
+       "addr": 2633251603536,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978469584,
+          "addr": 2633467679280,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3919,7 +4045,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978469840,
+          "addr": 2633467672720,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -3929,13 +4055,13 @@
           }
          },
          "matA": {
-          "addr": 2425977977008,
+          "addr": 2633255095824,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425978437712,
+             "addr": 2633401565712,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3950,18 +4076,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977978208,
+          "addr": 2633255096128,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425978439056,
+             "addr": 2633401565968,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -3976,8 +4103,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978471504,
+             "addr": 2633467673392,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -3988,7 +4116,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -3997,19 +4126,19 @@
     }
    },
    {
-    "addr": 2426016176304,
+    "addr": 2633255200576,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978436736,
+       "addr": 2633251602768,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978469488,
+          "addr": 2633467673936,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -4019,7 +4148,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978469744,
+          "addr": 2633467671984,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -4029,13 +4158,13 @@
           }
          },
          "matA": {
-          "addr": 2425977977488,
+          "addr": 2633255096432,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425978439312,
+             "addr": 2633401566736,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -4050,18 +4179,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977977728,
+          "addr": 2633255097952,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425978437648,
+             "addr": 2633401566480,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -4076,8 +4206,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978472016,
+             "addr": 2633467673360,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -4088,7 +4219,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -4097,19 +4229,19 @@
     }
    },
    {
-    "addr": 2426016176816,
+    "addr": 2633255200832,
     "meta": "val",
     "val": {
      "type": "Core.MaterialSlot",
      "val": {
       "material": {
-       "addr": 2425978434912,
+       "addr": 2633251601616,
        "meta": "val",
        "val": {
         "type": "Material.Mixed",
         "val": {
          "emission": {
-          "addr": 2425978470224,
+          "addr": 2633467673680,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -4119,7 +4251,7 @@
           }
          },
          "fraction": {
-          "addr": 2425978469616,
+          "addr": 2633467673648,
           "meta": "val",
           "val": {
            "type": "Shader.Float",
@@ -4129,13 +4261,13 @@
           }
          },
          "matA": {
-          "addr": 2425977977968,
+          "addr": 2633255098256,
           "meta": "val",
           "val": {
            "type": "Material.Diffuse",
            "val": {
             "color": {
-             "addr": 2425978439376,
+             "addr": 2633401566800,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -4150,18 +4282,19 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": null
            }
           }
          },
          "matB": {
-          "addr": 2425977977248,
+          "addr": 2633255096736,
           "meta": "val",
           "val": {
            "type": "Material.Glossy",
            "val": {
             "color": {
-             "addr": 2425978439120,
+             "addr": 2633401566864,
              "meta": "val",
              "val": {
               "type": "Shader.RGB",
@@ -4176,8 +4309,9 @@
              }
             },
             "emission": null,
+            "normalMap": null,
             "roughness": {
-             "addr": 2425978471568,
+             "addr": 2633467673296,
              "meta": "val",
              "val": {
               "type": "Shader.Float",
@@ -4188,7 +4322,8 @@
             }
            }
           }
-         }
+         },
+         "normalMap": null
         }
        }
       },
@@ -4199,7 +4334,7 @@
   ],
   "meshes": [
    {
-    "addr": 2426016084736,
+    "addr": 2633467644640,
     "meta": "val",
     "val": {
      "type": "Core.MeshFile",
@@ -4208,7 +4343,7 @@
       "name": "mesh0.obj",
       "objects": [
        {
-        "addr": 2426019109584,
+        "addr": 2633417993152,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4216,14 +4351,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016174896
+           "val": 2633255202624
           },
           "name": "Lights.MiddleLight.0"
          }
         }
        },
        {
-        "addr": 2426019109104,
+        "addr": 2633417994112,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4231,14 +4366,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016174256
+           "val": 2633255202240
           },
           "name": "Lights.LeftLight.1"
          }
         }
        },
        {
-        "addr": 2426019108336,
+        "addr": 2633417995456,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4246,14 +4381,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016175920
+           "val": 2633255200064
           },
           "name": "Lights.RightLight.2"
          }
         }
        },
        {
-        "addr": 2426019106416,
+        "addr": 2633417991616,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4261,14 +4396,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018194400
+           "val": 2633255156160
           },
           "name": "Mesh.BlindMaterial.0"
          }
         }
        },
        {
-        "addr": 2426019103728,
+        "addr": 2633417991040,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4276,14 +4411,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016176688
+           "val": 2633255201856
           },
           "name": "Mesh.Picture5.0"
          }
         }
        },
        {
-        "addr": 2426019104208,
+        "addr": 2633417994304,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4291,14 +4426,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016177328
+           "val": 2633255201984
           },
           "name": "Mesh.RadioPlastic.0"
          }
         }
        },
        {
-        "addr": 2426019108816,
+        "addr": 2633417996416,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4306,14 +4441,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018192992
+           "val": 2633255157056
           },
           "name": "Mesh.Books.0"
          }
         }
        },
        {
-        "addr": 2426019105072,
+        "addr": 2633417991712,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4321,14 +4456,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016177456
+           "val": 2633255202112
           },
           "name": "Mesh.LampshaderOuter.0"
          }
         }
        },
        {
-        "addr": 2426019105168,
+        "addr": 2633417991904,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4336,14 +4471,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016175408
+           "val": 2633255200320
           },
           "name": "Mesh.DullSteel.0"
          }
         }
        },
        {
-        "addr": 2426019105264,
+        "addr": 2633417996128,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4351,14 +4486,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016175536
+           "val": 2633255199936
           },
           "name": "Mesh.LargePicture.0"
          }
         }
        },
        {
-        "addr": 2426019103920,
+        "addr": 2633417996032,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4366,14 +4501,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016176176
+           "val": 2633255199552
           },
           "name": "Mesh.RadiatorPanelsEnamel.0"
          }
         }
        },
        {
-        "addr": 2426019109200,
+        "addr": 2633417995936,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4381,14 +4516,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016174512
+           "val": 2633255202368
           },
           "name": "Mesh.SofaLeather.0"
          }
         }
        },
        {
-        "addr": 2426019105840,
+        "addr": 2633417993248,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4396,14 +4531,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018193120
+           "val": 2633255155392
           },
           "name": "Mesh.Apple.0"
          }
         }
        },
        {
-        "addr": 2426019106512,
+        "addr": 2633417991520,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4411,14 +4546,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016176304
+           "val": 2633255200576
           },
           "name": "Mesh.Walls.0"
          }
         }
        },
        {
-        "addr": 2426019104304,
+        "addr": 2633417990560,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4426,14 +4561,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018193632
+           "val": 2633255155776
           },
           "name": "Mesh.Cushion.0"
          }
         }
        },
        {
-        "addr": 2426019109488,
+        "addr": 2633417990368,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4441,14 +4576,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016174768
+           "val": 2633255199424
           },
           "name": "Mesh.TableGlossy.0"
          }
         }
        },
        {
-        "addr": 2426019106608,
+        "addr": 2633417993344,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4456,14 +4591,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016177072
+           "val": 2633255201088
           },
           "name": "Mesh.Picture.0"
          }
         }
        },
        {
-        "addr": 2426019105360,
+        "addr": 2633417992192,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4471,14 +4606,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018193888
+           "val": 2633255156288
           },
           "name": "Mesh.Cushion1.0"
          }
         }
        },
        {
-        "addr": 2426019104496,
+        "addr": 2633417992384,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4486,14 +4621,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016175152
+           "val": 2633255200960
           },
           "name": "Mesh.TvBevel.0"
          }
         }
        },
        {
-        "addr": 2426019106128,
+        "addr": 2633417991232,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4501,14 +4636,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016174128
+           "val": 2633255203008
           },
           "name": "Mesh.LoveLettersBack.0"
          }
         }
        },
        {
-        "addr": 2426019107856,
+        "addr": 2633417992096,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4516,14 +4651,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016176048
+           "val": 2633255201216
           },
           "name": "Mesh.TvScreen.0"
          }
         }
        },
        {
-        "addr": 2426019109392,
+        "addr": 2633417993920,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4531,14 +4666,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016177712
+           "val": 2633255202496
           },
           "name": "Mesh.LampStand.0"
          }
         }
        },
        {
-        "addr": 2426019108144,
+        "addr": 2633417992000,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4546,14 +4681,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016175280
+           "val": 2633255202880
           },
           "name": "Mesh.Default.0"
          }
         }
        },
        {
-        "addr": 2426019108048,
+        "addr": 2633417997472,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4561,14 +4696,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018194016
+           "val": 2633255156800
           },
           "name": "Mesh.Ceramic.0"
          }
         }
        },
        {
-        "addr": 2426019106320,
+        "addr": 2633417998432,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4576,14 +4711,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016175792
+           "val": 2633255200192
           },
           "name": "Mesh.SmallPictureFrame.0"
          }
         }
        },
        {
-        "addr": 2426019104784,
+        "addr": 2633417998720,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4591,14 +4726,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016174384
+           "val": 2633255203136
           },
           "name": "Mesh.Picture2.0"
          }
         }
        },
        {
-        "addr": 2426019104976,
+        "addr": 2633418001216,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4606,14 +4741,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016177584
+           "val": 2633255200448
           },
           "name": "Mesh.Picture4.0"
          }
         }
        },
        {
-        "addr": 2426019106896,
+        "addr": 2633418001888,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4621,14 +4756,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018194272
+           "val": 2633255156672
           },
           "name": "Mesh.CeilingLampshade.0"
          }
         }
        },
        {
-        "addr": 2426019104592,
+        "addr": 2633418000640,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4636,14 +4771,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016177840
+           "val": 2633255199808
           },
           "name": "Mesh.Magazine.0"
          }
         }
        },
        {
-        "addr": 2426019108720,
+        "addr": 2633417997952,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4651,14 +4786,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018193248
+           "val": 2633255156416
           },
           "name": "Mesh.BlackMarble.0"
          }
         }
        },
        {
-        "addr": 2426019107760,
+        "addr": 2633417999296,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4666,14 +4801,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016175024
+           "val": 2633255199680
           },
           "name": "Mesh.Trim.0"
          }
         }
        },
        {
-        "addr": 2426019107184,
+        "addr": 2633417999488,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4681,14 +4816,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018193504
+           "val": 2633255155520
           },
           "name": "Mesh.CandleHolders.0"
          }
         }
        },
        {
-        "addr": 2426019106992,
+        "addr": 2633417997088,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4696,14 +4831,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016177968
+           "val": 2633255156544
           },
           "name": "Mesh.Cushion3.0"
          }
         }
        },
        {
-        "addr": 2426019109296,
+        "addr": 2633417996608,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4711,14 +4846,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018193376
+           "val": 2633255155904
           },
           "name": "Mesh.BlackWroughtIron.0"
          }
         }
        },
        {
-        "addr": 2426019107568,
+        "addr": 2633418001792,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4726,14 +4861,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016175664
+           "val": 2633255203264
           },
           "name": "Mesh.RadioSurround.0"
          }
         }
        },
        {
-        "addr": 2426019173216,
+        "addr": 2633418000352,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4741,14 +4876,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016176944
+           "val": 2633255202752
           },
           "name": "Mesh.Picture1.0"
          }
         }
        },
        {
-        "addr": 2426019175232,
+        "addr": 2633417999680,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4756,14 +4891,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016174640
+           "val": 2633255200704
           },
           "name": "Mesh.RadioInside.0"
          }
         }
        },
        {
-        "addr": 2426019169568,
+        "addr": 2633417997184,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4771,14 +4906,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016177200
+           "val": 2633255201344
           },
           "name": "Mesh.RadiatorKnobOuter.0"
          }
         }
        },
        {
-        "addr": 2426019173408,
+        "addr": 2633418000448,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4786,14 +4921,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016176432
+           "val": 2633255201728
           },
           "name": "Mesh.Floor.0"
          }
         }
        },
        {
-        "addr": 2426019173984,
+        "addr": 2633418000736,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4801,14 +4936,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018193760
+           "val": 2633255155648
           },
           "name": "Mesh.Carpet.0"
          }
         }
        },
        {
-        "addr": 2426019174464,
+        "addr": 2633418000544,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4816,14 +4951,14 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426018192864
+           "val": 2633255155264
           },
           "name": "Back.BackLight.0"
          }
         }
        },
        {
-        "addr": 2426019169952,
+        "addr": 2633418002368,
         "meta": "val",
         "val": {
          "type": "Core.Object",
@@ -4831,7 +4966,7 @@
           "alias": "",
           "material": {
            "meta": "ref",
-           "val": 2426016176816
+           "val": 2633255200832
           },
           "name": "WhitePaint.WhitePaint.0"
          }
@@ -4856,7 +4991,7 @@
    }
   ],
   "sampler": {
-   "addr": 2426018111184,
+   "addr": 2633211892608,
    "meta": "val",
    "val": {
     "type": "Sampler.Sobol",

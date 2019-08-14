@@ -21,7 +21,7 @@ namespace Miyuki {
 			if (pIsct->hit()) {
 				CosineHemispherePDF pdf;
 				Float p;
-				auto w = pIsct->localToWord(pdf.sample(sampler.get2D(), &p));
+				auto w = pIsct->localToWorld(pdf.sample(sampler.get2D(), &p));
 				Ray ray = pIsct->spawnRay(w);
 				if (!scene.intersect(ray, &isct) || isct.distance >= occlusionDistance) {
 					AO = Spectrum(1);

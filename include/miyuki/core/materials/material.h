@@ -25,9 +25,10 @@ namespace Miyuki {
 		public:
 			MYK_ABSTRACT(Material);
 			Box<Shader> emission;
+			Box<Shader> normalMap;
 			virtual BSDFImpl* createBSDF(BSDFCreationContext&)const = 0;
 		};
-		MYK_REFL(Material, (Reflective), (emission));
+		MYK_REFL(Material, (Reflective), (emission)(normalMap));
 	}
 }
 

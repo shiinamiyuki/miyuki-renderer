@@ -14,14 +14,18 @@ namespace Miyuki {
 			void abort()override {
 				_aborted = true;
 			}
+			
 			virtual void renderStart(const IntegratorContext& context) {}
 			virtual void renderEnd(const IntegratorContext& context) {}
 			virtual void Li(Intersection * isct, const IntegratorContext& context, SamplingContext&) = 0;
 			void renderProgressive(
 				const IntegratorContext& context,
-				ProgressiveRenderCallback progressiveCallback)override;
+				const ProgressiveRenderCallback& progressiveCallback)override;
+			bool isAborted()const override {
+				return _aborted;
+			}
 		protected:
-			std::atomic<bool> _aborted;
+			bool _aborted;
 		};
 		MYK_REFL(SamplerIntegrator, (ProgressiveRenderer), (spp));
 

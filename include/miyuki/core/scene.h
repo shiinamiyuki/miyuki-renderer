@@ -89,6 +89,9 @@ namespace Miyuki {
 					}
 				}
 			}
+			Bound3f getWorldBound()const {
+				return embreeScene->getWorldBound();
+			}
 		};
 
 		static inline Float mod(Float a, Float b) {
@@ -104,9 +107,8 @@ namespace Miyuki {
 		inline void Scene::postIntersect(Intersection* isct) {
 			isct->primitive = &instances[isct->geomId]->primitives[isct->primId];
 			auto p = isct->primitive;
-			isct->Ns = p->Ns(isct->uv);
-			isct->Ng = p->Ng();
-			isct->computeLocalFrame(isct->Ns);
+			
+			
 
 			auto uv = PointOnTriangle(isct->primitive->textureCoord[0],
 				isct->primitive->textureCoord[1],
@@ -115,6 +117,22 @@ namespace Miyuki {
 				isct->uv[1]);
 			uv.x = mod(uv.x, 1);
 			uv.y = mod(uv.y, 1);
+
+			auto mat = p->material();
+			isct->Ns = p->Ns(isct->uv);
+			isct->computeLocalFrame(isct->Ns);
+			if (mat && mat->normalMap) {
+				auto perturb = Shader::evaluate(mat->normalMap, ShadingPoint(uv)).toVec3f();
+				perturb = 2 * perturb - Vec3f(1);
+				auto Ns = Vec3f(0, 0, 1);
+				Ns += perturb;
+				Ns.normalize();
+				isct->Ns = isct->localToWorld(Ns);
+				isct->computeLocalFrame(isct->Ns);
+			}
+
+			isct->Ng = p->Ng();
+			
 			isct->textureUV = uv;
 
 			// TODO: partial derivatives

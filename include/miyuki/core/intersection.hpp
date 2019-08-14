@@ -46,7 +46,7 @@ namespace Miyuki {
 				return isSurfaceScatteringEvent() || isVolumeScatteringEvent();
 			}
 
-			Vec3f localToWord(const Vec3f& w) const {
+			Vec3f localToWorld(const Vec3f& w) const {
 				return localFrame.localToWorld(w);
 			}
 

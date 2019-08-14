@@ -73,6 +73,10 @@ namespace Miyuki {
 				visitor.reset();
 				visitor.engine = engine.get();
 			}
+			std::optional<Point2i> lastViewportMouseDown;
+			Vec3f cameraDir, cameraPos;
+			Vec3f center;
+			float distance;
 		public:
 			void showModal() {
 				modal.show();

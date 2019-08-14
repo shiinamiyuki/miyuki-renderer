@@ -1,5 +1,5 @@
-#ifndef MIYUKI_INTERGRATOR_H
-#define MIYUKI_INTERGRATOR_H
+#ifndef MIYUKI_INTEGRATOR_H
+#define MIYUKI_INTEGRATOR_H
 
 #include <reflection.h>
 #include <core/film.h>
@@ -39,7 +39,7 @@ namespace Miyuki {
 			MYK_INTERFACE(ProgressiveRenderer);
 			virtual void renderProgressive(
 				const IntegratorContext& context,
-				ProgressiveRenderCallback progressiveCallback) = 0;
+				const ProgressiveRenderCallback& progressiveCallback) = 0;
 		};
 		MYK_REFL(ProgressiveRenderer, (Integrator), MYK_REFL_NIL);
 	}

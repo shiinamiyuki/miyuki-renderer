@@ -79,10 +79,14 @@ namespace Miyuki {
 
 		std::optional<Spectrum> GetInput(const std::string& prompt, Spectrum initial) {
 			auto temp = initial;
+			std::optional<Spectrum> result;
 			if (ImGui::ColorPicker3(prompt.c_str(), &temp[0], ImGuiInputTextFlags_EnterReturnsTrue)) {
-				return std::optional<Spectrum>(temp);
+				result = std::optional<Spectrum>(temp);
 			}
-			return {};
+			if (ImGui::InputFloat3(prompt.c_str(), &temp[0], "%f", ImGuiInputTextFlags_EnterReturnsTrue)) {
+				result = std::optional<Vec3f>(temp);
+			}
+			return result;
 		}
 
 		std::optional<Float> GetFloatClamped(const std::string& prompt, Float initial, Float minVal, Float maxVal) {

@@ -18,6 +18,14 @@ namespace Miyuki {
 			void renderStart(const IntegratorContext& context)override;
 			void renderEnd(const IntegratorContext& context)override;
 			void Li(Intersection* isct, const IntegratorContext& context, SamplingContext&)override;
+			PathTracerIntegrator() = default;
+			PathTracerIntegrator(const PathTracerIntegrator& pt) {
+				minDepth = pt.minDepth;
+				maxDepth = pt.maxDepth;
+				maxRayIntensity = pt.maxRayIntensity;
+				useNEE = pt.useNEE;
+				denoised = pt.denoised;
+			}
 		};
 		MYK_IMPL(PathTracerIntegrator, "Integrator.Path");
 		MYK_REFL(PathTracerIntegrator, (SamplerIntegrator), (useNEE)(maxDepth)(minDepth)(maxRayIntensity)(denoised));

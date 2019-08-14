@@ -25,7 +25,7 @@ namespace Miyuki {
 		constexpr size_t rayN = 8;
 		void SamplerIntegrator::renderProgressive(
 			const IntegratorContext& context,
-			ProgressiveRenderCallback progressiveCallback) {
+			const ProgressiveRenderCallback& progressiveCallback) {
 			_aborted = false;
 			auto& scene = *context.scene;
 			auto& camera = *context.camera;
@@ -61,7 +61,10 @@ namespace Miyuki {
 					total,
 					scene.getRayCount(),
 					scene.getRayCount() / elapsedRenderTime /1e6);
-				progressiveCallback(context.film);
+				try {
+					progressiveCallback(context.film);
+				}
+				catch (std::bad_function_call& e) {}
 			}));
 			scene.resetRayCount();
 			renderStart(context);

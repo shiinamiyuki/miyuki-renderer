@@ -6,7 +6,14 @@
 #include <core/scene.h>
 
 namespace Miyuki {
+	class RenderEngine;
 	class RenderEngine {
+	public:
+		enum Status {
+			EIdle,
+			ERenderInteractive,
+			ERenderProgressive
+		};
 	private:
 		std::string _filename;
 		Box<Core::Graph> graph;
@@ -16,8 +23,22 @@ namespace Miyuki {
 			if(renderThread && renderThread->joinable())
 				renderThread->join();
 			renderThread = nullptr;
+			currentIntegrator = nullptr;
 		}
+		struct RenderResourceManager {
+			RenderEngine& engine;
+			RenderResourceManager(RenderEngine& engine) :engine(engine) {}
+			~RenderResourceManager() {
+				engine.currentIntegrator = nullptr;
+				engine.status = EIdle;
+			}
+		};
+		Core::Integrator* currentIntegrator = nullptr;
+		std::atomic<Status> status;
 	public:
+		Status getStatus()const {
+			return status;
+		}
 		RenderEngine();
 		const std::string filename()const { return _filename; }
 		// Precondition: graph is not null
@@ -53,12 +74,18 @@ namespace Miyuki {
 			return renderThread != nullptr;
 		}
 		void requestAbortRender(){
-			if (graph && graph->integrator) {
-				graph->integrator->abort();
+			if (currentIntegrator) {
+				currentIntegrator->abort();
 				joinRenderThread();
+				currentIntegrator = nullptr;
+			}
+			if (renderThread) {
+				joinRenderThread();
+				currentIntegrator = nullptr;
 			}
 		}
-		bool startProgressiveRender(Core::ProgressiveRenderCallback callback);
+		bool startInteractiveRender(const Core::ProgressiveRenderCallback& callback, bool doCommit);
+		bool startProgressiveRender(const Core::ProgressiveRenderCallback& callback);
 		~RenderEngine() {
 			if(renderThread)
 				renderThread->join();
