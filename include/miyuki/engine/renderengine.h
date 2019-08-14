@@ -73,17 +73,7 @@ namespace Miyuki {
 		bool isRenderThreadStarted()const {
 			return renderThread != nullptr;
 		}
-		void requestAbortRender(){
-			if (currentIntegrator) {
-				currentIntegrator->abort();
-				joinRenderThread();
-				currentIntegrator = nullptr;
-			}
-			if (renderThread) {
-				joinRenderThread();
-				currentIntegrator = nullptr;
-			}
-		}
+		void requestAbortRender();
 		bool startInteractiveRender(const Core::ProgressiveRenderCallback& callback, bool doCommit);
 		bool startProgressiveRender(const Core::ProgressiveRenderCallback& callback);
 		~RenderEngine() {

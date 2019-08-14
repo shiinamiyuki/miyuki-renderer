@@ -125,6 +125,48 @@ namespace Miyuki {
 		
 		return true;
 	}
+	class InteractiveIntegrator : public Core::Integrator {
+	public:
+		Core::Graph* _graph;
+		Arc<Core::ProgressiveRenderer> renderer;
+		MYK_CLASS(InteractiveIntegrator);
+		bool _aborted = false;
+		void abort()override { _aborted = true; renderer->abort(); _graph->integrator->abort(); }
+		bool isAborted()const override{ return _aborted; }
+		InteractiveIntegrator() {}
+		InteractiveIntegrator(const Arc<Core::ProgressiveRenderer>& renderer) :renderer(renderer) {}
+		void render(
+			Core::Scene* scene,
+			Core::Graph * graph,
+			const Core::ProgressiveRenderCallback& callback) {
+			_graph = graph;
+			Core::IntegratorContext ctx;
+			ctx.camera = graph->activeCamera->clone();
+			ctx.camera->preprocess();
+			ctx.sampler = graph->sampler->clone();
+			ctx.scene = scene;
+			ctx.resultCallback = [=](Arc<Core::Film>film) {};
+			size_t N = std::round(std::log2(graph->filmConfig.dimension[0] / 32.0));
+			for (size_t i = 0; i < N && !isAborted(); i++) {
+				ctx.film = makeArc<Core::Film>(graph->filmConfig.dimension / pow(2, N - i));
+				renderer->renderProgressive(ctx, callback);
+				if (renderer->isAborted()) {
+					return;
+				}
+			}
+			
+			ctx.film = makeArc<Core::Film>(graph->filmConfig.dimension);
+			auto r = Reflection::cast<Core::ProgressiveRenderer>(graph->integrator.get());
+			if (isAborted())return;
+			r->renderProgressive(ctx, callback);
+			while (!isAborted()) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			}
+		}
+	};
+	inline Miyuki::Reflection::TypeInfo* InteractiveIntegrator::type() { 
+		return Miyuki::Reflection::detail::GetTypeInfo<InteractiveIntegrator>("Internal");
+	}
 	bool RenderEngine::startInteractiveRender(const Core::ProgressiveRenderCallback& callback, bool doCommit) {
 		if (isRenderThreadStarted())
 			throw std::runtime_error("render thread is still alive!");
@@ -132,39 +174,37 @@ namespace Miyuki {
 			return false;
 		if(doCommit)
 			commit();
+
 		renderThread = std::make_unique<std::thread>([&,callback]() {
 			RenderResourceManager _m(*this);
 			status = Status::ERenderInteractive;
-			Box<Core::SamplerIntegrator> integrator;
+			Box<InteractiveIntegrator> integrator;
 			Reflection::match(graph->integrator.get())
 				.with<Core::PathTracerIntegrator>([&](Core::PathTracerIntegrator* _pt) {
-				auto pt = makeBox<Core::PathTracerIntegrator>(*_pt);
+				auto pt = makeArc<Core::PathTracerIntegrator>(*_pt);
 				pt->spp = 1;
 				pt->denoised = false;
-				integrator = std::move(pt);
+				integrator = makeBox<InteractiveIntegrator>(pt);
+				
 			});
 			Log::log("render thread started\n");
-			Core::IntegratorContext ctx;
-			ctx.camera = graph->activeCamera->clone();
-			ctx.camera->preprocess();			
-			ctx.sampler = graph->sampler->clone();
-			ctx.scene = scene.get();
-			ctx.resultCallback = [=](Arc<Core::Film>film) {};
-			size_t N = std::round(std::log2(graph->filmConfig.dimension[0] / 32.0));
-			currentIntegrator = integrator.get();
-			for (size_t i = 0; i < N; i++) {
-				ctx.film = makeArc<Core::Film>(graph->filmConfig.dimension /pow(2, N - i));			
-				integrator->renderProgressive(ctx, callback);
-				if (integrator->isAborted()) {
-					return;
-				}
+			if (integrator) {
+				currentIntegrator = integrator.get();
+				integrator->render(scene.get(), graph.get(), callback);
 			}
-			ctx.film = makeArc<Core::Film>(graph->filmConfig.dimension);
-			auto r = Reflection::cast<Core::ProgressiveRenderer>(graph->integrator.get());
-			currentIntegrator = r;
-			r->renderProgressive(ctx, callback);
 			Log::log("render thread ended\n");
 		});
 		return true;
+	}
+	void RenderEngine::requestAbortRender() {
+		if (currentIntegrator) {
+			currentIntegrator->abort();
+			joinRenderThread();
+			currentIntegrator = nullptr;
+		}
+		if (renderThread) {
+			joinRenderThread();
+			currentIntegrator = nullptr;
+		}
 	}
 }

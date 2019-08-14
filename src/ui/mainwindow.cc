@@ -161,7 +161,6 @@ void main()
 						if (restart) {
 							engine->requestAbortRender();
 							auto last = lastViewportMouseDown.value();
-							Log::log("{} {} | {} {}\n", pos.x, pos.y, last.x, last.y);
 							auto offset = -Vec3f(pos.x - last.x, (pos.y - last.y), 0.0f) / 500;
 							auto newDir = cameraDir + Vec3f(offset.x, offset.y, 0);
 							auto dir = Vec3f(
@@ -406,7 +405,8 @@ void main()
 		}
 		void MainWindow::loadView(Arc<Core::Film> film) {
 			static std::mutex mutex;
-			std::lock_guard<std::mutex> lock(mutex);
+			std::unique_lock<std::mutex> lock(mutex);
+			if (!lock.owns_lock())return;
 			auto graph = engine->getGraph();
 			size_t w = film->width(), h = film->height();
 			if (w == graph->filmConfig.dimension[0] && h == graph->filmConfig.dimension[1]) {
