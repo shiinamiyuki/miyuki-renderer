@@ -250,6 +250,9 @@ namespace Miyuki {
 				visitMaterialAndSelect(slot->material, "material");
 			});
 			visit<Core::WorldConfig>([=](Core::WorldConfig* world) {
+				if (auto r = GetInputWithSignal("ray bias", world->rayBias)) {
+					world->rayBias = r.value();
+				}
 				if (!world->environmentMap) {
 					world->environmentMap = makeBox<Core::InfiniteAreaLight>();
 				}

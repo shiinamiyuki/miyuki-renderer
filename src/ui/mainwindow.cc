@@ -118,6 +118,16 @@ void main()
 					flag |= ImGuiWindowFlags_NoMove;
 				}
 				Window().name("render view").open(&windowFlags.showView).flag(flag).with(true, [=]() {
+					ImGui::Text("Camera Mode");
+					ImGui::SameLine();
+					if (ImGui::RadioButton("Free", cameraMode == EFree)) {
+						cameraMode = EFree;
+					}
+					ImGui::SameLine();
+					if (ImGui::RadioButton("Perspective", cameraMode == EPerspective)) {
+						cameraMode = EPerspective;
+					}
+
 					if (!viewport)return;
 					Draw(*viewport);
 					auto graph = engine->getGraph();
@@ -128,6 +138,9 @@ void main()
 					if (engine->getStatus() != RenderEngine::ERenderInteractive) {
 						return;
 					}
+					bool restart = false;
+					cam->preprocess();
+					Vec3f newPos = cam->viewpoint, newDir = cam->direction;
 					auto pos = io.MousePos;
 					if (!lastViewportMouseDown) {
 						if (io.MouseDown[1]) {
@@ -138,7 +151,8 @@ void main()
 								lastViewportMouseDown = Point2i(pos.x, pos.y);
 								cameraDir = cam->direction;
 								cameraPos = cam->viewpoint;
-								distance = (cameraPos - center).length();
+								distance = (cameraPos - center.value()).length();
+
 							}
 						}
 					}
@@ -146,35 +160,64 @@ void main()
 						lastViewportMouseDown = {};
 					}
 					else {
-						bool restart = false;
-						if (io.MouseWheel > 0) {
-							distance /= 1.1; restart = true;
+
+						if (cameraMode == EPerspective) {
+							if (io.MouseWheel > 0) {
+								distance /= 1.1; restart = true;
+							}
+							else if (io.MouseWheel < 0) {
+								distance *= 1.1; restart = true;
+							}
 						}
-						else if (io.MouseWheel < 0) {
-							distance *= 1.1; restart = true;
+						else {
+							auto bound = engine->getScene()->getWorldBound();
+							Point3f _;
+							float marchDistance;
+							bound.boundingSphere(&_, &marchDistance);
+							Float march = marchDistance * 0.025;
+							if (io.KeyShift) {
+								march *= 0.1f;
+							}
+							if (io.MouseWheel > 0) {
+								restart = true;
+							}
+							else if (io.MouseWheel < 0) {
+								march *= -1; restart = true;
+							}
+							if (restart) {
+								Vec3f m = cam->cameraToWorld(Vec4f(0, 0, 1, 1));
+								m.normalize();
+								newPos = cam->viewpoint + march * m;
+								Log::log("{}\n", march);
+							}
 						}
 						auto delta = io.MouseDelta;
-						if (delta.x != 0 || delta.y != 0) {
+						if (delta.x != 0 || delta.y != 0 || restart) {
 							restart = true;
-							
-						}
-						if (restart) {
-							engine->requestAbortRender();
 							auto last = lastViewportMouseDown.value();
-							auto offset = -Vec3f(pos.x - last.x, (pos.y - last.y), 0.0f) / 500;
-							auto newDir = cameraDir + Vec3f(offset.x, offset.y, 0);
-							auto dir = Vec3f(
-								std::sin(newDir.x) * std::cos(newDir.y),
-								std::sin(newDir.y),
-								std::cos(newDir.x) * std::cos(newDir.y));
-							cam->viewpoint = -dir * distance + center;
-							cam->direction = newDir;
-							engine->startInteractiveRender([=](Arc<Core::Film> film) {
-								loadView(film);
-							}, false);
+							if (cameraMode == EPerspective) {
+								auto offset = -Vec3f(pos.x - last.x, (pos.y - last.y), 0.0f) / 500;
+								newDir = cameraDir + Vec3f(offset.x, offset.y, 0);
+								auto dir = Vec3f(
+									std::sin(newDir.x) * std::cos(newDir.y),
+									std::sin(newDir.y),
+									std::cos(newDir.x) * std::cos(newDir.y));
+								newPos = -dir * distance + center.value();
+							}
+							else {
+								auto offset = -Vec3f(pos.x - last.x, (pos.y - last.y), 0.0f) / 500;
+								newDir = cameraDir + Vec3f(offset.x, offset.y, 0);
+							}
 						}
 					}
-
+					if (restart) {
+						engine->requestAbortRender();
+						cam->viewpoint = newPos;
+						cam->direction = newDir;
+						engine->startInteractiveRender([=](Arc<Core::Film> film) {
+							loadView(film);
+						}, false);
+					}
 				}).show();
 				ImGui::PopID();
 			}
@@ -283,16 +326,35 @@ void main()
 				newEngine();
 			};
 			auto startInteractive = [=]() {
-				engine->commit();
-				auto scene = engine->getScene();
-				auto bound = scene->getWorldBound();
-				float r;
-				Point3f center;
-				bound.boundingSphere(&center, &r);
-				this->center = Vec3f(center.x, center.y, center.z);
-				engine->startInteractiveRender([=](Arc<Core::Film> film) {
-					loadView(film);
-				}, true);
+				std::thread th([=]() {
+					try {
+						openModal("Starting rendering", []() {});
+						engine->commit();
+						auto scene = engine->getScene();
+						auto bound = scene->getWorldBound();
+						if (!this->center) {
+							float r;
+							Point3f center;
+							bound.boundingSphere(&center, &r);
+							this->center = Vec3f(center.x, center.y, center.z);
+						}
+						
+						auto r = engine->startInteractiveRender([=](Arc<Core::Film> film) {
+							loadView(film);
+						}, true);
+						if (!r) {
+							showErrorModal("Error",
+								"Cannot start rendering: no integrator or integrator does not support interactive\n");
+						}
+						closeModal();
+						
+					}
+					catch (std::exception& e) {
+						Log::log("{}\n", e.what());
+						closeModal();
+					}
+				});
+				th.detach();
 			};
 			auto startProgressive = [=]() {
 				visitor.startInteractive();
@@ -435,7 +497,7 @@ void main()
 				pixelData.resize(graph->filmConfig.dimension[0] * graph->filmConfig.dimension[1] * 4ul);
 				Point2f scale = Point2f(w, h) / Point2f(graph->filmConfig.dimension[0],
 					graph->filmConfig.dimension[1]);
-			//	for (int j = 0; j < graph->filmConfig.dimension[1]; j++) {
+				//	for (int j = 0; j < graph->filmConfig.dimension[1]; j++) {
 				Thread::ParallelFor(0, graph->filmConfig.dimension[1], [&](int j, int) {
 					for (int i = 0; i < graph->filmConfig.dimension[0]; i++) {
 						auto offset = i + j * graph->filmConfig.dimension[0];

@@ -52,9 +52,10 @@ namespace Miyuki {
 		struct WorldConfig final :Reflective {
 			MYK_CLASS(WorldConfig);
 			Box<Light> environmentMap;
+			Float rayBias = 0.01f;
 		};
 		MYK_IMPL(WorldConfig, "Core.WorldConfig");
-		MYK_REFL(WorldConfig, (Reflective), (environmentMap));
+		MYK_REFL(WorldConfig, (Reflective), (environmentMap)(rayBias));
 
 		struct Graph final : Reflective {
 			MYK_META;
@@ -68,7 +69,8 @@ namespace Miyuki {
 			WorldConfig worldConfig;
 		};
 		MYK_IMPL(Graph, "Core.Graph");
-		MYK_REFL(Graph, (Reflective), (materials)(meshes)(cameras)(activeCamera)(integrator)(sampler)(filmConfig)(worldConfig ));
+		MYK_REFL(Graph, (Reflective), (materials)(meshes)(cameras)(activeCamera)
+			(integrator)(sampler)(filmConfig)(worldConfig ));
 	}
 }
 

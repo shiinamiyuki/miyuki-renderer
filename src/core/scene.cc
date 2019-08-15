@@ -211,7 +211,7 @@ namespace Miyuki {
 				light->setWorldRadius(radius);
 			}
 			computeLightDistribution();
-
+			RayBias = std::max(1e-16f, graph.worldConfig.rayBias);
 		}		
 	}
 }

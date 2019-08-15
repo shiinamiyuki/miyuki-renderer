@@ -82,6 +82,8 @@ CMake everything.
 ![](gallery/editor_new.png)
 
 ### Random test images
+![](gallery/mc_another_view.png)
+
 ![](gallery/mc_envmap.png)
 
 ![](gallery/envmap.png)

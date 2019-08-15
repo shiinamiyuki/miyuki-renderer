@@ -75,8 +75,13 @@ namespace Miyuki {
 			}
 			std::optional<Point2i> lastViewportMouseDown;
 			Vec3f cameraDir, cameraPos;
-			Vec3f center;
-			float distance;
+			std::optional<Vec3f> center;
+			float distance = -1;
+			enum CameraMode {
+				EPerspective,
+				EFree
+			};
+			CameraMode cameraMode = EPerspective;
 		public:
 			void showModal() {
 				modal.show();

@@ -3,7 +3,7 @@
 #include <utils/log.h>
 #include <core/cameras/camera.h>
 #include <core/integrators/pt.h>
-
+#include <core/integrators/ao.h>
 namespace Miyuki {
 	static const char* MeshDirectory = "mesh";
 	RenderEngine::RenderEngine() {
@@ -122,22 +122,22 @@ namespace Miyuki {
 			Log::log("render thread started\n");
 			integrator->renderProgressive(ctx, callback);
 		});
-		
+
 		return true;
 	}
 	class InteractiveIntegrator : public Core::Integrator {
 	public:
-		Core::Graph* _graph;
+		Core::Graph* _graph = nullptr;
 		Arc<Core::ProgressiveRenderer> renderer;
 		MYK_CLASS(InteractiveIntegrator);
 		bool _aborted = false;
 		void abort()override { _aborted = true; renderer->abort(); _graph->integrator->abort(); }
-		bool isAborted()const override{ return _aborted; }
+		bool isAborted()const override { return _aborted; }
 		InteractiveIntegrator() {}
 		InteractiveIntegrator(const Arc<Core::ProgressiveRenderer>& renderer) :renderer(renderer) {}
 		void render(
 			Core::Scene* scene,
-			Core::Graph * graph,
+			Core::Graph* graph,
 			const Core::ProgressiveRenderCallback& callback) {
 			_graph = graph;
 			Core::IntegratorContext ctx;
@@ -154,7 +154,7 @@ namespace Miyuki {
 					return;
 				}
 			}
-			
+
 			ctx.film = makeArc<Core::Film>(graph->filmConfig.dimension);
 			auto r = Reflection::cast<Core::ProgressiveRenderer>(graph->integrator.get());
 			if (isAborted())return;
@@ -164,7 +164,7 @@ namespace Miyuki {
 			}
 		}
 	};
-	inline Miyuki::Reflection::TypeInfo* InteractiveIntegrator::type() { 
+	inline Miyuki::Reflection::TypeInfo* InteractiveIntegrator::type() {
 		return Miyuki::Reflection::detail::GetTypeInfo<InteractiveIntegrator>("Internal");
 	}
 	bool RenderEngine::startInteractiveRender(const Core::ProgressiveRenderCallback& callback, bool doCommit) {
@@ -172,10 +172,10 @@ namespace Miyuki {
 			throw std::runtime_error("render thread is still alive!");
 		if (!graph)
 			return false;
-		if(doCommit)
+		if (doCommit)
 			commit();
 
-		renderThread = std::make_unique<std::thread>([&,callback]() {
+		renderThread = std::make_unique<std::thread>([&, callback]() {
 			RenderResourceManager _m(*this);
 			status = Status::ERenderInteractive;
 			Box<InteractiveIntegrator> integrator;
@@ -185,7 +185,11 @@ namespace Miyuki {
 				pt->spp = 1;
 				pt->denoised = false;
 				integrator = makeBox<InteractiveIntegrator>(pt);
-				
+
+			}).with<Core::AOIntegrator>([&](Core::AOIntegrator* _ao) {
+				auto ao = makeArc<Core::AOIntegrator>(*_ao);
+				ao->spp = 1;
+				integrator = makeBox<InteractiveIntegrator>(ao);
 			});
 			Log::log("render thread started\n");
 			if (integrator) {
