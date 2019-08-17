@@ -11,15 +11,14 @@ namespace Miyuki {
 	namespace Core {
 		class Light;
 
-		struct Mesh;
+		class Mesh;
 
 		class Material;
 
 		class Accelerator;
 
 		struct Primitive {
-			uint32_t vertices[3];
-			uint32_t normals[3];
+			uint32_t primitiveId;
 			Point2f textureCoord[3];
 
 			Mesh* instance;
@@ -57,12 +56,13 @@ namespace Miyuki {
 
 		class EmbreeScene;
 
-		struct Mesh {
+		class Mesh {
+		public:
 			friend struct Primitive;
 			std::string name;
 			std::string filename;
 			Transform transform;
-		
+
 			std::vector<std::string> names;
 			std::vector<Material*> materials;
 			std::weak_ptr<Mesh> parent;
@@ -72,7 +72,7 @@ namespace Miyuki {
 #if USE_EMBREE_GEOMETRY == 1
 			RTCGeometry rtcGeometry = nullptr;
 #endif
-			size_t estimatedMemoryUsage()const;	
+			size_t estimatedMemoryUsage()const;
 			Mesh(const std::string& filename);
 
 			static std::shared_ptr<Mesh> instantiate(std::shared_ptr<Mesh>parent,
@@ -115,6 +115,22 @@ namespace Miyuki {
 				Assert(loaded);
 				return primitives;
 			}
+			const std::vector<Point3i>& getVertexIndicies() const {
+				Assert(loaded);
+				return vertexIndices;
+			}
+			std::vector<Point3i>& getVertexIndicies() {
+				Assert(loaded);
+				return vertexIndices;
+			}
+			const std::vector<Point3i>& getNormalIndicies() const {
+				Assert(loaded);
+				return normalIndices;
+			}
+			std::vector<Point3i>& getNormalIndicies() {
+				Assert(loaded);
+				return normalIndices;
+			}
 			void reload();
 			bool isLoaded()const {
 				return loaded;
@@ -123,6 +139,7 @@ namespace Miyuki {
 			void load(const std::string& filename);
 			std::vector<Vec3f> vertices, normals;
 			std::vector<Primitive> primitives;
+			std::vector<Point3i> vertexIndices, normalIndices;
 			bool loaded = false;
 			bool addedToAccelerator = false;
 		};
@@ -130,16 +147,18 @@ namespace Miyuki {
 		inline Vec3f Primitive::v(int32_t i) const {
 #if USE_EMBREE_GEOMETRY == 1
 			auto vertices = (Float*)rtcGetGeometryBufferData(instance->rtcGeometry, RTC_BUFFER_TYPE_VERTEX, 0);
-			return Vec3f{ vertices[this->vertices[i] * 3],
-						 vertices[this->vertices[i] * 3 + 1],
-						 vertices[this->vertices[i] * 3 + 2] };
+			auto indicies = (uint32_t*)rtcGetGeometryBufferData(instance->rtcGeometry,
+				RTC_BUFFER_TYPE_INDEX, 0);
+			return Vec3f{ vertices[indicies[3 * primitiveId + i] * 3 + 0],
+						 vertices[indicies[3 * primitiveId + i] * 3 + 1],
+						 vertices[indicies[3 * primitiveId + i] * 3 + 2] };
 #else
 			return instance->vertices[vertices[i]];
 #endif
 			}
 
 		inline const Vec3f& Primitive::n(int32_t i) const {
-			return instance->normals[normals[i]];
+			return instance->normals[instance->normalIndices[primitiveId][i]];
 		}
 
 		inline Vec3f Primitive::Ns(const Point2f& uv) const {

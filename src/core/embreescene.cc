@@ -62,8 +62,10 @@ namespace Miyuki {
 				sizeof(uint32_t) * 3,
 				mesh->getPrimitives().size());
 			for (int32_t i = 0; i < mesh->getPrimitives().size(); i++) {
-				for (int32_t j = 0; j < 3; j++)
-					triangles[3 * i + j] = (uint32_t)mesh->getPrimitives()[i].vertices[j];
+				for (int32_t j = 0; j < 3; j++) {
+					//triangles[3 * i + j] = (uint32_t)mesh->getPrimitives()[i].vertices[j];
+					triangles[3 * i + j] = mesh->getVertexIndicies()[i][j];
+				}
 			}
 			for (int32_t i = 0; i < mesh->getVerticies().size(); i++) {
 				auto& v = mesh->getVerticies()[i];
@@ -76,10 +78,8 @@ namespace Miyuki {
 #if USE_EMBREE_GEOMETRY == 1
 			mesh->rtcGeometry = rtcMesh;
 			mesh->accelerator = this;
-			mesh->getVerticies().clear();
 			mesh->geomId = id;
-			std::decay_t<decltype(mesh->getVerticies())> dummy;
-			std::swap(dummy, mesh->getVerticies());
+			mesh->releaseVerticesWhenAddedToAccelerator();
 #endif
 		}
 

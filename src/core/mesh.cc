@@ -57,15 +57,17 @@ namespace Miyuki {
 						assert(fv == 3); // we are using trig mesh
 						// Loop over vertices in the face.
 						Primitive primitive;
+						Point3i pvertices, pnormals;
 						bool useNorm = true;
 						for (size_t v = 0; v < fv; v++) {
 							// access to vertex
 							tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
 							assert(idx.vertex_index < vertices.size());
-							primitive.vertices[v] = idx.vertex_index;
+
+							pvertices[v] = idx.vertex_index;
 
 							if (idx.normal_index < normals.size())
-								primitive.normals[v] = idx.normal_index;
+								pnormals[v] = idx.normal_index;
 							else {
 								useNorm = false;
 
@@ -79,18 +81,20 @@ namespace Miyuki {
 								primitive.textureCoord[v] = Point2f(v > 0, v > 1);
 							}
 						}
-						auto Ng = Vec3f::cross(vertices[primitive.vertices[1]] - vertices[primitive.vertices[0]],
-							vertices[primitive.vertices[2]] - vertices[primitive.vertices[0]]);
+						auto Ng = Vec3f::cross(vertices[pvertices[1]] - vertices[pvertices[0]],
+							vertices[pvertices[2]] - vertices[pvertices[0]]);
 						Ng.normalize();
 						if (!useNorm) {
 							normals.emplace_back(Ng);
 							for (int32_t i = 0; i < 3; i++) {
-								primitive.normals[i] = (uint32_t)normals.size() - 1;
+								pnormals[i] = (uint32_t)normals.size() - 1;
 							}
 						}
-
+						primitive.primitiveId = primitives.size();
 						primitive.nameId = map[shapes[s].name];
 						primitives.emplace_back(primitive);
+						vertexIndices.emplace_back(pvertices);
+						normalIndices.emplace_back(pnormals);
 						index_offset += fv;
 					}
 				}
@@ -101,7 +105,7 @@ namespace Miyuki {
 			loaded = true;
 			addedToAccelerator = false;
 		}
-		Mesh::Mesh(const std::string& filename):filename(filename) {
+		Mesh::Mesh(const std::string& filename) :filename(filename) {
 			load(filename);
 		}
 		void Mesh::reload() {
@@ -109,6 +113,7 @@ namespace Miyuki {
 		}
 		size_t Mesh::estimatedMemoryUsage()const {
 			return sizeof(Mesh) + (vertices.capacity() + normals.capacity()) * sizeof(Vec3f)
+				+ sizeof(Point3i) * (vertexIndices.capacity() + normalIndices.capacity())
 				+ sizeof(Primitive) * primitives.capacity()
 				+ lightMap.size() * sizeof(std::pair<const Primitive*, Light*>);
 		}
@@ -117,11 +122,14 @@ namespace Miyuki {
 			vertices = std::vector<Vec3f>();
 			normals = std::vector<Vec3f>();
 			primitives = std::vector<Primitive>();
+			vertexIndices = std::vector<Point3i>();
+			normalIndices = std::vector<Point3i>();
 			lightMap.clear();
 		}
-		void  Mesh::releaseVerticesWhenAddedToAccelerator() {
+		void Mesh::releaseVerticesWhenAddedToAccelerator() {
 			addedToAccelerator = true;
 			vertices = std::vector<Vec3f>();
+			vertexIndices = std::vector<Point3i>();
 		}
 		std::shared_ptr<Mesh> Mesh::instantiate(std::shared_ptr<Mesh>parent,
 			const std::string& name, const Transform& transform) {
@@ -169,9 +177,6 @@ namespace Miyuki {
 			if (rtcGeometry) {
 				rtcReleaseGeometry(rtcGeometry);
 			}
-
 		}
-
-
 	}
 }
