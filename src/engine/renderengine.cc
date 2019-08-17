@@ -130,7 +130,7 @@ namespace Miyuki {
 		Core::Graph* _graph = nullptr;
 		Arc<Core::ProgressiveRenderer> renderer;
 		MYK_CLASS(InteractiveIntegrator);
-		bool _aborted = false;
+		std::atomic<bool> _aborted = false;
 		void abort()override { _aborted = true; renderer->abort(); _graph->integrator->abort(); }
 		bool isAborted()const override { return _aborted; }
 		InteractiveIntegrator() {}

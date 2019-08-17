@@ -113,7 +113,7 @@ void main()
 					loadViewImpl();
 					windowFlags.viewportUpdateAvailable = false;
 				}
-				WindowFlag flag = 0;
+				WindowFlag flag = ImGuiWindowFlags_NoScrollbar;
 				if (engine->getStatus() == RenderEngine::ERenderInteractive) {
 					flag |= ImGuiWindowFlags_NoMove;
 				}

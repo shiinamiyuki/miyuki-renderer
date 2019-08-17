@@ -64,6 +64,7 @@ namespace Miyuki {
 			std::vector<Primitive> primitives;
 			std::vector<std::string> names;
 			std::vector<Material*> materials;
+			std::weak_ptr<Mesh> parent;
 			int geomId = -1;
 			EmbreeScene* accelerator;
 			uint32_t vertexCount = 0;
@@ -73,7 +74,8 @@ namespace Miyuki {
 
 			Mesh(const std::string& filename);
 
-			std::shared_ptr<Mesh> instantiate(const std::string& name, const Transform& transform = Transform()) const;
+			static std::shared_ptr<Mesh> instantiate(std::shared_ptr<Mesh>parent,
+				const std::string& name, const Transform& transform = Transform());
 
 			void resetTransform(const Transform& T);
 

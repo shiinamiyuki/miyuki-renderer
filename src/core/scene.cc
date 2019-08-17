@@ -33,7 +33,7 @@ namespace Miyuki {
 				return;
 			}
 			CHECK(meshes.find(filename) != meshes.end());
-			auto mesh = meshes[filename]->instantiate(meshName, T);
+			auto mesh = Mesh::instantiate(meshes[filename],meshName, T);
 			auto id = (uint32_t)instances.size();
 			embreeScene->addMesh(mesh, id);
 			meshToId[meshName] = id;

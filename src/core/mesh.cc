@@ -100,8 +100,9 @@ namespace Miyuki {
 				profiler.elapsedSeconds(), vertices.size(), normals.size(), primitives.size());
 		}
 
-		std::shared_ptr<Mesh> Mesh::instantiate(const std::string& name, const Transform& transform) const {
-			auto mesh = std::make_shared<Mesh>(*this);
+		std::shared_ptr<Mesh> Mesh::instantiate(std::shared_ptr<Mesh>parent, 
+			const std::string& name, const Transform& transform)  {
+			auto mesh = std::make_shared<Mesh>(*parent);
 			mesh->name = name;
 			mesh->transform = transform;
 			for (auto& v : mesh->vertices) {
