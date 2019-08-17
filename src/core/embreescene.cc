@@ -6,9 +6,18 @@
 
 namespace Miyuki {
 	RTCDevice rtcDevice = nullptr;
+	ssize_t memUsage = 0;
+	bool MemoryMonitor(void* userPtr,
+		ssize_t bytes,
+		bool post) {
+		memUsage += bytes;
+		return true;
+
+	}
 	RTCDevice Core::GetEmbreeDevice() {
 		if (!rtcDevice) {
 			rtcDevice = rtcNewDevice(nullptr);
+			rtcSetDeviceMemoryMonitorFunction(rtcDevice, MemoryMonitor, nullptr);
 		}
 		Assert(rtcDevice);
 		return rtcDevice;
@@ -21,7 +30,9 @@ namespace Miyuki {
 		QUERY_PROP(RTC_DEVICE_PROPERTY_NATIVE_RAY8_SUPPORTED);
 		QUERY_PROP(RTC_DEVICE_PROPERTY_NATIVE_RAY16_SUPPORTED);
 	}
-
+	ssize_t Core::GetEmbreeMemoryUsage() {
+		return memUsage;
+	}
 	void Exit() {
 		rtcReleaseDevice(rtcDevice);
 	}
@@ -45,17 +56,17 @@ namespace Miyuki {
 					0,
 					RTC_FORMAT_FLOAT3,
 					sizeof(Float) * 3,
-					mesh->vertices.size());
+					mesh->getVerticies().size());
 			auto triangles = (uint32_t*)rtcSetNewGeometryBuffer(rtcMesh,
 				RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3,
 				sizeof(uint32_t) * 3,
-				mesh->primitives.size());
-			for (int32_t i = 0; i < mesh->primitives.size(); i++) {
+				mesh->getPrimitives().size());
+			for (int32_t i = 0; i < mesh->getPrimitives().size(); i++) {
 				for (int32_t j = 0; j < 3; j++)
-					triangles[3 * i + j] = (uint32_t)mesh->primitives[i].vertices[j];
+					triangles[3 * i + j] = (uint32_t)mesh->getPrimitives()[i].vertices[j];
 			}
-			for (int32_t i = 0; i < mesh->vertices.size(); i++) {
-				auto& v = mesh->vertices[i];
+			for (int32_t i = 0; i < mesh->getVerticies().size(); i++) {
+				auto& v = mesh->getVerticies()[i];
 				for (int32_t j = 0; j < 3; j++)
 					vertices[3 * i + j] = v[j];
 			}
@@ -65,10 +76,10 @@ namespace Miyuki {
 #if USE_EMBREE_GEOMETRY == 1
 			mesh->rtcGeometry = rtcMesh;
 			mesh->accelerator = this;
-			mesh->vertices.clear();
+			mesh->getVerticies().clear();
 			mesh->geomId = id;
-			decltype(mesh->vertices) dummy;
-			std::swap(dummy, mesh->vertices);
+			std::decay_t<decltype(mesh->getVerticies())> dummy;
+			std::swap(dummy, mesh->getVerticies());
 #endif
 		}
 

@@ -15,7 +15,7 @@
 namespace Miyuki {
 	namespace Core {
 		RTCDevice GetEmbreeDevice();
-
+		ssize_t GetEmbreeMemoryUsage();
 		class Scene;
 
 		class EmbreeScene final: public Accelerator {

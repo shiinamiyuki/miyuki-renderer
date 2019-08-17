@@ -58,10 +58,11 @@ namespace Miyuki {
 		class EmbreeScene;
 
 		struct Mesh {
+			friend struct Primitive;
 			std::string name;
+			std::string filename;
 			Transform transform;
-			std::vector<Vec3f> vertices, normals;
-			std::vector<Primitive> primitives;
+		
 			std::vector<std::string> names;
 			std::vector<Material*> materials;
 			std::weak_ptr<Mesh> parent;
@@ -71,7 +72,7 @@ namespace Miyuki {
 #if USE_EMBREE_GEOMETRY == 1
 			RTCGeometry rtcGeometry = nullptr;
 #endif
-
+			size_t estimatedMemoryUsage()const;	
 			Mesh(const std::string& filename);
 
 			static std::shared_ptr<Mesh> instantiate(std::shared_ptr<Mesh>parent,
@@ -87,7 +88,43 @@ namespace Miyuki {
 				}
 				lightMap.clear();
 			}
+			void release();
+			void releaseVerticesWhenAddedToAccelerator();
 			~Mesh();
+			std::vector<Vec3f>& getVerticies() {
+				Assert(loaded);
+				return vertices;
+			}
+			const std::vector<Vec3f>& getVerticies()const {
+				Assert(loaded);
+				return vertices;
+			}
+			std::vector<Vec3f>& getNormals() {
+				Assert(loaded);
+				return normals;
+			}
+			const std::vector<Vec3f>& getNormals()const {
+				Assert(loaded);
+				return normals;
+			}
+			std::vector<Primitive>& getPrimitives() {
+				Assert(loaded);
+				return primitives;
+			}
+			const std::vector<Primitive>& getPrimitives()const {
+				Assert(loaded);
+				return primitives;
+			}
+			void reload();
+			bool isLoaded()const {
+				return loaded;
+			}
+		private:
+			void load(const std::string& filename);
+			std::vector<Vec3f> vertices, normals;
+			std::vector<Primitive> primitives;
+			bool loaded = false;
+			bool addedToAccelerator = false;
 		};
 
 		inline Vec3f Primitive::v(int32_t i) const {
@@ -99,7 +136,7 @@ namespace Miyuki {
 #else
 			return instance->vertices[vertices[i]];
 #endif
-		}
+			}
 
 		inline const Vec3f& Primitive::n(int32_t i) const {
 			return instance->normals[normals[i]];
@@ -161,7 +198,7 @@ namespace Miyuki {
 			instance->lightMap[this] = light;
 		}
 
-		
+
+		}
 	}
-}
 #endif

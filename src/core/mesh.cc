@@ -8,7 +8,7 @@
 
 namespace Miyuki {
 	namespace Core {
-		Mesh::Mesh(const std::string& filename) {
+		void Mesh::load(const std::string& filename) {
 			Profiler profiler;
 			IO::readUnderPath(filename, [&](const std::string& file) {
 				name = file;
@@ -98,12 +98,37 @@ namespace Miyuki {
 			vertexCount = vertices.size();
 			Log::log("Loaded {} in {}s, {} vertices, {} normals, {} triangles\n", filename,
 				profiler.elapsedSeconds(), vertices.size(), normals.size(), primitives.size());
+			loaded = true;
+			addedToAccelerator = false;
 		}
-
-		std::shared_ptr<Mesh> Mesh::instantiate(std::shared_ptr<Mesh>parent, 
-			const std::string& name, const Transform& transform)  {
+		Mesh::Mesh(const std::string& filename):filename(filename) {
+			load(filename);
+		}
+		void Mesh::reload() {
+			load(filename);
+		}
+		size_t Mesh::estimatedMemoryUsage()const {
+			return sizeof(Mesh) + (vertices.capacity() + normals.capacity()) * sizeof(Vec3f)
+				+ sizeof(Primitive) * primitives.capacity()
+				+ lightMap.size() * sizeof(std::pair<const Primitive*, Light*>);
+		}
+		void Mesh::release() {
+			loaded = false;
+			vertices = std::vector<Vec3f>();
+			normals = std::vector<Vec3f>();
+			primitives = std::vector<Primitive>();
+			lightMap.clear();
+		}
+		void  Mesh::releaseVerticesWhenAddedToAccelerator() {
+			addedToAccelerator = true;
+			vertices = std::vector<Vec3f>();
+		}
+		std::shared_ptr<Mesh> Mesh::instantiate(std::shared_ptr<Mesh>parent,
+			const std::string& name, const Transform& transform) {
+			Assert(parent->loaded);
 			auto mesh = std::make_shared<Mesh>(*parent);
 			mesh->name = name;
+			mesh->loaded = true;
 			mesh->transform = transform;
 			for (auto& v : mesh->vertices) {
 				v = transform.apply(v);

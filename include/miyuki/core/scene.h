@@ -105,7 +105,7 @@ namespace Miyuki {
 		}
 
 		inline void Scene::postIntersect(Intersection* isct) {
-			isct->primitive = &instances[isct->geomId]->primitives[isct->primId];
+			isct->primitive = &instances[isct->geomId]->getPrimitives()[isct->primId];
 			auto p = isct->primitive;
 			
 			

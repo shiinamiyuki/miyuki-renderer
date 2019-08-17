@@ -33,10 +33,17 @@ namespace Miyuki {
 				return;
 			}
 			CHECK(meshes.find(filename) != meshes.end());
-			auto mesh = Mesh::instantiate(meshes[filename],meshName, T);
+			auto parent = meshes[filename];
+			if (!parent->isLoaded()) {
+				parent->reload();
+			}
+			auto mesh = Mesh::instantiate(parent,meshName, T);
 			auto id = (uint32_t)instances.size();
 			embreeScene->addMesh(mesh, id);
 			meshToId[meshName] = id;
+			if (parent->estimatedMemoryUsage() >= 1000 * 1000 * 256) {
+				parent->release();
+			}
 
 			instances.emplace_back(mesh);
 		}
@@ -156,7 +163,7 @@ namespace Miyuki {
 			if(getEnvironmentLight())
 				lights.emplace_back(getEnvironmentLight());
 			for (auto instance : instances) {
-				for (auto& primitive : instance->primitives) {
+				for (auto& primitive : instance->getPrimitives()) {
 					auto mat = primitive.material();
 					if (mat->emission) {
 						if (mat->emission->average().toVec3f().max() >= 1e-3f) {
@@ -212,6 +219,14 @@ namespace Miyuki {
 			}
 			computeLightDistribution();
 			RayBias = std::max(1e-16f, graph.worldConfig.rayBias);
+
+			for (const auto& mesh : meshes) {
+				Log::log("Estimated memory usage for mesh:{}\n", mesh.second->estimatedMemoryUsage());
+			}
+			for (const auto& mesh : instances) {
+				Log::log("Estimated memory usage for instance:{}\n", mesh->estimatedMemoryUsage());
+			}
+			Log::log("Embree memory usage: {}\n", GetEmbreeMemoryUsage());
 		}		
 	}
 }

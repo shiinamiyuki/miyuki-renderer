@@ -362,6 +362,7 @@ void main()
 			auto stopRender = [=]() {
 				visitor.stopRender();
 			};
+
 			MainMenuBar()
 				.menu(Menu().name("File")
 					.item(MenuItem().name("Open").with(true, openFile))
