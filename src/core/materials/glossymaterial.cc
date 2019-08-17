@@ -43,6 +43,7 @@ namespace Miyuki {
 			)const override {
 				auto& wo = ctx.wo();
 				auto& wi = ctx.wi();
+				if (!SameHemisphere(wo, wi))return {};
 				Float cosThetaO = AbsCosTheta(wo);
 				Float cosThetaI = AbsCosTheta(wi);
 				auto wh = (wo + wi);

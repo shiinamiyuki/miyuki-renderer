@@ -36,7 +36,13 @@ namespace Miyuki {
 		};
 		template<class T = Reflective>
 		using Box = std::unique_ptr<T, Deleter>;
+		template<class T>
+		using Arc = std::shared_ptr<T>;
 
+		template<class T, class... Args>
+		Arc<T> makeArc(Args&& ... args) {
+			return std::make_shared<T>(args...);
+		}
 		template<class T, class... Args>
 		Box<T> makeBox(Args&&... args) {
 			return Box<T>(new T(args...), Deleter([](Reflective* p) {delete p; }));
@@ -719,15 +725,9 @@ if constexpr (!std::is_same_v<std::decay_t<Base>,Miyuki::Reflection::Nil>)Base::
 
 	using Reflective = Reflection::Reflective;
 	using Reflection::Box;
-	template<class T>
-	using Arc = std::shared_ptr<T>;
-
+	using Reflection::Arc;
 	using Reflection::makeBox;
-
-	template<class T, class... Args>
-	Arc<T> makeArc(Args&&... args) {
-		return std::make_shared<T>(args...);
-	}
+	using Reflection::makeArc;
 
 }
 #define MYK_REFL_IMPLEMENTATION Miyuki::Reflection::detail::Types* Miyuki::Reflection::detail::Types::all;\

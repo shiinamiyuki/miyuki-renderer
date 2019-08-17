@@ -101,7 +101,7 @@ namespace Miyuki {
 			}
            // }, image.width);
             free(data);
-
+			
         }
 
         bool LoadMYKBinaryImage(const std::string &filename,

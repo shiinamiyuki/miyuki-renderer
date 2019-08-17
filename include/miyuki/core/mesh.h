@@ -155,7 +155,7 @@ namespace Miyuki {
 #else
 			return instance->vertices[vertices[i]];
 #endif
-			}
+		}
 
 		inline const Vec3f& Primitive::n(int32_t i) const {
 			return instance->normals[instance->normalIndices[primitiveId][i]];
@@ -216,8 +216,6 @@ namespace Miyuki {
 			if (!light)return;
 			instance->lightMap[this] = light;
 		}
-
-
-		}
 	}
+}
 #endif

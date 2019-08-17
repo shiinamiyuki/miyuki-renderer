@@ -21,6 +21,9 @@ namespace Miyuki {
 				else {
 					LambertianReflection(R).sample(sample);
 				}
+				if (!SameHemisphere(sample.wi, sample.wo)) {
+					sample.wi *= -1;
+				}
 				sample.lobe = getLobe();
 				ctx.assignWi(sample.wi);
 			}
@@ -31,6 +34,7 @@ namespace Miyuki {
 			)const override {
 				auto& wo = ctx.wo();
 				auto& wi = ctx.wi();
+				if (!SameHemisphere(wo, wi))return {};
 				if (roughness < 0.0f) {
 					return LambertianReflection(R).evaluate(wo, wi);
 				}
@@ -45,6 +49,7 @@ namespace Miyuki {
 			)const override {
 				auto& wo = ctx.wo();
 				auto& wi = ctx.wi();
+				if (!SameHemisphere(wo, wi))return {};
 				if (roughness < 0.0f) {
 					return LambertianReflection(R).evaluatePdf(wo, wi);
 				}

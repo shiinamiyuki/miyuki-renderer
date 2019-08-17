@@ -52,6 +52,8 @@ add_executable (mykgui "src/main/main.cc"
 	${thirdpartySRC}
 	${guiSRC}
 	${coreSRC})
+add_executable (test_reflection "src/main/testrefl.cc"
+	${thirdpartySRC})
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # TODO: Add tests and install targets if needed.
