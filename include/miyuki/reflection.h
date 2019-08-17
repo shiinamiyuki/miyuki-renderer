@@ -28,7 +28,7 @@ namespace Miyuki {
 		class Reflective;
 		struct Deleter {
 			std::function<void(Reflective*)> deleter;
-			Deleter() {}
+			inline Deleter();
 			Deleter(std::function<void(Reflective*)> f) :deleter(std::move(f)) {}
 			void operator()(Reflective* t) {
 				deleter(t);
@@ -38,13 +38,14 @@ namespace Miyuki {
 		using Box = std::unique_ptr<T, Deleter>;
 		template<class T>
 		using Arc = std::shared_ptr<T>;
-
+		template<class T>
+		using Weak = std::weak_ptr<T>;
 		template<class T, class... Args>
 		Arc<T> makeArc(Args&& ... args) {
 			return std::make_shared<T>(args...);
 		}
 		template<class T, class... Args>
-		Box<T> makeBox(Args&&... args) {
+		Box<T> makeBox(Args&& ... args) {
 			return Box<T>(new T(args...), Deleter([](Reflective* p) {delete p; }));
 		}
 
@@ -52,6 +53,7 @@ namespace Miyuki {
 			json data;
 			struct State {
 				std::set<const Reflective*> visited;
+				json refObjects;
 			};
 			std::shared_ptr<State> state;
 		public:
@@ -62,6 +64,9 @@ namespace Miyuki {
 				OutObjectStream stream;
 				stream.state = state;
 				return stream;
+			}
+			void writeRef(size_t addr, const OutObjectStream& stream) {
+				state->refObjects[std::to_string(addr)] = stream.data;
 			}
 			void write(const std::string& key, std::nullptr_t) {
 				data[key] = {};
@@ -95,7 +100,12 @@ namespace Miyuki {
 				data = value;
 			}
 
-			const json& toJson()const { return data; }
+			json toJson()const {
+				json j;
+				j["ref"] = state->refObjects;
+				j["val"] = data;
+				return j;
+			}
 		};
 
 		struct OutStreamVisitor {
@@ -130,7 +140,16 @@ namespace Miyuki {
 				stream.write("val", reinterpret_cast<uint64_t>(value));
 			}
 		}
-
+		template<class T>
+		std::enable_if_t<std::is_base_of_v<Reflective, T>, void> save(const Weak<T>& value, OutObjectStream& stream) {
+			if (value.expired()) {
+				stream.write(nullptr);
+			}
+			else {
+				stream.write("meta", "ref");
+				stream.write("val", reinterpret_cast<uint64_t>(value.lock().get()));
+			}
+		}
 		template<class T>
 		std::enable_if_t<std::is_base_of_v<Reflective, T>, void>
 			save(const Box<T>& value, OutObjectStream& stream) {
@@ -142,27 +161,77 @@ namespace Miyuki {
 			}
 			else {
 				auto s = stream.sub();
+				auto addr = reinterpret_cast<uint64_t>(dynamic_cast<Reflective*>(value.get()));
 				value->serialize(s);
-				stream.write("meta", "val");
-				stream.write("addr", reinterpret_cast<uint64_t>(dynamic_cast<Reflective*>(value.get())));
-				stream.write("val", s);
+				stream.write("meta", "ref");
+				stream.write("addr", addr);
+				s.write("meta", "box");
+				stream.writeRef(addr, s);
 				stream.addSerialized(value.get());
 			}
 		}
+		template<class T>
+		std::enable_if_t<std::is_base_of_v<Reflective, T>, void>
+			save(const Arc<T>& value, OutObjectStream& stream) {
+			if (value == nullptr) {
+				stream.write(nullptr);
+			}
+			else if (stream.hasSerialized(value.get())) {
+				throw std::runtime_error("Multiple strong reference to same object");
+			}
+			else {
+				auto s = stream.sub();
+				auto addr = reinterpret_cast<uint64_t>(dynamic_cast<Reflective*>(value.get()));
+				if (!stream.hasSerialized(value.get())) {
+					value->serialize(s);
+					stream.addSerialized(value.get());
+				}
+				stream.write("meta", "ref");
+				stream.write("addr", addr);
+				s.write("meta", "arc");
+				stream.writeRef(addr, s);
 
+			}
+		}
 		class InObjectStream {
 			friend class Runtime;
 			const json& data;
 			struct State {
 				std::unordered_map<size_t, Reflective*> map;
+				std::unordered_map<size_t, Box<Reflective>> boxes;
+				std::unordered_map<size_t, Arc<Reflective>> arcs;
+				std::unordered_map<size_t, bool> s_arcs;
+				const json& root;
+				State(const json& root) :root(root) {
+
+				}
 			};
 			std::shared_ptr<State> state;
+			inline void initializeRefObjects();
 		public:
-			InObjectStream(const json& data, std::shared_ptr<State>s = nullptr) :data(data) {
-				if (!s)
-					state = std::make_shared<State>();
-				else
-					state = s;
+			std::pair<Box<Reflective>, InObjectStream> getBox(size_t addr) {
+				auto box = std::move(state->boxes.at(addr));
+				state->boxes.erase(addr);
+				auto in = InObjectStream(state->root.at("ref").at(std::to_string(addr)), state);
+				return std::make_pair(std::move(box), std::move(in));
+			}
+			bool hasDeserializedArc(size_t i) {
+				return state->s_arcs.find(i) != state->s_arcs.end();
+			}
+			void addDersializedArc(size_t i) {
+				state->s_arcs[i] = true;
+			}
+			std::pair<Arc<Reflective>, InObjectStream> getArc(size_t addr) {
+				auto arc = state->arcs.at(addr);
+				auto in = InObjectStream(state->root.at("ref").at(std::to_string(addr)), state);
+				return std::make_pair(arc, std::move(in));
+			}
+			InObjectStream(const json& data) :data(data.at("val")) {
+				state = std::make_shared<State>(data);
+				initializeRefObjects();
+			}
+			InObjectStream(const json& data, std::shared_ptr<State> s) :data(data) {
+				state = s;
 			}
 			InObjectStream sub(const std::string& key) {
 				return InObjectStream(data.at(key), state);
@@ -224,18 +293,37 @@ namespace Miyuki {
 			}
 			auto meta = data.at("meta").get<std::string>();
 			if (meta == "ref") {
-				throw std::runtime_error(fmt::format("multiple strong ref !!"));
-			}
-			else if (meta == "val") {
-				auto val = data.at("val");
-				auto type = val.at("type");
-				TypeInfo* info = getTypeByName(type.get<std::string>());
 				auto addr = data.at("addr").get<uint64_t>();
-				value = std::move(static_unique_ptr_cast<T>(info->ctor()));
+				auto [box, in] = std::move(stream.getBox(addr));
+				value = std::move(static_unique_ptr_cast<T>(std::move(box)));
 				stream.add(addr, value.get());
-				auto in = stream.sub("val");
-				info->loader(*value, in);
+				value->typeInfo()->loader(*value, in);
 
+			}
+			else {
+				throw std::runtime_error(fmt::format("Unrecognized meta info: {}", meta));
+			}
+		}
+		template<class T>
+		inline std::enable_if_t<std::is_base_of_v<Reflective, T>, void>
+			load(Arc<T>& value, InObjectStream& stream) {
+			auto& data = stream.getJson();
+			if (data.is_null()) {
+				value = nullptr; return;
+			}
+			auto meta = data.at("meta").get<std::string>();
+			if (meta == "ref") {
+				auto addr = data.at("addr").get<uint64_t>();
+				auto [arc, in] = std::move(stream.getArc(addr));
+				value = std::dynamic_pointer_cast<T>(arc);
+				if (stream.hasDeserializedArc(addr)) {
+
+				}
+				else {
+					stream.add(addr, value.get());
+					value->typeInfo()->loader(*value, in);
+					stream.addDersializedArc(addr);
+				}
 			}
 			else {
 				throw std::runtime_error(fmt::format("Unrecognized meta info: {}", meta));
@@ -253,6 +341,30 @@ namespace Miyuki {
 				auto val = data.at("val").get<uint64_t>();
 				if (stream.has(val)) {
 					value = dynamic_cast<T*>(stream.fetchByAddr(val));
+				}
+				else {
+					throw std::runtime_error(fmt::format("ref {} has not been loaded", val));
+				}
+			}
+			else if (meta == "val") {
+				throw std::runtime_error(fmt::format("weak ref !!"));
+			}
+			else {
+				throw std::runtime_error(fmt::format("Unrecognized meta info: {}", meta));
+			}
+		}
+		template<class T>
+		inline std::enable_if_t<std::is_base_of_v<Reflective, T>, void> load(Weak<T>& value, InObjectStream& stream) {
+			auto& data = stream.getJson();
+			if (data.is_null()) {
+				value.reset();
+			}
+			auto meta = data.at("meta").get<std::string>();
+			if (meta == "ref") {
+				auto val = data.at("val").get<uint64_t>();
+				if (stream.has(val)) {
+					auto [arc, in] = stream.getArc(val);
+					value = std::dynamic_pointer_cast<T>(arc);
 				}
 				else {
 					throw std::runtime_error(fmt::format("ref {} has not been loaded", val));
@@ -398,7 +510,7 @@ namespace Miyuki {
 
 			using DerivedSet = std::set<const TypeInfo*, Compare>;
 			const char* _name;
-			using Constructor = std::function<Box<Reflective>(void)>;
+			using Constructor = std::function<Reflective* (void)>;
 			using Loader = std::function<void(Reflective&, InObjectStream&)>;
 			using Saver = std::function<void(const Reflective&, OutObjectStream&)>;
 			Constructor ctor;
@@ -447,8 +559,8 @@ namespace Miyuki {
 					info->saver = [=](const Reflective& value, OutObjectStream& stream) {
 						save(dynamic_cast<const T&>(value), stream);
 					};
-					info->ctor = [=]()->Box<Reflective> {
-						return makeBox<T>();
+					info->ctor = [=]()->Reflective * {
+						return new T();
 					};
 					info->loader = [=](Reflective& value, InObjectStream& stream) {
 						load(dynamic_cast<T&>(value), stream);
@@ -464,7 +576,7 @@ namespace Miyuki {
 				std::call_once(flag, [&]() {
 					info = new TypeInfo();
 					info->_name = name;
-					info->ctor = [=]()->Box<Reflective> {
+					info->ctor = [=]()->Reflective * {
 						throw std::runtime_error("Attempt to create abstract class");
 						return nullptr;
 					};
@@ -506,7 +618,7 @@ namespace Miyuki {
 #define _MYK_EXTENDS_SEQ_MACRO(r, data, elem) _MYK_EXTENDS(data, elem)
 #define MYK_EXTENDS(Base, Supers) BOOST_PP_SEQ_FOR_EACH(_MYK_EXTENDS_SEQ_MACRO, Base, Supers)
 
-		struct ComponentVisitor;
+		struct ReflectionVisitor;
 
 		template<int>
 		struct ID {};
@@ -528,7 +640,7 @@ namespace Miyuki {
 					return *all;
 				}
 				template<class Derived, class Base>
-				std::enable_if_t<!std::is_same_v<Base,Nil>, void> extend() {
+				std::enable_if_t<!std::is_same_v<Base, Nil>, void> extend() {
 					TypeInfo* base = Base::type();
 					TypeInfo* derived = Derived::type();
 					base->addDerived(derived);
@@ -586,7 +698,7 @@ inline Miyuki::Reflection::TypeInfo* Type::type(){return Miyuki::Reflection::det
 #define MYK_BEGIN_REFL(Type) struct Type::Meta {\
 						 enum {__idx = __COUNTER__}; using __Self = Type;\
 						template<int i>using UID = Miyuki::Reflection::ID<i>;static constexpr char * TypeName = #Type;
-		
+
 #define MYK_ATTR(name)  enum {__attr_index_##name = __COUNTER__ - __idx - 1 };\
 						static auto& getAttribute(__Self& self, UID<__attr_index_##name>){return self.name;} \
 						static auto& getAttribute(const __Self& self, UID<__attr_index_##name>){return self.name;} \
@@ -652,22 +764,35 @@ if constexpr (!std::is_same_v<std::decay_t<Base>,Miyuki::Reflection::Nil>)Base::
 				typeInfo()->loader(*this, stream);
 			}
 			virtual ~Reflective() = default;
-			inline void accept(ComponentVisitor& visitor);
+			inline void accept(ReflectionVisitor& visitor);
 		};
 		MYK_REFL(Reflective, MYK_NIL_BASE, MYK_REFL_NIL);
-		struct ComponentVisitor {
+		struct ReflectionVisitor {
 			std::unordered_map<TypeInfo*, std::function<void(Reflective*)>>_map;
+			template<class F>
+			struct FuncTraits {
+
+			};
 		public:
 			void visit(Reflective* trait) {
 				if (!trait)return;
 				_map.at(trait->typeInfo())(trait);
 			}
 			template<class T>
-			std::enable_if_t<std::is_base_of_v<Reflective, T>, void> visit(Box<T>& trait) {
-				visit(trait.get());
+			std::enable_if_t<std::is_base_of_v<Reflective, T>, void> visit(Box<T>& p) {
+				visit(p.get());
 			}
 			template<class T>
-			std::enable_if_t<std::is_base_of_v<Reflective, T>, void> visit(const std::function<void(T*)>& f) {
+			std::enable_if_t<std::is_base_of_v<Reflective, T>, void> visit(Arc<T>& p) {
+				visit(p.get());
+			}
+			template<class T>
+			std::enable_if_t<std::is_base_of_v<Reflective, T>, void> visit(Weak<T>& p) {
+				visit(p.lock());
+			}
+			template<class T>
+			std::enable_if_t<std::is_base_of_v<Reflective, T>, void>
+				whenVisit(const std::function<void(T*)>& f) {
 				_map[T::type()] = [=](Reflective* p) {
 					f(dynamic_cast<T*>(p));
 				};
@@ -695,7 +820,7 @@ if constexpr (!std::is_same_v<std::decay_t<Base>,Miyuki::Reflection::Nil>)Base::
 		detail::Match<T> match(T * trait) {
 			return detail::Match<T>(trait);
 		};
-		inline void Reflective::accept(ComponentVisitor& visitor) {
+		inline void Reflective::accept(ReflectionVisitor& visitor) {
 			visitor.visit(this);
 		}
 
@@ -707,7 +832,7 @@ if constexpr (!std::is_same_v<std::decay_t<Base>,Miyuki::Reflection::Nil>)Base::
 
 		inline Box<Reflective> createByName(const std::string& name) {
 			auto t = detail::Types::get()._registerdTypeMap.at(name);
-			return t->ctor();
+			return Box<Reflective>(t->ctor(), Deleter());
 		}
 		inline TypeInfo* getTypeByName(const std::string& name) {
 			return detail::Types::get()._registerdTypeMap.at(name);
@@ -720,12 +845,34 @@ if constexpr (!std::is_same_v<std::decay_t<Base>,Miyuki::Reflection::Nil>)Base::
 		inline TypeInfo* typeof() {
 			return T::type();
 		}
+		void InObjectStream::initializeRefObjects() {
+			const auto& ref = state->root.at("ref");
+			for (const auto& o : ref.items()) {
+				const auto& k = o.key();
+				const auto& v = o.value();
+				auto type = getTypeByName(v.at("type").get<std::string>());
+				auto object = type->ctor();
+				size_t addr = std::stoull(k);
+				state->map[addr] = object;
+				if (v.at("meta") == "box") {
+					state->boxes[addr] = Box<Reflective>(object);
 
+				}
+				else if (v.at("meta") == "arc") {
+					state->arcs[addr] = Arc<Reflective>(object);
+				}
+				else {
+					throw std::runtime_error("unknown meta");
+				}
+			}
+		}
+		Deleter::Deleter() :deleter([](Reflective* p) {delete p; }) {}
 	}
 
 	using Reflective = Reflection::Reflective;
 	using Reflection::Box;
 	using Reflection::Arc;
+	using Reflection::Weak;
 	using Reflection::makeBox;
 	using Reflection::makeArc;
 

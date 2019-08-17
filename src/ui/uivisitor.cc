@@ -47,7 +47,7 @@ namespace Miyuki {
 				_map[s] = info;
 				_invmap[info] = s;
 				_list.push_back(s);
-				_ctors[info] = info->ctor;
+				_ctors[info] = [=]() {return Box<Reflective>(info->ctor()); };
 				return *this;
 			}
 			template<class Interface>
@@ -150,13 +150,13 @@ namespace Miyuki {
 			connection = uiInputChanged.connect([=]() {
 				changed = true;
 			});
-			visit<Core::FloatShader>([=](Core::FloatShader* shader) {
+			whenVisit<Core::FloatShader>([=](Core::FloatShader* shader) {
 				auto value = shader->getValue();
 				if (auto r = GetInputWithSignal("value", value)) {
 					shader->setValue(r.value());
 				}
 			});
-			visit<Core::RGBShader>([=](Core::RGBShader* shader) {
+			whenVisit<Core::RGBShader>([=](Core::RGBShader* shader) {
 				Spectrum value = shader->getValue();
 				if (auto r = GetInputWithSignal("value", value)) {
 					shader->setValue(r.value());
@@ -165,7 +165,7 @@ namespace Miyuki {
 					shader->setMultiplier(r.value());
 				}
 			});
-			visit<Core::ImageTextureShader>([=](Core::ImageTextureShader* shader) {
+			whenVisit<Core::ImageTextureShader>([=](Core::ImageTextureShader* shader) {
 				Text().name(shader->imageFile.path.string()).show();
 				Button().name("Select").with(true, [=]() {
 					auto filename = IO::GetOpenFileNameWithDialog("Image\0 *.png;*.jpg;*.hdr\0Any File\0 * .*");
@@ -174,36 +174,36 @@ namespace Miyuki {
 					}
 				}).show();
 			});
-			visit<Core::ScaledShader>([=](Core::ScaledShader* shader) {
+			whenVisit<Core::ScaledShader>([=](Core::ScaledShader* shader) {
 				visitShaderAndSelect(shader->scale, "scale");
 				visitShaderAndSelect(shader->shader, "shader");
 			});
-			visit<Core::MixedShader>([=](Core::MixedShader* shader) {
+			whenVisit<Core::MixedShader>([=](Core::MixedShader* shader) {
 				visitShaderAndSelect(shader->fraction, "fraction");
 				visitShaderAndSelect(shader->shaderA, "shader A");
 				Separator().show();
 				visitShaderAndSelect(shader->shaderB, "shader  B");
 				Separator().show();
 			});
-			visit<Core::TransparentMaterial>([=](Core::TransparentMaterial* node) {
+			whenVisit<Core::TransparentMaterial>([=](Core::TransparentMaterial* node) {
 				visitShaderAndSelect(node->color, "color");
 			});
-			visit<Core::GlossyMaterial>([=](Core::GlossyMaterial* node) {
-				visitShaderAndSelect(node->color, "color");
-				visitShaderAndSelect(node->roughness, "roughness");
-			});
-			visit<Core::DiffuseMaterial>([=](Core::DiffuseMaterial* node) {
+			whenVisit<Core::GlossyMaterial>([=](Core::GlossyMaterial* node) {
 				visitShaderAndSelect(node->color, "color");
 				visitShaderAndSelect(node->roughness, "roughness");
 			});
-			visit<Core::MixedMaterial>([=](Core::MixedMaterial* node) {
+			whenVisit<Core::DiffuseMaterial>([=](Core::DiffuseMaterial* node) {
+				visitShaderAndSelect(node->color, "color");
+				visitShaderAndSelect(node->roughness, "roughness");
+			});
+			whenVisit<Core::MixedMaterial>([=](Core::MixedMaterial* node) {
 				visitShaderAndSelect(node->fraction, "fraction");
 				visitMaterialAndSelect(node->matA, "material A");
 				Separator().show();
 				visitMaterialAndSelect(node->matB, "material B");
 				Separator().show();
 			});
-			visit<Core::MeshFile>([=](Core::MeshFile* node) {
+			whenVisit<Core::MeshFile>([=](Core::MeshFile* node) {
 				auto name = node->name;
 				if (auto r = GetInputWithSignal("name", name)) {
 					node->name = r.value();
@@ -212,7 +212,7 @@ namespace Miyuki {
 					node->transform = r.value();
 				}
 			});
-			visit<Core::Object>([=](Core::Object* node) {
+			whenVisit<Core::Object>([=](Core::Object* node) {
 				auto graph = engine->getGraph();
 				auto objectName = node->alias;
 				auto matName = node->material->name;
@@ -239,7 +239,7 @@ namespace Miyuki {
 
 				visit(node->material);
 			});
-			visit<Core::MaterialSlot>([=](Core::MaterialSlot* slot) {
+			whenVisit<Core::MaterialSlot>([=](Core::MaterialSlot* slot) {
 				if (auto r = GetInputWithSignal("name", slot->name)) {
 					slot->name = r.value();
 				}
@@ -249,7 +249,7 @@ namespace Miyuki {
 				}
 				visitMaterialAndSelect(slot->material, "material");
 			});
-			visit<Core::WorldConfig>([=](Core::WorldConfig* world) {
+			whenVisit<Core::WorldConfig>([=](Core::WorldConfig* world) {
 				if (auto r = GetInputWithSignal("ray bias", world->rayBias)) {
 					world->rayBias = r.value();
 				}
@@ -258,13 +258,13 @@ namespace Miyuki {
 				}
 				visit(world->environmentMap);
 			});
-			visit<Core::InfiniteAreaLight>([=](Core::InfiniteAreaLight* light) {
+			whenVisit<Core::InfiniteAreaLight>([=](Core::InfiniteAreaLight* light) {
 				visitShaderAndSelect(light->shader, "shader");
 				if (auto r = GetInputWithSignal("rotation", light->rotation)) {
 					light->rotation = r.value();
 				}
 			});
-			visit<Core::PerspectiveCamera>([=](Core::PerspectiveCamera* camera) {
+			whenVisit<Core::PerspectiveCamera>([=](Core::PerspectiveCamera* camera) {
 				if (auto r = GetInputWithSignal("viewpoint", camera->viewpoint)) {
 					camera->viewpoint = r.value();
 				}
@@ -281,7 +281,7 @@ namespace Miyuki {
 					camera->focalDistance = r.value();
 				}
 			});
-			visit<Core::AOIntegrator>([=](Core::AOIntegrator* integrator) {
+			whenVisit<Core::AOIntegrator>([=](Core::AOIntegrator* integrator) {
 				if (auto r = GetInputWithSignal("samples", integrator->spp)) {
 					integrator->spp = r.value();
 				}
@@ -289,7 +289,7 @@ namespace Miyuki {
 					integrator->occlusionDistance = r.value();
 				}
 			});
-			visit<Core::PathTracerIntegrator>([=](Core::PathTracerIntegrator* integrator) {
+			whenVisit<Core::PathTracerIntegrator>([=](Core::PathTracerIntegrator* integrator) {
 				if (auto r = GetInputWithSignal("samples", integrator->spp)) {
 					integrator->spp = r.value();
 				}
@@ -309,7 +309,7 @@ namespace Miyuki {
 					integrator->denoised = r.value();
 				}
 			});
-			visit<Core::FilmConfig>([=](Core::FilmConfig* config) {
+			whenVisit<Core::FilmConfig>([=](Core::FilmConfig* config) {
 				if (auto r = GetInputWithSignal("scale", 100 * config->scale)) {
 					config->scale = r.value() / 100.0f;
 				}

@@ -54,9 +54,9 @@ namespace Miyuki {
 				mesh->materials.push_back(materialAssignment.at(name));
 			}
 		}
-		struct Scene::Visitor : Reflection::ComponentVisitor {
+		struct Scene::Visitor : Reflection::ReflectionVisitor {
 			std::vector<Preprocessable*> preprocessables;
-			using Base = Reflection::ComponentVisitor;
+			using Base = Reflection::ReflectionVisitor;
 			Scene& scene;
 			Visitor(Scene& scene) :scene(scene) {
 			}
@@ -69,17 +69,17 @@ namespace Miyuki {
 			template<class T>
 			std::enable_if_t<std::is_base_of_v<Reflective, T>, void>
 				visit(const std::function<void(T*)>& f) {
-				ComponentVisitor::visit<T>(f);
+				Base::visit<T>(f);
 			}
 
 			template<class T>
 			std::enable_if_t<std::is_base_of_v<Preprocessable, T>, void> visit(T* p) {
 				preprocessables.emplace_back(p);
-				ComponentVisitor::visit(p);
+				Base::visit(p);
 			}
 			template<class T>
 			std::enable_if_t<!std::is_base_of_v<Preprocessable, T>, void> visit(T* p) {
-				ComponentVisitor::visit(p);
+				Base::visit(p);
 			}
 
 			template<class T>
@@ -91,44 +91,44 @@ namespace Miyuki {
 				if (!scene.imageLoader)
 					scene.imageLoader = std::make_unique<IO::ImageLoader>();
 				Base::_map.clear();
-				visit<Core::AreaLight>([=](Core::AreaLight* light) {
+				whenVisit<Core::AreaLight>([=](Core::AreaLight* light) {
 
 				});
-				visit<Core::InfiniteAreaLight>([=](Core::InfiniteAreaLight* light) {
+				whenVisit<Core::InfiniteAreaLight>([=](Core::InfiniteAreaLight* light) {
 					visit(light->shader);
 				});
-				visit<Core::GlossyMaterial>([=](Core::GlossyMaterial* mat) {
+				whenVisit<Core::GlossyMaterial>([=](Core::GlossyMaterial* mat) {
 					visit(mat->color);
 					visit(mat->roughness);
 				});
-				visit<Core::DiffuseMaterial>([=](Core::DiffuseMaterial* mat) {
+				whenVisit<Core::DiffuseMaterial>([=](Core::DiffuseMaterial* mat) {
 					visit(mat->color);
 					visit(mat->roughness);
 				});
-				visit<Core::MixedMaterial>([=](Core::MixedMaterial* mat) {
+				whenVisit<Core::MixedMaterial>([=](Core::MixedMaterial* mat) {
 					visit(mat->matA);
 					visit(mat->matB);
 				});
-				visit<Core::TransparentMaterial>([=](Core::TransparentMaterial* mat) {
+				whenVisit<Core::TransparentMaterial>([=](Core::TransparentMaterial* mat) {
 					visit(mat->color);
 				});
-				visit<Core::ScaledShader> ([=](Core::ScaledShader* shader) {
+				whenVisit<Core::ScaledShader> ([=](Core::ScaledShader* shader) {
 					visit(shader->shader);
 					visit(shader->scale);
 				});
-				visit<Core::MixedShader>([=](Core::MixedShader* shader) {
+				whenVisit<Core::MixedShader>([=](Core::MixedShader* shader) {
 					visit(shader->fraction);
 					visit(shader->shaderA);
 					visit(shader->shaderB);
 				});
-				visit<Core::FloatShader>([=](Core::FloatShader* shader) {
+				whenVisit<Core::FloatShader>([=](Core::FloatShader* shader) {
 
 				});
-				visit<Core::RGBShader>([=](Core::RGBShader* shader) {
+				whenVisit<Core::RGBShader>([=](Core::RGBShader* shader) {
 
 				});
 				auto& loader = scene.imageLoader;
-				visit<Core::ImageTextureShader>([=, &loader](Core::ImageTextureShader* shader) {
+				whenVisit<Core::ImageTextureShader>([=, &loader](Core::ImageTextureShader* shader) {
 					shader->texture = Texture(loader->load(shader->imageFile));
 				});
 				for (auto& material : graph.materials) {

@@ -56,11 +56,13 @@ namespace Miyuki {
 			return;
 		}
 		try {
+			auto path = cxx::filesystem::path(filename);
+			cxx::filesystem::current_path(path.parent_path());
 			Reflection::OutObjectStream stream;
 			graph->serialize(stream);
-			std::ofstream out(filename);
+			std::ofstream out(path.filename());
 			out << stream.toJson().dump(1) << std::endl;
-			Log::log("Saved to {}\n", filename);
+			Log::log("Saved to {} \n", filename);
 			if (!cxx::filesystem::exists("temp")) {
 				cxx::filesystem::create_directory("temp");
 			}
@@ -70,8 +72,10 @@ namespace Miyuki {
 		}
 	}
 	void RenderEngine::open(const std::string& filename) {
+		auto path = cxx::filesystem::path(filename);
+		cxx::filesystem::current_path(path.parent_path());
 		_filename = filename;
-		std::ifstream in(filename);
+		std::ifstream in(path.filename());
 		std::string content((std::istreambuf_iterator<char>(in)),
 			std::istreambuf_iterator<char>());
 		json j = json::parse(content);

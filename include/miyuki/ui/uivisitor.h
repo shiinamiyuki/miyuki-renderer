@@ -8,7 +8,7 @@
 namespace Miyuki {
 	namespace GUI {
 		class MainWindow;
-		class UIVisitor : public Reflection::ComponentVisitor{
+		class UIVisitor : public Reflection::ReflectionVisitor {
 			Reflective* selected = nullptr;
 
 			void visitMaterialAndSelect(Box<Core::Material>& material, const std::string& label);
@@ -20,7 +20,7 @@ namespace Miyuki {
 			};
 			int selectedMaterialIndex = -1;
 			SelectedNodeType selectedNodeType;
-			using Base = Reflection::ComponentVisitor;
+			using Base = Reflection::ReflectionVisitor;
 			boost::signals2::connection connection;
 			bool changed = true;
 			MainWindow& window;
@@ -46,16 +46,12 @@ namespace Miyuki {
 			template<class T>
 			void visit(T* node) {
 				ImGui::PushID(node);
-				ComponentVisitor::visit(node);
+				ReflectionVisitor::visit(node);
 				ImGui::PopID();
 			}
 			template<class T>
 			void visit(Box<T>& node) {
 				visit(node.get());
-			}
-			template<class T, class F>
-			void visit(F&& arg) {
-				ComponentVisitor::visit<T>(std::move(arg));
 			}
 			void visitSelected();
 			void visitCamera();
