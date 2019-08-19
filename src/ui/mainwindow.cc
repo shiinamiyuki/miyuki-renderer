@@ -16,6 +16,7 @@ namespace Miyuki {
 	namespace GUI {
 
 		void MainWindow::close() {
+			cxx::filesystem::current_path(programPath);
 			ImGui_ImplOpenGL3_Shutdown();
 			ImGui_ImplGlfw_Shutdown();
 			ImGui::DestroyContext();

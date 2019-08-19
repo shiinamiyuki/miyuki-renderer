@@ -168,6 +168,7 @@ namespace Miyuki {
 			}).show();
 			return r;
 		}
+
 		void UIVisitor::init() {
 			connection = uiInputChanged.connect([=]() {
 				changed = true;

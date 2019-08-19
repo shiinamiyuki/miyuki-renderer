@@ -14,6 +14,12 @@ namespace Miyuki {
 
 		}
 
+		static Spectrum DisneySS(const Spectrum& R, const Float Fss90, const Float cosThetaI,
+			const Float cosThetaO) {
+			auto Fss = (1 + DisneyFrWeight(Fss90, cosThetaI)) * (1 + DisneyFrWeight(Fss90, cosThetaO));
+			return 1.25 * R * INVPI * (Fss * (1 / (cosThetaO + cosThetaI) - 0.5) + 0.5);
+		}
+
 		BSDFComponent* DisneyMaterial::createBSDF(BSDFCreationContext&)const {
 			return nullptr;
 		}
