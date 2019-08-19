@@ -9,7 +9,7 @@ namespace Miyuki {
 			MYK_CLASS(MixedMaterial);
 			Box<Material> matA = nullptr, matB = nullptr;
 			Box<Shader> fraction = nullptr;
-			virtual BSDFImpl* createBSDF(BSDFCreationContext&)const override;
+			virtual BSDFComponent* createBSDF(BSDFCreationContext&)const override;
 		};
 		MYK_IMPL(MixedMaterial, "Material.Mixed");
 		MYK_REFL(MixedMaterial, (Material), (fraction)(matA)(matB));

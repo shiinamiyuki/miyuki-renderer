@@ -5,15 +5,15 @@
 
 namespace Miyuki {
 	namespace Core {
-		class GlossyBSDFImpl : public BSDFImpl {
+		class GlossyBSDF : public BSDFComponent {
 			const MicrofacetWrapper microfacet;
 			const FresnelWrapper fresnel;
 			const Vec3f R;
 			const Float alpha;
 		public:
-			GlossyBSDFImpl(Vec3f R, Float alpha)
+			GlossyBSDF(Vec3f R, Float alpha)
 				:R(R), alpha(alpha), microfacet(EBeckmann, alpha), fresnel(EPerfectSpecular),
-				BSDFImpl(BSDFLobe(EGlossy | EReflection)) {
+				BSDFComponent(BSDFLobe(EGlossy | EReflection)) {
 
 			}
 			virtual void sample(
@@ -66,10 +66,10 @@ namespace Miyuki {
 			}
 		};
 
-		class SpecularBSDFImpl : public BSDFImpl {
+		class SpecularBSDFImpl : public BSDFComponent {
 			const Vec3f R;
 		public:
-			SpecularBSDFImpl(const Vec3f& R) :R(R), BSDFImpl(BSDFLobe(ESpecular | EReflection)) {}
+			SpecularBSDFImpl(const Vec3f& R) :R(R), BSDFComponent(BSDFLobe(ESpecular | EReflection)) {}
 			virtual void sample(
 				BSDFEvaluationContext& ctx,
 				BSDFSample& sample
@@ -97,14 +97,14 @@ namespace Miyuki {
 
 		};
 
-		BSDFImpl* GlossyMaterial::createBSDF(BSDFCreationContext& ctx)const {
+		BSDFComponent* GlossyMaterial::createBSDF(BSDFCreationContext& ctx)const {
 			auto _roughness = Shader::evaluate(roughness, ctx.shadingPoint).toFloat();
 			auto _color = Shader::evaluate(color, ctx.shadingPoint).toVec3f();
 			if (_roughness == 0.0f) {
 				return ctx.alloc<SpecularBSDFImpl>(_color);
 			}
 			else
-				return ctx.alloc<GlossyBSDFImpl>(_color, _roughness * _roughness);
+				return ctx.alloc<GlossyBSDF>(_color, _roughness * _roughness);
 		}
 	}
 }

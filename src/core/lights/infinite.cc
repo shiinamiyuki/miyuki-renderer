@@ -1,6 +1,7 @@
 #include <core/lights/infinite.h>
 #include <math/func.h>
 #include <core/intersection.hpp>
+#include <utils/thread.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -48,7 +49,7 @@ namespace Miyuki {
 			//zfmt::print("{} {} | {}  {}\n", uv[0], uv[1],record.Le.max(), mapPdf);
 		}
 
-		Float InfiniteAreaLight::pdfLi(const Intersection&isct, const Vec3f& wi)const {
+		Float InfiniteAreaLight::pdfLi(const Intersection& isct, const Vec3f& wi)const {
 			auto w = worldToLight(Vec4f(wi.x, wi.z, wi.y, 1));
 			auto theta = SphericalTheta(w);
 			auto sinTheta = std::sin(theta);
@@ -64,21 +65,24 @@ namespace Miyuki {
 			trans = trans.mult(Matrix4x4::rotation(Vec3f(1, 0, 0), -rotation.y));
 			Matrix4x4::inverse(trans, invtrans);
 
-			if (!shader)return;
+			if (!shader) {
+				distribution = nullptr;
+				return;
+			}
+
 			auto resolution = shader->resolution();
 			if (resolution[0] * resolution[1] == 0)return;
 			std::vector<Float> v(resolution[0] * resolution[1]);
-			for (int j = 0; j < resolution[1]; j++) {
-				for (int i = 0; i < resolution[0]; i++) {				
+			Thread::ParallelFor(0, resolution[1], [&](uint32_t j, uint32_t) {
+				for (int i = 0; i < resolution[0]; i++) {
 					Point2f uv(i, j);
-					uv /= Point2f(resolution[0],resolution[1]);
+					uv /= Point2f(resolution[0], resolution[1]);
 					uv[1] = 1.0f - uv[1];
 					Spectrum L = shader->eval(ShadingPoint(uv)).toVec3f();;
-					v[i + j * resolution[0]] = L.luminance(); 
+					v[i + j * resolution[0]] = L.luminance();
 				}
-			}
+			}, 64);
 			distribution = std::make_unique<Distribution2D>(&v[0], resolution[0], resolution[1]);
-
 
 		}
 	}

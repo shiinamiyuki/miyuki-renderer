@@ -4,12 +4,12 @@
 
 namespace Miyuki {
 	namespace Core {
-		class DiffuseBSDFImpl : public BSDFImpl {
+		class DiffuseBSDF : public BSDFComponent {
 			const Float roughness;
 			const Spectrum R;
 		public:
-			DiffuseBSDFImpl(Float roughness, Spectrum R)
-				:BSDFImpl(BSDFLobe(EReflection | EDiffuse)), R(R), roughness(roughness) {}
+			DiffuseBSDF(Float roughness, Spectrum R)
+				:BSDFComponent(BSDFLobe(EReflection | EDiffuse)), R(R), roughness(roughness) {}
 
 			virtual void sample(
 				BSDFEvaluationContext& ctx,
@@ -59,10 +59,10 @@ namespace Miyuki {
 			}
 		};
 
-		BSDFImpl* DiffuseMaterial::createBSDF(BSDFCreationContext& ctx)const {
+		BSDFComponent* DiffuseMaterial::createBSDF(BSDFCreationContext& ctx)const {
 			Float _roughness = Shader::evaluate(roughness, ctx.shadingPoint).toFloat();
 			Spectrum R = Shader::evaluate(color, ctx.shadingPoint).toVec3f();
-			auto bsdf = ctx.alloc<DiffuseBSDFImpl>(_roughness, R);
+			auto bsdf = ctx.alloc<DiffuseBSDF>(_roughness, R);
 			return bsdf;
 		}
 

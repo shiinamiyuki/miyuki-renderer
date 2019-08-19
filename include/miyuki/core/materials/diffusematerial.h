@@ -9,7 +9,7 @@ namespace Miyuki {
 			MYK_CLASS(DiffuseMaterial);
 			Box<Shader> color = nullptr;
 			Box<Shader> roughness = nullptr;
-			virtual BSDFImpl* createBSDF(BSDFCreationContext&)const override;
+			virtual BSDFComponent* createBSDF(BSDFCreationContext&)const override;
 		};
 		MYK_IMPL(DiffuseMaterial, "Material.Diffuse");
 		MYK_REFL(DiffuseMaterial, (Material), (color)(roughness));

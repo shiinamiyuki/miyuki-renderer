@@ -345,7 +345,7 @@ void main()
 						if (!r) {
 							showErrorModal("Error",
 								"Cannot start rendering: no integrator or integrator does not support interactive\n");
-						}
+						}else
 						closeModal();
 						
 					}
@@ -530,12 +530,12 @@ void main()
 				}*/
 				Thread::ParallelFor(0, graph->filmConfig.dimension[1], [&](int j, int) {
 					for (int i = 0; i < graph->filmConfig.dimension[0]; i++) {
-						auto offset = i + j * graph->filmConfig.dimension[0];
+						size_t offset = i + j * graph->filmConfig.dimension[0];
 						auto color = film->getPixel(Point2f(i, j)).toInt();
-						pixelData[4ul * offset] = color.r;
-						pixelData[4ul * offset + 1] = color.g;
-						pixelData[4ul * offset + 2] = color.b;
-						pixelData[4ul * offset + 3] = 255;
+						pixelData[4ull * offset] = color.r;
+						pixelData[4ull * offset + 1] = color.g;
+						pixelData[4ull * offset + 2] = color.b;
+						pixelData[4ull * offset + 3] = 255;
 					}
 				});
 			}
@@ -546,12 +546,12 @@ void main()
 				//	for (int j = 0; j < graph->filmConfig.dimension[1]; j++) {
 				Thread::ParallelFor(0, graph->filmConfig.dimension[1], [&](int j, int) {
 					for (int i = 0; i < graph->filmConfig.dimension[0]; i++) {
-						auto offset = i + j * graph->filmConfig.dimension[0];
+						size_t offset = i + j * graph->filmConfig.dimension[0];
 						auto color = film->getPixel(Point2f(i, j) * scale).toInt();
-						pixelData[4ul * offset] = color.r;
-						pixelData[4ul * offset + 1] = color.g;
-						pixelData[4ul * offset + 2] = color.b;
-						pixelData[4ul * offset + 3] = 255;
+						pixelData[4ull * offset] = color.r;
+						pixelData[4ull * offset + 1] = color.g;
+						pixelData[4ull * offset + 2] = color.b;
+						pixelData[4ull * offset + 3] = 255;
 					}
 				});
 			}

@@ -17,7 +17,7 @@ namespace Miyuki {
 			
 			virtual void renderStart(const IntegratorContext& context) {}
 			virtual void renderEnd(const IntegratorContext& context) {}
-			virtual void Li(Intersection * isct, const IntegratorContext& context, SamplingContext&) = 0;
+			virtual void Li(Intersection * isct, const IntegratorContext& context, SamplingContext&)noexcept = 0;
 			void renderProgressive(
 				const IntegratorContext& context,
 				const ProgressiveRenderCallback& progressiveCallback)override;

@@ -10,7 +10,7 @@ namespace Miyuki {
 			
 			Float occlusionDistance = 1e5;
 			MYK_CLASS(AOIntegrator);
-			void Li(Intersection* isct, const IntegratorContext& context, SamplingContext&)override;
+			void Li(Intersection* isct, const IntegratorContext& context, SamplingContext&)noexcept override;
 			
 			AOIntegrator() :SamplerIntegrator() {}
 		private:

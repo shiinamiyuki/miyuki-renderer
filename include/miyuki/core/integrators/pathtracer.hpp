@@ -14,7 +14,7 @@ namespace Miyuki {
 				SamplingContext& ctx,
 				int minDepth,
 				int maxDepth,
-				bool useNEE)
+				bool useNEE)noexcept
 				:scene(scene),
 				ctx(ctx),
 				minDepth(minDepth),
@@ -26,11 +26,11 @@ namespace Miyuki {
 				beta = Spectrum(1, 1, 1);
 			}
 
-			const AOVRecord& getAOV()const {
+			const AOVRecord& getAOV()const noexcept {
 				return aov;
 			}
 
-			AOVRecord trace(Intersection* firstIsct) {
+			AOVRecord trace(Intersection* firstIsct)noexcept {
 				computeLi(firstIsct);
 				return getAOV();
 			}
@@ -38,7 +38,7 @@ namespace Miyuki {
 		protected:
 
 
-			void lightSampling() {
+			void lightSampling()noexcept {
 				if (scene.getLights().empty())return;
 				auto lightIdx = scene.getLightDistribution().sampleDiscrete(ctx.sampler->get1D());
 				auto light = scene.getLights()[lightIdx];
@@ -84,7 +84,7 @@ namespace Miyuki {
 				}
 			}
 
-			void BSDFSampling() {
+			void BSDFSampling() noexcept {
 				sample = BSDFSample(isct, ctx.sampler, option);
 				isct.bsdf->sample(sample);
 				if (depth == 1) {
@@ -99,13 +99,13 @@ namespace Miyuki {
 				ray = isct.spawnRay(wi);
 				beta *= sample.f * Vec3f::absDot(isct.Ns, wi) / sample.pdf;
 			}
-			void handleEnvMap() {
+			void handleEnvMap()noexcept {
 				auto light = scene.getEnvironmentLight();
 				if (!light)return;
 				auto L = light->L(ray);
 				if (depth == 0)
 					addLighting(EDiffuse, beta * L);
-				else if (specular) {
+				else if (specular || !useNEE) {
 					addLighting(primaryLobe, beta * L);
 				}
 				else {
@@ -113,7 +113,8 @@ namespace Miyuki {
 					addLighting(primaryLobe, weight * beta * L);
 				}
 			}
-			Float computeMISWeight(Light* light, Float scatterPdf, const Intersection& isct) {
+			Float computeMISWeight(Light* light, Float scatterPdf, const Intersection& isct) noexcept {
+				CHECK(useNEE);
 				auto iter = scene.getLightPdfMap().find(light);
 				Assert(iter != scene.getLightPdfMap().end());
 				auto pdfLightSelect = iter->second;
@@ -122,13 +123,13 @@ namespace Miyuki {
 				auto weight = PowerHeuristics(scatterPdf, lightPdf);
 				return weight;
 			}
-			void MIS() {
+			void MIS() noexcept {
 				auto light = isct.primitive->light();
 				auto weight = computeMISWeight(light, sample.pdf, prevIsct);
 				addLighting(primaryLobe, beta * isct.Le(ray) * weight);
 			}
 
-			void nextIntersection() {
+			void nextIntersection()noexcept {
 				prevIsct = isct;
 				if (!intersect()) {
 					handleEnvMap();
@@ -142,7 +143,7 @@ namespace Miyuki {
 				}
 			}
 
-			void russianRoulette() {
+			void russianRoulette()noexcept {
 				if (depth >= minDepth) {
 					auto p = std::min(1.0f, beta.max());
 					auto u = ctx.sampler->get1D();
@@ -155,7 +156,7 @@ namespace Miyuki {
 				}
 			}
 
-			void computeLi(Intersection* firstIsct) {
+			void computeLi(Intersection* firstIsct)noexcept {
 				if (firstIsct) {
 					if (!firstIsct->hit()) {
 						handleEnvMap();
@@ -199,7 +200,7 @@ namespace Miyuki {
 
 				}
 			}
-			bool loadMaterial(Intersection & isct) {
+			bool loadMaterial(Intersection & isct)noexcept {
 				material = isct.primitive->material();
 				if (!material)
 					return false;
@@ -215,7 +216,7 @@ namespace Miyuki {
 				return loadMaterial(isct);
 			}
 
-			void addLighting(BSDFLobe lobe, const Spectrum& lighting) {
+			void addLighting(BSDFLobe lobe, const Spectrum& lighting)noexcept {
 				if (depth <= 1) {
 					if (lobe & EDiffuse) {
 						aov.aovs[EDiffuseDirect] += lighting;
@@ -239,10 +240,10 @@ namespace Miyuki {
 					}
 				}
 			}
-			bool continuable() {
+			bool continuable() noexcept {
 				return _continue;
 			}
-			void terminate() {
+			void terminate()noexcept {
 				_continue = false;
 			}
 		private:

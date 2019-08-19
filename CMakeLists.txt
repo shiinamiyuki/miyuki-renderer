@@ -3,13 +3,12 @@
 #
 cmake_minimum_required (VERSION 3.8)
 project(Miyuki)
-
+set(CMAKE_CXX_STANDARD 17)
 if(MSVC)
 	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /std:c++17 /arch:AVX2")
 	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /MP")
 	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /D_ENABLE_EXTENDED_ALIGNED_STORAGE /DMIYUKI_ON_WINDOWS")
-else()
-	set(CMAKE_CXX_STANDARD 17)
+
 endif()
 
 # Add source to this project's executable.
@@ -39,6 +38,7 @@ file(GLOB coreSRC
 	"src/io/*.cc"
 	"src/engine/*.cc"
 	"src/core/samplers/*.cc"
+	"src/core/phases/*.cc"
 	"src/core/materials/*.cc"
 	"src/core/bsdfs/*.cc"
 	"src/core/shaders/*.cc"

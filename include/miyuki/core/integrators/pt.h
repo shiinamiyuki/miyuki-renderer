@@ -17,7 +17,7 @@ namespace Miyuki {
 			MYK_CLASS(PathTracerIntegrator);
 			void renderStart(const IntegratorContext& context)override;
 			void renderEnd(const IntegratorContext& context)override;
-			void Li(Intersection* isct, const IntegratorContext& context, SamplingContext&)override;
+			void Li(Intersection* isct, const IntegratorContext& context, SamplingContext&)noexcept override;
 			PathTracerIntegrator() = default;
 			PathTracerIntegrator(const PathTracerIntegrator& pt) {
 				minDepth = pt.minDepth;

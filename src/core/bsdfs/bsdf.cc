@@ -4,9 +4,9 @@ namespace Miyuki {
 	namespace Core {
 		
 		//shows an annoying purple color
-		class DefaultBSDFImpl : public BSDFImpl {
+		class DefaultBSDF : public BSDFComponent {
 		public:
-			DefaultBSDFImpl() :BSDFImpl(EAll) {}
+			DefaultBSDF() :BSDFComponent(EAll) {}
 			// Inherited via BSDFImpl
 			virtual void sample(BSDFEvaluationContext& ctx,BSDFSample& sample) const override {
 				sample.wi = sample.wo;
@@ -15,18 +15,18 @@ namespace Miyuki {
 
 			virtual Spectrum evaluate(
 				const BSDFEvaluationContext&) const override {
-				return Spectrum();
+				return {};
 			}
 			virtual Float evaluatePdf(const BSDFEvaluationContext&) const override {
 				return 0;
 			}
 		};
 
-		BSDFImpl* getDefaultBSDFImpl() {
+		BSDFComponent* getDefaultBSDFImpl() {
 			std::once_flag flag;
-			DefaultBSDFImpl* bsdf = nullptr;
+			DefaultBSDF* bsdf = nullptr;
 			std::call_once(flag, [&]() {
-				bsdf = new DefaultBSDFImpl();
+				bsdf = new DefaultBSDF();
 			});
 			return bsdf;
 		}
@@ -47,7 +47,7 @@ namespace Miyuki {
 		)const {			
 			BSDFEvaluationContext ctx(*this, wo, lobe, option);
 			ctx.assignWi(wi);
-			return BSDFImpl::evaluate(impl, ctx);
+			return BSDFComponent::evaluate(impl, ctx);
 		}
 
 		// evaluate pdf according to wo, wi
@@ -59,10 +59,10 @@ namespace Miyuki {
 		)const {
 			BSDFEvaluationContext ctx(*this, wo, lobe, option);
 			ctx.assignWi(wi);
-			return BSDFImpl::evaluatePdf(impl, ctx);
+			return BSDFComponent::evaluatePdf(impl, ctx);
 		}
 
-		Spectrum BSDFImpl::evaluate(BSDFImpl* bsdf, const BSDFEvaluationContext& ctx) {
+		Spectrum BSDFComponent::evaluate(BSDFComponent* bsdf, const BSDFEvaluationContext& ctx) {
 			bool reflectStrict = Vec3f::dot(ctx.woW(), ctx.Ng()) * Vec3f::dot(ctx.wiW(), ctx.Ng()) > 0;
 			bool reflect = SameHemisphere(ctx.wi(), ctx.wo() );
 			if (bsdf->match(ctx.lobe)) {
@@ -86,11 +86,13 @@ namespace Miyuki {
 			return {};
 		}
 
-		Float BSDFImpl::evaluatePdf(BSDFImpl* bsdf, const BSDFEvaluationContext& ctx) {
+		Float BSDFComponent::evaluatePdf(BSDFComponent* bsdf, const BSDFEvaluationContext& ctx) {
 			if (bsdf->match(ctx.lobe))
 				return bsdf->evaluatePdf(ctx);
 			else
 				return {};
 		}
+
+
 	}
 }

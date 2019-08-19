@@ -4,7 +4,7 @@
 
 namespace Miyuki {
 	namespace Core {
-		void AOIntegrator::Li(Intersection* firstIsct, const IntegratorContext& integratorContext, SamplingContext& ctx) {
+		void AOIntegrator::Li(Intersection* firstIsct, const IntegratorContext& integratorContext, SamplingContext& ctx) noexcept {
 			auto& film = *integratorContext.film;
 			auto& scene = *integratorContext.scene;
 			auto& sampler = *ctx.sampler;

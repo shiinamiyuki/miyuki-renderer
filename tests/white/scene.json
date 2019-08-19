@@ -1,0 +1,199 @@
+{
+ "ref": {
+  "1835045209280": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1835122890512,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1835120193888": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1835045209280,
+     "meta": "ref"
+    },
+    "name": "None"
+   }
+  },
+  "1835120330176": {
+   "meta": "box",
+   "type": "Camera.PerspectiveCamera",
+   "val": {
+    "direction": [
+     -0.7540000677108765,
+     -0.39399999380111694,
+     0.0
+    ],
+    "focalDistance": 0.0,
+    "fov": 1.3962634801864624,
+    "lensRadius": 0.0,
+    "viewpoint": [
+     3.215607166290283,
+     1.95286226272583,
+     -3.4241509437561035
+    ]
+   }
+  },
+  "1835120768208": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1835120193888
+    },
+    "name": "Icosphere.None.0"
+   }
+  },
+  "1835120771248": {
+   "meta": "box",
+   "type": "Integrator.Path",
+   "val": {
+    "denoised": false,
+    "maxDepth": 5,
+    "maxRayIntensity": 10000.0,
+    "minDepth": 3,
+    "spp": 32,
+    "useNEE": false
+   }
+  },
+  "1835120988528": {
+   "meta": "box",
+   "type": "Core.MeshFile",
+   "val": {
+    "file": "mesh\\mesh0.obj",
+    "name": "mesh0.obj",
+    "objects": [
+     {
+      "addr": 1835120768208,
+      "meta": "ref"
+     }
+    ],
+    "transform": {
+     "rotation": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": 1.0,
+     "translation": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   }
+  },
+  "1835121929392": {
+   "meta": "box",
+   "type": "Light.InfiniteArea",
+   "val": {
+    "lightType": 12,
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "shader": {
+     "addr": 1835121995024,
+     "meta": "ref"
+    }
+   }
+  },
+  "1835121995024": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     1.0,
+     0.9999899864196777,
+     0.9999899864196777
+    ]
+   }
+  },
+  "1835122008384": {
+   "meta": "box",
+   "type": "Sampler.Sobol",
+   "val": null
+  },
+  "1835122890512": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     1.0,
+     0.9999899864196777,
+     0.9999899864196777
+    ]
+   }
+  }
+ },
+ "val": {
+  "type": "Core.Graph",
+  "val": {
+   "activeCamera": {
+    "meta": "ref",
+    "val": 1835120330176
+   },
+   "cameras": [
+    {
+     "addr": 1835120330176,
+     "meta": "ref"
+    }
+   ],
+   "filmConfig": {
+    "type": "Core.FilmConfig",
+    "val": {
+     "dimension": [
+      1280,
+      720
+     ],
+     "outputImage": "",
+     "scale": 0.0
+    }
+   },
+   "integrator": {
+    "addr": 1835120771248,
+    "meta": "ref"
+   },
+   "materials": [
+    {
+     "addr": 1835120193888,
+     "meta": "ref"
+    }
+   ],
+   "meshes": [
+    {
+     "addr": 1835120988528,
+     "meta": "ref"
+    }
+   ],
+   "sampler": {
+    "addr": 1835122008384,
+    "meta": "ref"
+   },
+   "worldConfig": {
+    "type": "Core.WorldConfig",
+    "val": {
+     "environmentMap": {
+      "addr": 1835121929392,
+      "meta": "ref"
+     },
+     "rayBias": 0.009999999776482582
+    }
+   }
+  }
+ }
+}

@@ -9,7 +9,7 @@ namespace Miyuki {
 			MYK_CLASS(GlossyMaterial);
 			Box<Shader> color = nullptr;
 			Box<Shader> roughness = nullptr;
-			virtual BSDFImpl* createBSDF(BSDFCreationContext&)const override;
+			virtual BSDFComponent* createBSDF(BSDFCreationContext&)const override;
 		};
 		MYK_IMPL(GlossyMaterial, "Material.Glossy");
 		MYK_REFL(GlossyMaterial, (Material), (color)(roughness));

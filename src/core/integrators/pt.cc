@@ -33,7 +33,7 @@ namespace Miyuki {
 				denoiser = nullptr;
 			}
 		}
-		void PathTracerIntegrator::Li(Intersection* firstIsct, const IntegratorContext& integratorContext, SamplingContext& ctx) {
+		void PathTracerIntegrator::Li(Intersection* firstIsct, const IntegratorContext& integratorContext, SamplingContext& ctx)noexcept {
 			auto& film = *integratorContext.film;
 			auto& scene = *integratorContext.scene;
 			auto& sampler = *integratorContext.sampler;

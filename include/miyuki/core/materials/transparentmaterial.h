@@ -7,7 +7,7 @@ namespace Miyuki {
 		public:
 			Box<Shader> color;
 			MYK_CLASS(TransparentMaterial);
-			virtual BSDFImpl* createBSDF(BSDFCreationContext&)const override;
+			virtual BSDFComponent* createBSDF(BSDFCreationContext&)const override;
 		};
 		MYK_IMPL(TransparentMaterial, "Material.Transparent");
 		MYK_REFL(TransparentMaterial, (Material), (color));

@@ -70,7 +70,7 @@ namespace Miyuki {
 			renderStart(context);
 			for (size_t iter = 0; iter < spp && !_aborted; iter++) {
 				double start = reporter->elapsedSeconds();
-				Thread::ParallelFor(0u, hilbertMapping.size(), [&](uint32_t idx, uint32_t threadId) {
+				Thread::ParallelFor(0u, hilbertMapping.size(), [&](uint32_t idx, uint32_t threadId)noexcept {
 					if (_aborted)return;
 					int tx, ty;
 					tx = hilbertMapping[idx].x;

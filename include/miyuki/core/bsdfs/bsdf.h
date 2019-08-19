@@ -42,10 +42,10 @@ namespace Miyuki {
 		struct BSDFEvaluationContext;
 		
 
-		class BSDFImpl {
+		class BSDFComponent {
 			BSDFLobe lobe;
 		public:
-			BSDFImpl(BSDFLobe lobe) :lobe(lobe) {}
+			BSDFComponent(BSDFLobe lobe) :lobe(lobe) {}
 			BSDFLobe getLobe()const { return lobe; }
 			bool match(BSDFLobe lobe)const {
 				return this->lobe & lobe;
@@ -57,8 +57,8 @@ namespace Miyuki {
 				BSDFEvaluationContext& ctx,
 				BSDFSample& sample
 			)const = 0;
-			static Spectrum evaluate(BSDFImpl * bsdf, const BSDFEvaluationContext& ctx);
-			static Float evaluatePdf(BSDFImpl* bsdf, const BSDFEvaluationContext& ctx);
+			static Spectrum evaluate(BSDFComponent* bsdf, const BSDFEvaluationContext& ctx);
+			static Float evaluatePdf(BSDFComponent* bsdf, const BSDFEvaluationContext& ctx);
 		protected:
 			// evaluate bsdf according to wo, wi
 			virtual Spectrum evaluate(
@@ -71,16 +71,16 @@ namespace Miyuki {
 			)const = 0;
 
 		};
-		BSDFImpl* getDefaultBSDFImpl();
+		BSDFComponent* getDefaultBSDFImpl();
 
 
 		class BSDF {
 			CoordinateSystem localFrame;
 			Vec3f Ng;
 		protected:
-			BSDFImpl* impl;
+			BSDFComponent* impl;
 		public:
-			BSDF(BSDFImpl* impl,
+			BSDF(BSDFComponent* impl,
 				const Vec3f& Ng,
 				const CoordinateSystem& localFrame) :impl(impl), Ng(Ng), localFrame(localFrame) {
 				if (!impl) {

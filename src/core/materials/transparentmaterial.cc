@@ -3,10 +3,10 @@
 #include <core/bsdfs/trignometry.hpp>
 namespace Miyuki {
 	namespace Core {
-		class TransparentBSDFImpl : public BSDFImpl {
+		class TransparentBSDF : public BSDFComponent {
 			const Vec3f R;
 		public:
-			TransparentBSDFImpl(const Vec3f& R) :R(R), BSDFImpl(BSDFLobe(ESpecular | ETransmission)) {}
+			TransparentBSDF(const Vec3f& R) :R(R), BSDFComponent(BSDFLobe(ESpecular | ETransmission)) {}
 			virtual void sample(
 				BSDFEvaluationContext& ctx,
 				BSDFSample& sample
@@ -34,9 +34,9 @@ namespace Miyuki {
 
 		};
 
-		BSDFImpl* TransparentMaterial::createBSDF(BSDFCreationContext& ctx)const {
+		BSDFComponent* TransparentMaterial::createBSDF(BSDFCreationContext& ctx)const {
 			auto _color = Shader::evaluate(color, ctx.shadingPoint).toVec3f();
-			return ctx.alloc<TransparentBSDFImpl>(_color);
+			return ctx.alloc<TransparentBSDF>(_color);
 		}
 	}
 }

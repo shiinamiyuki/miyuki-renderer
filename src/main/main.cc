@@ -7,5 +7,7 @@ int main(int argc, char** argv) {
 	GUI::MainWindow window(argc, argv);
 	window.show();
 	Exit();
+
+	
 	return 0;
 }

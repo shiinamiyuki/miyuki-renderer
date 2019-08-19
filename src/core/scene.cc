@@ -214,7 +214,7 @@ namespace Miyuki {
 			Point3f center;
 			Float radius;
 			bound.boundingSphere(&center, &radius);
-			if (auto light = Reflection::cast<InfiniteAreaLight>(getEnvironmentLight())) {
+			if (Core::InfiniteAreaLight* light = Reflection::cast<InfiniteAreaLight>(getEnvironmentLight())) {
 				light->setWorldRadius(radius);
 			}
 			computeLightDistribution();

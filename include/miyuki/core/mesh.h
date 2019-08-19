@@ -67,12 +67,13 @@ namespace Miyuki {
 			std::vector<Material*> materials;
 			std::weak_ptr<Mesh> parent;
 			int geomId = -1;
-			EmbreeScene* accelerator;
+			EmbreeScene* accelerator = nullptr;
 			uint32_t vertexCount = 0;
 #if USE_EMBREE_GEOMETRY == 1
 			RTCGeometry rtcGeometry = nullptr;
 #endif
 			size_t estimatedMemoryUsage()const;
+			Mesh() = default;
 			Mesh(const std::string& filename);
 
 			static std::shared_ptr<Mesh> instantiate(std::shared_ptr<Mesh>parent,
