@@ -2,6 +2,7 @@
 #include <core/integrators/pathtracer.hpp>
 #include <core/materials/mixedmaterial.h> 
 #include <core/materials/diffusematerial.h>
+#include <core/denoiser/bcddenoiser.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -13,9 +14,10 @@ namespace Miyuki {
 			}
 		}
 		void PathTracerIntegrator::renderStart(const IntegratorContext& context) {
-			if(denoised)
-				denoiser = std::make_unique<DenoiserDriver>(
-					context.film->imageDimension(), DenoiserHistogramParameters());
+			if (denoised) {
+				denoiser = makeBox<BCDDenoiser>();
+				denoiser->setup(context.film->imageDimension());
+			}
 		}
 		void PathTracerIntegrator::renderEnd(const IntegratorContext& context) {
 			if (denoised) {
@@ -44,9 +46,7 @@ namespace Miyuki {
 			}
 			film.addSample(ctx.cameraSample.pFilm, removeNaNs(record.L()));
 			if (denoised) {
-				for (int i = 0; i < AOVCount; i++) {
-					denoiser->addSample((AOVType)i, ctx.cameraSample.pFilm, record.aovs[i]);
-				}
+				denoiser->addSample(ctx.cameraSample.pFilm, record);
 			}
 		}
 	}

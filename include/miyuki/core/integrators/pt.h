@@ -2,12 +2,12 @@
 #define MIYUKI_PT_H
 
 #include <core/integrators/samplerintegrator.h>
-#include <core/denoiser/denoiserdriver.h>
+#include <core/denoiser/denoiser.h>
 
 namespace Miyuki {
 	namespace Core {
 		class PathTracerIntegrator : public SamplerIntegrator {
-			std::unique_ptr<DenoiserDriver> denoiser;
+			Box<Denoiser> denoiser;
 		public:
 			int maxDepth = 5;
 			int minDepth = 3;

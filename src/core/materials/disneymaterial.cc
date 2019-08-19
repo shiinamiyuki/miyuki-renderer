@@ -10,7 +10,7 @@ namespace Miyuki {
 		static Spectrum DisneyDiffuse(const Spectrum& R, const Float FD90, const Float cosThetaI,
 			const Float cosThetaO) {
 			return R * INVPI
-				* (1 + DisneyFrWeight(FD90, cosThetaI)) * (1 + DisneyFrWeight(FD90, cosThetaI));
+				* (1 + DisneyFrWeight(FD90, cosThetaI)) * (1 + DisneyFrWeight(FD90, cosThetaO));
 
 		}
 

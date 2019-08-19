@@ -1,10 +1,12 @@
-#include <core/denoiser/denoiserdriver.h>
+#include <core/denoiser/bcddenoiser.h>
 
 #include <utils/log.h>
 #include <bcd/bcd/Denoiser.h>
 
 namespace Miyuki {
 	namespace Core {
+		
+
 		AOVDenoiser::AOVDenoiser(const Point2i& dimension,
 			const DenoiserHistogramParameters& parameters)
 			:dimension(dimension), accumulator(dimension[0], dimension[1], parameters) {
@@ -90,6 +92,17 @@ namespace Miyuki {
 
 			Log::log("Denoising completed\n");
 			return true;
+		}
+		void BCDDenoiser::setup(const Point2i& dim) {
+			driver.reset(new DenoiserDriver(dim, DenoiserHistogramParameters()));
+		}
+		void BCDDenoiser::addSample(const Point2f& pixel, const AOVRecord& sample, Float weight) {
+			for (int i = 0; i < AOVCount; i++) {
+				driver->addSample((AOVType)i, pixel, sample.aovs[i], weight);
+			}
+		}
+		bool  BCDDenoiser::denoise(IO::Image&image){
+			return driver->denoise(image);
 		}
 	}
 }
