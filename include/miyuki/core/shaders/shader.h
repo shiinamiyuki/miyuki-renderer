@@ -64,12 +64,12 @@ namespace Miyuki {
 		}
 
 
-		class Shader : public Reflective, public Preprocessable {
+		class Shader : public Reflective, public CachedPreprocessable {
 		public:
 			MYK_INTERFACE(Shader);
 			virtual ShadingResult eval(ShadingPoint&) const = 0;
 			virtual ShadingResult average()const = 0;
-			virtual void preprocess()override {}
+			virtual void doPreprocess()override {}
 			virtual Point2i resolution()const = 0;
 			static ShadingResult evaluate(const Shader* shader, ShadingPoint& p) {
 				if (shader) {
@@ -153,7 +153,7 @@ namespace Miyuki {
 			ImageTextureShader(const File& f) :imageFile(f) {}
 			virtual ShadingResult eval(ShadingPoint&) const override;
 			virtual ShadingResult average()const override;
-			virtual void preprocess()override;
+			virtual void doPreprocess()override;
 			virtual Point2i resolution()const override;
 		};
 		MYK_IMPL(ImageTextureShader, "Shader.ImageTexture");

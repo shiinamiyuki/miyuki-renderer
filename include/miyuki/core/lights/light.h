@@ -19,7 +19,7 @@ namespace Miyuki {
 			Float pdf = 0; // sampled pdf
 		};
 
-		class Light : public Reflective, public Preprocessable {
+		class Light : public Reflective, public CachedPreprocessable {
 		public:
 			enum Type {
 				EDeltaPosition = 1,
@@ -47,7 +47,7 @@ namespace Miyuki {
 
 			virtual Float pdfLi(const Intersection&, const Vec3f& wi) const = 0;		
 
-			virtual void preprocess()override {}
+			virtual void doPreprocess()override {}
 		};
 		MYK_SAVE_LOAD_TRIVIAL(Light::Type);
 		MYK_REFL(Light, (Reflective), (lightType));

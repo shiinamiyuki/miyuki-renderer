@@ -155,7 +155,7 @@ namespace Miyuki {
 				{ Core::EGGX,"GGX"},{Core::EBeckmann,"Beckmann"},{Core::EPhong,"Phong"}
 			};
 			std::optional<Core::MicrofacetType> r;
-			Combo().name("model").item(invmap[type]).with(true, [&]()			{
+			Combo().name("model").item(invmap[type]).with(true, [&]() {
 				for (auto& item : map) {
 					bool is_selected = type == item.second;
 					SingleSelectableText().name(item.first.c_str()).selected(is_selected).with(true, [&]() {
@@ -171,6 +171,7 @@ namespace Miyuki {
 		void UIVisitor::init() {
 			connection = uiInputChanged.connect([=]() {
 				changed = true;
+				anyChanged = true;
 			});
 			whenVisit<Core::FloatShader>([=](Core::FloatShader* shader) {
 				auto value = shader->getValue();

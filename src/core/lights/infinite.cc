@@ -59,7 +59,7 @@ namespace Miyuki {
 				/ (2 * PI * PI * sinTheta);
 		}
 
-		void InfiniteAreaLight::preprocess() {
+		void InfiniteAreaLight::doPreprocess() {
 			trans = Matrix4x4::rotation(Vec3f(0, 0, 1), rotation.z);
 			trans = trans.mult(Matrix4x4::rotation(Vec3f(0, 1, 0), rotation.x));
 			trans = trans.mult(Matrix4x4::rotation(Vec3f(1, 0, 0), -rotation.y));

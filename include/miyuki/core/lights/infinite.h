@@ -30,7 +30,7 @@ namespace Miyuki {
 			void setWorldRadius(Float r) {
 				worldRadius = r;
 			}
-			virtual void preprocess()override;
+			virtual void doPreprocess()override;
 
 			Vec4f lightToWorld(const Vec4f& w) const {
 				return trans.mult(w);

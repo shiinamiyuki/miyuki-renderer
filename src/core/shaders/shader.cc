@@ -13,7 +13,7 @@ namespace Miyuki {
 				return Point2i(texture.image->width, texture.image->height);
 			return Point2i{};
 		}
-		void ImageTextureShader::preprocess() {
+		void ImageTextureShader::doPreprocess() {
 			Float cnt = 0;
 			_average = {};
 			for (auto i : texture.image->pixelData) {

@@ -139,6 +139,10 @@ void main()
 						return;
 					}
 					bool restart = false;
+					if (visitor.hasAnyChanged()) {
+						restart = true;
+						visitor.resetChanges(); 
+					}
 					cam->preprocess();
 					Vec3f newPos = cam->viewpoint, newDir = cam->direction;
 					auto pos = io.MousePos;
@@ -214,6 +218,7 @@ void main()
 						engine->requestAbortRender();
 						cam->viewpoint = newPos;
 						cam->direction = newDir;
+						engine->commit();
 						engine->startInteractiveRender([=](Arc<Core::Film> film) {
 							loadView(film);
 						}, false);

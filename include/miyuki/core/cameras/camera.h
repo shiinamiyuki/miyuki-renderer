@@ -6,7 +6,7 @@
 #include <core/ray.h>
 #include <math/transform.h>
 #include <core/film.h>
-
+#include <utils/preprocessable.hpp>
 namespace Miyuki {
 	namespace Core {
 		struct CameraSample {
@@ -14,7 +14,7 @@ namespace Miyuki {
 			Float weight;
 		};
 
-		class Camera : public Reflective {
+		class Camera : public Reflective, public Preprocessable {
 		public:
 			MYK_ABSTRACT(Camera);
 			virtual Float generateRay(Sampler& sampler,
@@ -29,7 +29,6 @@ namespace Miyuki {
 					const Point2i& raster,
 					RayDifferential* ray, Float* weight) = 0;
 
-			virtual void preprocess() {  }	
 			virtual Vec4f cameraToWorld(const Vec4f& w) const = 0;
 			virtual Vec4f worldToCamera(const Vec4f& w) const = 0;
 			virtual Box<Camera> clone()const = 0;
