@@ -1,30 +1,17 @@
 {
  "ref": {
-  "1835045209280": {
-   "meta": "box",
-   "type": "Material.Diffuse",
-   "val": {
-    "color": {
-     "addr": 1835122890512,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "1835120193888": {
+  "1976702690544": {
    "meta": "box",
    "type": "Core.MaterialSlot",
    "val": {
     "material": {
-     "addr": 1835045209280,
+     "addr": 1976742366832,
      "meta": "ref"
     },
     "name": "None"
    }
   },
-  "1835120330176": {
+  "1976703371120": {
    "meta": "box",
    "type": "Camera.PerspectiveCamera",
    "val": {
@@ -43,19 +30,19 @@
     ]
    }
   },
-  "1835120768208": {
+  "1976703384944": {
    "meta": "box",
    "type": "Core.Object",
    "val": {
     "alias": "",
     "material": {
      "meta": "ref",
-     "val": 1835120193888
+     "val": 1976702690544
     },
     "name": "Icosphere.None.0"
    }
   },
-  "1835120771248": {
+  "1976703385104": {
    "meta": "box",
    "type": "Integrator.Path",
    "val": {
@@ -67,7 +54,75 @@
     "useNEE": false
    }
   },
-  "1835120988528": {
+  "1976741913872": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     1.0,
+     0.9999899864196777,
+     0.9999899864196777
+    ]
+   }
+  },
+  "1976742325968": {
+   "meta": "box",
+   "type": "Light.InfiniteArea",
+   "val": {
+    "lightType": 12,
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "shader": {
+     "addr": 1976741913872,
+     "meta": "ref"
+    }
+   }
+  },
+  "1976742366832": {
+   "meta": "box",
+   "type": "Material.Glossy",
+   "val": {
+    "color": {
+     "addr": 1976742785024,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": {
+     "addr": 1976742705792,
+     "meta": "ref"
+    }
+   }
+  },
+  "1976742447072": {
+   "meta": "box",
+   "type": "Sampler.Sobol",
+   "val": null
+  },
+  "1976742705792": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.0
+   }
+  },
+  "1976742785024": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     1.0,
+     0.9999899864196777,
+     0.9999899864196777
+    ]
+   }
+  },
+  "1976742802848": {
    "meta": "box",
    "type": "Core.MeshFile",
    "val": {
@@ -75,7 +130,7 @@
     "name": "mesh0.obj",
     "objects": [
      {
-      "addr": 1835120768208,
+      "addr": 1976703384944,
       "meta": "ref"
      }
     ],
@@ -93,51 +148,6 @@
      ]
     }
    }
-  },
-  "1835121929392": {
-   "meta": "box",
-   "type": "Light.InfiniteArea",
-   "val": {
-    "lightType": 12,
-    "rotation": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "shader": {
-     "addr": 1835121995024,
-     "meta": "ref"
-    }
-   }
-  },
-  "1835121995024": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     1.0,
-     0.9999899864196777,
-     0.9999899864196777
-    ]
-   }
-  },
-  "1835122008384": {
-   "meta": "box",
-   "type": "Sampler.Sobol",
-   "val": null
-  },
-  "1835122890512": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     1.0,
-     0.9999899864196777,
-     0.9999899864196777
-    ]
-   }
   }
  },
  "val": {
@@ -145,11 +155,11 @@
   "val": {
    "activeCamera": {
     "meta": "ref",
-    "val": 1835120330176
+    "val": 1976703371120
    },
    "cameras": [
     {
-     "addr": 1835120330176,
+     "addr": 1976703371120,
      "meta": "ref"
     }
    ],
@@ -165,30 +175,30 @@
     }
    },
    "integrator": {
-    "addr": 1835120771248,
+    "addr": 1976703385104,
     "meta": "ref"
    },
    "materials": [
     {
-     "addr": 1835120193888,
+     "addr": 1976702690544,
      "meta": "ref"
     }
    ],
    "meshes": [
     {
-     "addr": 1835120988528,
+     "addr": 1976742802848,
      "meta": "ref"
     }
    ],
    "sampler": {
-    "addr": 1835122008384,
+    "addr": 1976742447072,
     "meta": "ref"
    },
    "worldConfig": {
     "type": "Core.WorldConfig",
     "val": {
      "environmentMap": {
-      "addr": 1835121929392,
+      "addr": 1976742325968,
       "meta": "ref"
      },
      "rayBias": 0.009999999776482582

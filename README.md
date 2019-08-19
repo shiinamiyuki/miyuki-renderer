@@ -18,8 +18,6 @@ Goal: a high performance pbrt-style renderer.
 
 `miyuki/reflection`: A custom RTTI/Reflection/GC/Serialization library. 
 
-`miyuki/kernel`: A WIP CPU/GPU rendering kernel.
-
 `miyuki/core`: Core renderer code.
 
 `miyuki/core/accelerators`: Acceleration structure interface. 
@@ -56,7 +54,7 @@ Goal: a high performance pbrt-style renderer.
 - [ ] Basic Reflection Model
   - [x] Diffuse (lambertian/Oren-Nayar)
   - [x] Beckmann Microfacet Model
-  - [ ] GGX Microfacet Model
+  - [x] GGX Microfacet Model
   - [ ] Specular Transmission/Refelection 
 - [ ] Disney BSDF
 - [x] Environment Mapping
@@ -64,8 +62,10 @@ Goal: a high performance pbrt-style renderer.
 - [ ] Path tracing & denoiser
   - [x] Basic Path Tracer with MIS
   - [ ] Generic Path Tracer
-  - [x] Denoiser (Using BCD)
-- [ ] Path guiding
+  - [ ] Path Guiding
+  - [x] Denoiser (BCD)
+  - [ ] Denoiser (OIDN)
+- [ ] NPR
 - [ ] Command line rendering
 - [ ] Hybrid rendering
 - [ ] Network rendering 

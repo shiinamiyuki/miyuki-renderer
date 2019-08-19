@@ -6,13 +6,13 @@
 namespace Miyuki {
 	namespace Core {
 		class GlossyBSDF : public BSDFComponent {
-			const MicrofacetWrapper microfacet;
+			const MicrofacetModel microfacet;
 			const FresnelWrapper fresnel;
 			const Vec3f R;
 			const Float alpha;
 		public:
-			GlossyBSDF(Vec3f R, Float alpha)
-				:R(R), alpha(alpha), microfacet(EBeckmann, alpha), fresnel(EPerfectSpecular),
+			GlossyBSDF(Vec3f R, Float alpha, MicrofacetType type)
+				:R(R), alpha(alpha), microfacet(type, alpha), fresnel(EPerfectSpecular),
 				BSDFComponent(BSDFLobe(EGlossy | EReflection)) {
 
 			}
@@ -30,11 +30,11 @@ namespace Miyuki {
 				else {
 					sample.pdf = microfacet.evaluatePdf(wh) / (4.0f * Vec3f::dot(sample.wo, wh));
 					sample.f = evaluate(ctx);
-				
+
 				}
 				CHECK(!sample.f.hasNaNs());
 				sample.lobe = getLobe();
-				
+
 			}
 
 			// evaluate bsdf according to wo, wi
@@ -51,7 +51,7 @@ namespace Miyuki {
 				if (wh.x == 0 && wh.y == 0 && wh.z == 0)return {};
 				wh.normalize();
 				auto F = fresnel.evaluate(Vec3f::dot(wi, wh));
-				return R * F * microfacet.D(wh) * microfacet.G(wo, wi) * F / (4.0f * cosThetaI * cosThetaO);
+				return R * F * microfacet.D(wh) * microfacet.G(wo, wi, wh) * F / (4.0f * cosThetaI * cosThetaO);
 			}
 
 			// evaluate pdf according to wo, wi
@@ -104,7 +104,7 @@ namespace Miyuki {
 				return ctx.alloc<SpecularBSDFImpl>(_color);
 			}
 			else
-				return ctx.alloc<GlossyBSDF>(_color, _roughness * _roughness);
+				return ctx.alloc<GlossyBSDF>(_color, _roughness, (MicrofacetType)model);
 		}
 	}
 }

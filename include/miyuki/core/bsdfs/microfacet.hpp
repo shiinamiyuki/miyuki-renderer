@@ -9,118 +9,130 @@ namespace Miyuki {
 	namespace Core {
 
 		enum MicrofacetType {
+			EGGX,
 			EBeckmann,
-			EGGX
+			EPhong,
+			
 		};
-		template<class Model>
+
+		inline Float BeckmannD(Float alpha, const Vec3f& m) {
+			if (m.z <= 0.0f)return 0.0f;
+			auto c = Cos2Theta(m);
+			auto t = Tan2Theta(m);
+			auto a2 = alpha * alpha;
+			return std::exp(-t / a2) / (PI * a2 * c * c);
+		}
+
+		inline Float BeckmannG1(Float alpha, const Vec3f& v, const Vec3f& m) {
+			if (Vec3f::dot(v, m) * v.z <= 0) {
+				return 0.0f;
+			}
+			auto a = 1.0f / (alpha * TanTheta(v));
+			if (a < 1.6) {
+				return (3.535 * a + 2.181 * a * a) / (1.0f + 2.276 * a + 2.577 * a * a);
+			}
+			else {
+				return 1.0f;
+			}
+		}
+		inline Float PhongG1(Float alpha, const Vec3f& v, const Vec3f& m) {
+			if (Vec3f::dot(v, m) * v.z <= 0) {
+				return 0.0f;
+			}
+			auto a = std::sqrt(0.5f * alpha + 1.0f) / TanTheta(v);
+			if (a < 1.6) {
+				return (3.535 * a + 2.181 * a * a) / (1.0f + 2.276 * a + 2.577 * a * a);
+			}
+			else {
+				return 1.0f;
+			}
+		}
+
+		inline Float PhongD(Float alpha, const Vec3f& m) {
+			if (m.z <= 0.0f)return 0.0f;
+			return (alpha + 2) / (2 * PI) * std::pow(m.z, alpha);
+		}
+
+		inline Float GGX_D(Float alpha, const Vec3f& m) {
+			if (m.z <= 0.0f)return 0.0f;
+			Float a2 = alpha * alpha;
+			auto c2 = Cos2Theta(m);
+			auto t2 = Tan2Theta(m);
+			auto at = (a2 + t2);
+			return a2 / (PI * c2 * c2 * at * at);
+
+		}
+
+		inline Float GGX_G1(Float alpha, const Vec3f& v, const Vec3f& m) {
+			if (Vec3f::dot(v, m) * v.z <= 0) {
+				return 0.0f;
+			}
+			return 2.0 / (1.0 + std::sqrt(1.0 + alpha * alpha * Tan2Theta(m)));
+		}
+		// see https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
 		struct MicrofacetModel {
-			Float D(const Vec3f& wh) const {
-				return This().DImpl(wh);
+			MicrofacetModel(MicrofacetType type, Float roughness) :type(type) {
+				if (type == EPhong) {
+					alpha = 2.0f / (roughness * roughness) - 2.0f;
+				}
+				else {
+					alpha = roughness;
+				}
 			}
-			Float lambda(const Vec3f& w) const {
-				return This().lambdaImpl(w);
+			Float D(const Vec3f& m)const {
+				switch (type) {
+				case EBeckmann:
+					return BeckmannD(alpha, m);
+				case EPhong:
+					return PhongD(alpha, m);
+				case EGGX:
+					return GGX_D(alpha, m);
+				}
+
+				return 0.0f;
 			}
-			Float G1(const Vec3f& w) const {
-				return 1 / (1 + lambda(w));
+			Float G1(const Vec3f& v, const Vec3f& m)const {
+				switch (type) {
+				case EBeckmann:
+					return BeckmannG1(alpha, v, m);
+				case EPhong:
+					return PhongG1(alpha, v, m);
+				case EGGX:
+					return GGX_G1(alpha, v, m);
+				}
+				return 0.0f;
 			}
-			Float G(const Vec3f& wo, const Vec3f& wi) const {
-				return 1 / (1 + lambda(wo) + lambda(wi));
+			Float G(const Vec3f& i, const Vec3f& o, const Vec3f& m)const {
+				return G1(i, m) * G1(o, m);
 			}
-			Vec3f sampleWh(const Vec3f& wo,
-				const Point2f& u) const {
-				return This().sampleWhImpl(wo, u);
+			Vec3f sampleWh(const Vec3f& wo, const Point2f& u)const {
+				Float phi = 2 * PI * u[1];
+				Float cosTheta;
+				switch (type) {
+				case EBeckmann: {
+					Float t2 = -alpha * alpha * std::log(1 - u[0]);
+					cosTheta = 1.0f / std::sqrt(1 + t2);
+					break;
+				}
+				case EPhong: {
+					cosTheta = std::pow((double)u[0], 1.0 / ((double)alpha + 2.0f));
+					break;
+				}
+				case EGGX: {
+					Float t2 = alpha * alpha * u[0] / (1 - u[0]);
+					cosTheta = 1.0f / std::sqrt(1 + t2);
+					break;
+				}
+				}
+				auto sinTheta = std::sqrt(std::max(0.0f, 1 - cosTheta * cosTheta));
+				return Vec3f(std::cos(phi) * sinTheta, std::sin(phi) * sinTheta, cosTheta);
 			}
 			Float evaluatePdf(const Vec3f& wh)const {
-				return This().evaluatePdfImpl(wh);
-			}
-		private:
-			const Model& This()const {
-				return *static_cast<const Model*>(this);
-			}
-		};
-
-		struct BeckmannDistribution : MicrofacetModel<BeckmannDistribution> {
-			Float lambdaImpl(const Vec3f& w)const {
-				Float absTanTheta = std::abs(TanTheta(w));
-				if (std::isinf(absTanTheta))return 0.0f;
-				Float a = 1.0f / (alpha * absTanTheta);
-				if (a >= 1.6f)
-					return 0;
-				return (1 - 1.259f * a + 0.396f * a * a) /
-					(3.535f * a + 2.181f * a * a);
-			}
-			Float DImpl(const Vec3f& wh)const {
-				Float a2 = alpha * alpha;
-				Float tan2Theta = Tan2Theta(wh);
-				if (std::isinf(tan2Theta))return 0.0f;
-				Float cos2Theta = Cos2Theta(wh);
-				Float cos4Theta = cos2Theta * cos2Theta;
-				return std::exp(-tan2Theta / a2)
-					/ (PI * a2 * cos4Theta);
-			}
-			BeckmannDistribution(Float alpha) :alpha(alpha) {}
-
-			Vec3f sampleWhImpl(const Vec3f& wo, const Point2f& u)const {
-				Float logSample = std::log(1 - u[0]);
-				if (std::isinf(logSample))logSample = 0;
-				Float tan2Theta = -alpha * alpha * logSample;
-				Float phi = 2 * u[1] * PI;
-				Float cosTheta = 1.0f / std::sqrt(1.0f + tan2Theta);
-				Float sinTheta = std::sqrt(std::max(0.0f, 1 - cosTheta * cosTheta));
-				return SphericalToXYZ(sinTheta, cosTheta, phi);
-			}
-			Float evaluatePdfImpl(const Vec3f& wh)const {
 				return D(wh) * AbsCosTheta(wh);
 			}
 		private:
+			MicrofacetType type;
 			Float alpha;
-		};
-
-		struct MicrofacetWrapper : MicrofacetModel<MicrofacetWrapper> {
-			MicrofacetType model;
-			union {
-				BeckmannDistribution beckmann;
-			};
-			MicrofacetWrapper(MicrofacetType model, Float alpha):model(model) {
-				switch (model) {
-				case EBeckmann:
-					beckmann = BeckmannDistribution(alpha);
-					break;
-				}
-			}
-			Float lambdaImpl(const Vec3f& w)const {
-				switch (model) {
-				case EBeckmann:
-					return beckmann.lambdaImpl(w);
-				}
-				CHECK(false);
-				return 0.0f;
-			}
-			Float DImpl(const Vec3f& wh)const {
-				switch (model) {
-				case EBeckmann:
-					return beckmann.DImpl(wh);
-				}
-				CHECK(false);
-				return 0.0f;
-			}
-
-			Vec3f sampleWhImpl(const Vec3f& wo, const Point2f& u)const {
-				switch (model) {
-				case EBeckmann:
-					return beckmann.sampleWhImpl(wo, u);
-				}
-				CHECK(false);
-				return {};
-			}
-			Float evaluatePdfImpl(const Vec3f& wh)const {
-				switch (model) {
-				case EBeckmann:
-					return beckmann.evaluatePdfImpl(wh);
-				}
-				CHECK(false);
-				return 0.0f;
-			}
 		};
 	}
 }

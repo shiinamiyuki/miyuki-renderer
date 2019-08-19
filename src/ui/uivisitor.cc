@@ -9,6 +9,7 @@
 #include <core/materials/glossymaterial.h>
 #include <core/materials/mixedmaterial.h>
 #include <core/materials/transparentmaterial.h>
+#include <core/bsdfs/microfacet.hpp>
 #include <core/lights/infinite.h>
 
 namespace Miyuki {
@@ -146,6 +147,27 @@ namespace Miyuki {
 					ImGui::SetItemDefaultFocus();
 			}).show();
 		}
+		std::optional<Core::MicrofacetType> microfacetModelSelector(Core::MicrofacetType type) {
+			static std::unordered_map<std::string, Core::MicrofacetType> map = {
+				{"GGX", Core::EGGX},{"Beckmann",Core::EBeckmann},{"Phong",Core::EPhong}
+			};
+			static std::unordered_map<Core::MicrofacetType, const char*> invmap = {
+				{ Core::EGGX,"GGX"},{Core::EBeckmann,"Beckmann"},{Core::EPhong,"Phong"}
+			};
+			std::optional<Core::MicrofacetType> r;
+			Combo().name("model").item(invmap[type]).with(true, [&]()			{
+				for (auto& item : map) {
+					bool is_selected = type == item.second;
+					SingleSelectableText().name(item.first.c_str()).selected(is_selected).with(true, [&]() {
+						uiInputChanged();
+						r = item.second;
+					}).show();
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+			}).show();
+			return r;
+		}
 		void UIVisitor::init() {
 			connection = uiInputChanged.connect([=]() {
 				changed = true;
@@ -189,6 +211,9 @@ namespace Miyuki {
 				visitShaderAndSelect(node->color, "color");
 			});
 			whenVisit<Core::GlossyMaterial>([=](Core::GlossyMaterial* node) {
+				if (auto r = microfacetModelSelector((Core::MicrofacetType)node->model)) {
+					node->model = r.value();
+				}
 				visitShaderAndSelect(node->color, "color");
 				visitShaderAndSelect(node->roughness, "roughness");
 			});
