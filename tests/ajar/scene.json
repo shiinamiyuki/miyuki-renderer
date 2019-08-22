@@ -1,268 +1,818 @@
 {
-  "objects" :[
-      {
-          "file" :"mesh0.obj",
-          "name" :"mesh0",
-          "transform" :{
-              "rotation" :[
-                  0,
-                  0,
-                  0
-                ],
-              "translation" :[
-                  0,
-                  0,
-                  0
-                ],
-              "scale" :1
-            }
-        }
-    ],
-  "render" :{
-      "output" :"ajar.png",
-      "resolution" :"240p"
+ "ref": {
+  "1941803705424": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.6399999856948853
+   }
+  },
+  "1941803705712": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.6399999856948853
+   }
+  },
+  "1941803705856": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.14280001819133759
+   }
+  },
+  "1941803706048": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 1.0
+   }
+  },
+  "1941803706480": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.0
+   }
+  },
+  "1941803706528": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.800000011920929
+   }
+  },
+  "1941804458144": {
+   "meta": "box",
+   "type": "Core.LightCollection",
+   "val": null
+  },
+  "1941805514832": {
+   "meta": "box",
+   "type": "Material.Glossy",
+   "val": {
+    "color": {
+     "addr": 1941844633568,
+     "meta": "ref"
     },
-  "camera" :{
-      "focalDistance" :0,
-      "lensRadius" :0,
-      "fov" :90,
-      "translation" :[
-          15,
-          5,
-          4
-        ],
-      "rotation" :[
-          -90,
-          0,
-          0
-        ]
-    },
-  "materials" :{
-      "None" :{
-          "roughness" :1,
-          "ka" :{
-              "albedo" :[
-                  0,
-                  0,
-                  0
-                ],
-              "texture" :""
-            },
-          "kd" :{
-              "albedo" :[
-                  0.661765,
-                  0.603374,
-                  0.441176
-                ],
-              "texture" :""
-            },
-          "Tr" :0,
-          "alphaY" :0.0001,
-          "Ni" :1,
-          "emission" :1,
-          "ks" :{
-              "albedo" :[
-                  1e-06,
-                  9.9999e-07,
-                  9.9999e-07
-                ],
-              "texture" :""
-            },
-          "alphaX" :0.0001
-        },
-      "Material.002" :{
-          "ks" :{
-              "albedo" :[
-                  1e-06,
-                  9.9999e-07,
-                  9.9999e-07
-                ],
-              "texture" :""
-            },
-          "alphaX" :0.0001,
-          "emission" :1,
-          "Ni" :1,
-          "ka" :{
-              "albedo" :[
-                  0,
-                  0,
-                  0
-                ],
-              "texture" :""
-            },
-          "roughness" :0.1428,
-          "alphaY" :0.0001,
-          "kd" :{
-              "albedo" :[
-                  1,
-                  0.99999,
-                  0.99999
-                ],
-              "texture" :""
-            },
-          "Tr" :0
-        },
-      "Material.001" :{
-          "ks" :{
-              "albedo" :[
-                  0.5,
-                  0.5,
-                  0.5
-                ],
-              "texture" :""
-            },
-          "alphaX" :0.0001,
-          "emission" :30,
-          "Ni" :1,
-          "ka" :{
-              "albedo" :[
-                  1,
-                  0.99999,
-                  0.99999
-                ],
-              "texture" :""
-            },
-          "roughness" :0.1428,
-          "alphaY" :0.0001,
-          "kd" :{
-              "albedo" :[
-                  0.56,
-                  0.56,
-                  0.56
-                ],
-              "texture" :""
-            },
-          "Tr" :0
-        },
-      "Material.003" :{
-          "ks" :{
-              "albedo" :[
-                  0.348039,
-                  0.342921,
-                  0.342921
-                ],
-              "texture" :""
-            },
-          "alphaX" :0.0001,
-          "Ni" :1,
-          "emission" :1,
-          "roughness" :0.6,
-          "ka" :{
-              "albedo" :[
-                  0,
-                  0,
-                  0
-                ],
-              "texture" :""
-            },
-          "alphaY" :0.0001,
-          "kd" :{
-              "albedo" :[
-                  0.588235,
-                  0.588229,
-                  0.588229
-                ],
-              "texture" :""
-            },
-          "Tr" :0
-        },
-      "Material.004" :{
-          "Tr" :0,
-          "kd" :{
-              "albedo" :[
-                  0.232411,
-                  0.398354,
-                  0.509804
-                ],
-              "texture" :""
-            },
-          "alphaY" :0.0001,
-          "ks" :{
-              "albedo" :[
-                  0.205882,
-                  0.299598,
-                  0.333333
-                ],
-              "texture" :""
-            },
-          "alphaX" :0.0001,
-          "emission" :1,
-          "Ni" :1,
-          "ka" :{
-              "albedo" :[
-                  0,
-                  0,
-                  0
-                ],
-              "texture" :""
-            },
-          "roughness" :0.1428
-        },
-      "Material.Cone" :{
-          "ks" :{
-              "albedo" :[
-                  0.823529,
-                  0.726211,
-                  0.278547
-                ],
-              "texture" :""
-            },
-          "alphaX" :0.0001,
-          "emission" :1,
-          "Ni" :1,
-          "ka" :{
-              "albedo" :[
-                  0,
-                  0,
-                  0
-                ],
-              "texture" :""
-            },
-          "roughness" :0.1428,
-          "alphaY" :0.0001,
-          "kd" :{
-              "albedo" :[
-                  0.176471,
-                  0.14675,
-                  0.0415225
-                ],
-              "texture" :""
-            },
-          "Tr" :0
-        }
-    },
-  "integrator" :{
-      "minDepth" :3,
-      "type" :"pssmlt",
-      "maxDepth" :10,
-      "maxError" :0,
-      "nChains" :8192,
-      "ambientLight" :[
-          1e-06,
-          9.9999e-07,
-          9.9999e-07
-        ],
-      "spp" :32,
-      "largeStep" :0.25,
-      "envMap" :"",
-      "heuristic" :0,
-      "maxRayIntensity" :1000,
-      "pValue" :0,
-      "adaptive" :0,
-      "progressive" :0,
-      "maxSampleFactor" :-1,
-      "nDirect" :0,
-      "caustics" :1
-    },
-  "shapes" :{
-      "mesh0" :{
-          "mesh0.objPlane.003.None.0" :"None",
-          "mesh0.objSuzanne.Material.004.0" :"Material.004",
-          "mesh0.objRoom_Cube.001.Material.002.0" :"Material.002",
-          "mesh0.objPlane.001.Material.001.0" :"Material.001",
-          "mesh0.objPlane.Material.003.0" :"Material.003",
-          "mesh0.objCone.None.0" :"Material.Cone",
-          "mesh0.objPlane.002.None.0" :"None"
-        }
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": {
+     "addr": 1941844985072,
+     "meta": "ref"
     }
+   }
+  },
+  "1941805515152": {
+   "meta": "box",
+   "type": "Material.Glossy",
+   "val": {
+    "color": {
+     "addr": 1941844143376,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": {
+     "addr": 1941803706048,
+     "meta": "ref"
+    }
+   }
+  },
+  "1941805519952": {
+   "meta": "box",
+   "type": "Material.Glossy",
+   "val": {
+    "color": {
+     "addr": 1941844632608,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": {
+     "addr": 1941844985696,
+     "meta": "ref"
+    }
+   }
+  },
+  "1941805521872": {
+   "meta": "box",
+   "type": "Material.Glossy",
+   "val": {
+    "color": {
+     "addr": 1941844633888,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": {
+     "addr": 1941844984784,
+     "meta": "ref"
+    }
+   }
+  },
+  "1941805522512": {
+   "meta": "box",
+   "type": "Material.Glossy",
+   "val": {
+    "color": {
+     "addr": 1941844143184,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": {
+     "addr": 1941803705856,
+     "meta": "ref"
+    }
+   }
+  },
+  "1941843482880": {
+   "meta": "box",
+   "type": "Camera.PerspectiveCamera",
+   "val": {
+    "direction": [
+     -1.562000036239624,
+     -0.24800001084804535,
+     0.0
+    ],
+    "focalDistance": 0.0,
+    "fov": 1.3962634801864624,
+    "lensRadius": 0.0,
+    "viewpoint": [
+     14.023537635803223,
+     10.298996925354004,
+     -0.23311474919319153
+    ]
+   }
+  },
+  "1941843928208": {
+   "meta": "box",
+   "type": "Core.MeshFile",
+   "val": {
+    "file": "mesh\\mesh0.obj",
+    "name": "mesh0.obj",
+    "objects": [
+     {
+      "addr": 1941844211568,
+      "meta": "ref"
+     },
+     {
+      "addr": 1941844212720,
+      "meta": "ref"
+     },
+     {
+      "addr": 1941844213968,
+      "meta": "ref"
+     },
+     {
+      "addr": 1941844212528,
+      "meta": "ref"
+     },
+     {
+      "addr": 1941844211280,
+      "meta": "ref"
+     },
+     {
+      "addr": 1941844213200,
+      "meta": "ref"
+     },
+     {
+      "addr": 1941844210992,
+      "meta": "ref"
+     }
+    ],
+    "transform": {
+     "rotation": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": 1.0,
+     "translation": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   }
+  },
+  "1941844135472": {
+   "meta": "box",
+   "type": "Sampler.Sobol",
+   "val": null
+  },
+  "1941844142928": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "1941844143120": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "1941844143184": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  "1941844143248": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "1941844143376": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.800000011920929,
+     0.800000011920929,
+     0.800000011920929
+    ]
+   }
+  },
+  "1941844143440": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.6399999856948853,
+     0.6399999856948853,
+     0.6399999856948853
+    ]
+   }
+  },
+  "1941844144528": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.6399999856948853,
+     0.6399999856948853,
+     0.6399999856948853
+    ]
+   }
+  },
+  "1941844165328": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1941844632800,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1941844165632": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1941844632480,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1941844166848": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1941844143440,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1941844167760": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1941844144528,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1941844170192": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1941844633440,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1941844210992": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1941845014480
+    },
+    "name": "mesh0.objPlane.Material.003.0.Material.003.0"
+   }
+  },
+  "1941844211280": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1941845013968
+    },
+    "name": "mesh0.objSuzanne.Material.004.0.Material.004.0"
+   }
+  },
+  "1941844211568": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1941845013840
+    },
+    "name": "mesh0.objPlane.003.None.0.None.0"
+   }
+  },
+  "1941844212528": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1941845013840
+    },
+    "name": "mesh0.objPlane.002.None.0.None.0"
+   }
+  },
+  "1941844212720": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1941845013840
+    },
+    "name": "mesh0.objCone.None.0.None.0"
+   }
+  },
+  "1941844213200": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1941845014096
+    },
+    "name": "mesh0.objPlane.001.Material.001.0.Material.001.0"
+   }
+  },
+  "1941844213968": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1941845013584
+    },
+    "name": "mesh0.objRoom_Cube.001.Material.002.0.Material.002.0"
+   }
+  },
+  "1941844401856": {
+   "meta": "box",
+   "type": "Material.Mixed",
+   "val": {
+    "emission": {
+     "addr": 1941844143120,
+     "meta": "ref"
+    },
+    "fraction": {
+     "addr": 1941844985024,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 1941844165328,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 1941805521872,
+     "meta": "ref"
+    },
+    "normalMap": null
+   }
+  },
+  "1941844406080": {
+   "meta": "box",
+   "type": "Material.Mixed",
+   "val": {
+    "emission": {
+     "addr": 1941844142928,
+     "meta": "ref"
+    },
+    "fraction": {
+     "addr": 1941803705424,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 1941844167760,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 1941805519952,
+     "meta": "ref"
+    },
+    "normalMap": null
+   }
+  },
+  "1941844407232": {
+   "meta": "box",
+   "type": "Material.Mixed",
+   "val": {
+    "emission": {
+     "addr": 1941844632352,
+     "meta": "ref"
+    },
+    "fraction": {
+     "addr": 1941844985744,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 1941844166848,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 1941805514832,
+     "meta": "ref"
+    },
+    "normalMap": null
+   }
+  },
+  "1941844408000": {
+   "meta": "box",
+   "type": "Material.Mixed",
+   "val": {
+    "emission": {
+     "addr": 1941844143248,
+     "meta": "ref"
+    },
+    "fraction": {
+     "addr": 1941803705712,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 1941844170192,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 1941805522512,
+     "meta": "ref"
+    },
+    "normalMap": null
+   }
+  },
+  "1941844408384": {
+   "meta": "box",
+   "type": "Material.Mixed",
+   "val": {
+    "emission": {
+     "addr": 1941803706480,
+     "meta": "ref"
+    },
+    "fraction": {
+     "addr": 1941803706528,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 1941844165632,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 1941805515152,
+     "meta": "ref"
+    },
+    "normalMap": null
+   }
+  },
+  "1941844632352": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "1941844632480": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.800000011920929,
+     0.800000011920929,
+     0.800000011920929
+    ]
+   }
+  },
+  "1941844632608": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  "1941844632800": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.5600000023841858,
+     0.5600000023841858,
+     0.5600000023841858
+    ]
+   }
+  },
+  "1941844633440": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.6399999856948853,
+     0.6399999856948853,
+     0.6399999856948853
+    ]
+   }
+  },
+  "1941844633568": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  "1941844633888": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  "1941844684496": {
+   "meta": "box",
+   "type": "Integrator.Path",
+   "val": {
+    "denoised": false,
+    "maxDepth": 5,
+    "maxRayIntensity": 10000.0,
+    "minDepth": 3,
+    "spp": 16,
+    "useNEE": true
+   }
+  },
+  "1941844984784": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.14280001819133759
+   }
+  },
+  "1941844985024": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.5600000023841858
+   }
+  },
+  "1941844985072": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.14280001819133759
+   }
+  },
+  "1941844985696": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.14280001819133759
+   }
+  },
+  "1941844985744": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.6399999856948853
+   }
+  },
+  "1941845013584": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1941844407232,
+     "meta": "ref"
+    },
+    "name": "Material.002"
+   }
+  },
+  "1941845013840": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1941844408384,
+     "meta": "ref"
+    },
+    "name": "None"
+   }
+  },
+  "1941845013968": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1941844406080,
+     "meta": "ref"
+    },
+    "name": "Material.004"
+   }
+  },
+  "1941845014096": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1941844401856,
+     "meta": "ref"
+    },
+    "name": "Material.001"
+   }
+  },
+  "1941845014480": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1941844408000,
+     "meta": "ref"
+    },
+    "name": "Material.003"
+   }
+  }
+ },
+ "val": {
+  "type": "Core.Graph",
+  "val": {
+   "activeCamera": {
+    "meta": "ref",
+    "val": 1941843482880
+   },
+   "cameras": [
+    {
+     "addr": 1941843482880,
+     "meta": "ref"
+    }
+   ],
+   "filmConfig": {
+    "type": "Core.FilmConfig",
+    "val": {
+     "dimension": [
+      1280,
+      720
+     ],
+     "outputImage": "",
+     "scale": 0.0
+    }
+   },
+   "integrator": {
+    "addr": 1941844684496,
+    "meta": "ref"
+   },
+   "lights": {
+    "addr": 1941804458144,
+    "meta": "ref"
+   },
+   "materials": [
+    {
+     "addr": 1941845014096,
+     "meta": "ref"
+    },
+    {
+     "addr": 1941845013584,
+     "meta": "ref"
+    },
+    {
+     "addr": 1941845014480,
+     "meta": "ref"
+    },
+    {
+     "addr": 1941845013968,
+     "meta": "ref"
+    },
+    {
+     "addr": 1941845013840,
+     "meta": "ref"
+    }
+   ],
+   "meshes": [
+    {
+     "addr": 1941843928208,
+     "meta": "ref"
+    }
+   ],
+   "sampler": {
+    "addr": 1941844135472,
+    "meta": "ref"
+   },
+   "worldConfig": {
+    "type": "Core.WorldConfig",
+    "val": {
+     "environmentMap": null,
+     "rayBias": 0.009999999776482582
+    }
+   }
+  }
+ }
 }

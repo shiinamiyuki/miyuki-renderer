@@ -57,6 +57,14 @@ namespace Miyuki {
 		MYK_IMPL(WorldConfig, "Core.WorldConfig");
 		MYK_REFL(WorldConfig, (Reflective), (environmentMap)(rayBias));
 
+		class LightCollection : public CachedPreprocessable,public Reflective {
+		public:
+			void doPreprocess() {}
+			MYK_CLASS(LightCollection);
+		};
+		MYK_IMPL(LightCollection, "Core.LightCollection");
+		MYK_REFL(LightCollection, (Reflective), MYK_REFL_NIL);
+
 		struct Graph final : Reflective {
 			MYK_META;
 			std::vector<Box<MaterialSlot>> materials;
@@ -67,10 +75,11 @@ namespace Miyuki {
 			FilmConfig filmConfig;
 			Camera* activeCamera = nullptr;
 			WorldConfig worldConfig;
+			Box<LightCollection> lights;
 		};
 		MYK_IMPL(Graph, "Core.Graph");
 		MYK_REFL(Graph, (Reflective), (materials)(meshes)(cameras)(activeCamera)
-			(integrator)(sampler)(filmConfig)(worldConfig ));
+			(integrator)(sampler)(filmConfig)(worldConfig)(lights));
 	}
 }
 

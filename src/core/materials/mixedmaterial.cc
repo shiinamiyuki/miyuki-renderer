@@ -12,5 +12,10 @@ namespace Miyuki {
 			auto B = matB->createBSDF(ctx);
 			return ctx.alloc<MixedBSDF>(frac, A, B);
 		}
+
+		Spectrum MixedMaterial::evalAlbedo(ShadingPoint& p)const {
+			auto frac = Shader::evaluate(fraction, p).toFloat();
+			return frac * matA->evalAlbedo(p) + (1 - frac)* matB->evalAlbedo(p);
+		}
 	}
 }

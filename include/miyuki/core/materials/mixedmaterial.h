@@ -10,6 +10,7 @@ namespace Miyuki {
 			Box<Material> matA = nullptr, matB = nullptr;
 			Box<Shader> fraction = nullptr;
 			virtual BSDFComponent* createBSDF(BSDFCreationContext&)const override;
+			virtual Spectrum evalAlbedo(ShadingPoint& p)const override;
 		};
 		MYK_IMPL(MixedMaterial, "Material.Mixed");
 		MYK_REFL(MixedMaterial, (Material), (fraction)(matA)(matB));

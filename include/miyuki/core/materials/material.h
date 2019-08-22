@@ -27,7 +27,7 @@ namespace Miyuki {
 			Box<Shader> emission;
 			Box<Shader> normalMap;
 			virtual BSDFComponent* createBSDF(BSDFCreationContext&)const = 0;
-			virtual Spectrum evalAlbedo(const ShadingPoint& p)const {
+			virtual Spectrum evalAlbedo(ShadingPoint& p)const {
 				return Spectrum(1);
 			}
 		};

@@ -38,5 +38,8 @@ namespace Miyuki {
 			auto _color = Shader::evaluate(color, ctx.shadingPoint).toVec3f();
 			return ctx.alloc<TransparentBSDF>(_color);
 		}
+		Spectrum TransparentMaterial::evalAlbedo(ShadingPoint& p)const {
+			return Shader::evaluate(color, p).toVec3f();
+		}
 	}
 }

@@ -37,7 +37,7 @@ namespace Miyuki {
 			if (!parent->isLoaded()) {
 				parent->reload();
 			}
-			auto mesh = Mesh::instantiate(parent,meshName, T);
+			auto mesh = Mesh::instantiate(parent, meshName, T);
 			auto id = (uint32_t)instances.size();
 			embreeScene->addMesh(mesh, id);
 			meshToId[meshName] = id;
@@ -112,7 +112,7 @@ namespace Miyuki {
 				whenVisit<Core::TransparentMaterial>([=](Core::TransparentMaterial* mat) {
 					visit(mat->color);
 				});
-				whenVisit<Core::ScaledShader> ([=](Core::ScaledShader* shader) {
+				whenVisit<Core::ScaledShader>([=](Core::ScaledShader* shader) {
 					visit(shader->shader);
 					visit(shader->scale);
 				});
@@ -160,7 +160,7 @@ namespace Miyuki {
 			}
 			lights.clear();
 			meshLights.clear();
-			if(getEnvironmentLight())
+			if (getEnvironmentLight())
 				lights.emplace_back(getEnvironmentLight());
 			for (auto instance : instances) {
 				for (auto& primitive : instance->getPrimitives()) {
@@ -202,8 +202,8 @@ namespace Miyuki {
 			visitor.loadImages(graph);
 			for (auto& i : instances) {
 				assignMaterial(i);
-			}			
-	
+			}
+
 			if (graph.worldConfig.environmentMap) {
 				visitor.visit(graph.worldConfig.environmentMap);
 			}
@@ -214,19 +214,22 @@ namespace Miyuki {
 			Point3f center;
 			Float radius;
 			bound.boundingSphere(&center, &radius);
-			if (Core::InfiniteAreaLight* light = Reflection::cast<InfiniteAreaLight>(getEnvironmentLight())) {
+			if (Core::InfiniteAreaLight * light = Reflection::cast<InfiniteAreaLight>(getEnvironmentLight())) {
 				light->setWorldRadius(radius);
 			}
-			computeLightDistribution();
+			if (graph.lights->hasChanged()) {
+				graph.lights->preprocess();
+				computeLightDistribution();
+			}
 			RayBias = std::max(1e-16f, graph.worldConfig.rayBias);
 
-			for (const auto& mesh : meshes) {
+			/*for (const auto& mesh : meshes) {
 				Log::log("Estimated memory usage for mesh:{}\n", mesh.second->estimatedMemoryUsage());
 			}
 			for (const auto& mesh : instances) {
 				Log::log("Estimated memory usage for instance:{}\n", mesh->estimatedMemoryUsage());
 			}
-			Log::log("Embree memory usage: {}\n", GetEmbreeMemoryUsage());
-		}		
+			Log::log("Embree memory usage: {}\n", GetEmbreeMemoryUsage());*/
+		}
 	}
 }

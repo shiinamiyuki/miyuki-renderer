@@ -86,7 +86,9 @@ namespace Miyuki {
 			graph->deserialize(in);
 			Log::log("Opened {}\n", filename);
 			Log::log("Loaded {} materials\n", graph->materials.size());
-
+			if (!graph->lights) {
+				graph->lights = makeBox<Core::LightCollection>();
+			}
 			if (graph->cameras.empty()) {
 				auto camera = Reflection::makeBox<Core::PerspectiveCamera>();
 				graph->activeCamera = camera.get();

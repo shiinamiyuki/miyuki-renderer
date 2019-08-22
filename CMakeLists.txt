@@ -15,7 +15,7 @@ endif()
 include_directories("include/")
 include_directories("include/miyuki/")
 include_directories("include/bcd/ext/eigen")
-link_libraries(glfw3 opengl32 embree3)
+link_libraries(glfw3 opengl32 embree3 OpenImageDenoise)
 file(GLOB thirdpartySRC
         "include/lodepng/lodepng.cpp"
         "include/tiny_obj_loader/tiny_obj_loader.cc"

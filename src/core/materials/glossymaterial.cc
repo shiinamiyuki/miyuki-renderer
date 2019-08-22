@@ -16,5 +16,8 @@ namespace Miyuki {
 			else
 				return ctx.alloc<GlossyBSDF>(_color, _roughness, (MicrofacetType)model);
 		}
+		Spectrum GlossyMaterial::evalAlbedo(ShadingPoint& p)const {
+			return Shader::evaluate(color, p).toVec3f();
+		}
 	}
 }

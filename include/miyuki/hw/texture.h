@@ -15,7 +15,7 @@ namespace Miyuki {
 		public:
 			GLuint getTexture()const { return texture; }
 			Texture(size_t width, size_t height);
-			Texture(size_t width, size_t height, uint8_t* data);
+			Texture(size_t width, size_t height, float* data);
 			Texture(const IO::Image&);
 			Point2i size() const { return Point2i((int)width, (int)height); }
 
@@ -28,7 +28,7 @@ namespace Miyuki {
 				size_t y = clamp<size_t>(p[1], 0, height - 1);
 				setPixel(x, y, color);
 			}
-			void setData(uint8_t* data);
+			void setData(float* data);
 
 			void use();
 

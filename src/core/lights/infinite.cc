@@ -26,6 +26,11 @@ namespace Miyuki {
 			LightSamplingRecord& record,
 			VisibilityTester* tester) const {
 			Float mapPdf;
+			if (!distribution) {
+				mapPdf = 0.0f;
+				record.Le = {};
+				return;
+			}
 			auto uv = distribution->sampleContinuous(record.u, &mapPdf);
 			if (mapPdf == 0.0f) {
 				record.Le = {};
@@ -50,6 +55,7 @@ namespace Miyuki {
 		}
 
 		Float InfiniteAreaLight::pdfLi(const Intersection& isct, const Vec3f& wi)const {
+			if (!distribution)return 0.0f;
 			auto w = worldToLight(Vec4f(wi.x, wi.z, wi.y, 1));
 			auto theta = SphericalTheta(w);
 			auto sinTheta = std::sin(theta);

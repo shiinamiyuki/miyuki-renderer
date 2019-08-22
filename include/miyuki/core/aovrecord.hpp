@@ -14,6 +14,8 @@ namespace Miyuki {
 		struct AOVRecord {
 			Point2f pFilm;
 			Spectrum aovs[AOVCount];
+			Vec3f normal;
+			Spectrum albedo;
 			Spectrum L()const {
 				Spectrum color;
 				for (const auto& i : aovs) {

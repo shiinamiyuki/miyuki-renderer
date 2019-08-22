@@ -535,13 +535,13 @@ void main()
 					i++;
 				}*/
 				Thread::ParallelFor(0, graph->filmConfig.dimension[1], [&](int j, int) {
-					for (int i = 0; i < graph->filmConfig.dimension[0]; i++) {
-						size_t offset = i + j * graph->filmConfig.dimension[0];
-						auto color = film->getPixel(Point2f(i, j)).toInt();
+					for (size_t i = 0; i < graph->filmConfig.dimension[0]; i++) {
+						size_t offset = i + (size_t)j * graph->filmConfig.dimension[0];
+						auto color = film->getPixel(Point2f(i, j)).eval().gamma();// .toInt();
 						pixelData[4ull * offset] = color.r;
 						pixelData[4ull * offset + 1] = color.g;
 						pixelData[4ull * offset + 2] = color.b;
-						pixelData[4ull * offset + 3] = 255;
+						pixelData[4ull * offset + 3] = 1.0f;// 255;
 					}
 				});
 			}
@@ -551,13 +551,13 @@ void main()
 					graph->filmConfig.dimension[1]);
 				//	for (int j = 0; j < graph->filmConfig.dimension[1]; j++) {
 				Thread::ParallelFor(0, graph->filmConfig.dimension[1], [&](int j, int) {
-					for (int i = 0; i < graph->filmConfig.dimension[0]; i++) {
-						size_t offset = i + j * graph->filmConfig.dimension[0];
-						auto color = film->getPixel(Point2f(i, j) * scale).toInt();
+					for (size_t i = 0; i < graph->filmConfig.dimension[0]; i++) {
+						size_t offset = i + (size_t)j * graph->filmConfig.dimension[0];
+						auto color = film->getPixel(Point2f(i, j) * scale).eval().gamma();// .toInt();
 						pixelData[4ull * offset] = color.r;
 						pixelData[4ull * offset + 1] = color.g;
 						pixelData[4ull * offset + 2] = color.b;
-						pixelData[4ull * offset + 3] = 255;
+						pixelData[4ull * offset + 3] = 1.0f;//255;
 					}
 				});
 			}

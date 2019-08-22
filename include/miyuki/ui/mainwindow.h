@@ -39,7 +39,7 @@ namespace Miyuki {
 			cxx::filesystem::path programPath;
 			json config;
 			Arc<Core::Film> viewportUpdate;
-			std::vector<uint8_t> pixelData;
+			std::vector<float> pixelData;
 			void loadBackGroundShader();
 			void loadBackgroundImage();
 			void drawBackground();

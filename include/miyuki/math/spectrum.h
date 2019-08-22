@@ -85,6 +85,10 @@ namespace Miyuki {
         inline Float luminance() const {
             return Float(0.299) * r + Float(0.587) * g + Float(0.114) * b;
         }
+
+		RGBSpectrum gamma(Float g=1.0/2.2f)const{
+			return RGBSpectrum(std::pow(r, g), std::pow(this->g, g), std::pow(b, g));
+		}
     };
 
     RGBSpectrum removeNaNs(const RGBSpectrum &);

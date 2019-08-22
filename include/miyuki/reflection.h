@@ -471,14 +471,7 @@ namespace Miyuki {
 		MYK_SAVE_LOAD_TRIVIAL(Point2f);
 		MYK_SAVE_LOAD_TRIVIAL(Point3f);
 
-		namespace detail {
-			template<class T>
-			std::enable_if_t<!std::is_pointer_v<T>, void> ZeroInit(T& value) { value = T(); }
 
-			template<class T>
-			std::enable_if_t<std::is_pointer_v<T>, void> ZeroInit(T& value) { value = nullptr; }
-
-		}
 		struct InStreamVisitor {
 			int index = 0;
 			InObjectStream& stream;
@@ -488,9 +481,6 @@ namespace Miyuki {
 				if (stream.contains(name)) {
 					auto sub = stream.sub(name);
 					load(value, sub);
-				}
-				else {
-					detail::ZeroInit(value);
 				}
 			}
 		};

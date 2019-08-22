@@ -160,6 +160,8 @@ namespace Miyuki {
 				if (firstIsct) {
 					if (!firstIsct->hit()) {
 						handleEnvMap();
+						aov.normal = isct.wo;
+						aov.albedo = aov.L();
 						terminate();
 					}
 					else {
@@ -174,12 +176,20 @@ namespace Miyuki {
 				else {
 					if (!intersect()) {
 						handleEnvMap();
+						aov.normal = isct.wo;
+						aov.albedo = aov.L();
 						terminate();
 					}
 					addLighting(EDiffuse, beta * isct.Le(ray));
 					
 				}
-				
+				if (!continuable())
+					return;
+				{
+					aov.normal = isct.Ns;
+					ShadingPoint p(isct.textureUV);
+					aov.albedo = isct.primitive->material()->evalAlbedo(p);
+				}
 				while (continuable()) {
 					if (!isct.hit())break;
 					if (++depth > maxDepth)break;

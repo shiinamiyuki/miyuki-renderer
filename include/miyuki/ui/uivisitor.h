@@ -22,23 +22,21 @@ namespace Miyuki {
 			SelectedNodeType selectedNodeType;
 			using Base = Reflection::ReflectionVisitor;
 			boost::signals2::connection connection;
-			bool anyChanged = false;
-			bool changed = true;
+			size_t modificationCounter = 0;
 			MainWindow& window;
 			void loadWindowView(Arc<Core::Film>&);
 			std::mutex renderCBMutex;
 		public:
 			void commit() {
-				if (anyChanged)
+				if (hasAnyChanged())
 					engine->commit();
 				resetChanges();
 			}
 			bool hasAnyChanged() {
-				return anyChanged;
+				return modificationCounter != 0;
 			}
 			void resetChanges() {
-				changed = false;
-				anyChanged = false;
+				modificationCounter = 0;
 			}
 			RenderEngine* engine = nullptr;
 			void visitGraph();
@@ -47,22 +45,25 @@ namespace Miyuki {
 				init();
 			}
 			void reset() {
-				changed = true;
+				modificationCounter = 1;
 				selected = nullptr;
 			}
 			template<class T>
 			void visit(T* node) {
 				ImGui::PushID(node);
-				changed = false;
+				auto last = modificationCounter;
 				ReflectionVisitor::visit(node);
 				if (auto r = dynamic_cast<CachedPreprocessable*>(node)) {
-					if(changed)
+					if (last != modificationCounter)
 						r->notifyChange();
 				}
-				changed = false;
+				if (auto r = dynamic_cast<Core::Light*>(node)) {
+					if (last != modificationCounter)
+						engine->getGraph()->lights->notifyChange();
+				}
 				ImGui::PopID();
-
 			}
+
 			template<class T>
 			void visit(Box<T>& node) {
 				visit(node.get());

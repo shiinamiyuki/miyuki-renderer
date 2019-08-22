@@ -64,7 +64,7 @@ Goal: a high performance pbrt-style renderer.
   - [ ] Generic Path Tracer
   - [ ] Path Guiding
   - [x] Denoiser (BCD)
-  - [ ] Denoiser (OIDN)
+  - [x] Denoiser (OIDN)
 - [ ] NPR
 - [ ] Command line rendering
 - [ ] Hybrid rendering

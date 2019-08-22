@@ -20,15 +20,15 @@ namespace Miyuki {
 			resize(width, height);
 		}
 
-		Texture::Texture(size_t width, size_t height, uint8_t* data) : width(width), height(height) {
+		Texture::Texture(size_t width, size_t height, float* data) : width(width), height(height) {
 			glGenTextures(1, &texture);	PrintGLError();
 			glBindTexture(GL_TEXTURE_2D, texture);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0,
+				GL_RGBA, GL_FLOAT, data);
 		}
 
 		Texture::Texture(const IO::Image& image)
@@ -39,16 +39,16 @@ namespace Miyuki {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			std::vector<unsigned char> pixelBuffer;
+			std::vector<float> pixelBuffer;
 			for (const auto& i : image.pixelData) {
-				auto out = removeNaNs(i).toInt();
+				auto out = removeNaNs(i);
 				pixelBuffer.emplace_back(out.r);
 				pixelBuffer.emplace_back(out.g);
 				pixelBuffer.emplace_back(out.b);
-				pixelBuffer.emplace_back(255);
+				pixelBuffer.emplace_back(1.0f);
 			}	PrintGLError();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, &pixelBuffer[0]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0,
+				GL_RGBA, GL_FLOAT, &pixelBuffer[0]);
 			
 
 		}
@@ -60,17 +60,17 @@ namespace Miyuki {
 		}
 
 		void Texture::setPixel(size_t x, size_t y, const Spectrum& _color) {
-			auto color = _color.toInt();
-			uint8_t data[8];
+			auto color = _color;
+			float data[8];
 			data[0] = color[0];
 			data[1] = color[1];
 			data[2] = color[2];
-			data[3] = 255;
-			glTextureSubImage2D(texture, 0, x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			data[3] = 1.0f;
+			glTextureSubImage2D(texture, 0, x, y, 1, 1, GL_RGBA32F, GL_FLOAT, data);
 		}
-		void Texture::setData(uint8_t* data) {
+		void Texture::setData(float* data) {
 			use();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data);
 			PrintGLError();
 			//glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		}

@@ -3,6 +3,7 @@
 #include <core/materials/mixedmaterial.h> 
 #include <core/materials/diffusematerial.h>
 #include <core/denoiser/bcddenoiser.h>
+#include <core/denoiser/oidndenoiser.h>
 
 namespace Miyuki {
 	namespace Core {
@@ -15,7 +16,7 @@ namespace Miyuki {
 		}
 		void PathTracerIntegrator::renderStart(const IntegratorContext& context) {
 			if (denoised) {
-				denoiser = makeBox<BCDDenoiser>();
+				denoiser = makeBox<OIDNDenoiser>();
 				denoiser->setup(context.film->imageDimension());
 			}
 		}

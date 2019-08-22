@@ -11,6 +11,8 @@ namespace Miyuki {
 			auto bsdf = ctx.alloc<DiffuseBSDF>(_roughness, R);
 			return bsdf;
 		}
-
+		Spectrum DiffuseMaterial::evalAlbedo(ShadingPoint& p)const {
+			return Shader::evaluate(color, p).toVec3f();
+		}
 	}
 }

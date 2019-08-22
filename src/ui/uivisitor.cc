@@ -171,8 +171,7 @@ namespace Miyuki {
 
 		void UIVisitor::init() {
 			connection = uiInputChanged.connect([=]() {
-				changed = true;
-				anyChanged = true;
+				modificationCounter++;
 			});
 			whenVisit<Core::FloatShader>([=](Core::FloatShader* shader) {
 				auto value = shader->getValue();
@@ -271,7 +270,11 @@ namespace Miyuki {
 					slot->name = r.value();
 				}
 				if (slot->material) {
+					auto m = modificationCounter;
 					visitShaderAndSelect(slot->material->emission, "emission");
+					if (modificationCounter != m) {
+						engine->getGraph()->lights->notifyChange();
+					}
 					visitShaderAndSelect(slot->material->normalMap, "normal");
 				}
 				visitMaterialAndSelect(slot->material, "material");
