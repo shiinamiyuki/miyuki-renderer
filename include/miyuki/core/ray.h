@@ -6,23 +6,29 @@
 namespace Miyuki {
 	namespace Core {
 		extern Float RayBias;
+		class Medium;
 
 		struct Ray {
 			mutable Float tMin, tMax;
-			Float time;
+			Float time = 0;
 			Vec3f o, d;
+			Medium* medium = nullptr;
 			Ray() :tMin(-1), tMax(-1) {}
 			Ray(const Vec3f& o, const Vec3f& d)
 				: o(o), d(d), tMin(RayBias), tMax(INF), time(0) {}
-			Ray(const Vec3f& o, const Vec3f& d, Float tMin, Float tMax = INF, Float time = 0)
-				:o(o), d(d), tMin(tMin), tMax(tMax), time(time) {}
+			Ray(const Vec3f& o, const Vec3f& d, Float tMin, Float tMax = INF, Medium* m = nullptr, Float time = 0)
+				:o(o), d(d), tMin(tMin), tMax(tMax), time(time), medium(m) {}
 			bool valid()const {
 				return tMin >= 0;
+			}
+			static Ray FromTo(const Vec3f& p0, const Vec3f& p1) {
+				auto w = (p1 - p0);
+				return Ray(p0, w.normalized(), RayBias, w.length());
 			}
 		};
 
 		struct RayDifferential : Ray {
-			RayDifferential() :Ray(){}
+			RayDifferential() :Ray() {}
 			RayDifferential(const Ray& ray) :Ray(ray) {}
 		};
 

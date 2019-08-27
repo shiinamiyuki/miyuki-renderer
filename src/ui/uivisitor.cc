@@ -9,6 +9,7 @@
 #include <core/materials/glossymaterial.h>
 #include <core/materials/mixedmaterial.h>
 #include <core/materials/transparentmaterial.h>
+#include <core/medium/homogeneous.h>
 #include <core/bsdfs/microfacet.hpp>
 #include <core/lights/infinite.h>
 
@@ -108,7 +109,14 @@ namespace Miyuki {
 			});
 			return selector.select<Core::Shader>(label, shader);
 		}
-
+		std::optional<Box<Core::Medium>> selectMedium(Core::Medium* m, const std::string& label) {
+			static TypeSelector selector;
+			static std::once_flag flag;
+			std::call_once(flag, [&]() {
+				selector.loadImpl<Core::Medium>();
+			});
+			return selector.select<Core::Medium>(label, m);
+		}
 		void resolutionSelector(Point2i& dim) {
 			auto res2str = [](const Point2i& dim) ->const char* {
 				if (dim[0] == 2560 && dim[1] == 1440) {
@@ -278,6 +286,7 @@ namespace Miyuki {
 					visitShaderAndSelect(slot->material->normalMap, "normal");
 				}
 				visitMaterialAndSelect(slot->material, "material");
+				visitMediumAndSelect(slot->medium, "volume");
 			});
 			whenVisit<Core::WorldConfig>([=](Core::WorldConfig* world) {
 				if (auto r = GetInputWithSignal("ray bias", world->rayBias)) {
@@ -360,6 +369,18 @@ namespace Miyuki {
 					}
 				}).show();
 			});
+
+			whenVisit<Core::HomogeneousMedium>([](Core::HomogeneousMedium* medium) {
+				if (auto r = GetInputWithSignal("g", medium->g)) {
+					medium->g = r.value();
+				}
+				if (auto r = GetInputWithSignal("absorption", medium->sigma_a)) {
+					medium->sigma_a = r.value();
+				}
+				if (auto r = GetInputWithSignal("scattering", medium->sigma_s)) {
+					medium->sigma_s = r.value();
+				}
+			});
 		}
 
 		void UIVisitor::visitMaterialAndSelect(Box<Core::Material>& material, const std::string& label) {
@@ -380,7 +401,14 @@ namespace Miyuki {
 				visit(shader);
 			}).flag(ImGuiTreeNodeFlags_DefaultOpen).show();
 		}
-
+		void UIVisitor::visitMediumAndSelect(Box<Core::Medium>& medium, const std::string& label) {
+			TreeNode().name(std::string("").append(label).append("##00")).with(true, [=, &medium]() {
+				if (auto r = selectMedium(medium.get(), label)) {
+					medium = std::move(r.value());
+				}
+				visit(medium);
+			}).flag(ImGuiTreeNodeFlags_DefaultOpen).show();
+		}
 		void UIVisitor::visitSelected() {
 			if (selected) {
 				visit(selected);

@@ -212,8 +212,9 @@ namespace Miyuki {
 			joinRenderThread();
 			currentIntegrator = nullptr;
 		}
-		if (renderThread) {
-			joinRenderThread();
+		else if (renderThread) {
+			renderThread->detach();
+			renderThread = nullptr;
 			currentIntegrator = nullptr;
 		}
 	}

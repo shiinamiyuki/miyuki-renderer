@@ -7,9 +7,11 @@ namespace Miyuki {
 	namespace Core {
 		struct PhaseFunctionSample {
 			Vec3f wi;
+			Vec3f wo;
 			Float phase;
 			Point2f u;
 		};
+
 		class PhaseFunction {
 		public:
 			virtual Float evaluate(const Vec3f& wo, const Vec3f& wi)const = 0;

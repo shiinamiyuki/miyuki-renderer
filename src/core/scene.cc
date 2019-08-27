@@ -4,6 +4,7 @@
 #include <core/materials/diffusematerial.h>
 #include <core/materials/glossymaterial.h>
 #include <core/materials/transparentmaterial.h>
+#include <core/medium/homogeneous.h>
 #include <core/lights/area.h>
 #include <core/lights/infinite.h>
 
@@ -126,6 +127,9 @@ namespace Miyuki {
 				});
 				whenVisit<Core::RGBShader>([=](Core::RGBShader* shader) {
 
+				});
+				whenVisit<Core::HomogeneousMedium>([](Core::HomogeneousMedium* medium) {
+				
 				});
 				auto& loader = scene.imageLoader;
 				whenVisit<Core::ImageTextureShader>([=, &loader](Core::ImageTextureShader* shader) {

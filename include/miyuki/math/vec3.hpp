@@ -122,7 +122,7 @@ namespace Miyuki {
 			};
 		};
 
-		int32_t dimension() const { return 3; }
+		static constexpr int32_t dimension() { return 3; }
 
 		Float& axis(uint32_t n) {
 			assert(n < 4);

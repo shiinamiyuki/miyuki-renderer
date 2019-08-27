@@ -2,6 +2,7 @@
 
 #include <reflection.h>
 #include <core/materials/material.h>
+#include <core/medium/medium.h>
 #include <utils/file.hpp>
 #include <core/cameras/camera.h>
 #include <core/integrators/integrator.h>
@@ -14,9 +15,10 @@ namespace Miyuki {
 			MYK_META;
 			std::string name;
 			Box<Material> material;
+			Box<Medium> medium;
 		};
 		MYK_IMPL(MaterialSlot, "Core.MaterialSlot");
-		MYK_REFL(MaterialSlot, (Reflective), (name)(material));
+		MYK_REFL(MaterialSlot, (Reflective), (name)(material)(medium));
 
 		struct Object final : Reflective {
 			MYK_META;

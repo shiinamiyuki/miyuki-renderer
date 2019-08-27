@@ -47,6 +47,11 @@ namespace Miyuki {
             return ret;
         }
 
+		template<typename T, class... Args>
+		T* New(Args&& ...args) {
+			return new (alloc(sizeof(T))) T(args...);
+		}
+
         ~MemoryArena();
 
         void reset() {

@@ -254,11 +254,11 @@ void main()
 					.open(&windowFlags.showAttributeEditor)
 					.with(true, [=]() {
 
-					Tab().item(TabItem().name("selected").with(true, showSelected))
-						.item(TabItem().name("sampling").with(true, [=]() {visitor.visitIntegrator(); }))
-						.item(TabItem().name("world").with(true, [=]() {visitor.visitWorld(); }))
-						.item(TabItem().name("camera").with(true, [=]() {visitor.visitCamera(); }))
-						.item(TabItem().name("film").with(true, [=]() {visitor.visitFilm(); })).show();
+					Tab().item(TabItem().name("Inspector").with(true, showSelected))
+						.item(TabItem().name("Sampling").with(true, [=]() {visitor.visitIntegrator(); }))
+						.item(TabItem().name("World").with(true, [=]() {visitor.visitWorld(); }))
+						.item(TabItem().name("Camera").with(true, [=]() {visitor.visitCamera(); }))
+						.item(TabItem().name("Film").with(true, [=]() {visitor.visitFilm(); })).show();
 				}).show();
 			}
 		}
@@ -524,7 +524,7 @@ void main()
 			auto graph = engine->getGraph();
 			size_t w = film->width(), h = film->height();
 			if (w == graph->filmConfig.dimension[0] && h == graph->filmConfig.dimension[1]) {
-				pixelData.resize(w * h * 4ul);
+				pixelData.resize(w * h * 4ull);
 				/*size_t i = 0;
 				for (const auto& pixel : film->image) {
 					auto color = pixel.eval().toInt();
@@ -546,10 +546,9 @@ void main()
 				});
 			}
 			else {
-				pixelData.resize(graph->filmConfig.dimension[0] * graph->filmConfig.dimension[1] * 4ul);
+				pixelData.resize(graph->filmConfig.dimension[0] * graph->filmConfig.dimension[1] * 4ull);
 				Point2f scale = Point2f(w, h) / Point2f(graph->filmConfig.dimension[0],
 					graph->filmConfig.dimension[1]);
-				//	for (int j = 0; j < graph->filmConfig.dimension[1]; j++) {
 				Thread::ParallelFor(0, graph->filmConfig.dimension[1], [&](int j, int) {
 					for (size_t i = 0; i < graph->filmConfig.dimension[0]; i++) {
 						size_t offset = i + (size_t)j * graph->filmConfig.dimension[0];

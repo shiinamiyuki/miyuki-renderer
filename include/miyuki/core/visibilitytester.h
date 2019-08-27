@@ -4,13 +4,15 @@
 namespace Miyuki {
 	namespace Core {
 		class Scene;
+		class Sampler;
 		struct VisibilityTester {
-			Ray shadowRay;
+			Vec3f p0, p1;
 			int32_t geomId, primId;
 
 			VisibilityTester() : geomId(-1), primId(-1) {}
 
 			bool visible(Scene& scene);
+			Spectrum Tr(Scene& scene, Sampler & sampler);
 		};
 
 	}

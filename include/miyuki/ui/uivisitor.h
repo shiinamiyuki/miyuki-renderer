@@ -13,6 +13,7 @@ namespace Miyuki {
 
 			void visitMaterialAndSelect(Box<Core::Material>& material, const std::string& label);
 			void visitShaderAndSelect(Box<Core::Shader>& shader, const std::string& label);
+			void visitMediumAndSelect(Box<Core::Medium>& shader, const std::string& label);
 			enum SelectedNodeType {
 				kMaterial,
 				kMesh,

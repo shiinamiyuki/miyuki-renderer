@@ -8,7 +8,7 @@ namespace Miyuki {
 	namespace Core {
 		class BSDF;
 		class BSSRDF;
-
+		class PhaseFunction;
 		struct Primitive;
 
 		// struct handling intersection info
@@ -27,7 +27,10 @@ namespace Miyuki {
 			Ref<const Primitive> primitive;
 
 			CoordinateSystem localFrame;
+
 			BSDF* bsdf = nullptr;
+			PhaseFunction* phase = nullptr;
+
 			bool hit() {
 				return primId != RTC_INVALID_GEOMETRY_ID && geomId != RTC_INVALID_GEOMETRY_ID;
 			}
@@ -40,8 +43,9 @@ namespace Miyuki {
 			}
 
 			bool isVolumeScatteringEvent()const {
-				return false;
+				return phase != nullptr;
 			}
+
 			bool hasScatteringFunction()const {
 				return isSurfaceScatteringEvent() || isVolumeScatteringEvent();
 			}
@@ -63,6 +67,10 @@ namespace Miyuki {
 			// w in world space
 			Ray spawnRay(const Vec3f& w) const {
 				return Ray(p, w.normalized());
+			}
+			Ray spawnTo(const Vec3f& p)const {
+				auto w = p - this->p;
+				return Ray(p, w.normalized(), RayBias, w.length());
 			}
 		};
 

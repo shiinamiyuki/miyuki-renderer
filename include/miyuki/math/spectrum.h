@@ -38,7 +38,7 @@ namespace Miyuki {
 			v[3] = 1;
         }
 
-        RGBSpectrum(Float x = 0) {
+        RGBSpectrum(Float x) {
             v[0] = x;
             v[1] = x;
             v[2] = x;

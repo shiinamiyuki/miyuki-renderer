@@ -48,7 +48,7 @@ namespace Miyuki {
 				const char* errorMessage;
 				if (oidnGetDeviceError(device.getHandle(), &errorMessage) != OIDN_ERROR_NONE)
 					Log::log("Error: {}\n", errorMessage);
-
+				return true;
 			}
 		};
 		OIDNDenoiser::OIDNDenoiser() {

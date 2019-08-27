@@ -1,4 +1,6 @@
 #include <ui/mainwindow.h>
+#include <utils/thread.h>
+
 
 int main(int argc, char** argv) {
 	using namespace Miyuki;
@@ -7,7 +9,5 @@ int main(int argc, char** argv) {
 	GUI::MainWindow window(argc, argv);
 	window.show();
 	Exit();
-
-	
 	return 0;
 }

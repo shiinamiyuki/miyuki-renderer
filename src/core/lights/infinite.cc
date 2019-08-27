@@ -50,7 +50,9 @@ namespace Miyuki {
 				record.pdf = mapPdf / (2 * PI * PI * sinTheta);
 			uv[1] = 1.0f - uv[1];
 			record.Le = Shader::evaluate(shader, ShadingPoint(uv)).toVec3f();
-			tester->shadowRay = Ray(isct.p, record.wi, RayBias);
+			//tester->shadowRay = Ray(isct.p, record.wi, RayBias);
+			tester->p0 = isct.p;
+			tester->p1 = isct.p + record.wi * worldRadius;
 			//zfmt::print("{} {} | {}  {}\n", uv[0], uv[1],record.Le.max(), mapPdf);
 		}
 

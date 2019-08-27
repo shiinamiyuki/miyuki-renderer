@@ -15,6 +15,8 @@ namespace Miyuki {
 
 		class Material;
 
+		class Medium;
+
 		class Accelerator;
 
 		struct Primitive {
@@ -38,6 +40,8 @@ namespace Miyuki {
 			inline Vec3f Ns(const Point2f& uv) const;
 
 			inline Material* material() const;
+
+			inline Medium* medium() const;
 
 			inline const std::string& name() const;
 
@@ -65,6 +69,7 @@ namespace Miyuki {
 
 			std::vector<std::string> names;
 			std::vector<Material*> materials;
+			std::vector<Medium*> medium;
 			std::weak_ptr<Mesh> parent;
 			int geomId = -1;
 			EmbreeScene* accelerator = nullptr;
@@ -168,6 +173,10 @@ namespace Miyuki {
 
 		inline Material* Primitive::material() const {
 			return instance->materials[nameId];
+		}
+
+		inline Medium* Primitive::medium()const {
+			return instance->medium[nameId];
 		}
 
 		inline const std::string& Primitive::name() const {

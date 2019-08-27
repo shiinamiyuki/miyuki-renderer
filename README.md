@@ -82,6 +82,8 @@ CMake everything.
 ![](gallery/editor_new.png)
 
 ### Random test images
+![](gallery/living_room4.png)
+
 ![](gallery/mc_another_view.png)
 
 ![](gallery/mc_envmap.png)
@@ -99,8 +101,6 @@ From previous version
 ![](gallery/dof.png)
 
 ![](gallery/cornell_box.png)
-
-
 
 ![](gallery/living_room.png)
 

@@ -39,6 +39,7 @@ file(GLOB coreSRC
 	"src/engine/*.cc"
 	"src/core/samplers/*.cc"
 	"src/core/phases/*.cc"
+	"src/core/medium/*.cc"
 	"src/core/materials/*.cc"
 	"src/core/bsdfs/*.cc"
 	"src/core/shaders/*.cc"
