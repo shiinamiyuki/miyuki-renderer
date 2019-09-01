@@ -1,7 +1,7 @@
 #ifndef MIYUKI_RAY_H
 #define MIYUKI_RAY_H
 #include <miyuki.h>
-
+#include <core/mediumstack.hpp>
 
 namespace Miyuki {
 	namespace Core {
@@ -12,14 +12,17 @@ namespace Miyuki {
 			mutable Float tMin, tMax;
 			Float time = 0;
 			Vec3f o, d;
-			Medium* medium = nullptr;
+			MediumStack* mediumStack = nullptr;
 			Ray() :tMin(-1), tMax(-1) {}
 			Ray(const Vec3f& o, const Vec3f& d)
 				: o(o), d(d), tMin(RayBias), tMax(INF), time(0) {}
-			Ray(const Vec3f& o, const Vec3f& d, Float tMin, Float tMax = INF, Medium* m = nullptr, Float time = 0)
-				:o(o), d(d), tMin(tMin), tMax(tMax), time(time), medium(m) {}
+			Ray(const Vec3f& o, const Vec3f& d, Float tMin, Float tMax = INF, MediumStack* m = nullptr, Float time = 0)
+				:o(o), d(d), tMin(tMin), tMax(tMax), time(time), mediumStack(m) {}
 			bool valid()const {
 				return tMin >= 0;
+			}
+			bool hasMedium()const {
+				return mediumStack&& mediumStack->size() != 0;
 			}
 			static Ray FromTo(const Vec3f& p0, const Vec3f& p1) {
 				auto w = (p1 - p0);

@@ -9,6 +9,8 @@ namespace Miyuki {
 		class BSDF;
 		class BSSRDF;
 		class PhaseFunction;
+		class Material;
+		class Medium;
 		struct Primitive;
 
 		// struct handling intersection info
@@ -71,6 +73,11 @@ namespace Miyuki {
 			Ray spawnTo(const Vec3f& p)const {
 				auto w = p - this->p;
 				return Ray(p, w.normalized(), RayBias, w.length());
+			}
+			Material* material()const;
+			Medium* medium()const;
+			bool isEntering()const {
+				return Vec3f::dot(wo, primitive->Ng()) < 0.0f;
 			}
 		};
 

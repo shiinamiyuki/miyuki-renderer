@@ -6,7 +6,7 @@ namespace Miyuki {
 		class Scene;
 		class Sampler;
 		struct VisibilityTester {
-			Vec3f p0, p1;
+			Ray shadowRay;
 			int32_t geomId, primId;
 
 			VisibilityTester() : geomId(-1), primId(-1) {}
