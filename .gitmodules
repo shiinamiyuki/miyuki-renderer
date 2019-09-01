@@ -1,0 +1,3 @@
+[submodule "lunatic"]
+	path = lunatic
+	url = http://github.com/shiinamiyuki/lunatic
