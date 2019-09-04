@@ -15,6 +15,7 @@ endif()
 include_directories("include/")
 include_directories("include/miyuki/")
 include_directories("include/bcd/ext/eigen")
+include_directories("lunatic/include")
 add_subdirectory("lunatic/")
 link_libraries(glfw3 opengl32 embree3 OpenImageDenoise liblunatic)
 

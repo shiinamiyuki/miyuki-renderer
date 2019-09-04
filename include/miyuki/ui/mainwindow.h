@@ -21,6 +21,9 @@
 #include <ui/mykui.h>
 #include <ui/uivisitor.h>
 
+#include <lunatic/lunatic.h>
+
+
 namespace Miyuki {
 	namespace GUI {
 		class MainWindow {
@@ -36,6 +39,7 @@ namespace Miyuki {
 			std::unique_ptr<HW::Texture> viewport;
 			std::unique_ptr<HW::Texture> background;
 			std::unique_ptr<HW::ShaderProgram> backgroundShader;
+			std::unique_ptr<lunatic::ScriptEngine> scriptengine;
 			cxx::filesystem::path programPath;
 			json config;
 			Arc<Core::Film> viewportUpdate;
@@ -44,7 +48,8 @@ namespace Miyuki {
 			void loadBackgroundImage();
 			void drawBackground();
 			void viewportWindow();
-			void explorerWindow();;
+			void explorerWindow();
+			void consoleWindow();
 			void attriubuteEditorWindow();
 			void menuBar();
 			void logWindow();
@@ -68,11 +73,7 @@ namespace Miyuki {
 			Modal modal;
 			
 			UIVisitor visitor;
-			void newEngine() {
-				engine = std::make_unique<RenderEngine>();
-				visitor.reset();
-				visitor.engine = engine.get();
-			}
+			void newEngine();
 			std::optional<Point2i> lastViewportMouseDown;
 			Vec3f cameraDir, cameraPos;
 			std::optional<Vec3f> center;

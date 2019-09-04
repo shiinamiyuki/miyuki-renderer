@@ -14,7 +14,13 @@ static void Draw(const Miyuki::HW::Texture& texture) {
 }
 namespace Miyuki {
 	namespace GUI {
-
+		struct Console {
+			static Console* getInstance() {
+				static Console* console = new Console();
+				return console;
+			}
+			std::string content;
+		};
 		void MainWindow::close() {
 			cxx::filesystem::current_path(programPath);
 			ImGui_ImplOpenGL3_Shutdown();
@@ -142,7 +148,7 @@ void main()
 					bool restart = false;
 					if (visitor.hasAnyChanged()) {
 						restart = true;
-						visitor.resetChanges(); 
+						visitor.resetChanges();
 					}
 					cam->preprocess();
 					Vec3f newPos = cam->viewpoint, newDir = cam->direction;
@@ -228,7 +234,29 @@ void main()
 				ImGui::PopID();
 			}
 		}
+		void MainWindow::consoleWindow() {
+			constexpr size_t bufsize = 2048;
+			static char buf[bufsize] = { 0 };
+			Window().name("Console##0").open(&windowFlags.showLog).with(true, [=]() {
+				Button().name("Clear##Console").with(true, [=]() {
+					Console::getInstance()->content.clear();
+				}).show();
+				const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+				Separator().show();
+				ImGui::BeginChild("scrolling##Console", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
+				ImGui::TextUnformatted(&Console::getInstance()->content[0]);
+				ImGui::EndChild();
 
+				Separator().show();
+				if (ImGui::InputTextWithHint("Input##Console", "> ", buf, bufsize, ImGuiInputTextFlags_EnterReturnsTrue)) {
+					auto err = scriptengine->execString(buf, "gui-input");
+					if (err.code != lunatic::ErrorCode::None) {
+						Console::getInstance()->content.append(err.message);
+					}
+					buf[0] = 0;
+				}
+			}).show();
+		}
 		void MainWindow::explorerWindow() {
 			if (windowFlags.showExplorer) {
 				Window().name("Explorer")
@@ -344,16 +372,17 @@ void main()
 							bound.boundingSphere(&center, &r);
 							this->center = Vec3f(center.x, center.y, center.z);
 						}
-						
+
 						auto r = engine->startInteractiveRender([=](Arc<Core::Film> film) {
 							loadView(film);
 						}, true);
 						if (!r) {
 							showErrorModal("Error",
 								"Cannot start rendering: no integrator or integrator does not support interactive\n");
-						}else
-						closeModal();
-						
+						}
+						else
+							closeModal();
+
 					}
 					catch (std::exception& e) {
 						Log::log("{}\n", e.what());
@@ -424,10 +453,11 @@ void main()
 						.with(true, [=]() {
 						LogWindowContent::GetInstance()->draw();
 					}).show();*/
-					if (ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar)) {
-						LogWindowContent::GetInstance()->draw();
-						ImGui::EndChild();
-					}
+					const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+					ImGui::BeginChild("scrolling", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
+					LogWindowContent::GetInstance()->draw();
+					ImGui::EndChild();
+
 				}).show();
 			}
 		}
@@ -472,7 +502,7 @@ void main()
 
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-			
+
 
 			ImGui::End();
 		}
@@ -486,6 +516,7 @@ void main()
 				viewportWindow();
 				explorerWindow();
 				attriubuteEditorWindow();
+				consoleWindow();
 			}
 			catch (std::exception& e) {
 				Log::log("Unable to update ui dure to {}\n", e.what());
@@ -677,6 +708,20 @@ void main()
 			mainLoop();
 			close();
 		}
-
+		void MainWindow::newEngine() {		
+			engine = std::make_unique<RenderEngine>();
+			visitor.reset();
+			visitor.engine = engine.get();
+			scriptengine = std::make_unique<lunatic::ScriptEngine>();
+			scriptengine->addLib("console");
+			scriptengine->addLibMethod("console", "log", [=](const lunatic::CallContext& ctx) {
+				auto vm = ctx.vm;
+				for (int i = 0; i < ctx.nArgs; i++) {
+					auto &v = vm->getLocal(i);
+					Console::getInstance()->content.append(v.str()).append(" ");
+				}
+				Console::getInstance()->content.append("\n");
+			});
+		}
 	}
 }
