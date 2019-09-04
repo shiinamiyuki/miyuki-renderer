@@ -50,10 +50,8 @@ namespace Miyuki {
 				record.pdf = mapPdf / (2 * PI * PI * sinTheta);
 			uv[1] = 1.0f - uv[1];
 			record.Le = Shader::evaluate(shader, ShadingPoint(uv)).toVec3f();
-			//tester->shadowRay = Ray(isct.p, record.wi, RayBias);
-			tester->p0 = isct.p;
-			tester->p1 = isct.p + record.wi * worldRadius;
-			//zfmt::print("{} {} | {}  {}\n", uv[0], uv[1],record.Le.max(), mapPdf);
+			tester->shadowRay = Ray(isct.p, record.wi, RayBias);
+			//fmt::print("{} {} | {}  {}\n", uv[0], uv[1],record.Le.max(), mapPdf);
 		}
 
 		Float InfiniteAreaLight::pdfLi(const Intersection& isct, const Vec3f& wi)const {
@@ -82,7 +80,7 @@ namespace Miyuki {
 			if (resolution[0] * resolution[1] == 0)return;
 			std::vector<Float> v(resolution[0] * resolution[1]);
 			Thread::ParallelFor(0, resolution[1], [&](uint32_t j, uint32_t) {
-				for (int i = 0; i < resolution[0]; i++) {
+				for (size_t i = 0; i < resolution[0]; i++) {
 					Point2f uv(i, j);
 					uv /= Point2f(resolution[0], resolution[1]);
 					uv[1] = 1.0f - uv[1];

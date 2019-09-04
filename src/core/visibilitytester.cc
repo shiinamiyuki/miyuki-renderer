@@ -7,28 +7,28 @@ namespace Miyuki {
 	namespace Core {
 		bool VisibilityTester::visible(Scene& scene) {
 			Intersection intersection;
-			Ray ray = Ray::FromTo(p0, p1);
-			if (!scene.intersect(ray, &intersection)) {
+			if (!scene.intersect(shadowRay, &intersection)) {
 				return true;
 			}
-			if (geomId != -1 && primId != -1) {
-				if (intersection.geomId == geomId && intersection.primId == primId)
-					return true;
-			}
-			return false;
+			return intersection.geomId == geomId && intersection.primId == primId;
 		}
 
 		Spectrum VisibilityTester::Tr(Scene& scene, Sampler& sampler) {
-			Ray ray = Ray::FromTo(p0, p1);
+			Ray ray = shadowRay;
+			MediumStack stack;
+			if (shadowRay.hasMedium()) {
+				stack = *shadowRay.mediumStack;
+			}
+			ray.mediumStack = &stack;
 			Spectrum Tr;
 			while (true) {
 				Intersection isct;
 				bool hit = scene.intersect(ray, &isct);
-				if(hit && isct.primitive->material()){
+				if (hit && isct.primitive->material()) {
 					return Spectrum(0.0f);
 				}
-				if (ray.medium) {
-					Tr *= ray.medium->Tr(ray, sampler);
+				if (ray.hasMedium()) {
+					Tr *= ray.mediumStack->top()->Tr(ray, sampler);
 				}
 				if (!hit)break;
 				ray = isct.spawnRay(ray.d);

@@ -1,6 +1,7 @@
 #include <core/intersection.hpp>
 #include <core/materials/material.h>
 #include <core/mesh.h>
+#include <core/medium/medium.h>
 namespace Miyuki {
 	namespace Core {
 		Spectrum Intersection::Le(const Ray& ray) {
@@ -13,6 +14,11 @@ namespace Miyuki {
 				return Shader::evaluate(primitive->material()->emission, ShadingPoint(textureUV)).toVec3f();
 			return {};
 		}
-
+		Material* Intersection::material()const {
+			return primitive->material();
+		}
+		Medium* Intersection::medium()const {
+			return primitive->medium();
+		}
 	}
 }

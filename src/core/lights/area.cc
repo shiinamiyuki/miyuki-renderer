@@ -21,9 +21,7 @@ namespace Miyuki {
 			auto dist = w.length();
 			auto invDist2 = 1 / (dist * dist);
 			w /= dist;
-			//tester->shadowRay = Ray(p, -1 * w, RayBias, dist + 10 * RayBias);
-			tester->p0 = p;
-			tester->p1 = isct.p;
+			tester->shadowRay = Ray(p, -1 * w, RayBias, dist + 10 * RayBias);
 			tester->geomId = isct.geomId;
 			tester->primId = isct.primId;
 
