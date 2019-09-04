@@ -20,5 +20,8 @@ namespace Miyuki {
 		Medium* Intersection::medium()const {
 			return primitive->medium();
 		}
+		bool Intersection::isEntering()const {
+			return Vec3f::dot(wo, primitive->Ng()) < 0.0f;
+		}
 	}
 }

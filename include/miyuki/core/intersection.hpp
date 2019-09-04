@@ -76,9 +76,7 @@ namespace Miyuki {
 			}
 			Material* material()const;
 			Medium* medium()const;
-			bool isEntering()const {
-				return Vec3f::dot(wo, primitive->Ng()) < 0.0f;
-			}
+			bool isEntering()const;
 		};
 
 		struct Intersection4 {

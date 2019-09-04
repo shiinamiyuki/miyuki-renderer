@@ -15,7 +15,9 @@ endif()
 include_directories("include/")
 include_directories("include/miyuki/")
 include_directories("include/bcd/ext/eigen")
-link_libraries(glfw3 opengl32 embree3 OpenImageDenoise)
+add_subdirectory("lunatic/")
+link_libraries(glfw3 opengl32 embree3 OpenImageDenoise liblunatic)
+
 file(GLOB thirdpartySRC
         "include/lodepng/lodepng.cpp"
         "include/tiny_obj_loader/tiny_obj_loader.cc"
@@ -55,6 +57,7 @@ add_executable (mykgui "src/main/main.cc"
 	${coreSRC})
 add_executable (test_reflection "src/main/testrefl.cc"
 	${thirdpartySRC})
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
+set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
 # TODO: Add tests and install targets if needed.
