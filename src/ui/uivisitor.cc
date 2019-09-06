@@ -296,6 +296,8 @@ namespace Miyuki {
 					world->environmentMap = makeBox<Core::InfiniteAreaLight>();
 				}
 				visit(world->environmentMap);
+				Separator().show();
+				visitMediumAndSelect(world->medium, "volume");
 			});
 			whenVisit<Core::InfiniteAreaLight>([=](Core::InfiniteAreaLight* light) {
 				visitShaderAndSelect(light->shader, "shader");

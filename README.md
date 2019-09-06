@@ -82,7 +82,10 @@ CMake everything.
 ![](gallery/editor_new.png)
 
 ### Random test images
+
 ![](gallery/living_room4.png)
+
+![](gallery/future-city.png)
 
 ![](gallery/mc_another_view.png)
 

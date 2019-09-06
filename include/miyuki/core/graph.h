@@ -54,10 +54,11 @@ namespace Miyuki {
 		struct WorldConfig final :Reflective {
 			MYK_CLASS(WorldConfig);
 			Box<Light> environmentMap;
+			Box<Medium> medium;
 			Float rayBias = 0.01f;
 		};
 		MYK_IMPL(WorldConfig, "Core.WorldConfig");
-		MYK_REFL(WorldConfig, (Reflective), (environmentMap)(rayBias));
+		MYK_REFL(WorldConfig, (Reflective), (environmentMap)(rayBias)(medium));
 
 		class LightCollection : public CachedPreprocessable,public Reflective {
 		public:
