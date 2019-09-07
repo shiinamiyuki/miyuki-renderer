@@ -376,11 +376,21 @@ namespace Miyuki {
 				if (auto r = GetInputWithSignal("g", medium->g)) {
 					medium->g = r.value();
 				}
-				if (auto r = GetInputWithSignal("absorption", medium->sigma_a)) {
-					medium->sigma_a = r.value();
+				Separator().show();
+				Text().name("absorption").show();
+				if (auto r = GetInputWithSignal("color##0", medium->color_a)) {
+					medium->color_a = r.value();
 				}
-				if (auto r = GetInputWithSignal("scattering", medium->sigma_s)) {
-					medium->sigma_s = r.value();
+				if (auto r = GetInputWithSignal("density##0", medium->density_a)) {
+					medium->density_a = r.value();
+				}
+				Separator().show();
+				Text().name("scatter").show();
+				if (auto r = GetInputWithSignal("color##1", medium->color_s)) {
+					medium->color_s = r.value();
+				}
+				if (auto r = GetInputWithSignal("density##1", medium->density_s)) {
+					medium->density_s = r.value();
 				}
 			});
 		}

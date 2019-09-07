@@ -91,6 +91,8 @@ CMake everything.
 
 ![](gallery/mc_envmap.png)
 
+![](gallery/volume.png)
+
 ![](gallery/envmap.png)
 
 From previous version

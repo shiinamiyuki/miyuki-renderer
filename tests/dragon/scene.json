@@ -1,262 +1,62 @@
 {
-  "shapes" :{
-      "dragon1" :{
-          "Dragon" :"dragon.mat"
-        },
-      "sphere" :{
-          "Icosphere" :"light"
-        },
-      "dragon2" :{
-          "Dragon" :"dragon.mat"
-        },
-      "plane1" :{
-          "Plane" :"plane.mat"
-        },
-      "plane2" :{
-          "Plane" :"plane.mat"
-        },
-      "dragon3" :{
-          "Dragon" :"dragon.mat"
-        },
-      "dragon4" :{
-          "Dragon" :"dragon.mat"
-        }
-    },
-  "integrator" :{
-      "pValue" :0,
-      "maxRayIntensity" :100,
-      "maxDepth" :8,
-      "maxError" :0,
-      "type" :"mlt",
-      "minDepth" :3,
-      "spp" :1024,
-      "ambientLight" :[
-          0,
-          0,
-          0
-        ],
-      "nChains" :4096,
-      "progressive" :1,
-      "adaptive" :0,
-      "envMap" :"",
-      "nDirect" :0,
-      "caustics" :1,
-      "maxSampleFactor" :0,
-      "largeStep" :0.25,
-      "heuristic" :0
-    },
-  "render" :{
-      "output" :"data/image/dragon.png",
-      "resolution" :"720p"
-    },
-  "objects" :[
-      {
-          "transform" :{
-              "rotation" :[
-                  90,
-                  0,
-                  0
-                ],
-              "scale" :4
-            },
-          "name" :"dragon1",
-          "file" :"dragon.obj"
-        },
-      {
-          "transform" :{
-              "translation" :[
-                  0,
-                  0,
-                  6
-                ],
-              "scale" :4,
-              "rotation" :[
-                  90,
-                  0,
-                  0
-                ]
-            },
-          "name" :"dragon2",
-          "file" :"dragon.obj"
-        },
-      {
-          "transform" :{
-              "translation" :[
-                  0,
-                  0,
-                  10
-                ],
-              "scale" :4,
-              "rotation" :[
-                  90,
-                  0,
-                  0
-                ]
-            },
-          "name" :"dragon3",
-          "file" :"dragon.obj"
-        },
-      {
-          "transform" :{
-              "translation" :[
-                  0,
-                  0,
-                  15
-                ],
-              "scale" :4,
-              "rotation" :[
-                  90,
-                  0,
-                  0
-                ]
-            },
-          "name" :"dragon4",
-          "file" :"dragon.obj"
-        },
-      {
-          "transform" :{
-              "translation" :[
-                  0,
-                  -2,
-                  0
-                ],
-              "scale" :1
-            },
-          "name" :"plane1",
-          "file" :"plane.obj"
-        },
-      {
-          "transform" :{
-              "translation" :[
-                  0,
-                  0,
-                  50
-                ],
-              "scale" :1,
-              "rotation" :[
-                  0,
-                  90,
-                  0
-                ]
-            },
-          "name" :"plane2",
-          "file" :"plane.obj"
-        },
-      {
-          "transform" :{
-              "rotation" :[
-                  0,
-                  0,
-                  0
-                ],
-              "scale" :0.1,
-              "translation" :[
-                  0,
-                  5,
-                  -2
-                ]
-            },
-          "name" :"sphere",
-          "file" :"sphere.obj"
-        }
-    ],
-  "materials" :{
-      "plane.mat" :{
-          "kd" :{
-              "albedo" :[
-                  0.2,
-                  0.2,
-                  0.2
-                ],
-              "texture" :""
-            },
-          "ka" :{
-              "albedo" :[
-                  0,
-                  0,
-                  0
-                ],
-              "texture" :""
-            },
-          "Ni" :1,
-          "ks" :{
-              "albedo" :[
-                  0,
-                  0,
-                  0
-                ],
-              "texture" :""
-            },
-          "Tr" :0,
-          "roughness" :0
-        },
-      "dragon.mat" :{
-          "kd" :{
-              "albedo" :[
-                  0,
-                  0,
-                  0
-                ],
-              "texture" :""
-            },
-          "ka" :{
-              "albedo" :[
-                  0,
-                  0,
-                  0
-                ],
-              "texture" :""
-            },
-          "Ni" :1.5,
-          "ks" :{
-              "albedo" :"00bbff",
-              "texture" :""
-            },
-          "Tr" :0,
-          "roughness" :0.2
-        },
-      "light" :{
-          "kd" :{
-              "albedo" :[
-                  1,
-                  1,
-                  1
-                ],
-              "texture" :""
-            },
-          "ka" :{
-              "albedo" :[
-                  10000,
-                  10000,
-                  10000
-                ],
-              "texture" :""
-            },
-          "Ni" :1,
-          "ks" :{
-              "albedo" :[
-                  0,
-                  0,
-                  0
-                ],
-              "texture" :""
-            },
-          "Tr" :0,
-          "roughness" :0
-        }
-    },
-  "camera" :{
-      "focalDistance" :8,
-      "lensRadius" :0.2,
-      "translation" :[
-          5,
-          1,
-          -6
-        ],
-      "rotation" :[
-          -30,
-          -10,
-          0
-        ]
+ "ref": {
+  "2137774003600": {
+   "meta": "box",
+   "type": "Core.MeshFile",
+   "val": {
+    "file": "C:\\Users\\xiaoc\\source\\repos\\shiinamiyuki\\MiyukiRenderer\\tests\\dragon\\mesh\\mesh0.obj",
+    "name": "mesh0.obj",
+    "objects": null,
+    "transform": {
+     "rotation": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": 1.0,
+     "translation": [
+      0.0,
+      0.0,
+      0.0
+     ]
     }
+   }
+  }
+ },
+ "val": {
+  "type": "Core.Graph",
+  "val": {
+   "activeCamera": null,
+   "cameras": null,
+   "filmConfig": {
+    "type": "Core.FilmConfig",
+    "val": {
+     "dimension": [
+      1280,
+      720
+     ],
+     "outputImage": "C:\\Users\\xiaoc\\source\\repos\\shiinamiyuki\\MiyukiRenderer\\tests\\dragon\\out.png",
+     "scale": 0.0
+    }
+   },
+   "integrator": null,
+   "lights": null,
+   "materials": null,
+   "meshes": [
+    {
+     "addr": 2137774003600,
+     "meta": "ref"
+    }
+   ],
+   "sampler": null,
+   "worldConfig": {
+    "type": "Core.WorldConfig",
+    "val": {
+     "environmentMap": null,
+     "medium": null,
+     "rayBias": 0.009999999776482582
+    }
+   }
+  }
+ }
 }

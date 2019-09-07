@@ -40,6 +40,8 @@ namespace Miyuki {
 		}
 
 		void HomogeneousMedium::doPreprocess() {
+			sigma_a = color_a * density_a;
+			sigma_s = color_s * density_s;
 			sigma_t = sigma_a + sigma_s;
 		}
 	}

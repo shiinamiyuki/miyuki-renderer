@@ -1,0 +1,218 @@
+{
+ "ref": {
+  "1619214119360": {
+   "meta": "box",
+   "type": "Shader.ImageTexture",
+   "val": {
+    "imageFile": "C:\\Users\\xiaoc\\Downloads\\noon_grass_4k.hdr"
+   }
+  },
+  "1619214138320": {
+   "meta": "box",
+   "type": "Light.InfiniteArea",
+   "val": {
+    "lightType": 12,
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "shader": {
+     "addr": 1619253013488,
+     "meta": "ref"
+    }
+   }
+  },
+  "1619215051728": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.75
+   }
+  },
+  "1619253013488": {
+   "meta": "box",
+   "type": "Shader.Scaled",
+   "val": {
+    "scale": {
+     "addr": 1619215051728,
+     "meta": "ref"
+    },
+    "shader": {
+     "addr": 1619214119360,
+     "meta": "ref"
+    }
+   }
+  },
+  "1619253017888": {
+   "meta": "box",
+   "type": "Core.MeshFile",
+   "val": {
+    "file": "C:\\Users\\xiaoc\\source\\repos\\shiinamiyuki\\MiyukiRenderer\\tests\\voxel\\mesh\\mesh0.obj",
+    "name": "mesh0.obj",
+    "objects": [
+     {
+      "addr": 1619254358768,
+      "meta": "ref"
+     }
+    ],
+    "transform": {
+     "rotation": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": 1.0,
+     "translation": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   }
+  },
+  "1619253276736": {
+   "meta": "box",
+   "type": "Medium.Homogeneous",
+   "val": {
+    "g": 0.0,
+    "sigma_a": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "sigma_s": [
+     0.8983050584793091,
+     0.898296058177948,
+     0.898296058177948
+    ]
+   }
+  },
+  "1619253390016": {
+   "meta": "box",
+   "type": "Core.LightCollection",
+   "val": null
+  },
+  "1619253511424": {
+   "meta": "box",
+   "type": "Integrator.Path",
+   "val": {
+    "denoised": true,
+    "maxDepth": 5,
+    "maxRayIntensity": 5.0,
+    "minDepth": 3,
+    "spp": 16,
+    "useNEE": true
+   }
+  },
+  "1619253604592": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": null,
+    "medium": {
+     "addr": 1619253276736,
+     "meta": "ref"
+    },
+    "name": "palette"
+   }
+  },
+  "1619253884544": {
+   "meta": "box",
+   "type": "Sampler.Sobol",
+   "val": null
+  },
+  "1619254358768": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1619253604592
+    },
+    "name": ".palette.0"
+   }
+  },
+  "1619255101680": {
+   "meta": "box",
+   "type": "Camera.PerspectiveCamera",
+   "val": {
+    "direction": [
+     -3.8440001010894775,
+     -0.36399999260902405,
+     0.0
+    ],
+    "focalDistance": 0.0,
+    "fov": 1.3962634801864624,
+    "lensRadius": 0.0,
+    "viewpoint": [
+     -8.640636444091797,
+     15.805356979370117,
+     11.088611602783203
+    ]
+   }
+  }
+ },
+ "val": {
+  "type": "Core.Graph",
+  "val": {
+   "activeCamera": {
+    "meta": "ref",
+    "val": 1619255101680
+   },
+   "cameras": [
+    {
+     "addr": 1619255101680,
+     "meta": "ref"
+    }
+   ],
+   "filmConfig": {
+    "type": "Core.FilmConfig",
+    "val": {
+     "dimension": [
+      1280,
+      720
+     ],
+     "outputImage": "C:\\Users\\xiaoc\\source\\repos\\shiinamiyuki\\MiyukiRenderer\\tests\\voxel\\out.png",
+     "scale": 0.0
+    }
+   },
+   "integrator": {
+    "addr": 1619253511424,
+    "meta": "ref"
+   },
+   "lights": {
+    "addr": 1619253390016,
+    "meta": "ref"
+   },
+   "materials": [
+    {
+     "addr": 1619253604592,
+     "meta": "ref"
+    }
+   ],
+   "meshes": [
+    {
+     "addr": 1619253017888,
+     "meta": "ref"
+    }
+   ],
+   "sampler": {
+    "addr": 1619253884544,
+    "meta": "ref"
+   },
+   "worldConfig": {
+    "type": "Core.WorldConfig",
+    "val": {
+     "environmentMap": {
+      "addr": 1619214138320,
+      "meta": "ref"
+     },
+     "medium": null,
+     "rayBias": 0.009999999776482582
+    }
+   }
+  }
+ }
+}

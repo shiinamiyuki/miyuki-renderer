@@ -1,98 +1,280 @@
 {
  "ref": {
-  "2301411458128": {
+  "1965620209968": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1965696843232,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1965620210576": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1965696843808,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1965620210880": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1965696559088,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1965620211792": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1965696842912,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1965620214224": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1965696842656,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1965620215744": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 1965696844000,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1965620879424": {
    "meta": "box",
    "type": "Core.LightCollection",
    "val": null
   },
-  "2301487246560": {
+  "1965695419424": {
    "meta": "box",
-   "type": "Medium.Homogeneous",
+   "type": "Material.Glossy",
    "val": {
-    "g": 0.0010000000474974513,
-    "sigma_a": [
-     0.6864407062530518,
-     0.6806234121322632,
-     0.6806234121322632
-    ],
-    "sigma_s": [
-     0.2336433380842209,
-     0.5207475423812866,
-     0.6059322357177734
+    "color": {
+     "addr": 1965696842720,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1965695420384": {
+   "meta": "box",
+   "type": "Material.Glossy",
+   "val": {
+    "color": {
+     "addr": 1965696842464,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1965695423904": {
+   "meta": "box",
+   "type": "Material.Glossy",
+   "val": {
+    "color": {
+     "addr": 1965696559024,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1965695425184": {
+   "meta": "box",
+   "type": "Material.Glossy",
+   "val": {
+    "color": {
+     "addr": 1965696558960,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1965695425824": {
+   "meta": "box",
+   "type": "Material.Glossy",
+   "val": {
+    "color": {
+     "addr": 1965696844256,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "1965696451904": {
+   "meta": "box",
+   "type": "Integrator.Path",
+   "val": {
+    "denoised": false,
+    "maxDepth": 5,
+    "maxRayIntensity": 10000.0,
+    "minDepth": 3,
+    "spp": 64,
+    "useNEE": true
+   }
+  },
+  "1965696558960": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
     ]
    }
   },
-  "2301488106512": {
+  "1965696559024": {
    "meta": "box",
-   "type": "Material.Glossy",
+   "type": "Shader.RGB",
    "val": {
-    "color": {
-     "addr": 2301489696128,
-     "meta": "ref"
-    },
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
    }
   },
-  "2301488106832": {
+  "1965696559088": {
    "meta": "box",
-   "type": "Material.Glossy",
+   "type": "Shader.RGB",
    "val": {
-    "color": {
-     "addr": 2301489695936,
-     "meta": "ref"
-    },
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
+    "multiplier": 1.0,
+    "value": [
+     0.75,
+     0.25,
+     0.25
+    ]
    }
   },
-  "2301488107152": {
+  "1965696716336": {
    "meta": "box",
-   "type": "Material.Glossy",
+   "type": "Medium.Homogeneous",
    "val": {
-    "color": {
-     "addr": 2301489696000,
-     "meta": "ref"
-    },
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
+    "color_a": [
+     1.0,
+     0.9999899864196777,
+     0.9999899864196777
+    ],
+    "color_s": [
+     1.0,
+     0.9999899864196777,
+     0.9999899864196777
+    ],
+    "density_a": 1.0,
+    "density_s": 1.0,
+    "g": 0.0010000000474974513
    }
   },
-  "2301488107792": {
+  "1965696733712": {
    "meta": "box",
-   "type": "Material.Glossy",
+   "type": "Sampler.Sobol",
+   "val": null
+  },
+  "1965696760976": {
+   "meta": "box",
+   "type": "Light.InfiniteArea",
    "val": {
-    "color": {
-     "addr": 2301489694592,
-     "meta": "ref"
-    },
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
+    "lightType": 12,
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "shader": null
    }
   },
-  "2301488111312": {
+  "1965696842464": {
    "meta": "box",
-   "type": "Material.Glossy",
+   "type": "Shader.RGB",
    "val": {
-    "color": {
-     "addr": 2301489694912,
-     "meta": "ref"
-    },
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
    }
   },
-  "2301488386800": {
+  "1965696842656": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.6567796468734741,
+     0.6567730903625488,
+     0.6567730903625488
+    ]
+   }
+  },
+  "1965696842720": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "1965696842912": {
    "meta": "box",
    "type": "Shader.RGB",
    "val": {
@@ -104,7 +286,19 @@
     ]
    }
   },
-  "2301488386992": {
+  "1965696843232": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "1965696843808": {
    "meta": "box",
    "type": "Shader.RGB",
    "val": {
@@ -116,262 +310,43 @@
     ]
    }
   },
-  "2301488642032": {
+  "1965696844000": {
    "meta": "box",
-   "type": "Core.MaterialSlot",
+   "type": "Shader.RGB",
    "val": {
-    "material": {
-     "addr": 2301488912384,
-     "meta": "ref"
-    },
-    "medium": null,
-    "name": "green"
+    "multiplier": 1.0,
+    "value": [
+     1.0,
+     1.0,
+     1.0
+    ]
    }
   },
-  "2301488642224": {
+  "1965696844256": {
    "meta": "box",
-   "type": "Core.MaterialSlot",
+   "type": "Shader.RGB",
    "val": {
-    "material": null,
-    "medium": {
-     "addr": 2301487246560,
-     "meta": "ref"
-    },
-    "name": "volume"
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
    }
   },
-  "2301488642800": {
+  "1965696844320": {
    "meta": "box",
-   "type": "Core.MaterialSlot",
+   "type": "Shader.RGB",
    "val": {
-    "material": {
-     "addr": 2301488912000,
-     "meta": "ref"
-    },
-    "medium": null,
-    "name": "light"
+    "multiplier": 20.0,
+    "value": [
+     1.0,
+     1.0,
+     1.0
+    ]
    }
   },
-  "2301488642992": {
-   "meta": "box",
-   "type": "Core.MaterialSlot",
-   "val": {
-    "material": {
-     "addr": 2301488913920,
-     "meta": "ref"
-    },
-    "medium": null,
-    "name": "white"
-   }
-  },
-  "2301488643376": {
-   "meta": "box",
-   "type": "Core.MaterialSlot",
-   "val": {
-    "material": {
-     "addr": 2301490200880,
-     "meta": "ref"
-    },
-    "medium": null,
-    "name": "glass"
-   }
-  },
-  "2301488643568": {
-   "meta": "box",
-   "type": "Core.MaterialSlot",
-   "val": {
-    "material": {
-     "addr": 2301488913536,
-     "meta": "ref"
-    },
-    "medium": null,
-    "name": "red"
-   }
-  },
-  "2301488643760": {
-   "meta": "box",
-   "type": "Core.MaterialSlot",
-   "val": {
-    "material": {
-     "addr": 2301488913152,
-     "meta": "ref"
-    },
-    "medium": null,
-    "name": "blue"
-   }
-  },
-  "2301488912000": {
-   "meta": "box",
-   "type": "Material.Mixed",
-   "val": {
-    "emission": {
-     "addr": 2301489694784,
-     "meta": "ref"
-    },
-    "fraction": {
-     "addr": 2301488993104,
-     "meta": "ref"
-    },
-    "matA": {
-     "addr": 2301490201792,
-     "meta": "ref"
-    },
-    "matB": {
-     "addr": 2301488107792,
-     "meta": "ref"
-    },
-    "normalMap": null
-   }
-  },
-  "2301488912384": {
-   "meta": "box",
-   "type": "Material.Mixed",
-   "val": {
-    "emission": {
-     "addr": 2301488993728,
-     "meta": "ref"
-    },
-    "fraction": {
-     "addr": 2301488992384,
-     "meta": "ref"
-    },
-    "matA": {
-     "addr": 2301490190544,
-     "meta": "ref"
-    },
-    "matB": {
-     "addr": 2301488106512,
-     "meta": "ref"
-    },
-    "normalMap": null
-   }
-  },
-  "2301488913152": {
-   "meta": "box",
-   "type": "Material.Mixed",
-   "val": {
-    "emission": {
-     "addr": 2301489428512,
-     "meta": "ref"
-    },
-    "fraction": {
-     "addr": 2301488993776,
-     "meta": "ref"
-    },
-    "matA": {
-     "addr": 2301490201488,
-     "meta": "ref"
-    },
-    "matB": {
-     "addr": 2301488107152,
-     "meta": "ref"
-    },
-    "normalMap": null
-   }
-  },
-  "2301488913536": {
-   "meta": "box",
-   "type": "Material.Mixed",
-   "val": {
-    "emission": {
-     "addr": 2301488993584,
-     "meta": "ref"
-    },
-    "fraction": {
-     "addr": 2301488993920,
-     "meta": "ref"
-    },
-    "matA": {
-     "addr": 2301490201184,
-     "meta": "ref"
-    },
-    "matB": {
-     "addr": 2301488111312,
-     "meta": "ref"
-    },
-    "normalMap": null
-   }
-  },
-  "2301488913920": {
-   "meta": "box",
-   "type": "Material.Mixed",
-   "val": {
-    "emission": {
-     "addr": 2301488992576,
-     "meta": "ref"
-    },
-    "fraction": {
-     "addr": 2301488992240,
-     "meta": "ref"
-    },
-    "matA": {
-     "addr": 2301490194192,
-     "meta": "ref"
-    },
-    "matB": {
-     "addr": 2301488106832,
-     "meta": "ref"
-    },
-    "normalMap": null
-   }
-  },
-  "2301488992240": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 1.0
-   }
-  },
-  "2301488992384": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.75
-   }
-  },
-  "2301488992576": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.0
-   }
-  },
-  "2301488993104": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 1.0
-   }
-  },
-  "2301488993584": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.0
-   }
-  },
-  "2301488993728": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.0
-   }
-  },
-  "2301488993776": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 1.0
-   }
-  },
-  "2301488993920": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.75
-   }
-  },
-  "2301489162640": {
+  "1965696939312": {
    "meta": "box",
    "type": "Core.MeshFile",
    "val": {
@@ -379,51 +354,51 @@
     "name": "mesh0.obj",
     "objects": [
      {
-      "addr": 2301489440112,
+      "addr": 1965697020512,
       "meta": "ref"
      },
      {
-      "addr": 2301489438672,
+      "addr": 1965697019744,
       "meta": "ref"
      },
      {
-      "addr": 2301489439824,
+      "addr": 1965697022432,
       "meta": "ref"
      },
      {
-      "addr": 2301489439152,
+      "addr": 1965697018688,
       "meta": "ref"
      },
      {
-      "addr": 2301489439344,
+      "addr": 1965697022144,
       "meta": "ref"
      },
      {
-      "addr": 2301489438768,
+      "addr": 1965697022240,
       "meta": "ref"
      },
      {
-      "addr": 2301489444720,
+      "addr": 1965697020608,
       "meta": "ref"
      },
      {
-      "addr": 2301489442800,
+      "addr": 1965697020128,
       "meta": "ref"
      },
      {
-      "addr": 2301489440016,
+      "addr": 1965697022048,
       "meta": "ref"
      },
      {
-      "addr": 2301489440976,
+      "addr": 1965697020032,
       "meta": "ref"
      },
      {
-      "addr": 2301489442992,
+      "addr": 1965697021088,
       "meta": "ref"
      },
      {
-      "addr": 2301489442896,
+      "addr": 1965697018016,
       "meta": "ref"
      }
     ],
@@ -442,296 +417,266 @@
     }
    }
   },
-  "2301489208416": {
+  "1965696962256": {
    "meta": "box",
-   "type": "Sampler.Sobol",
-   "val": null
-  },
-  "2301489428512": {
-   "meta": "box",
-   "type": "Shader.Float",
+   "type": "Material.Mixed",
    "val": {
-    "value": 0.0
-   }
-  },
-  "2301489438672": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2301488643760
+    "emission": {
+     "addr": 1965697071856,
+     "meta": "ref"
     },
-    "name": "front_wall.blue.0"
-   }
-  },
-  "2301489438768": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2301488642800
+    "fraction": {
+     "addr": 1965697072000,
+     "meta": "ref"
     },
-    "name": "light.light.0"
-   }
-  },
-  "2301489439152": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2301488642992
+    "matA": {
+     "addr": 1965620209968,
+     "meta": "ref"
     },
-    "name": "floor.white.2"
-   }
-  },
-  "2301489439344": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2301488642032
+    "matB": {
+     "addr": 1965695425184,
+     "meta": "ref"
     },
-    "name": "green_wall.green.0"
+    "normalMap": null
    }
   },
-  "2301489439824": {
+  "1965696962640": {
    "meta": "box",
-   "type": "Core.Object",
+   "type": "Material.Mixed",
    "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2301488642992
+    "emission": {
+     "addr": 1965697072240,
+     "meta": "ref"
     },
-    "name": "floor.white.1"
+    "fraction": {
+     "addr": 1965697072096,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 1965620211792,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 1965695419424,
+     "meta": "ref"
+    },
+    "normalMap": null
    }
   },
-  "2301489440016": {
+  "1965696963024": {
    "meta": "box",
-   "type": "Core.Object",
+   "type": "Material.Mixed",
    "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2301488643568
+    "emission": {
+     "addr": 1965697071280,
+     "meta": "ref"
     },
-    "name": "red_wall.red.0"
+    "fraction": {
+     "addr": 1965697071712,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 1965620210880,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 1965695420384,
+     "meta": "ref"
+    },
+    "normalMap": null
    }
   },
-  "2301489440112": {
+  "1965696963408": {
    "meta": "box",
-   "type": "Core.Object",
+   "type": "Material.Mixed",
    "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2301488642992
+    "emission": {
+     "addr": 1965697072144,
+     "meta": "ref"
     },
-    "name": "floor.white.0"
+    "fraction": {
+     "addr": 1965697071760,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 1965620210576,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 1965695423904,
+     "meta": "ref"
+    },
+    "normalMap": null
    }
   },
-  "2301489440976": {
+  "1965696965328": {
    "meta": "box",
-   "type": "Core.Object",
+   "type": "Material.Mixed",
    "val": {
-    "alias": "short_block.white.0",
-    "material": {
-     "meta": "ref",
-     "val": 2301488642224
+    "emission": {
+     "addr": 1965696844320,
+     "meta": "ref"
     },
-    "name": "short_block.white.0"
+    "fraction": {
+     "addr": 1965697072432,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 1965620215744,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 1965695425824,
+     "meta": "ref"
+    },
+    "normalMap": null
    }
   },
-  "2301489442800": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2301488642992
-    },
-    "name": "back_wall.white.0"
-   }
-  },
-  "2301489442896": {
+  "1965697018016": {
    "meta": "box",
    "type": "Core.Object",
    "val": {
     "alias": "tall_block.glass.1",
     "material": {
      "meta": "ref",
-     "val": 2301488643376
+     "val": 1965697647152
     },
     "name": "tall_block.glass.1"
    }
   },
-  "2301489442992": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "tall_block.glass.0",
-    "material": {
-     "meta": "ref",
-     "val": 2301488643376
-    },
-    "name": "tall_block.glass.0"
-   }
-  },
-  "2301489444720": {
+  "1965697018688": {
    "meta": "box",
    "type": "Core.Object",
    "val": {
     "alias": "",
     "material": {
      "meta": "ref",
-     "val": 2301488642992
+     "val": 1965697647728
+    },
+    "name": "floor.white.2"
+   }
+  },
+  "1965697019744": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1965697648304
+    },
+    "name": "front_wall.blue.0"
+   }
+  },
+  "1965697020032": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "short_block.white.0",
+    "material": {
+     "meta": "ref",
+     "val": 1965697648880
+    },
+    "name": "short_block.white.0"
+   }
+  },
+  "1965697020128": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1965697647728
+    },
+    "name": "back_wall.white.0"
+   }
+  },
+  "1965697020512": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1965697647728
+    },
+    "name": "floor.white.0"
+   }
+  },
+  "1965697020608": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1965697647728
     },
     "name": "ceiling.white.0"
    }
   },
-  "2301489489488": {
+  "1965697021088": {
    "meta": "box",
-   "type": "Light.InfiniteArea",
+   "type": "Core.Object",
    "val": {
-    "lightType": 12,
-    "rotation": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "shader": null
+    "alias": "tall_block.glass.0",
+    "material": {
+     "meta": "ref",
+     "val": 1965697647152
+    },
+    "name": "tall_block.glass.0"
    }
   },
-  "2301489694464": {
+  "1965697022048": {
    "meta": "box",
-   "type": "Shader.RGB",
+   "type": "Core.Object",
    "val": {
-    "multiplier": 1.0,
-    "value": [
-     1.0,
-     1.0,
-     1.0
-    ]
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1965697648112
+    },
+    "name": "red_wall.red.0"
    }
   },
-  "2301489694592": {
+  "1965697022144": {
    "meta": "box",
-   "type": "Shader.RGB",
+   "type": "Core.Object",
    "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     0.0
-    ]
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1965697648496
+    },
+    "name": "green_wall.green.0"
    }
   },
-  "2301489694784": {
+  "1965697022240": {
    "meta": "box",
-   "type": "Shader.RGB",
+   "type": "Core.Object",
    "val": {
-    "multiplier": 20.0,
-    "value": [
-     1.0,
-     1.0,
-     1.0
-    ]
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1965697646000
+    },
+    "name": "light.light.0"
    }
   },
-  "2301489694848": {
+  "1965697022432": {
    "meta": "box",
-   "type": "Shader.RGB",
+   "type": "Core.Object",
    "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     1.0
-    ]
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 1965697647728
+    },
+    "name": "floor.white.1"
    }
   },
-  "2301489694912": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     0.0
-    ]
-   }
-  },
-  "2301489695872": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.6567796468734741,
-     0.6567730903625488,
-     0.6567730903625488
-    ]
-   }
-  },
-  "2301489695936": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     0.0
-    ]
-   }
-  },
-  "2301489696000": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     0.0
-    ]
-   }
-  },
-  "2301489696128": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     0.0
-    ]
-   }
-  },
-  "2301489696192": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.75,
-     0.25,
-     0.25
-    ]
-   }
-  },
-  "2301489704240": {
+  "1965697057856": {
    "meta": "box",
    "type": "Camera.PerspectiveCamera",
    "val": {
@@ -750,94 +695,151 @@
     ]
    }
   },
-  "2301489707632": {
+  "1965697071280": {
    "meta": "box",
-   "type": "Integrator.Path",
+   "type": "Shader.Float",
    "val": {
-    "denoised": false,
-    "maxDepth": 5,
-    "maxRayIntensity": 10000.0,
-    "minDepth": 3,
-    "spp": 64,
-    "useNEE": true
+    "value": 0.0
    }
   },
-  "2301490190544": {
+  "1965697071712": {
    "meta": "box",
-   "type": "Material.Diffuse",
+   "type": "Shader.Float",
    "val": {
-    "color": {
-     "addr": 2301488386992,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
+    "value": 0.75
    }
   },
-  "2301490194192": {
+  "1965697071760": {
    "meta": "box",
-   "type": "Material.Diffuse",
+   "type": "Shader.Float",
    "val": {
-    "color": {
-     "addr": 2301488386800,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
+    "value": 0.75
    }
   },
-  "2301490200880": {
+  "1965697071856": {
    "meta": "box",
-   "type": "Material.Diffuse",
+   "type": "Shader.Float",
    "val": {
-    "color": {
-     "addr": 2301489695872,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
+    "value": 0.0
    }
   },
-  "2301490201184": {
+  "1965697072000": {
    "meta": "box",
-   "type": "Material.Diffuse",
+   "type": "Shader.Float",
    "val": {
-    "color": {
-     "addr": 2301489696192,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
+    "value": 1.0
    }
   },
-  "2301490201488": {
+  "1965697072096": {
    "meta": "box",
-   "type": "Material.Diffuse",
+   "type": "Shader.Float",
    "val": {
-    "color": {
-     "addr": 2301489694848,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
+    "value": 1.0
    }
   },
-  "2301490201792": {
+  "1965697072144": {
    "meta": "box",
-   "type": "Material.Diffuse",
+   "type": "Shader.Float",
    "val": {
-    "color": {
-     "addr": 2301489694464,
+    "value": 0.0
+   }
+  },
+  "1965697072240": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.0
+   }
+  },
+  "1965697072432": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 1.0
+   }
+  },
+  "1965697646000": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1965696965328,
      "meta": "ref"
     },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
+    "medium": null,
+    "name": "light"
+   }
+  },
+  "1965697647152": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1965620214224,
+     "meta": "ref"
+    },
+    "medium": null,
+    "name": "glass"
+   }
+  },
+  "1965697647728": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1965696962640,
+     "meta": "ref"
+    },
+    "medium": null,
+    "name": "white"
+   }
+  },
+  "1965697648112": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1965696963024,
+     "meta": "ref"
+    },
+    "medium": null,
+    "name": "red"
+   }
+  },
+  "1965697648304": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1965696962256,
+     "meta": "ref"
+    },
+    "medium": null,
+    "name": "blue"
+   }
+  },
+  "1965697648496": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 1965696963408,
+     "meta": "ref"
+    },
+    "medium": null,
+    "name": "green"
+   }
+  },
+  "1965697648880": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": null,
+    "medium": {
+     "addr": 1965696716336,
+     "meta": "ref"
+    },
+    "name": "volume"
    }
   }
  },
@@ -846,11 +848,11 @@
   "val": {
    "activeCamera": {
     "meta": "ref",
-    "val": 2301489704240
+    "val": 1965697057856
    },
    "cameras": [
     {
-     "addr": 2301489704240,
+     "addr": 1965697057856,
      "meta": "ref"
     }
    ],
@@ -866,58 +868,58 @@
     }
    },
    "integrator": {
-    "addr": 2301489707632,
+    "addr": 1965696451904,
     "meta": "ref"
    },
    "lights": {
-    "addr": 2301411458128,
+    "addr": 1965620879424,
     "meta": "ref"
    },
    "materials": [
     {
-     "addr": 2301488642992,
+     "addr": 1965697647728,
      "meta": "ref"
     },
     {
-     "addr": 2301488642224,
+     "addr": 1965697648880,
      "meta": "ref"
     },
     {
-     "addr": 2301488643376,
+     "addr": 1965697647152,
      "meta": "ref"
     },
     {
-     "addr": 2301488643568,
+     "addr": 1965697648112,
      "meta": "ref"
     },
     {
-     "addr": 2301488642032,
+     "addr": 1965697648496,
      "meta": "ref"
     },
     {
-     "addr": 2301488643760,
+     "addr": 1965697648304,
      "meta": "ref"
     },
     {
-     "addr": 2301488642800,
+     "addr": 1965697646000,
      "meta": "ref"
     }
    ],
    "meshes": [
     {
-     "addr": 2301489162640,
+     "addr": 1965696939312,
      "meta": "ref"
     }
    ],
    "sampler": {
-    "addr": 2301489208416,
+    "addr": 1965696733712,
     "meta": "ref"
    },
    "worldConfig": {
     "type": "Core.WorldConfig",
     "val": {
      "environmentMap": {
-      "addr": 2301489489488,
+      "addr": 1965696760976,
       "meta": "ref"
      },
      "medium": null,
