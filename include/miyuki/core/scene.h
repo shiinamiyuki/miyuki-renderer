@@ -16,6 +16,7 @@ namespace Miyuki {
 			std::unique_ptr<EmbreeScene> embreeScene;
 			std::unordered_map<std::string, Core::Material*> materials;
 			std::unordered_map<std::string, Core::Material*> materialAssignment;
+			std::unordered_map<std::string, Core::Medium*> mediumAssignment;
 			std::vector<std::shared_ptr<Mesh>> instances;
 			std::map<std::string, std::shared_ptr<Mesh>> meshes;
 			std::map<std::string, uint32_t> meshToId;
@@ -32,8 +33,8 @@ namespace Miyuki {
 			void instantiateMesh(const std::string& filename, const std::string& meshName, const Transform&);
 			struct Visitor;
 
-			
-			
+
+
 
 			void assignMaterial(std::shared_ptr<Mesh> mesh);
 
@@ -107,8 +108,8 @@ namespace Miyuki {
 		inline void Scene::postIntersect(Intersection* isct) {
 			isct->primitive = &instances[isct->geomId]->getPrimitives()[isct->primId];
 			auto p = isct->primitive;
-			
-			
+
+
 
 			auto uv = PointOnTriangle(isct->primitive->textureCoord[0],
 				isct->primitive->textureCoord[1],
@@ -132,7 +133,7 @@ namespace Miyuki {
 			}
 
 			isct->Ng = p->Ng();
-			
+
 			isct->textureUV = uv;
 
 			// TODO: partial derivatives

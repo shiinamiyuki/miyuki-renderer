@@ -553,6 +553,7 @@ void main()
 			std::unique_lock<std::mutex> lock(mutex);
 			if (!lock.owns_lock())return;
 			auto graph = engine->getGraph();
+			if (!graph)return;
 			size_t w = film->width(), h = film->height();
 			if (w == graph->filmConfig.dimension[0] && h == graph->filmConfig.dimension[1]) {
 				pixelData.resize(w * h * 4ull);

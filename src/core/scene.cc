@@ -53,6 +53,7 @@ namespace Miyuki {
 			mesh->materials.clear();
 			for (const auto& name : mesh->names) {
 				mesh->materials.push_back(materialAssignment.at(name));
+				mesh->medium.push_back(mediumAssignment.at(name));
 			}
 		}
 		struct Scene::Visitor : Reflection::ReflectionVisitor {
@@ -129,22 +130,28 @@ namespace Miyuki {
 
 				});
 				whenVisit<Core::HomogeneousMedium>([](Core::HomogeneousMedium* medium) {
-				
+					
 				});
 				auto& loader = scene.imageLoader;
 				whenVisit<Core::ImageTextureShader>([=, &loader](Core::ImageTextureShader* shader) {
 					shader->texture = Texture(loader->load(shader->imageFile));
 				});
 				for (auto& material : graph.materials) {
-					visit(material->material);
-					visit(material->material->emission);
-					visit(material->material->normalMap);
+					if (material->material) {
+						visit(material->material);
+						visit(material->material->emission);
+						visit(material->material->normalMap);
+					}
+					if (material->medium) {
+						visit(material->medium);
+					}
 				}
 			}
 			void loadMeshes(Core::Graph& graph) {
 				for (auto& mesh : graph.meshes) {
 					for (auto& object : mesh->objects) {
 						scene.materialAssignment[object->name] = object->material->material.get();
+						scene.mediumAssignment[object->name] = object->material->medium.get();
 					}
 					scene.loadObjMeshAndInstantiate(mesh->file.fullpath().string(), mesh->name, mesh->transform);
 				}
@@ -169,7 +176,7 @@ namespace Miyuki {
 			for (auto instance : instances) {
 				for (auto& primitive : instance->getPrimitives()) {
 					auto mat = primitive.material();
-					if (mat->emission) {
+					if (mat && mat->emission) {
 						if (mat->emission->average().toVec3f().max() >= 1e-3f) {
 							auto light = makeBox<AreaLight>(&primitive);
 							primitive.setLight(light.get());

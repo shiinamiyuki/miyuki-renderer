@@ -11,8 +11,10 @@ namespace Miyuki {
 		Spectrum HomogeneousMedium::Tr(const Ray& ray, Sampler& sampler)const {
 			// ray.d is always normalized
 			Float d = ray.tMax;// *ray.d.length();
-			auto tau = sigma_t * d;
-			return removeNaNs(exp(-d * tau));
+			auto tau = sigma_t * -d;
+			auto Tr =  removeNaNs(exp( tau));
+			//fmt::print("{}\n", Tr.max());
+			return Tr;
 		}
 
 		Spectrum HomogeneousMedium::sample(MediumSample& sample)const {
@@ -22,14 +24,18 @@ namespace Miyuki {
 			bool sampledMedium = t < sample.ray.tMax;
 			if (sampledMedium) {
 				sample.phase = sample.arena->New<HenyeyGreenstein>(g);
+				sample.origin = sample.ray.o + t * sample.ray.d;
+				
 			}
 			Spectrum Tr = removeNaNs(exp(sigma_t * -t));
-			Spectrum density = sampledMedium ? sigma_t * Tr : Tr;
+			Spectrum density = sampledMedium ? (sigma_t * Tr) : Tr;
 			Float pdf = 0.0f;
 			for (int i = 0; i < Spectrum::dimension(); i++) {
 				pdf += density[i];
 			}
 			pdf /= Spectrum::dimension();
+		
+			//fmt::print("sample medium {} {}\n",t,(Tr * sigma_s / pdf).max());
 			return sampledMedium ? Tr * sigma_s / pdf : Tr / pdf;
 		}
 

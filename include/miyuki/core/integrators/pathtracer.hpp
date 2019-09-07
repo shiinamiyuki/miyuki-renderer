@@ -5,7 +5,9 @@
 #include <core/scene.h>
 #include <core/aovrecord.hpp>
 #include <core/bsdfs/bsdf.h>
-
+#include <core/medium/medium.h>
+#include <core/phases/phase.h>
+#include <utils/panic.h>
 namespace Miyuki {
 	namespace Core {
 		class PathTracer {
@@ -24,6 +26,7 @@ namespace Miyuki {
 				aov(ctx.cameraSample.pFilm), ray(ctx.primary) {
 				option = ENoSampleOption;
 				beta = Spectrum(1, 1, 1);
+				ray.mediumStack = &mediumStack;
 			}
 
 			const AOVRecord& getAOV()const noexcept {
@@ -38,7 +41,7 @@ namespace Miyuki {
 		protected:
 
 
-			void lightSampling()noexcept {
+			void lightSampling(bool handleMedia)noexcept {
 				if (scene.getLights().empty())return;
 				auto lightIdx = scene.getLightDistribution().sampleDiscrete(ctx.sampler->get1D());
 				auto light = scene.getLights()[lightIdx];
@@ -48,43 +51,87 @@ namespace Miyuki {
 				record.u = ctx.sampler->get2D();
 				light->sampleLi(isct, record, &tester);
 				Float lightPdf = scene.getLightDistribution().pdfDiscrete(lightIdx) * record.pdf;
+				Float scatteringPdf = 0;
 				if (record.pdf > 0 && !record.Le.isBlack()) {
 					// evaluate BSDF
 					auto wo = isct.worldToLocal(isct.wo);
 					auto wi = isct.worldToLocal(record.wi);
 					Float cosTheta = Vec3f::absDot(isct.Ns, record.wi);
-					Spectrum f = isct.bsdf->evaluate(wo, wi, option) * cosTheta;
+					Spectrum f;
+					Spectrum Ld = record.Le / lightPdf;
+
+					if (isct.isSurfaceScatteringEvent()) {
+						scatteringPdf = isct.bsdf->evaluatePdf(wo, wi, option);
+						f = isct.bsdf->evaluate(wo, wi, option) * cosTheta;
+					}
+					else if (isct.isVolumeScatteringEvent()) {
+						scatteringPdf = isct.phase->evaluate(wo, wi);
+						f = Spectrum(scatteringPdf);
+
+					}
+					else {
+						//panic("isct must be either surface or volume");
+						return;
+					}
 
 					// Visible and non-zero BSDF
-					if (!f.isBlack() && tester.visible(scene)) {
-						Spectrum Ld = record.Le / lightPdf;
-						auto scatteringPdf = isct.bsdf->evaluatePdf(wo, wi, option);
-						Float weight;
-						if (!light->isDelta()) {
-							// power heurisitcs
-							weight = PowerHeuristics(lightPdf, scatteringPdf);
+					if (!f.isBlack()) {
+						if (handleMedia) {
+							Ld *= tester.Tr(scene, *ctx.sampler);
+							/*	fmt::print("{}\n", (beta * f * Ld).max());*/
 						}
 						else {
-							weight = 1.0f;
-						}
-						if (depth == 1) {
-							static const BSDFLobe lobes[] = { BSDFLobe::EDiffuse, BSDFLobe::EGlossy };
-							Spectrum sum;
-							for (const auto lobe : lobes) {
-								auto fLobe = isct.bsdf->evaluate(wo, wi, option, lobe) * cosTheta;
-								sum += fLobe;
-								addLighting(lobe, beta * fLobe * Ld * weight);
+							if (!tester.visible(scene)) {
+								Ld = Spectrum(0.0);
 							}
-							addLighting(BSDFLobe::ESpecular, beta * (f - sum) * Ld * weight);
 						}
-						else {
-							addLighting(primaryLobe, beta * f * Ld * weight);
+						if (!Ld.isBlack()) {
+							Float weight;
+							if (!light->isDelta()) {
+								// power heurisitcs
+								weight = PowerHeuristics(lightPdf, scatteringPdf);
+							}
+							else {
+								weight = 1.0f;
+							}
+
+							if (depth == 1) {
+								if (handleMedia) {
+									addLighting(BSDFLobe::ETransmission, beta * f * Ld * weight);
+								}
+								else {
+									static const BSDFLobe lobes[] = { BSDFLobe::EDiffuse, BSDFLobe::EGlossy };
+									Spectrum sum;
+									for (const auto lobe : lobes) {
+										auto fLobe = isct.bsdf->evaluate(wo, wi, option, lobe) * cosTheta;
+										sum += fLobe;
+										addLighting(lobe, beta * fLobe * Ld * weight);
+									}
+									addLighting(BSDFLobe::ESpecular, beta * (f - sum) * Ld * weight);
+								}
+							}
+							else {
+								addLighting(primaryLobe, beta * f * Ld * weight);
+							}
 						}
 					}
 				}
 			}
+			void phaseSamping(const MediumSample& m)noexcept {
+				PhaseFunctionSample sample(isct, ctx.sampler);
+				isct.phase->sample(sample);
+				wi = sample.wi;
+				ray = Ray(m.origin, wi, RayBias);
+				ray.mediumStack = &mediumStack;
+				prevScatteringPdf = isct.phase->evaluate(sample.wo, sample.wi);
+				if (depth == 1) {
+					primaryLobe = ETransmission;
+				}
+				//fmt::print("{} {} {}\n", beta.x, beta.y, beta.z);
+			}
 
 			void BSDFSampling() noexcept {
+
 				sample = BSDFSample(isct, ctx.sampler, option);
 				isct.bsdf->sample(sample);
 				if (depth == 1) {
@@ -97,7 +144,10 @@ namespace Miyuki {
 				}
 				wi = isct.localToWorld(sample.wi);
 				ray = isct.spawnRay(wi);
+				ray.mediumStack = &mediumStack;
 				beta *= sample.f * Vec3f::absDot(isct.Ns, wi) / sample.pdf;
+				prevScatteringPdf = sample.pdf;
+
 			}
 			void handleEnvMap()noexcept {
 				auto light = scene.getEnvironmentLight();
@@ -125,7 +175,7 @@ namespace Miyuki {
 			}
 			void MIS() noexcept {
 				auto light = isct.primitive->light();
-				auto weight = computeMISWeight(light, sample.pdf, prevIsct);
+				auto weight = computeMISWeight(light, prevScatteringPdf, prevIsct);
 				addLighting(primaryLobe, beta * isct.Le(ray) * weight);
 			}
 
@@ -167,11 +217,14 @@ namespace Miyuki {
 					else {
 						isct = *firstIsct;
 						if (!loadMaterial(isct)) {
-							terminate();
+							//
+						}
+						else {
+							addLighting(EDiffuse, beta * firstIsct->Le(ray));
 						}
 					}
-					addLighting(EDiffuse, beta * firstIsct-> Le(ray));
-					
+
+
 				}
 				else {
 					if (!intersect()) {
@@ -180,27 +233,48 @@ namespace Miyuki {
 						aov.albedo = aov.L();
 						terminate();
 					}
-					addLighting(EDiffuse, beta * isct.Le(ray));
-					
+					else {
+						addLighting(EDiffuse, beta * isct.Le(ray));
+					}
+
 				}
-				if (!continuable())
+				if (!continuable()) {
 					return;
-				{
-					aov.normal = isct.Ns;
-					ShadingPoint p(isct.textureUV);
-					aov.albedo = isct.primitive->material()->evalAlbedo(p);
 				}
+				aov.normal = isct.Ns;
+				ShadingPoint p(isct.textureUV);
+				if (isct.primitive->material())
+					aov.albedo = isct.primitive->material()->evalAlbedo(p);
 				while (continuable()) {
 					if (!isct.hit())break;
+					MediumSample mediumSample(ray, ctx.sampler, ctx.arena);
+					mediumSample.ray.tMax = isct.distance;
+					auto Tr = sampleMedium(isct, mediumSample);
+					//fmt::print("{}\n", Tr.min());
+					beta *= Tr;
+					if (beta.isBlack()) {
+						terminate();
+						break;
+					}
 					if (++depth > maxDepth)break;
-					CHECK(isct.bsdf);
 
 					if (useNEE) {
-						lightSampling();
+						lightSampling(mediumSample.isValid());
 						if (!continuable())break;
 					}
 
-					BSDFSampling();
+					if (mediumSample.isValid()) {
+						phaseSamping(mediumSample);
+					}
+					else if(isct.bsdf){
+						BSDFSampling();
+					}
+					else {
+						depth--;
+						ray = isct.spawnRay(ray.d);
+						ray.mediumStack = &mediumStack;
+					}
+
 					if (!continuable())break;
 
 					nextIntersection();
@@ -210,8 +284,8 @@ namespace Miyuki {
 
 				}
 			}
-			bool loadMaterial(Intersection & isct)noexcept {
-				material = isct.primitive->material();
+			bool loadMaterial(Intersection& isct)noexcept {
+				auto material = isct.primitive->material();
 				if (!material)
 					return false;
 				BSDFCreationContext bsdfCtx(ShadingPoint(isct.textureUV), ctx.arena);
@@ -219,11 +293,26 @@ namespace Miyuki {
 				isct.bsdf = ARENA_ALLOC(*ctx.arena, BSDF)(impl, isct.Ng, isct.localFrame);
 				return isct.bsdf != nullptr;
 			}
+
+			// Try to sample the medium
+			// Returns (1,...) if no medium is presented
+			Spectrum sampleMedium(Intersection& isct, MediumSample& sample)noexcept {
+				auto medium = UpdateMediumStack(sample.ray, isct);
+				if (!medium) {
+					return Spectrum(1);
+				}
+				auto Tr = medium->sample(sample);
+				isct.phase = sample.phase;
+				//fmt::print("{}\n", Tr.max());
+				return Tr;
+			}
+
 			bool intersect() {
 				if (!scene.intersect(ray, &isct)) {
 					return false;
 				}
-				return loadMaterial(isct);
+				loadMaterial(isct);
+				return true;
 			}
 
 			void addLighting(BSDFLobe lobe, const Spectrum& lighting)noexcept {
@@ -263,13 +352,14 @@ namespace Miyuki {
 			BSDFLobe primaryLobe;
 			Ray ray;
 			Spectrum beta;
-			Material* material = nullptr;
 			BSDFSampleOption option;
 			int depth;
 			AOVRecord aov;
 			Intersection isct, prevIsct;
 			SamplingContext& ctx;
 			Scene& scene;
+			MediumStack mediumStack;
+			Float prevScatteringPdf;
 			int minDepth;
 			int maxDepth;
 			bool useNEE = false;

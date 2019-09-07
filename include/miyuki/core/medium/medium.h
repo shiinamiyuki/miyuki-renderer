@@ -13,10 +13,14 @@ namespace Miyuki {
 			const Ray ray;
 			Sampler* sampler;
 			MemoryArena* arena;
+			Vec3f origin;// new ray origin
 			PhaseFunction* phase = nullptr;
 			MediumSample(const Ray& ray,
 				Sampler* sampler,
 				MemoryArena* arena) :ray(ray), sampler(sampler), arena(arena) {}
+			bool isValid()const {
+				return phase != nullptr;
+			}
 		};
 		class Medium : public Reflective, public CachedPreprocessable {
 		public:

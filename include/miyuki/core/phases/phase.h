@@ -2,7 +2,8 @@
 
 #include <reflection.h>
 #include <miyuki.h>
-
+#include <core/intersection.hpp>
+#include <core/samplers/sampler.h>
 namespace Miyuki {
 	namespace Core {
 		struct PhaseFunctionSample {
@@ -10,6 +11,8 @@ namespace Miyuki {
 			Vec3f wo;
 			Float phase;
 			Point2f u;
+			PhaseFunctionSample(const Intersection& isct, Sampler* sampler)
+				:wo(isct.wo),u(sampler->get2D()){}
 		};
 
 		class PhaseFunction {

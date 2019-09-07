@@ -5,13 +5,17 @@
 namespace Miyuki {
 	namespace Core {
 		Spectrum Intersection::Le(const Ray& ray) {
-			if (Vec3f::dot(Ns, ray.d) < 0)
-				return Shader::evaluate(primitive->material()->emission, ShadingPoint(textureUV)).toVec3f();
+			if (primitive->material()) {
+				if (Vec3f::dot(Ns, ray.d) < 0)
+					return Shader::evaluate(primitive->material()->emission, ShadingPoint(textureUV)).toVec3f();
+			}
 			return {};
 		}
 		Spectrum Intersection::Le(const Vec3f& wi) {
-			if (Vec3f::dot(Ns, wi) < 0)
-				return Shader::evaluate(primitive->material()->emission, ShadingPoint(textureUV)).toVec3f();
+			if (primitive->material()) {
+				if (Vec3f::dot(Ns, wi) < 0)
+					return Shader::evaluate(primitive->material()->emission, ShadingPoint(textureUV)).toVec3f();
+			}
 			return {};
 		}
 		Material* Intersection::material()const {
@@ -21,7 +25,7 @@ namespace Miyuki {
 			return primitive->medium();
 		}
 		bool Intersection::isEntering()const {
-			return Vec3f::dot(wo, primitive->Ng()) < 0.0f;
+			return Vec3f::dot(wo, primitive->Ng()) > 0.0f;
 		}
 	}
 }

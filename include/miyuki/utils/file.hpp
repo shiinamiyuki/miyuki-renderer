@@ -28,7 +28,7 @@ namespace Miyuki {
 		file.path = j.get<std::string>();
 	}
 	inline void to_json(json& j, const File& file) {
-		j = file.relativePath().string();
+		j = file.fullpath().string();
 	}
 	namespace Reflection {
 		MYK_SAVE_LOAD_TRIVIAL(File)

@@ -1,449 +1,98 @@
 {
  "ref": {
-  "2232981486688": {
-   "meta": "box",
-   "type": "Integrator.Path",
-   "val": {
-    "denoised": true,
-    "maxDepth": 5,
-    "maxRayIntensity": 10000.0,
-    "minDepth": 3,
-    "spp": 64,
-    "useNEE": true
-   }
-  },
-  "2233030957664": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.0
-   }
-  },
-  "2233030958048": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.0
-   }
-  },
-  "2233030958096": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 1.0
-   }
-  },
-  "2233030958336": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.75
-   }
-  },
-  "2233030958480": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.0
-   }
-  },
-  "2233030958720": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 1.0
-   }
-  },
-  "2233030958768": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.0
-   }
-  },
-  "2233030958864": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.0
-   }
-  },
-  "2233030959200": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.0
-   }
-  },
-  "2233030959296": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.0
-   }
-  },
-  "2233030959392": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.4000000059604645
-   }
-  },
-  "2233030959824": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 1.0
-   }
-  },
-  "2233030960256": {
-   "meta": "box",
-   "type": "Shader.Float",
-   "val": {
-    "value": 0.75
-   }
-  },
-  "2233031661856": {
-   "meta": "box",
-   "type": "Material.Glossy",
-   "val": {
-    "color": {
-     "addr": 2233070386400,
-     "meta": "ref"
-    },
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233031662176": {
-   "meta": "box",
-   "type": "Material.Glossy",
-   "val": {
-    "color": {
-     "addr": 2233070386272,
-     "meta": "ref"
-    },
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233031662496": {
-   "meta": "box",
-   "type": "Material.Glossy",
-   "val": {
-    "color": {
-     "addr": 2233070386208,
-     "meta": "ref"
-    },
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233031663136": {
-   "meta": "box",
-   "type": "Material.Glossy",
-   "val": {
-    "color": {
-     "addr": 2233070385568,
-     "meta": "ref"
-    },
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233031663456": {
-   "meta": "box",
-   "type": "Material.Glossy",
-   "val": {
-    "color": null,
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233031666656": {
-   "meta": "box",
-   "type": "Material.Glossy",
-   "val": {
-    "color": {
-     "addr": 2233070385376,
-     "meta": "ref"
-    },
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233031667296": {
-   "meta": "box",
-   "type": "Material.Glossy",
-   "val": {
-    "color": {
-     "addr": 2233070386912,
-     "meta": "ref"
-    },
-    "emission": null,
-    "model": 0,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233031977216": {
+  "2301411458128": {
    "meta": "box",
    "type": "Core.LightCollection",
    "val": null
   },
-  "2233032701760": {
+  "2301487246560": {
    "meta": "box",
-   "type": "Core.Object",
+   "type": "Medium.Homogeneous",
    "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071015504
-    },
-    "name": "ceiling.white.0"
-   }
-  },
-  "2233032702240": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071017808
-    },
-    "name": "light.light.0"
-   }
-  },
-  "2233032702336": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071015504
-    },
-    "name": "back_wall.white.0"
-   }
-  },
-  "2233032702528": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071012240
-    },
-    "name": "tall_block.glass.1"
-   }
-  },
-  "2233032703584": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071015504
-    },
-    "name": "short_block.white.0"
-   }
-  },
-  "2233032704640": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071015504
-    },
-    "name": "floor.white.2"
-   }
-  },
-  "2233032704736": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071018000
-    },
-    "name": "front_wall.blue.0"
-   }
-  },
-  "2233032704928": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071012240
-    },
-    "name": "tall_block.glass.0"
-   }
-  },
-  "2233032706272": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071016464
-    },
-    "name": "green_wall.green.0"
-   }
-  },
-  "2233032706560": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071015504
-    },
-    "name": "floor.white.1"
-   }
-  },
-  "2233032706848": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071013392
-    },
-    "name": "red_wall.red.0"
-   }
-  },
-  "2233032732384": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2233071015504
-    },
-    "name": "floor.white.0"
-   }
-  },
-  "2233070385056": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.4000000059604645,
-     0.4000000059604645,
-     0.4000000059604645
+    "g": 0.0010000000474974513,
+    "sigma_a": [
+     0.6864407062530518,
+     0.6806234121322632,
+     0.6806234121322632
+    ],
+    "sigma_s": [
+     0.2336433380842209,
+     0.5207475423812866,
+     0.6059322357177734
     ]
    }
   },
-  "2233070385184": {
+  "2301488106512": {
    "meta": "box",
-   "type": "Shader.RGB",
+   "type": "Material.Glossy",
    "val": {
-    "multiplier": 20.0,
-    "value": [
-     1.0,
-     1.0,
-     1.0
-    ]
+    "color": {
+     "addr": 2301489696128,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": null
    }
   },
-  "2233070385376": {
+  "2301488106832": {
    "meta": "box",
-   "type": "Shader.RGB",
+   "type": "Material.Glossy",
    "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     0.0
-    ]
+    "color": {
+     "addr": 2301489695936,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": null
    }
   },
-  "2233070385440": {
+  "2301488107152": {
    "meta": "box",
-   "type": "Shader.RGB",
+   "type": "Material.Glossy",
    "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     1.0
-    ]
+    "color": {
+     "addr": 2301489696000,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": null
    }
   },
-  "2233070385568": {
+  "2301488107792": {
    "meta": "box",
-   "type": "Shader.RGB",
+   "type": "Material.Glossy",
    "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     0.0
-    ]
+    "color": {
+     "addr": 2301489694592,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": null
    }
   },
-  "2233070386144": {
+  "2301488111312": {
    "meta": "box",
-   "type": "Shader.RGB",
+   "type": "Material.Glossy",
    "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.75,
-     0.25,
-     0.25
-    ]
+    "color": {
+     "addr": 2301489694912,
+     "meta": "ref"
+    },
+    "emission": null,
+    "model": 0,
+    "normalMap": null,
+    "roughness": null
    }
   },
-  "2233070386208": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     0.0
-    ]
-   }
-  },
-  "2233070386272": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     0.0
-    ]
-   }
-  },
-  "2233070386400": {
+  "2301488386800": {
    "meta": "box",
    "type": "Shader.RGB",
    "val": {
@@ -455,43 +104,7 @@
     ]
    }
   },
-  "2233070386528": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     1.0,
-     1.0,
-     1.0
-    ]
-   }
-  },
-  "2233070386720": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     1.0,
-     1.0,
-     1.0
-    ]
-   }
-  },
-  "2233070386912": {
-   "meta": "box",
-   "type": "Shader.RGB",
-   "val": {
-    "multiplier": 1.0,
-    "value": [
-     0.0,
-     0.0,
-     0.0
-    ]
-   }
-  },
-  "2233070387040": {
+  "2301488386992": {
    "meta": "box",
    "type": "Shader.RGB",
    "val": {
@@ -503,175 +116,314 @@
     ]
    }
   },
-  "2233070449072": {
-   "meta": "box",
-   "type": "Camera.PerspectiveCamera",
-   "val": {
-    "direction": [
-     0.024000003933906555,
-     -0.01600000262260437,
-     0.0
-    ],
-    "focalDistance": 0.0,
-    "fov": 1.3962634801864624,
-    "lensRadius": 0.0,
-    "viewpoint": [
-     255.5384979248047,
-     289.3770446777344,
-     -656.1162109375
-    ]
-   }
-  },
-  "2233071012240": {
+  "2301488642032": {
    "meta": "box",
    "type": "Core.MaterialSlot",
    "val": {
     "material": {
-     "addr": 2233071549664,
-     "meta": "ref"
-    },
-    "medium": null,
-    "name": "glass"
-   }
-  },
-  "2233071013392": {
-   "meta": "box",
-   "type": "Core.MaterialSlot",
-   "val": {
-    "material": {
-     "addr": 2233072730128,
-     "meta": "ref"
-    },
-    "medium": null,
-    "name": "red"
-   }
-  },
-  "2233071014160": {
-   "meta": "box",
-   "type": "Core.MaterialSlot",
-   "val": {
-    "material": {
-     "addr": 2233071550048,
-     "meta": "ref"
-    },
-    "medium": null,
-    "name": "mirror"
-   }
-  },
-  "2233071015504": {
-   "meta": "box",
-   "type": "Core.MaterialSlot",
-   "val": {
-    "material": {
-     "addr": 2233071551200,
-     "meta": "ref"
-    },
-    "medium": null,
-    "name": "white"
-   }
-  },
-  "2233071016464": {
-   "meta": "box",
-   "type": "Core.MaterialSlot",
-   "val": {
-    "material": {
-     "addr": 2233071550816,
+     "addr": 2301488912384,
      "meta": "ref"
     },
     "medium": null,
     "name": "green"
    }
   },
-  "2233071017808": {
+  "2301488642224": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": null,
+    "medium": {
+     "addr": 2301487246560,
+     "meta": "ref"
+    },
+    "name": "volume"
+   }
+  },
+  "2301488642800": {
    "meta": "box",
    "type": "Core.MaterialSlot",
    "val": {
     "material": {
-     "addr": 2233072729360,
+     "addr": 2301488912000,
      "meta": "ref"
     },
     "medium": null,
     "name": "light"
    }
   },
-  "2233071018000": {
+  "2301488642992": {
    "meta": "box",
    "type": "Core.MaterialSlot",
    "val": {
     "material": {
-     "addr": 2233071550432,
+     "addr": 2301488913920,
+     "meta": "ref"
+    },
+    "medium": null,
+    "name": "white"
+   }
+  },
+  "2301488643376": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 2301490200880,
+     "meta": "ref"
+    },
+    "medium": null,
+    "name": "glass"
+   }
+  },
+  "2301488643568": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 2301488913536,
+     "meta": "ref"
+    },
+    "medium": null,
+    "name": "red"
+   }
+  },
+  "2301488643760": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": {
+     "addr": 2301488913152,
      "meta": "ref"
     },
     "medium": null,
     "name": "blue"
    }
   },
-  "2233071386640": {
+  "2301488912000": {
    "meta": "box",
-   "type": "Light.InfiniteArea",
+   "type": "Material.Mixed",
    "val": {
-    "lightType": 12,
-    "rotation": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "shader": null
+    "emission": {
+     "addr": 2301489694784,
+     "meta": "ref"
+    },
+    "fraction": {
+     "addr": 2301488993104,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 2301490201792,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 2301488107792,
+     "meta": "ref"
+    },
+    "normalMap": null
    }
   },
-  "2233071526464": {
+  "2301488912384": {
+   "meta": "box",
+   "type": "Material.Mixed",
+   "val": {
+    "emission": {
+     "addr": 2301488993728,
+     "meta": "ref"
+    },
+    "fraction": {
+     "addr": 2301488992384,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 2301490190544,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 2301488106512,
+     "meta": "ref"
+    },
+    "normalMap": null
+   }
+  },
+  "2301488913152": {
+   "meta": "box",
+   "type": "Material.Mixed",
+   "val": {
+    "emission": {
+     "addr": 2301489428512,
+     "meta": "ref"
+    },
+    "fraction": {
+     "addr": 2301488993776,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 2301490201488,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 2301488107152,
+     "meta": "ref"
+    },
+    "normalMap": null
+   }
+  },
+  "2301488913536": {
+   "meta": "box",
+   "type": "Material.Mixed",
+   "val": {
+    "emission": {
+     "addr": 2301488993584,
+     "meta": "ref"
+    },
+    "fraction": {
+     "addr": 2301488993920,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 2301490201184,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 2301488111312,
+     "meta": "ref"
+    },
+    "normalMap": null
+   }
+  },
+  "2301488913920": {
+   "meta": "box",
+   "type": "Material.Mixed",
+   "val": {
+    "emission": {
+     "addr": 2301488992576,
+     "meta": "ref"
+    },
+    "fraction": {
+     "addr": 2301488992240,
+     "meta": "ref"
+    },
+    "matA": {
+     "addr": 2301490194192,
+     "meta": "ref"
+    },
+    "matB": {
+     "addr": 2301488106832,
+     "meta": "ref"
+    },
+    "normalMap": null
+   }
+  },
+  "2301488992240": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 1.0
+   }
+  },
+  "2301488992384": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.75
+   }
+  },
+  "2301488992576": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.0
+   }
+  },
+  "2301488993104": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 1.0
+   }
+  },
+  "2301488993584": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.0
+   }
+  },
+  "2301488993728": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.0
+   }
+  },
+  "2301488993776": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 1.0
+   }
+  },
+  "2301488993920": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.75
+   }
+  },
+  "2301489162640": {
    "meta": "box",
    "type": "Core.MeshFile",
    "val": {
-    "file": "mesh\\mesh0.obj",
+    "file": "C:\\Users\\xiaoc\\source\\repos\\shiinamiyuki\\MiyukiRenderer\\tests\\cornell_box\\mesh\\mesh0.obj",
     "name": "mesh0.obj",
     "objects": [
      {
-      "addr": 2233032732384,
+      "addr": 2301489440112,
       "meta": "ref"
      },
      {
-      "addr": 2233032704736,
+      "addr": 2301489438672,
       "meta": "ref"
      },
      {
-      "addr": 2233032706560,
+      "addr": 2301489439824,
       "meta": "ref"
      },
      {
-      "addr": 2233032704640,
+      "addr": 2301489439152,
       "meta": "ref"
      },
      {
-      "addr": 2233032706272,
+      "addr": 2301489439344,
       "meta": "ref"
      },
      {
-      "addr": 2233032702240,
+      "addr": 2301489438768,
       "meta": "ref"
      },
      {
-      "addr": 2233032701760,
+      "addr": 2301489444720,
       "meta": "ref"
      },
      {
-      "addr": 2233032702336,
+      "addr": 2301489442800,
       "meta": "ref"
      },
      {
-      "addr": 2233032706848,
+      "addr": 2301489440016,
       "meta": "ref"
      },
      {
-      "addr": 2233032703584,
+      "addr": 2301489440976,
       "meta": "ref"
      },
      {
-      "addr": 2233032704928,
+      "addr": 2301489442992,
       "meta": "ref"
      },
      {
-      "addr": 2233032702528,
+      "addr": 2301489442896,
       "meta": "ref"
      }
     ],
@@ -690,258 +442,402 @@
     }
    }
   },
-  "2233071549664": {
-   "meta": "box",
-   "type": "Material.Mixed",
-   "val": {
-    "emission": {
-     "addr": 2233030959200,
-     "meta": "ref"
-    },
-    "fraction": {
-     "addr": 2233030958864,
-     "meta": "ref"
-    },
-    "matA": {
-     "addr": 2233071583440,
-     "meta": "ref"
-    },
-    "matB": {
-     "addr": 2233031661856,
-     "meta": "ref"
-    },
-    "normalMap": null
-   }
-  },
-  "2233071550048": {
-   "meta": "box",
-   "type": "Material.Mixed",
-   "val": {
-    "emission": {
-     "addr": 2233030957664,
-     "meta": "ref"
-    },
-    "fraction": {
-     "addr": 2233030959392,
-     "meta": "ref"
-    },
-    "matA": {
-     "addr": 2233071584960,
-     "meta": "ref"
-    },
-    "matB": {
-     "addr": 2233031663456,
-     "meta": "ref"
-    },
-    "normalMap": null
-   }
-  },
-  "2233071550432": {
-   "meta": "box",
-   "type": "Material.Mixed",
-   "val": {
-    "emission": {
-     "addr": 2233030958480,
-     "meta": "ref"
-    },
-    "fraction": {
-     "addr": 2233030958720,
-     "meta": "ref"
-    },
-    "matA": {
-     "addr": 2233071596816,
-     "meta": "ref"
-    },
-    "matB": {
-     "addr": 2233031666656,
-     "meta": "ref"
-    },
-    "normalMap": null
-   }
-  },
-  "2233071550816": {
-   "meta": "box",
-   "type": "Material.Mixed",
-   "val": {
-    "emission": {
-     "addr": 2233030958048,
-     "meta": "ref"
-    },
-    "fraction": {
-     "addr": 2233030958336,
-     "meta": "ref"
-    },
-    "matA": {
-     "addr": 2233071591344,
-     "meta": "ref"
-    },
-    "matB": {
-     "addr": 2233031663136,
-     "meta": "ref"
-    },
-    "normalMap": null
-   }
-  },
-  "2233071551200": {
-   "meta": "box",
-   "type": "Material.Mixed",
-   "val": {
-    "emission": {
-     "addr": 2233030959296,
-     "meta": "ref"
-    },
-    "fraction": {
-     "addr": 2233030958096,
-     "meta": "ref"
-    },
-    "matA": {
-     "addr": 2233071588000,
-     "meta": "ref"
-    },
-    "matB": {
-     "addr": 2233031667296,
-     "meta": "ref"
-    },
-    "normalMap": null
-   }
-  },
-  "2233071583440": {
-   "meta": "box",
-   "type": "Material.Diffuse",
-   "val": {
-    "color": null,
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233071584960": {
-   "meta": "box",
-   "type": "Material.Diffuse",
-   "val": {
-    "color": {
-     "addr": 2233070385056,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233071588000": {
-   "meta": "box",
-   "type": "Material.Diffuse",
-   "val": {
-    "color": {
-     "addr": 2233070386528,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233071591344": {
-   "meta": "box",
-   "type": "Material.Diffuse",
-   "val": {
-    "color": {
-     "addr": 2233070387040,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233071596512": {
-   "meta": "box",
-   "type": "Material.Diffuse",
-   "val": {
-    "color": {
-     "addr": 2233070386144,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233071596816": {
-   "meta": "box",
-   "type": "Material.Diffuse",
-   "val": {
-    "color": {
-     "addr": 2233070385440,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233071597728": {
-   "meta": "box",
-   "type": "Material.Diffuse",
-   "val": {
-    "color": {
-     "addr": 2233070386720,
-     "meta": "ref"
-    },
-    "emission": null,
-    "normalMap": null,
-    "roughness": null
-   }
-  },
-  "2233072177984": {
+  "2301489208416": {
    "meta": "box",
    "type": "Sampler.Sobol",
    "val": null
   },
-  "2233072729360": {
+  "2301489428512": {
    "meta": "box",
-   "type": "Material.Mixed",
+   "type": "Shader.Float",
    "val": {
-    "emission": {
-     "addr": 2233070385184,
-     "meta": "ref"
-    },
-    "fraction": {
-     "addr": 2233030959824,
-     "meta": "ref"
-    },
-    "matA": {
-     "addr": 2233071597728,
-     "meta": "ref"
-    },
-    "matB": {
-     "addr": 2233031662496,
-     "meta": "ref"
-    },
-    "normalMap": null
+    "value": 0.0
    }
   },
-  "2233072730128": {
+  "2301489438672": {
    "meta": "box",
-   "type": "Material.Mixed",
+   "type": "Core.Object",
    "val": {
-    "emission": {
-     "addr": 2233030958768,
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 2301488643760
+    },
+    "name": "front_wall.blue.0"
+   }
+  },
+  "2301489438768": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 2301488642800
+    },
+    "name": "light.light.0"
+   }
+  },
+  "2301489439152": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 2301488642992
+    },
+    "name": "floor.white.2"
+   }
+  },
+  "2301489439344": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 2301488642032
+    },
+    "name": "green_wall.green.0"
+   }
+  },
+  "2301489439824": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 2301488642992
+    },
+    "name": "floor.white.1"
+   }
+  },
+  "2301489440016": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 2301488643568
+    },
+    "name": "red_wall.red.0"
+   }
+  },
+  "2301489440112": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 2301488642992
+    },
+    "name": "floor.white.0"
+   }
+  },
+  "2301489440976": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "short_block.white.0",
+    "material": {
+     "meta": "ref",
+     "val": 2301488642224
+    },
+    "name": "short_block.white.0"
+   }
+  },
+  "2301489442800": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 2301488642992
+    },
+    "name": "back_wall.white.0"
+   }
+  },
+  "2301489442896": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "tall_block.glass.1",
+    "material": {
+     "meta": "ref",
+     "val": 2301488643376
+    },
+    "name": "tall_block.glass.1"
+   }
+  },
+  "2301489442992": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "tall_block.glass.0",
+    "material": {
+     "meta": "ref",
+     "val": 2301488643376
+    },
+    "name": "tall_block.glass.0"
+   }
+  },
+  "2301489444720": {
+   "meta": "box",
+   "type": "Core.Object",
+   "val": {
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 2301488642992
+    },
+    "name": "ceiling.white.0"
+   }
+  },
+  "2301489489488": {
+   "meta": "box",
+   "type": "Light.InfiniteArea",
+   "val": {
+    "lightType": 12,
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "shader": null
+   }
+  },
+  "2301489694464": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "2301489694592": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "2301489694784": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 20.0,
+    "value": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "2301489694848": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "2301489694912": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "2301489695872": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.6567796468734741,
+     0.6567730903625488,
+     0.6567730903625488
+    ]
+   }
+  },
+  "2301489695936": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "2301489696000": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "2301489696128": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "2301489696192": {
+   "meta": "box",
+   "type": "Shader.RGB",
+   "val": {
+    "multiplier": 1.0,
+    "value": [
+     0.75,
+     0.25,
+     0.25
+    ]
+   }
+  },
+  "2301489704240": {
+   "meta": "box",
+   "type": "Camera.PerspectiveCamera",
+   "val": {
+    "direction": [
+     0.12599998712539673,
+     -0.008000001311302185,
+     0.0
+    ],
+    "focalDistance": 0.0,
+    "fov": 1.3962634801864624,
+    "lensRadius": 0.0,
+    "viewpoint": [
+     160.3663330078125,
+     281.8887634277344,
+     -649.0548095703125
+    ]
+   }
+  },
+  "2301489707632": {
+   "meta": "box",
+   "type": "Integrator.Path",
+   "val": {
+    "denoised": false,
+    "maxDepth": 5,
+    "maxRayIntensity": 10000.0,
+    "minDepth": 3,
+    "spp": 64,
+    "useNEE": true
+   }
+  },
+  "2301490190544": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 2301488386992,
      "meta": "ref"
     },
-    "fraction": {
-     "addr": 2233030960256,
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "2301490194192": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 2301488386800,
      "meta": "ref"
     },
-    "matA": {
-     "addr": 2233071596512,
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "2301490200880": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 2301489695872,
      "meta": "ref"
     },
-    "matB": {
-     "addr": 2233031662176,
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "2301490201184": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 2301489696192,
      "meta": "ref"
     },
-    "normalMap": null
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "2301490201488": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 2301489694848,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
+   }
+  },
+  "2301490201792": {
+   "meta": "box",
+   "type": "Material.Diffuse",
+   "val": {
+    "color": {
+     "addr": 2301489694464,
+     "meta": "ref"
+    },
+    "emission": null,
+    "normalMap": null,
+    "roughness": null
    }
   }
  },
@@ -950,11 +846,11 @@
   "val": {
    "activeCamera": {
     "meta": "ref",
-    "val": 2233070449072
+    "val": 2301489704240
    },
    "cameras": [
     {
-     "addr": 2233070449072,
+     "addr": 2301489704240,
      "meta": "ref"
     }
    ],
@@ -965,65 +861,66 @@
       1280,
       720
      ],
-     "outputImage": "out.png",
+     "outputImage": "C:\\Users\\xiaoc\\source\\repos\\shiinamiyuki\\MiyukiRenderer\\tests\\cornell_box\\out.png",
      "scale": 0.0
     }
    },
    "integrator": {
-    "addr": 2232981486688,
+    "addr": 2301489707632,
     "meta": "ref"
    },
    "lights": {
-    "addr": 2233031977216,
+    "addr": 2301411458128,
     "meta": "ref"
    },
    "materials": [
     {
-     "addr": 2233071015504,
+     "addr": 2301488642992,
      "meta": "ref"
     },
     {
-     "addr": 2233071014160,
+     "addr": 2301488642224,
      "meta": "ref"
     },
     {
-     "addr": 2233071012240,
+     "addr": 2301488643376,
      "meta": "ref"
     },
     {
-     "addr": 2233071013392,
+     "addr": 2301488643568,
      "meta": "ref"
     },
     {
-     "addr": 2233071016464,
+     "addr": 2301488642032,
      "meta": "ref"
     },
     {
-     "addr": 2233071018000,
+     "addr": 2301488643760,
      "meta": "ref"
     },
     {
-     "addr": 2233071017808,
+     "addr": 2301488642800,
      "meta": "ref"
     }
    ],
    "meshes": [
     {
-     "addr": 2233071526464,
+     "addr": 2301489162640,
      "meta": "ref"
     }
    ],
    "sampler": {
-    "addr": 2233072177984,
+    "addr": 2301489208416,
     "meta": "ref"
    },
    "worldConfig": {
     "type": "Core.WorldConfig",
     "val": {
      "environmentMap": {
-      "addr": 2233071386640,
+      "addr": 2301489489488,
       "meta": "ref"
      },
+     "medium": null,
      "rayBias": 0.009999999776482582
     }
    }
