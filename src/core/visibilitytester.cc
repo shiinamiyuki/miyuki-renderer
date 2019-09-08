@@ -71,7 +71,7 @@ namespace Miyuki {
 			ray.mediumStack = &stack;
 			Spectrum Tr(1);
 			Float dist = 0;
-			while (true) {
+			while (dist < shadowRay.tMax - RayBias) {
 				Intersection isct;
 				bool hit = scene.intersect(ray, &isct);
 				if (hit && isct.geomId == geomId && isct.primId == primId) {
@@ -79,13 +79,12 @@ namespace Miyuki {
 					return Tr;
 				}
 				if (hit && isct.primitive->material()) {
-					//fmt::print("fuck\n");
+					//fmt::print("hit  {} {} {}\n",isct.primitive->name(), dist, shadowRay.tMax);
 					return Spectrum(0.0f);
 				}
 				if (!hit)break;
 
 				Tr *= Core::Tr(ray, isct, sampler);
-				//fmt::print("{}\n", Tr.max());
 
 				dist += isct.distance;
 				ray = isct.spawnRay(ray.d);

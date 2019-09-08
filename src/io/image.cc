@@ -94,13 +94,11 @@ namespace Miyuki {
 			Assert(ch == 3);
 			Assert(data);
 			image.pixelData.resize(image.width * image.height);
-			//	fmt::print("{}\n", (size_t)data);
 			Thread::ParallelFor(0u, image.width * image.height, [=, &image](uint32_t i, uint32_t threadId) {
-				//for (size_t i = 0; i < image.width * image.height; i++) {
+				CHECK(i < image.pixelData.size());
 				image.pixelData[i] = Spectrum(data[3 * i],
 					data[3 * i + 1],
 					data[3 * i + 2]);
-				//}
 			}, image.width);
 			free(data);
 

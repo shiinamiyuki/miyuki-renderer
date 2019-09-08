@@ -78,7 +78,7 @@ namespace Miyuki {
 					if (!f.isBlack()) {
 						if (handleMedia) {
 							Ld *= tester.Tr(scene, *ctx.sampler);
-							/*	fmt::print("{}\n", (beta * f * Ld).max());*/
+							//fmt::print("{}\n", (beta * f * Ld).max());
 						}
 						else {
 							if (!tester.visible(scene)) {
@@ -259,7 +259,7 @@ namespace Miyuki {
 					if (++depth > maxDepth)break;
 
 					if (useNEE) {
-						lightSampling(mediumSample.isValid());
+						lightSampling(true);
 						if (!continuable())break;
 					}
 

@@ -44,7 +44,7 @@ Goal: a high performance pbrt-style renderer.
   - [x] Importing Wavefront OBJ
   - [ ] Placing mesh files/textures in /mesh, /texture respectively when importing OBJ
   - [ ] Cross platform support. Some GUI code calls native Windows API for now.
-  - [ ] Interactive preview
+  - [x] Interactive preview
   - [ ] Hardware accelerated preview
 - [ ] Custom BVH RT kernel
 - [ ] Generic Math Utils
@@ -59,6 +59,9 @@ Goal: a high performance pbrt-style renderer.
 - [ ] Disney BSDF
 - [x] Environment Mapping
 - [ ] Volume rendering 
+  - [x] Multiple Importance Sampling
+  - [x] Homogeneous volume
+  - [ ] Heterogeneous volume
 - [ ] Path tracing & denoiser
   - [x] Basic Path Tracer with MIS
   - [ ] Generic Path Tracer
@@ -74,7 +77,7 @@ Goal: a high performance pbrt-style renderer.
 
 Dependencies: Embree 3.0, boost, OpenEXR,  GLFW3
 
-CMake everything. 
+I am still not quite familiar with CMake, so.. 
 
 ## Gallery 
 ## Editor
@@ -83,6 +86,8 @@ CMake everything.
 
 ### Random test images
 
+![](gallery/volume_knob.png)
+
 ![](gallery/living_room4.png)
 
 ![](gallery/future-city.png)
@@ -90,8 +95,6 @@ CMake everything.
 ![](gallery/mc_another_view.png)
 
 ![](gallery/mc_envmap.png)
-
-![](gallery/volume.png)
 
 ![](gallery/envmap.png)
 

@@ -1,23 +1,30 @@
 {
  "ref": {
-  "2693948106480": {
+  "2101716332944": {
    "meta": "box",
-   "type": "Sampler.Sobol",
-   "val": null
-  },
-  "2694023054656": {
-   "meta": "box",
-   "type": "Core.LightCollection",
-   "val": null
-  },
-  "2694023957920": {
-   "meta": "box",
-   "type": "Shader.Float",
+   "type": "Core.Object",
    "val": {
-    "value": 0.75
+    "alias": "",
+    "material": {
+     "meta": "ref",
+     "val": 2101756375648
+    },
+    "name": ".palette.0"
    }
   },
-  "2694024010928": {
+  "2101756375648": {
+   "meta": "box",
+   "type": "Core.MaterialSlot",
+   "val": {
+    "material": null,
+    "medium": {
+     "addr": 2101756495344,
+     "meta": "ref"
+    },
+    "name": "palette"
+   }
+  },
+  "2101756495344": {
    "meta": "box",
    "type": "Medium.Homogeneous",
    "val": {
@@ -31,12 +38,12 @@
      0.7542372941970825,
      0.40907785296440125
     ],
-    "density_a": 4.0,
+    "density_a": 0.10000000149011612,
     "density_s": 10.0,
     "g": 0.0
    }
   },
-  "2694024020240": {
+  "2101756642896": {
    "meta": "box",
    "type": "Integrator.Path",
    "val": {
@@ -48,21 +55,38 @@
     "useNEE": true
    }
   },
-  "2694024103776": {
+  "2101757094400": {
    "meta": "box",
-   "type": "Shader.Scaled",
+   "type": "Sampler.Sobol",
+   "val": null
+  },
+  "2101757101776": {
+   "meta": "box",
+   "type": "Camera.PerspectiveCamera",
    "val": {
-    "scale": {
-     "addr": 2694023957920,
-     "meta": "ref"
-    },
-    "shader": {
-     "addr": 2694100635024,
-     "meta": "ref"
-    }
+    "direction": [
+     -3.6519999504089355,
+     -0.3460000157356262,
+     0.0
+    ],
+    "focalDistance": 0.0,
+    "fov": 1.3962634801864624,
+    "lensRadius": 0.0,
+    "viewpoint": [
+     -4.459771633148193,
+     14.71994400024414,
+     11.777751922607422
+    ]
    }
   },
-  "2694024103952": {
+  "2101757459232": {
+   "meta": "box",
+   "type": "Shader.Float",
+   "val": {
+    "value": 0.75
+   }
+  },
+  "2101757601328": {
    "meta": "box",
    "type": "Core.MeshFile",
    "val": {
@@ -70,7 +94,7 @@
     "name": "mesh0.obj",
     "objects": [
      {
-      "addr": 2694025464992,
+      "addr": 2101716332944,
       "meta": "ref"
      }
     ],
@@ -89,38 +113,28 @@
     }
    }
   },
-  "2694024828288": {
+  "2101757601504": {
    "meta": "box",
-   "type": "Core.MaterialSlot",
+   "type": "Shader.Scaled",
    "val": {
-    "material": null,
-    "medium": {
-     "addr": 2694024010928,
+    "scale": {
+     "addr": 2101757459232,
      "meta": "ref"
     },
-    "name": "palette"
+    "shader": {
+     "addr": 2101757849424,
+     "meta": "ref"
+    }
    }
   },
-  "2694025464992": {
-   "meta": "box",
-   "type": "Core.Object",
-   "val": {
-    "alias": "",
-    "material": {
-     "meta": "ref",
-     "val": 2694024828288
-    },
-    "name": ".palette.0"
-   }
-  },
-  "2694100635024": {
+  "2101757849424": {
    "meta": "box",
    "type": "Shader.ImageTexture",
    "val": {
     "imageFile": "C:\\Users\\xiaoc\\Downloads\\noon_grass_4k.hdr"
    }
   },
-  "2694134890672": {
+  "2101757986992": {
    "meta": "box",
    "type": "Light.InfiniteArea",
    "val": {
@@ -131,29 +145,15 @@
      0.0
     ],
     "shader": {
-     "addr": 2694024103776,
+     "addr": 2101757601504,
      "meta": "ref"
     }
    }
   },
-  "2694145015344": {
+  "2101758419552": {
    "meta": "box",
-   "type": "Camera.PerspectiveCamera",
-   "val": {
-    "direction": [
-     -3.6519999504089355,
-     -0.3460000157356262,
-     0.0
-    ],
-    "focalDistance": 0.0,
-    "fov": 1.3962634801864624,
-    "lensRadius": 0.0,
-    "viewpoint": [
-     41.77284240722656,
-     448.7187194824219,
-     701.514404296875
-    ]
-   }
+   "type": "Core.LightCollection",
+   "val": null
   }
  },
  "val": {
@@ -161,11 +161,11 @@
   "val": {
    "activeCamera": {
     "meta": "ref",
-    "val": 2694145015344
+    "val": 2101757101776
    },
    "cameras": [
     {
-     "addr": 2694145015344,
+     "addr": 2101757101776,
      "meta": "ref"
     }
    ],
@@ -181,34 +181,34 @@
     }
    },
    "integrator": {
-    "addr": 2694024020240,
+    "addr": 2101756642896,
     "meta": "ref"
    },
    "lights": {
-    "addr": 2694023054656,
+    "addr": 2101758419552,
     "meta": "ref"
    },
    "materials": [
     {
-     "addr": 2694024828288,
+     "addr": 2101756375648,
      "meta": "ref"
     }
    ],
    "meshes": [
     {
-     "addr": 2694024103952,
+     "addr": 2101757601328,
      "meta": "ref"
     }
    ],
    "sampler": {
-    "addr": 2693948106480,
+    "addr": 2101757094400,
     "meta": "ref"
    },
    "worldConfig": {
     "type": "Core.WorldConfig",
     "val": {
      "environmentMap": {
-      "addr": 2694134890672,
+      "addr": 2101757986992,
       "meta": "ref"
      },
      "medium": null,
