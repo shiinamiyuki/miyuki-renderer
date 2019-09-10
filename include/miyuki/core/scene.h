@@ -59,6 +59,9 @@ namespace Miyuki {
 			Mesh* getMeshById(uint32_t id) {
 				return instances[id].get();
 			}
+			const std::vector<std::shared_ptr<Mesh>>& getInstances()const {
+				return instances;
+			}
 			Scene();
 			void commit(Core::Graph&);
 			void resetRayCount() { rayCounter = 0; }
