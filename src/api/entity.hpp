@@ -29,13 +29,22 @@
 #include <variant>
 
 namespace miyuki {
-    
+    namespace serialize {
+        class InputArchive;
+
+        class OutputArchive;
+    }
+
     // Base class for all entities in rendering
     class Entity {
     public:
         [[nodiscard]] virtual std::string getType() const = 0;
 
         [[nodiscard]] virtual std::string getImplementedInterface() const = 0;
+
+        virtual void save(serialize::OutputArchive &) const = 0;
+
+        virtual void load(serialize::InputArchive &) = 0;
     };
 
     class EntityFactory {

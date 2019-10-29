@@ -20,32 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_SERIALIZABLE_HPP
-#define MIYUKIRENDERER_SERIALIZABLE_HPP
+#ifndef MIYUKIRENDERER_SERIALIZE_HPP
+#define MIYUKIRENDERER_SERIALIZE_HPP
 
+// Minimalistic serialization library
+namespace miyuki::serialize{
+    class InputArchive;
+    class OutputArchive;
 
-namespace miyuki::serialize {
-    class InputArchive {
-
-    };
-
-    class OutputArchive {
-
-    };
-
-    class AbstractFactory {
-    public:
-
-    };
-
-    class Serializable {
-    public:
-        virtual void save(OutputArchive &) const = 0;
-
-        virtual void load(InputArchive &) = 0;
-
-        [[nodiscard]] virtual const char *type() const = 0;
-    };
 }
 
-#endif //MIYUKIRENDERER_SERIALIZABLE_HPP
+
+#endif //MIYUKIRENDERER_SERIALIZE_HPP
