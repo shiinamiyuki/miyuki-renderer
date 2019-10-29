@@ -1,9 +1,0 @@
-Wavefront OBJ material file
-# Contains 1 materials
-
-newmtl MC_material
-Kd 1 1 1
-Ks 0 0 0
-# for G3D, to make textures look blocky:
-interpolateMode NEAREST_MAGNIFICATION_TRILINEAR_MIPMAP_MINIFICATION
-map_Kd f-RGB.png
