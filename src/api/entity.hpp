@@ -56,6 +56,12 @@ namespace miyuki {
     };
 
 
+    namespace serialize {
+        void WriteEntity(serialize::OutputArchive &ar, const std::shared_ptr<Entity> &);
+
+        std::shared_ptr<Entity> ReadEntity(serialize::InputArchive &ar);
+    }
+
     class Type {
     public:
         virtual std::shared_ptr<Entity> create() const = 0;

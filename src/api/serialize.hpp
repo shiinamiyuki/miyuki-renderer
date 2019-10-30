@@ -337,13 +337,12 @@ namespace miyuki::serialize {
 }
 
 
-#define MYK_DECL_CLASS(Alias, ...) \
-    miyuki::Type * __getType()const{return staticType();}\
-    using Self = miyuki::serialize::GetMethodSelfType<decltype(&__getType)>::type;\
+#define MYK_DECL_CLASS(Classname, Alias, ...) \
+    using Self = Classname;\
     static miyuki::Type * staticType(){\
         return miyuki::GetStaticType<Self>(Alias);\
     }\
-    miyuki::Type * getType()const override{return __getType();}\
+    miyuki::Type * getType()const override{return staticType();}\
     static void _register(){\
         static_assert(std::is_final_v<Self>, Alias " must be final");\
         miyuki::RegisterEntity(Alias, staticType());\

@@ -20,28 +20,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_ENTITY_FUNCS_H
-#define MIYUKIRENDERER_ENTITY_FUNCS_H
+#ifndef MIYUKIRENDERER_PRIMITIVE_H
+#define MIYUKIRENDERER_PRIMITIVE_H
+
+#include <api/spectrum.h>
+#include <api/entity.hpp>
+#include <api/ray.h>
+
+namespace miyuki::core {
+    class AreaLight;
+
+    struct SurfaceSample {
+        Point3f p;
+        Float pdf;
+        Normal3f normal;
+    };
 
 
-#include <memory>
-#include <api/defs.h>
+    class Primitive : public Entity {
+    public:
+        virtual bool intersect(const Ray &ray, Intersection &isct) const = 0;
 
-namespace miyuki {
-    class Entity;
+        [[nodiscard]] virtual Bounds3f getBoundingBox() const = 0;
 
-    class Type;
+        [[nodiscard]] virtual AreaLight *getAreaLight() const { return nullptr; }
 
-    MYK_PUBLIC_API std::shared_ptr<Entity> CreateEntity(const std::string &type);
+        virtual void sample(const Point2f &u, SurfaceSample &sample) const = 0;
 
-    MYK_PUBLIC_API void RegisterEntity(const std::string &type, Type *);
-
-    MYK_PUBLIC_API void BindInterfaceImplementation(const std::string &interface, const std::string &alias);
-
-    template<class T>
-    void Register(){
-        T::_register();
-    }
+        [[nodiscard]] virtual Float area() const = 0;
+    };
 }
-
-#endif //MIYUKIRENDERER_ENTITY_FUNCS_H
+#endif //MIYUKIRENDERER_PRIMITIVE_H

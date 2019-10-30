@@ -20,28 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_ENTITY_FUNCS_H
-#define MIYUKIRENDERER_ENTITY_FUNCS_H
+#ifndef MIYUKIRENDERER_ACCELERATOR_H
+#define MIYUKIRENDERER_ACCELERATOR_H
 
+#include <api/primitive.h>
 
-#include <memory>
-#include <api/defs.h>
-
-namespace miyuki {
-    class Entity;
-
-    class Type;
-
-    MYK_PUBLIC_API std::shared_ptr<Entity> CreateEntity(const std::string &type);
-
-    MYK_PUBLIC_API void RegisterEntity(const std::string &type, Type *);
-
-    MYK_PUBLIC_API void BindInterfaceImplementation(const std::string &interface, const std::string &alias);
-
-    template<class T>
-    void Register(){
-        T::_register();
-    }
+namespace miyuki::core {
+    class Accelerator : public Primitive {
+    public:
+        virtual void build(const std::vector<Primitive*> &primitives) = 0;
+    };
 }
 
-#endif //MIYUKIRENDERER_ENTITY_FUNCS_H
+#endif //MIYUKIRENDERER_ACCELERATOR_H

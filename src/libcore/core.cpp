@@ -28,15 +28,6 @@
 
 
 namespace miyuki {
-    struct Foo final : Entity {
-        int a, b, c;
-    
-        MYK_DECL_CLASS("Foo")
-
-        MYK_AUTO_SER(a, b, c)
-
-    };
-
 
 }
 

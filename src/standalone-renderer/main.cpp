@@ -24,13 +24,15 @@
 
 #include <api/defs.h>
 #include <api/parallel.h>
+#include <api/entity.hpp>
 #include <api/detail/entity-funcs.h>
+#include <api/serialize.hpp>
+#include <api/log.hpp>
+
 
 int main() {
-    printf("Main\n");
-    miyuki::RegisterEntity("a", nullptr);
-    //miyuki::Initialize();
-    miyuki::ParallelFor(0, 100, [](int64_t index, size_t threadIdx) {});
+
+
     return 0;
 
 }

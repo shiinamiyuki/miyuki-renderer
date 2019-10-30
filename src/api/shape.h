@@ -20,28 +20,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_ENTITY_FUNCS_H
-#define MIYUKIRENDERER_ENTITY_FUNCS_H
+#ifndef MIYUKIRENDERER_SHAPE_H
+#define MIYUKIRENDERER_SHAPE_H
 
+#include <api/primitive.h>
 
-#include <memory>
-#include <api/defs.h>
+namespace miyuki::core {
+    class BSDF;
 
-namespace miyuki {
-    class Entity;
+    class Shape : public Primitive {
+    public:
+        [[nodiscard]] virtual BSDF *getBSDF() const = 0;
 
-    class Type;
+        // split shape according to given axis
+        // returns true iff split can be performed
+        virtual bool
+        split(Float coord, int axis, std::vector<std::shared_ptr<Shape>> &splitResults) const { return false; }
 
-    MYK_PUBLIC_API std::shared_ptr<Entity> CreateEntity(const std::string &type);
-
-    MYK_PUBLIC_API void RegisterEntity(const std::string &type, Type *);
-
-    MYK_PUBLIC_API void BindInterfaceImplementation(const std::string &interface, const std::string &alias);
-
-    template<class T>
-    void Register(){
-        T::_register();
-    }
+    };
 }
 
-#endif //MIYUKIRENDERER_ENTITY_FUNCS_H
+#endif //MIYUKIRENDERER_SHAPE_H

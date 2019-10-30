@@ -57,14 +57,26 @@ namespace miyuki {
         m[interface].insert(impl);
     }
 
-    void Initialize() {
-
+    std::shared_ptr<Entity> CreateEntity(const std::string &type) {
+        auto it = EntityManager::instance()->types.find(type);
+        if (it != EntityManager::instance()->types.end()) {
+            auto ty = it->second;
+            auto entity = ty->create();
+            return entity;
+        }
+        return {};
     }
 
-    void Finalize() {
-        delete EntityManager::instance();
-        log::log("Finalized\n");
-    }
+    namespace serialize {
+        void WriteEntity(serialize::OutputArchive &ar, const std::shared_ptr<Entity> &e) {
+            ar(e);
+        }
 
+        std::shared_ptr<Entity> ReadEntity(serialize::InputArchive &ar) {
+            std::shared_ptr<Entity> e;
+            ar(e);
+            return e;
+        }
+    }
 }
 

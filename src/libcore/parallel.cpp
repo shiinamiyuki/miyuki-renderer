@@ -41,7 +41,7 @@ namespace miyuki {
     public:
         ParallelForContext() noexcept : workers(GetCoreNumber()), shutdown(false), activeWorkers(0) {
             for (int i = 0; i < workers.size(); i++) {
-                workers[i] = std::move(std::thread([=, this]() {
+                workers[i] = std::move(std::thread([=]() {
                     uint32_t threadId = i;
                     std::unique_lock<std::mutex> lock(taskMutex);
                     while (!shutdown) {

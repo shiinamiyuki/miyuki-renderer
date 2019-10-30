@@ -20,28 +20,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_ENTITY_FUNCS_H
-#define MIYUKIRENDERER_ENTITY_FUNCS_H
+#ifndef MIYUKIRENDERER_SPECTRUM_H
+#define MIYUKIRENDERER_SPECTRUM_H
 
-
-#include <memory>
 #include <api/defs.h>
+#include <api/math.hpp>
 
-namespace miyuki {
-    class Entity;
+namespace miyuki::core {
 
-    class Type;
+        using Spectrum = Vec3f;
 
-    MYK_PUBLIC_API std::shared_ptr<Entity> CreateEntity(const std::string &type);
+        inline bool IsBlack(const Spectrum &s) {
+            return s.x <= 0 || s.y <= 0 || s.z <= 0;
+        }
 
-    MYK_PUBLIC_API void RegisterEntity(const std::string &type, Type *);
-
-    MYK_PUBLIC_API void BindInterfaceImplementation(const std::string &interface, const std::string &alias);
-
-    template<class T>
-    void Register(){
-        T::_register();
-    }
 }
-
-#endif //MIYUKIRENDERER_ENTITY_FUNCS_H
+#endif //MIYUKIRENDERER_SPECTRUM_H

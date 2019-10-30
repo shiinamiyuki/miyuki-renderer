@@ -20,28 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_ENTITY_FUNCS_H
-#define MIYUKIRENDERER_ENTITY_FUNCS_H
+#ifndef MIYUKIRENDERER_INTERFACES_H
+#define MIYUKIRENDERER_INTERFACES_H
 
-
-#include <memory>
-#include <api/defs.h>
+#include <entity.hpp>
 
 namespace miyuki {
-    class Entity;
+    class Integrator : public Entity {
+    public:
 
-    class Type;
-
-    MYK_PUBLIC_API std::shared_ptr<Entity> CreateEntity(const std::string &type);
-
-    MYK_PUBLIC_API void RegisterEntity(const std::string &type, Type *);
-
-    MYK_PUBLIC_API void BindInterfaceImplementation(const std::string &interface, const std::string &alias);
-
-    template<class T>
-    void Register(){
-        T::_register();
-    }
+    };
 }
 
-#endif //MIYUKIRENDERER_ENTITY_FUNCS_H
+#endif //MIYUKIRENDERER_INTERFACES_H
