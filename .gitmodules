@@ -1,9 +1,6 @@
 [submodule "external/linalg"]
 	path = external/linalg
 	url = https://github.com/shiinamiyuki/linalg
-[submodule "external/fmt"]
-	path = external/fmt
-	url = https://github.com/fmtlib/fmt
 [submodule "external/json"]
 	path = external/json
 	url = https://github.com/nlohmann/json
@@ -19,3 +16,6 @@
 [submodule "external/cereal"]
 	path = external/cereal
 	url = https://github.com/USCiLab/cereal
+[submodule "external/fmt"]
+	path = external/fmt
+	url = https://github.com/fmtlib/fmt
