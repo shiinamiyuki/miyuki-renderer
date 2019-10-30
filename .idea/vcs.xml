@@ -2,6 +2,12 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/fmt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/json" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/linalg" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/pybind11" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/stb" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/tinyobjloader" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lunatic" vcs="Git" />
   </component>
 </project>

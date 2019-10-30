@@ -76,10 +76,10 @@ namespace miyuki{
 
 #ifdef _MSV_VER
 
-#define     MIYUKI_PUBLIC_API __declspec(dllexport)
+#define     MYK_PUBLIC_API __declspec(dllexport)
 #elif defined(__GNUC__) || defined(__MINGW32__)
-#define     MIYUKI_PUBLIC_API  __attribute__ ((visibility("default")))
-#define     MIYUKI_PRIVATE_API  __attribute__ ((visibility("hidden")))
+#define     MYK_PUBLIC_API  __attribute__ ((visibility("default"))) __declspec(dllexport)
+#define     MYK_PRIVATE_API  __attribute__ ((visibility("hidden")))
 #endif
 }
 #endif //MIYUKIRENDERER_DEFS_H

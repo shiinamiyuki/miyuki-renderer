@@ -20,3 +20,51 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <api/serialize.hpp>
+
+#include <api/entity.hpp>
+#include <unordered_set>
+#include <set>
+#include <string>
+#include <api/log.hpp>
+
+namespace miyuki {
+    struct EntityManager {
+        static EntityManager *_instance;
+
+        static EntityManager *instance() {
+            static std::once_flag flag;
+            std::call_once(flag, [&]() { _instance = new EntityManager(); });
+            return _instance;
+        }
+
+        std::unordered_map<std::string, Type *> types;
+        std::unordered_map<std::string, std::set<std::string>> impls;
+    };
+
+    EntityManager *EntityManager::_instance;
+
+    void RegisterEntity(const std::string &alias, Type *type) {
+        EntityManager::instance()->types[alias] = type;
+        log::log("Registered {}\n", alias);
+    }
+
+    void BindInterfaceImplementation(const std::string &interface, const std::string &impl) {
+        auto &m = EntityManager::instance()->impls;
+        if (m.find(interface) == m.end()) {
+            m[interface] = {};
+        }
+        m[interface].insert(impl);
+    }
+
+    void Initialize() {
+
+    }
+
+    void Finalize() {
+        delete EntityManager::instance();
+        log::log("Finalized\n");
+    }
+
+}
+

@@ -23,4 +23,24 @@
 #ifndef MIYUKIRENDERER_ENTITY_FUNCS_H
 #define MIYUKIRENDERER_ENTITY_FUNCS_H
 
+
+#include <memory>
+#include <api/defs.h>
+
+namespace miyuki {
+    class Entity;
+
+    class Type;
+
+    MYK_PUBLIC_API std::shared_ptr<Entity> CreateEntity(const std::string &type);
+
+    MYK_PUBLIC_API void RegisterEntity(const std::string &type, Type *);
+
+    MYK_PUBLIC_API void BindInterfaceImplementation(const std::string &interface, const std::string &alias);
+
+    MYK_PUBLIC_API void Initialize();
+
+    MYK_PUBLIC_API void Finalize();
+}
+
 #endif //MIYUKIRENDERER_ENTITY_FUNCS_H

@@ -41,7 +41,7 @@ namespace miyuki {
     public:
         ParallelForContext() noexcept : workers(GetCoreNumber()), shutdown(false), activeWorkers(0) {
             for (int i = 0; i < workers.size(); i++) {
-                workers[i] = std::move(std::thread([=,this]() {
+                workers[i] = std::move(std::thread([=, this]() {
                     uint32_t threadId = i;
                     std::unique_lock<std::mutex> lock(taskMutex);
                     while (!shutdown) {
@@ -106,24 +106,17 @@ namespace miyuki {
     static size_t CoreNumber = std::thread::hardware_concurrency();
     static ParallelForContext parallelForContext;
 
-    void ParallelFor(int64_t
-    begin,
-    int64_t end, WorkFunc
-    func,
-    size_t workSize
-    ) {
-    parallelForContext.
-    parallelFor(begin, end, std::move(func), workSize
-    );
-}
+    void ParallelFor(int64_t begin, int64_t end, WorkFunc func, size_t workSize) {
+        parallelForContext.parallelFor(begin, end, std::move(func), workSize);
+    }
 
 
-size_t GetCoreNumber() {
-    return CoreNumber;
-}
+    size_t GetCoreNumber() {
+        return CoreNumber;
+    }
 
-void SetCoreNumber(size_t N) {
-    CoreNumber = N;
-}
+    void SetCoreNumber(size_t N) {
+        CoreNumber = N;
+    }
 
 }

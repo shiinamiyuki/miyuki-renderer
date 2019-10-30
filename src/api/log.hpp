@@ -23,4 +23,15 @@
 #ifndef MIYUKIRENDERER_LOG_HPP
 #define MIYUKIRENDERER_LOG_HPP
 
+#include <fmt/format.h>
+namespace miyuki::log{
+    void SetLogLevel(int);
+
+    int GetLogLevel();
+
+    template<class... Args>
+    void log(const char *fmt, Args &&...args) {
+        fmt::print(fmt, args...);
+    }
+}
 #endif //MIYUKIRENDERER_LOG_HPP

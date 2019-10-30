@@ -22,3 +22,21 @@
 
 #include <api/detail/staticobject.hpp>
 #include <cstdio>
+
+#include <api/entity.hpp>
+#include <api/serialize.hpp>
+
+
+namespace miyuki {
+    struct Foo final : Entity {
+        int a, b, c;
+    
+        MYK_DECL_CLASS("Foo")
+
+        MYK_AUTO_SER(a, b, c)
+
+    };
+
+
+}
+

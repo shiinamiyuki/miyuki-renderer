@@ -23,7 +23,14 @@
 #include <pybind11/pybind11.h>
 
 #include <api/defs.h>
-int main(){
+#include <api/parallel.h>
+#include <api/detail/entity-funcs.h>
+
+int main() {
     printf("Main\n");
+    miyuki::RegisterEntity("a", nullptr);
+    //miyuki::Initialize();
+    miyuki::ParallelFor(0, 100, [](int64_t index, size_t threadIdx) {});
+    return 0;
 
 }

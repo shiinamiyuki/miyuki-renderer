@@ -27,31 +27,64 @@
 #include <memory>
 #include <unordered_map>
 #include <variant>
+#include <api/entity.hpp>
+#include <mutex>
+
+#include <nlohmann/json_fwd.hpp>
 
 namespace miyuki {
+    using json = nlohmann::json;
     namespace serialize {
         class InputArchive;
 
         class OutputArchive;
     }
+    class Type;
 
     // Base class for all entities in rendering
     class Entity {
     public:
-        [[nodiscard]] virtual std::string getType() const = 0;
+        [[nodiscard]] virtual Type *getType() const = 0;
 
-        [[nodiscard]] virtual std::string getImplementedInterface() const = 0;
+        virtual void save(serialize::OutputArchive &) const {}
 
-        virtual void save(serialize::OutputArchive &) const = 0;
+        virtual void load(serialize::InputArchive &) {}
 
-        virtual void load(serialize::InputArchive &) = 0;
+        virtual void initialize(const json &) const {}
+
+        virtual bool isSerializable() const { return false; }
     };
 
-    class EntityFactory {
+
+    class Type {
     public:
-        virtual std::shared_ptr<Entity> create() = 0;
+        virtual std::shared_ptr<Entity> create() const = 0;
+
+        virtual const char *name() const = 0;
 
     };
+
+
+    template<class T>
+    Type *GetStaticType(const char *_name) {
+        struct TypeImpl : Type {
+            const char *_name;
+
+            explicit TypeImpl(const char *name) : _name(name) {}
+
+            [[nodiscard]] std::shared_ptr<Entity> create() const override {
+                return std::make_shared<T>();
+            }
+
+            [[nodiscard]] const char *name() const override {
+                return _name;
+            }
+        };
+        static std::once_flag flag;
+        static TypeImpl *type = nullptr;
+        std::call_once(flag, [&]() { type = new TypeImpl(_name); });
+        return type;
+    }
 
 
     enum class NodeType {
@@ -75,8 +108,6 @@ namespace miyuki {
     public:
 
     };
-
-
 }
 
 #endif //MIYUKIRENDERER_ENTITY_HPP
