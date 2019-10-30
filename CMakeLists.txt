@@ -20,7 +20,10 @@ include_directories(external/fmt/include)
 include_directories(external/tinyobjloader/)
 
 file(GLOB MiyukiAPI src/api/*.h src/api/*.hpp src/api/detail/*.hpp src/api/detail/*.h external/tinyobjloader/tiny_obj_loader.cc)
-file(GLOB libcoreSource src/core/*.cpp)
+file(GLOB libcoreSource src/core/*.cpp
+            src/core/accelerators/*.*
+
+        )
 add_library(core ${MiyukiAPI} ${libcoreSource})
 target_link_libraries(core fmt)
 add_executable(miyuki-renderer src/standalone-renderer/main.cpp ${MiyukiAPI})

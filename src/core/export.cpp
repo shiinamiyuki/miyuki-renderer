@@ -20,13 +20,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <pybind11/pybind11.h>
+#include "export.h"
+#include "accelerators/sahbvh.h"
+#include "mesh.h"
 
-#include <core/export.h>
+namespace miyuki::core {
+    void Initialize() {
+        Register<BVHAccelerator>();
+        Register<Mesh>();
+        Register<MeshInstance>();
+        Register<MeshTriangle>();
+    }
 
-int main() {
-    miyuki::core::Initialize();
-    miyuki::core::Finalize();
-    return 0;
+    void Finalize() {
 
+    }
 }

@@ -20,13 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <pybind11/pybind11.h>
+#ifndef MIYUKIRENDERER_EXPORT_H
+#define MIYUKIRENDERER_EXPORT_H
 
-#include <core/export.h>
-
-int main() {
-    miyuki::core::Initialize();
-    miyuki::core::Finalize();
-    return 0;
-
+namespace miyuki::core{
+   void Initialize();
+   void Finalize();
 }
+#endif //MIYUKIRENDERER_EXPORT_H
