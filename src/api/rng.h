@@ -20,30 +20,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/bsdfs/diffusebsdf.h"
-#include "core/integrators/rtao.h"
-#include "core/samplers/random-sampler.h"
+#ifndef MIYUKIRENDERER_RNG_H
+#define MIYUKIRENDERER_RNG_H
+
+#include <limits>
+#include <cstdint>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-        Register<RTAO>();
-        Register<RandomSampler>();
-    }
+    // https://en.wikipedia.org/wiki/Permuted_congruential_generator
+    class Rng {
+        uint64_t state;
+        static uint64_t const multiplier = 6364136223846793005u;
+        static uint64_t const increment = 1442695040888963407u;
 
-    void Finalize() {
+        static uint32_t rotr32(uint32_t x, unsigned r) {
+            return x >> r | x << (-r & 31);
+        }
 
-    }
+        uint32_t pcg32() {
+            uint64_t x = state;
+            auto count = (unsigned) (x >> 59ULL);        // 59 = 64 - 5
+
+            state = x * multiplier + increment;
+            x ^= x >> 18ULL;                                // 18 = (64 - 27)/2
+            return rotr32((uint32_t)(x >> 27ULL), count);    // 27 = 32 - 5
+        }
+
+    public:
+        explicit Rng(uint64_t state = 0) : state(state + increment) {
+            pcg32();
+        }
+
+        uint32_t uniformUint32() {
+            return pcg32();
+        }
+
+        float uniformFloat() {
+            return float(uniformUint32()) / std::numeric_limits<uint32_t>::max();
+        }
+
+    };
 }
+#endif //MIYUKIRENDERER_RNG_H

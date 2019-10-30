@@ -48,6 +48,8 @@ namespace miyuki::core {
         virtual void sample(const Point2f &u, SurfaceSample &sample) const = 0;
 
         [[nodiscard]] virtual Float area() const = 0;
+
+        virtual void foreachSubPrimitive(const std::function<void(Primitive *)>) {}
     };
 }
 #endif //MIYUKIRENDERER_PRIMITIVE_H

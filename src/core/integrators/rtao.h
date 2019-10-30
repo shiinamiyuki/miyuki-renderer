@@ -20,30 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/bsdfs/diffusebsdf.h"
-#include "core/integrators/rtao.h"
-#include "core/samplers/random-sampler.h"
+#ifndef MIYUKIRENDERER_RTAO_H
+#define MIYUKIRENDERER_RTAO_H
+
+#include <api/integrator.h>
+#include <api/serialize.hpp>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-        Register<RTAO>();
-        Register<RandomSampler>();
-    }
+    class RTAO final: public Integrator {
+        int spp;
+    public:
+        MYK_DECL_CLASS(RTAO, "RTAO", interface = "Integrator")
 
-    void Finalize() {
+        void render(const std::shared_ptr<Scene> &ptr, const std::shared_ptr<Camera> &sharedPtr,
+                    const std::shared_ptr<Sampler> &ptr1, Film &film) override;
 
-    }
+    };
 }
+
+
+#endif //MIYUKIRENDERER_RTAO_H

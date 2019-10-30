@@ -20,30 +20,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/bsdfs/diffusebsdf.h"
-#include "core/integrators/rtao.h"
-#include "core/samplers/random-sampler.h"
+#ifndef MIYUKIRENDERER_SAMPLER_H
+#define MIYUKIRENDERER_SAMPLER_H
+
+#include <api/entity.hpp>
+#include <api/math.hpp>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-        Register<RTAO>();
-        Register<RandomSampler>();
-    }
+    class Sampler : public Entity {
+    public:
+        virtual void startPixel(const Point2i &, const Point2i &filmDimension) = 0;
 
-    void Finalize() {
+        virtual Float next1D() = 0;
 
-    }
+        virtual Point2f next2D() {
+            return Point2f(next1D(), next1D());
+        }
+
+        virtual std::shared_ptr<Sampler> clone() const = 0;
+    };
 }
+
+#endif //MIYUKIRENDERER_SAMPLER_H

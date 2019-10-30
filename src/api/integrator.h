@@ -20,30 +20,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/bsdfs/diffusebsdf.h"
-#include "core/integrators/rtao.h"
-#include "core/samplers/random-sampler.h"
+#ifndef MIYUKIRENDERER_INTEGRATOR_H
+#define MIYUKIRENDERER_INTEGRATOR_H
+
+#include <api/entity.hpp>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-        Register<RTAO>();
-        Register<RandomSampler>();
-    }
+    class Camera;
 
-    void Finalize() {
+    class Scene;
 
-    }
+    class Sampler;
+
+    class Film;
+
+    class Integrator : public Entity {
+    public:
+        virtual void render(const std::shared_ptr<Scene> &,
+                            const std::shared_ptr<Camera> &,
+                            const std::shared_ptr<Sampler> &,
+                            Film &film) = 0;
+    };
 }
+
+
+#endif //MIYUKIRENDERER_INTEGRATOR_H

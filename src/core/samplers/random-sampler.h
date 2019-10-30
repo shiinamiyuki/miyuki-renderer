@@ -20,30 +20,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/bsdfs/diffusebsdf.h"
-#include "core/integrators/rtao.h"
-#include "core/samplers/random-sampler.h"
+#ifndef MIYUKIRENDERER_RANDOM_SAMPLER_H
+#define MIYUKIRENDERER_RANDOM_SAMPLER_H
+
+#include <api/rng.h>
+#include <api/sampler.h>
+#include <api/serialize.hpp>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-        Register<RTAO>();
-        Register<RandomSampler>();
-    }
+    class RandomSampler final : public Sampler {
+        Rng rng;
+    public:
+        MYK_DECL_CLASS(RandomSampler, "RandomSampler", interface = "Sampler")
 
-    void Finalize() {
+        RandomSampler(uint32_t seed = 0) : rng(seed) {}
 
-    }
+        void startPixel(const Point2i &i, const Point2i &filmDimension) override {
+            rng = Rng(i.x + i.y * filmDimension.x);
+        }
+
+        Float next1D() override {
+            return rng.uniformFloat();
+        }
+
+        [[nodiscard]] std::shared_ptr<Sampler> clone() const override {
+            return std::make_shared<RandomSampler>();
+        }
+    };
+
 }
+
+#endif //MIYUKIRENDERER_RANDOM_SAMPLER_H

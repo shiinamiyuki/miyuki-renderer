@@ -25,9 +25,22 @@
 namespace miyuki::core {
     void PerspectiveCamera::initialize(const json &params) {
         fov = DegreesToRadians(params.at("fov").get<Float>());
-        auto viewpoint = params.at("eye").get<Vec3f>();
-        auto at = params.at("at").get<Vec3f>();
-        transform = Transform(Matrix4::lookAt(viewpoint, at));
+        if (params.contains("eye")) {
+            auto viewpoint = params.at("eye").get<Vec3f>();
+            auto at = params.at("at").get<Vec3f>();
+            transform = Transform(Matrix4::lookAt(viewpoint, at));
+        } else if (params.contains("translate")) {
+            auto translate = params.at("translate").get<Vec3f>();
+            auto rotation = DegreesToRadians(params.at("rotate").get<Vec3f>());
+            Matrix4 m = Matrix4::identity();
+            m *= Matrix4::rotate(Vec3f(0, 0, 1), rotation.z);
+            m *= Matrix4::rotate(Vec3f(1, 0, 0), rotation.y);
+            m *= Matrix4::rotate(Vec3f(0, 1, 0), rotation.x);
+            m *= Matrix4::translate(translate);
+            transform = Transform(m);
+        } else {
+            MIYUKI_THROW(std::runtime_error, "Unknown input format to PerspectiveCamera");
+        }
         invTransform = transform.inverse();
     }
 

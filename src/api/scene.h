@@ -24,19 +24,20 @@
 #define MIYUKIRENDERER_SCENE_H
 
 #include <api/entity.hpp>
-
+#include <api/primitive.h>
+#include <api/light.h>
+#include <api/ray.h>
+#include <api/accelerator.h>
 
 namespace miyuki::core {
-    class BSDF;
-
-    struct Material {
-        std::string name;
-        std::shared_ptr<BSDF> bsdf;
-
-    };
 
     class Scene {
+        std::shared_ptr<Accelerator> accelerator;
     public:
+        std::vector<std::shared_ptr<Light>> lights;
+        std::vector<std::shared_ptr<Primitive>> primitives;
+        bool intersect(const Ray&ray, Intersection& isct);
+        void preprocess();
     };
 }
 #endif //MIYUKIRENDERER_SCENE_H

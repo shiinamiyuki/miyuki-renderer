@@ -42,11 +42,13 @@ namespace miyuki{
         return n * MachineEpsilon / (1 - n * MachineEpsilon);
     }
 
-    inline Float RadiansToDegrees(Float x) {
+    template<class T>
+    inline T RadiansToDegrees(T x) {
         return x * InvPi * 180.0f;
     }
 
-    inline Float DegreesToRadians(Float x) {
+    template<class T>
+    inline T DegreesToRadians(T x) {
         return x / 180.0f * Pi;
     }
 
