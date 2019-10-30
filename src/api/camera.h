@@ -20,24 +20,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
+#ifndef MIYUKIRENDERER_CAMERA_H
+#define MIYUKIRENDERER_CAMERA_H
+
+#include <api/entity.hpp>
+#include <api/ray.h>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-    }
+    struct CameraSample {
+        Point2f pLens;
+        Point2f pFilm;
+        Ray ray;
+    };
 
-    void Finalize() {
+    class Camera : public Entity {
+    public:
+        virtual const Transform &getTransform() const = 0;
 
-    }
+        virtual void generateRay(const Point2f &u1,
+                                 const Point2f &u2,
+                                 const Point2i &raster,
+                                 Point2i filmDimension,
+                                 CameraSample &sample) const = 0;
+    };
 }
+#endif //MIYUKIRENDERER_CAMERA_H

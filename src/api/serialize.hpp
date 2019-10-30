@@ -395,4 +395,62 @@ namespace miyuki::serialize {
     } \
     _MYK_POLY_SER
 
+#include <api/math.hpp>
+namespace miyuki {
+    using json = nlohmann::json;
+
+    template<class T, size_t N>
+    inline void to_json(json &j, const Vec<T, N> &v) {
+        j = json::array();
+        for (int i = 0; i < N; i++) {
+            j[i] = v[i];
+        }
+    }
+
+    template<class T, size_t N>
+    inline void from_json(const json &j, Vec <T, N> &v) {
+        for (int i = 0; i < N; i++) {
+            v[i] = j[i];
+        }
+    }
+
+    inline void to_json(json &j, const Vec3f &v) {
+        j = json::array();
+        for (int i = 0; i < 3; i++) {
+            j[i] = v[i];
+        }
+    }
+
+
+    inline void from_json(const json &j, Vec3f &v) {
+        for (int i = 0; i < 3; i++) {
+            v[i] = j[i];
+        }
+    }
+
+    inline void to_json(json &j, const Matrix4 &m) {
+        j = json::array();
+        for (int i = 0; i < 4; i++) {
+            j[i] = m[i];
+        }
+    }
+
+
+    inline void from_json(const json &j, Matrix4 &m) {
+        for (int i = 0; i < 4; i++) {
+            m[i] = j[i].get < Vec < Float, 4 >> ();
+        }
+    }
+
+    inline void to_json(json &j, const Transform &transform) {
+        j = transform.matrix();
+    }
+
+
+    inline void from_json(const json &j, Transform &transform) {
+        transform = Transform(j.get<Matrix4>());
+    }
+}
+
+
 #endif //MIYUKIRENDERER_SERIALIZE_HPP

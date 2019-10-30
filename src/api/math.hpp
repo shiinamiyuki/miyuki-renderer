@@ -25,8 +25,12 @@
 
 #include <xmmintrin.h>
 #include <cmath>
-namespace miyuki{
+#include <nlohmann/json_fwd.hpp>
+
+namespace miyuki {
+
 #include <linalg.hpp>
+
 }
 
 namespace cereal {
@@ -64,5 +68,6 @@ namespace cereal {
         m = miyuki::Transform(matrix4);
     }
 }
+
 
 #endif //MIYUKIRENDERER_MATH_HPP

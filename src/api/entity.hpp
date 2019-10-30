@@ -50,7 +50,7 @@ namespace miyuki {
 
         virtual void load(serialize::InputArchive &) {}
 
-        virtual void initialize(const json &) const {}
+        virtual void initialize(const json &) {}
 
         virtual bool isSerializable() const { return false; }
 

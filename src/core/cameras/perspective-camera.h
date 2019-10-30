@@ -20,24 +20,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
+#ifndef MIYUKIRENDERER_PERSPECTIVE_CAMERA_H
+#define MIYUKIRENDERER_PERSPECTIVE_CAMERA_H
+
+#include <api/camera.h>
+#include <api/serialize.hpp>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-    }
+    class PerspectiveCamera final : public Camera {
+        Transform transform, invTransform;
+        float fov;
+    public:
+        PerspectiveCamera() = default;
 
-    void Finalize() {
+        PerspectiveCamera(const Vec3f &p1, const Vec3f &p2, Float fov) : fov(fov) {
+            transform = Transform(Matrix4::lookAt(p1, p2));
+            invTransform = transform.inverse();
+        }
 
-    }
+        const Transform &getTransform() const override {
+            return transform;
+        }
+
+    public:
+        MYK_DECL_CLASS(PerspectiveCamera, "PerspectiveCamera", interface = "Camera")
+
+        MYK_AUTO_SER(transform, fov)
+
+        void initialize(const json &params) override;
+
+        void generateRay(const Point2f &u1,
+                         const Point2f &u2,
+                         const Point2i &raster,
+                         Point2i filmDimension,
+                         CameraSample &sample) const override;
+    };
+
 }
+
+#endif //MIYUKIRENDERER_PERSPECTIVE_CAMERA_H
