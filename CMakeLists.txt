@@ -18,10 +18,16 @@ include_directories(external/cereal/include)
 include_directories(external/json/include)
 include_directories(external/fmt/include)
 include_directories(external/tinyobjloader/)
+include_directories(external/stb/)
+include_directories(external/lodepng/)
 
-file(GLOB MiyukiAPI src/api/*.h src/api/*.hpp src/api/detail/*.hpp src/api/detail/*.h external/tinyobjloader/tiny_obj_loader.cc)
+file(GLOB MiyukiAPI src/api/*.h src/api/*.hpp src/api/detail/*.hpp src/api/detail/*.h)
 file(GLOB libcoreSource src/core/*.cpp
-            src/core/accelerators/*.*
+        src/core/accelerators/*.*
+        src/core/shaders/*.*
+        src/core/shapes/*.*
+        external/tinyobjloader/tiny_obj_loader.cc
+        external/lodepng/lodepng.cpp
 
         )
 add_library(core ${MiyukiAPI} ${libcoreSource})

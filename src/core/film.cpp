@@ -20,22 +20,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
+#include <api/film.h>
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+
+#include <stb_image.h>
+#include <stb_image_write.h>
+#include <lodepng.h>
+#include <api/log.hpp>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-    }
-
-    void Finalize() {
-
+    void Film::writeImage(const std::string &filename) {
+        std::vector<unsigned char> pixelBuffer;
+        for (const auto &i : pixels) {
+            auto out = i.eval();
+            pixelBuffer.emplace_back(toInt(out[0]));
+            pixelBuffer.emplace_back(toInt(out[1]));
+            pixelBuffer.emplace_back(toInt(out[2]));
+            pixelBuffer.emplace_back(255);
+        }
+        auto error = lodepng::encode(filename, pixelBuffer, (uint32_t) width, (uint32_t) height);
+        if (error) {
+            log::log("error saving {}: {}\n", filename, lodepng_error_text(error));
+        } else {
+            log::log("saved to {}\n", filename);
+        }
     }
 }

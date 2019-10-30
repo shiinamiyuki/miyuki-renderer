@@ -20,22 +20,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
+#ifndef MIYUKIRENDERER_COMMON_SHADER_H
+#define MIYUKIRENDERER_COMMON_SHADER_H
+
+#include <api/shader.h>
+#include <api/serialize.hpp>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-    }
+    class FloatShader final : public Shader {
+        Float value = 1.0f;
+    public:
+        MYK_AUTO_SER(value)
 
-    void Finalize() {
+        MYK_DECL_CLASS(FloatShader, "Shader.Float", interface = "Shader")
 
-    }
+        [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
+            return miyuki::core::Spectrum(value);
+        }
+    };
+
+    class RGBShader final : public Shader {
+        Vec3f value = 1.0f;
+    public:
+        MYK_AUTO_SER(value)
+
+        MYK_DECL_CLASS(RGBShader, "Shader.RGB", interface = "Shader")
+
+        [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
+            return miyuki::core::Spectrum(value);
+        }
+    };
 }
+
+#endif //MIYUKIRENDERER_COMMON_SHADER_H
