@@ -20,26 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/bsdfs/diffusebsdf.h"
+#include "diffusebsdf.h"
+#include <api/shader.h>
+#include <api/sampling.h>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
+    Spectrum DiffuseBSDF::evaluate(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {
+        if (wo.y * wi.y > 0)
+            return shader->evaluate(point) * InvPi;
+        return {};
     }
 
-    void Finalize() {
+    void DiffuseBSDF::sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const {
+        sample.wi = CosineHemisphereSampling(u);
+        sample.sampledType = BSDF::Type(sample.sampledType | getBSDFType());
+        if (sample.wo.y * sample.wi.y < 0) {
+            sample.wi.y = -sample.wi.y;
+        }
+        sample.pdf = std::abs(sample.wi.y) * InvPi;
+        sample.f = evaluate(sp, sample.wo, sample.wi);
+    }
 
+    Float DiffuseBSDF::evaluatePdf(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {
+        if (wo.y * wi.y > 0)
+            return std::abs(wi.y) * InvPi;
+        return 0;
     }
 }

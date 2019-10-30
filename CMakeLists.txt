@@ -27,6 +27,7 @@ file(GLOB libcoreSource src/core/*.cpp
         src/core/shaders/*.*
         src/core/shapes/*.*
         src/core/cameras/*.*
+        src/core/bsdfs/*.*
         external/tinyobjloader/tiny_obj_loader.cc
         external/lodepng/lodepng.cpp
 

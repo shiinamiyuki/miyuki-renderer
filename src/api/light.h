@@ -20,26 +20,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/bsdfs/diffusebsdf.h"
+#ifndef MIYUKIRENDERER_LIGHT_H
+#define MIYUKIRENDERER_LIGHT_H
+
+#include <api/spectrum.h>
+#include <api/ray.h>
+#include <api/entity.hpp>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-    }
+    struct VisibilityTester;
+    struct ShadingPoint;
 
-    void Finalize() {
+    class Shape;
 
-    }
+    struct LightSample {
+        Vec3f wi;
+        Spectrum Li;
+        float pdf;
+    };
+
+    struct LightRaySample {
+        Ray ray;
+        Spectrum Le;
+        float pdfPos, pdfDir;
+    };
+
+    class Light : public Entity {
+    public:
+        virtual Spectrum Li(ShadingPoint &sp) const = 0;
+
+        virtual void sampleLi(const Point2f &u, Intersection &isct, LightSample &sample, VisibilityTester &) const = 0;
+
+        virtual Float pdfLi(const Intersection &intersection, const Vec3f &wi) const = 0;
+
+        virtual void sampleLe(const Point2f &u1, const Point2f &u2, LightRaySample &sample) = 0;
+
+    };
+
+    class AreaLight : public Light {
+    public:
+        virtual void setShape(Shape *shape) = 0;
+    };
 }
+#endif //MIYUKIRENDERER_LIGHT_H

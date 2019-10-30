@@ -20,26 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/bsdfs/diffusebsdf.h"
+#ifndef MIYUKIRENDERER_SCENE_H
+#define MIYUKIRENDERER_SCENE_H
+
+#include <api/entity.hpp>
+
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-    }
+    class BSDF;
 
-    void Finalize() {
+    struct Material {
+        std::string name;
+        std::shared_ptr<BSDF> bsdf;
 
-    }
+    };
+
+    class Scene {
+    public:
+    };
 }
+#endif //MIYUKIRENDERER_SCENE_H

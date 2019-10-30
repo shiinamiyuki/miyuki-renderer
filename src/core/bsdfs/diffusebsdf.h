@@ -20,26 +20,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/bsdfs/diffusebsdf.h"
+#ifndef MIYUKIRENDERER_DIFFUSEBSDF_H
+#define MIYUKIRENDERER_DIFFUSEBSDF_H
+
+#include <api/bsdf.h>
+#include <api/serialize.hpp>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<MeshTriangle>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-    }
+    class Shader;
 
-    void Finalize() {
+    class DiffuseBSDF final : public BSDF {
+        std::shared_ptr<Shader> shader;
+    public:
 
-    }
+        MYK_DECL_CLASS(DiffuseBSDF, "DiffuseBSDF", interface = "BSDF")
+
+        MYK_AUTO_SER(shader)
+
+        DiffuseBSDF() = default;
+
+        DiffuseBSDF(const std::shared_ptr<Shader> &shader) : shader(shader) {}
+
+
+        Spectrum evaluate(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const override;
+
+        void sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const override;
+
+        Float evaluatePdf(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const override;
+
+        Type getBSDFType() const override {
+            return Type(EDiffuse | EReflection);
+        }
+
+    };
 }
+
+#endif //MIYUKIRENDERER_DIFFUSEBSDF_H
