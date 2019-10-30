@@ -23,7 +23,46 @@
 #ifndef MIYUKIRENDERER_MATH_HPP
 #define MIYUKIRENDERER_MATH_HPP
 
+#include <xmmintrin.h>
+#include <cmath>
 namespace miyuki{
 #include <linalg.hpp>
 }
+
+namespace cereal {
+    template<class Archive, typename T, size_t N>
+    void save(Archive &ar, const miyuki::Vec<T, N> &v) {
+        for (size_t i = 0; i < N; i++)
+            ar(v[i]);
+    }
+
+    template<class Archive, typename T, size_t N>
+    void load(Archive &ar, miyuki::Vec<T, N> &v) {
+        for (size_t i = 0; i < N; i++)
+            ar(v[i]);
+    }
+
+    template<class Archive>
+    void save(Archive &ar, const miyuki::Matrix4 &m) {
+        ar(m[0], m[1], m[2], m[3]);
+    }
+
+    template<class Archive>
+    void load(Archive &ar, miyuki::Matrix4 &m) {
+        ar(m[0], m[1], m[2], m[3]);
+    }
+
+    template<class Archive>
+    void save(Archive &ar, const miyuki::Transform &m) {
+        ar(m.matrix());
+    }
+
+    template<class Archive>
+    void load(Archive &ar, miyuki::Transform &m) {
+        miyuki::Matrix4 matrix4;
+        ar(matrix4);
+        m = miyuki::Transform(matrix4);
+    }
+}
+
 #endif //MIYUKIRENDERER_MATH_HPP

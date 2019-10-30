@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_INTERFACES_H
 #define MIYUKIRENDERER_INTERFACES_H
 
-#include <entity.hpp>
+#include <api/entity.hpp>
 
 namespace miyuki {
     class Integrator : public Entity {

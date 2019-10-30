@@ -53,6 +53,8 @@ namespace miyuki {
         virtual void initialize(const json &) const {}
 
         virtual bool isSerializable() const { return false; }
+
+        virtual void preprocess() {}
     };
 
 
