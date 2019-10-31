@@ -27,6 +27,7 @@
 #include <set>
 #include <string>
 #include <api/log.hpp>
+#include <nlohmann/json.hpp>
 
 namespace miyuki {
     struct EntityManager {
@@ -65,6 +66,16 @@ namespace miyuki {
             return entity;
         }
         return {};
+    }
+
+    std::shared_ptr<Entity> CreateEntityParams(const nlohmann::json &params) {
+        auto entity = CreateEntity(params.at("type").get<std::string>());
+        if (!entity) {
+            log::log("failed to create entity with type {}\n", params.at("type").get<std::string>());
+            return nullptr;
+        }
+        entity->initialize(params);
+        return entity;
     }
 
     namespace serialize {

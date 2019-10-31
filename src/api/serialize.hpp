@@ -252,6 +252,37 @@ namespace miyuki::serialize {
         }
     };
 
+    template<class>
+    struct is_shared_ptr {
+        static const bool value = false;
+    };
+
+    template<class T>
+    struct is_shared_ptr<std::shared_ptr<T>> {
+        static const bool value = true;
+    };
+
+    template<class>
+    struct shared_ptr_unwrap{};
+
+    template<class T>
+    struct shared_ptr_unwrap<std::shared_ptr<T>>{using type = std::decay_t<T>;};
+
+    struct InitializeVisitor {
+        const json &params;
+
+        InitializeVisitor(const json &params) : params(params) {}
+
+        template<class T>
+        void visit(T &v, const char *name) {
+            if constexpr (is_shared_ptr<T>::value) {
+                v = std::dynamic_pointer_cast<typename shared_ptr_unwrap<T>::type>(CreateEntityParams(params.at(name)));
+            } else {
+                v = params.at(name).get<T>();
+            }
+        }
+    };
+
     template<class Visitor, class T>
     std::enable_if_t<std::is_class_v<T>, void> accept(Visitor v, T t) {
         t.accept(v);
@@ -395,7 +426,14 @@ namespace miyuki::serialize {
     } \
     _MYK_POLY_SER
 
+#define MYK_AUTO_INIT(...)\
+    void initialize(const json&params)override{\
+        miyuki::serialize::InitializeVisitor visitor(params);\
+        miyuki::serialize::_accept(visitor, #__VA_ARGS__ , __VA_ARGS__);\
+    }
+
 #include <api/math.hpp>
+
 namespace miyuki {
     using json = nlohmann::json;
 
@@ -408,7 +446,7 @@ namespace miyuki {
     }
 
     template<class T, size_t N>
-    inline void from_json(const json &j, Vec <T, N> &v) {
+    inline void from_json(const json &j, Vec<T, N> &v) {
         for (int i = 0; i < N; i++) {
             v[i] = j[i];
         }

@@ -36,7 +36,8 @@ namespace miyuki::core {
             for (int j = 0; j < film.height; j++) {
                 for (int s = 0; s < spp; s++) {
                     CameraSample sample;
-                    camera->generateRay(sampler->next2D(), sampler->next2D(), {i, j}, Point2i{film.width, film.height},
+                    camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i{i, j},
+                                        Point2i{film.width, film.height},
                                         sample);
                     Intersection isct;
                     if (scene->intersect(sample.ray, isct)) {

@@ -26,6 +26,7 @@
 
 #include <memory>
 #include <api/defs.h>
+#include <nlohmann/json_fwd.hpp>
 
 namespace miyuki {
     class Entity;
@@ -38,8 +39,10 @@ namespace miyuki {
 
     MYK_PUBLIC_API void BindInterfaceImplementation(const std::string &interface, const std::string &alias);
 
+    MYK_PUBLIC_API std::shared_ptr<Entity> CreateEntityParams(const nlohmann::json &);
+
     template<class T>
-    void Register(){
+    void Register() {
         T::_register();
     }
 }

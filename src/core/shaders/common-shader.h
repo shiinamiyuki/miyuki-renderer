@@ -32,6 +32,8 @@ namespace miyuki::core {
     public:
         MYK_AUTO_SER(value)
 
+        MYK_AUTO_INIT(value)
+
         MYK_DECL_CLASS(FloatShader, "Shader.Float", interface = "Shader")
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
@@ -43,6 +45,8 @@ namespace miyuki::core {
         Vec3f value = 1.0f;
     public:
         MYK_AUTO_SER(value)
+
+        MYK_AUTO_INIT(value)
 
         MYK_DECL_CLASS(RGBShader, "Shader.RGB", interface = "Shader")
 

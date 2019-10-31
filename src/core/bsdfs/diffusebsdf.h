@@ -37,6 +37,8 @@ namespace miyuki::core {
 
         MYK_AUTO_SER(shader)
 
+        MYK_AUTO_INIT(shader)
+
         DiffuseBSDF() = default;
 
         DiffuseBSDF(const std::shared_ptr<Shader> &shader) : shader(shader) {}

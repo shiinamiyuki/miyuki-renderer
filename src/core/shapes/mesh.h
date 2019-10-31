@@ -128,8 +128,9 @@ namespace miyuki::core {
 
         MYK_DECL_CLASS(Mesh, "Mesh", interface = "Shape")
 
-        MYK_AUTO_SER(filename);
+        MYK_AUTO_SER(filename)
 
+        MYK_AUTO_INIT(filename)
 
         bool intersect(const Ray &ray, Intersection &isct) const override {
             return accelerator->intersect(ray, isct);
