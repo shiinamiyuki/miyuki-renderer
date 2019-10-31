@@ -46,6 +46,10 @@ namespace miyuki::core {
         [[nodiscard]] std::shared_ptr<Sampler> clone() const override {
             return std::make_shared<RandomSampler>();
         }
+
+        void startNextSample() override {
+
+        }
     };
 
 }

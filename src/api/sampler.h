@@ -37,6 +37,7 @@ namespace miyuki::core {
             return Point2f(next1D(), next1D());
         }
 
+        virtual void startNextSample() = 0;
         virtual std::shared_ptr<Sampler> clone() const = 0;
     };
 }

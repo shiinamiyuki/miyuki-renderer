@@ -78,7 +78,7 @@ namespace miyuki::core {
                 if (t < isct.distance) {
                     isct.distance = t;
                     isct.Ng = Ng;
-                    isct.Ns = Ng;
+                    isct.Ns = lerp3(vertex(0), vertex(1), vertex(2), u, v).normalized();
                     isct.shape = this;
                     return true;
                 }
@@ -166,7 +166,7 @@ namespace miyuki::core {
         void preprocess() override;
 
         // Alert! This changes Mesh::filename
-        void writeToFile(const std::string&filename);
+        void writeToFile(const std::string &filename);
 
     };
 
