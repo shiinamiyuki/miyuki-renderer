@@ -29,12 +29,13 @@
 namespace miyuki::core {
     class RTAO final : public Integrator {
         int spp;
+        float occludeDistance = 100000;
     public:
         MYK_DECL_CLASS(RTAO, "RTAO", interface = "Integrator")
 
-        MYK_AUTO_SER(spp)
+        MYK_AUTO_SER(spp, occludeDistance)
 
-        MYK_AUTO_INIT(spp)
+        MYK_AUTO_INIT(spp, occludeDistance)
 
         void render(const std::shared_ptr<Scene> &ptr, const std::shared_ptr<Camera> &sharedPtr,
                     const std::shared_ptr<Sampler> &ptr1, Film &film) override;

@@ -1,0 +1,34 @@
+{
+  "camera": {
+    "type": "PerspectiveCamera",
+    "fov": 120,
+    "translate": [
+      4.5,
+      1,
+      -2
+    ],
+    "rotate": [
+      -90,
+      0,
+      0
+    ]
+  },
+  "integrator": {
+    "type": "RTAO",
+    "spp": 64,
+    "occludeDistance": 2
+  },
+  "sampler": {
+    "type": "RandomSampler"
+  },
+  "shapes": [
+    {
+      "type": "Mesh",
+      "filename": "./fireplace_room.mesh"
+    }
+  ],
+  "filmDimension": [
+    1080,
+    720
+  ]
+}

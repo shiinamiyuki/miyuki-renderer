@@ -32,26 +32,33 @@
 namespace miyuki::core {
 
     void RTAO::render(const std::shared_ptr<Scene> &scene, const std::shared_ptr<Camera> &camera,
-                      const std::shared_ptr<Sampler> &sampler, Film &film) {
-        for (int i = 0; i < film.width; i++) {
-            log::log("{}/{}\n", i + 1, film.width);
-            for (int j = 0; j < film.height; j++) {
+                      const std::shared_ptr<Sampler> &_sampler, Film &film) {
+        ParallelFor(0, film.height, [=, &film](int64_t j, uint64_t) {
+            auto sampler = _sampler->clone();
+            for (int i = 0; i < film.width; i++) {
+
+                sampler->startPixel(Point2i(i, j), Point2i(film.width, film.height));
                 for (int s = 0; s < spp; s++) {
                     CameraSample sample;
+
                     camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i{i, j},
                                         Point2i{film.width, film.height},
                                         sample);
+
                     Intersection isct;
                     if (scene->intersect(sample.ray, isct)) {
                         isct.computeLocalFrame();
+                        //       film.addSample(sample.pFilm, isct.Ng, 1);
                         auto wo = isct.worldToLocal(-sample.ray.d);
                         auto w = CosineHemisphereSampling(sampler->next2D());
                         if (wo.y * w.y < 0) {
                             w = -w;
                         }
+                        w = isct.localToWorld(w);
                         auto ray = isct.spawnRay(w);
+                        ray.tMax = occludeDistance;
                         isct = Intersection();
-                        if (!scene->intersect(ray, isct) || isct.distance >= 30) {
+                        if (!scene->intersect(ray, isct) || isct.distance >= occludeDistance) {
                             film.addSample(sample.pFilm, Spectrum(1), 1);
                         } else {
                             film.addSample(sample.pFilm, Spectrum(0), 1);
@@ -59,6 +66,6 @@ namespace miyuki::core {
                     }
                 }
             }
-        }
+        });
     }
 }

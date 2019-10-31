@@ -59,14 +59,13 @@ namespace miyuki::core {
 
         void computeLocalFrame() {
             localFrame = CoordinateSystem(Ng);
-            auto v = worldToLocal(Ng);
         }
 
-        Vec3f worldToLocal(const Vec3f &v) const {
+        [[nodiscard]] Vec3f worldToLocal(const Vec3f &v) const {
             return localFrame.worldToLocal(v);
         }
 
-        Vec3f localToWorld(const Vec3f &v) const {
+        [[nodiscard]] Vec3f localToWorld(const Vec3f &v) const {
             return localFrame.localToWorld(v);
         }
 

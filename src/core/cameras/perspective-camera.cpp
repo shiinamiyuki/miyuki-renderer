@@ -50,16 +50,19 @@ namespace miyuki::core {
                                         Point2i filmDimension,
                                         CameraSample &sample) const {
         float x = float(raster.x) / filmDimension.x;
-        float y = 1 - float(raster.y) / filmDimension.y;
+        float y = float(raster.y) / filmDimension.y;
 
         Point2f pixelWidth(1.0 / filmDimension.x, 1.0 / filmDimension.y);
         sample.pFilm = Point2f(x, y);
         sample.pFilm += u1 * pixelWidth - 0.5f * pixelWidth;
         sample.pLens = {0, 0};
-        x = 2 * x - 1;
+        x = sample.pFilm[0];
+        y = sample.pFilm[1];
+        y = 1 - y;
+        x = -(2 * x - 1);
         y = 2 * y - 1;
         y *= float(filmDimension.y) / filmDimension.x;
-        float z = 1 / std::atan(fov / 2);
+        float z = 1.0f / std::atan(fov / 2);
         Vec3f d = Vec3f(x, y, 0) - Vec3f(0, 0, -z);
         d.normalize();
         Point3f o = Vec3f(sample.pLens.x, sample.pLens.y, 0);

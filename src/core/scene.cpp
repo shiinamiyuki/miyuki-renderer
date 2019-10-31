@@ -35,6 +35,10 @@ namespace miyuki::core {
     }
 
     bool Scene::intersect(const miyuki::core::Ray &ray, miyuki::core::Intersection &isct) {
-        return accelerator->intersect(ray, isct);
+        if(accelerator->intersect(ray, isct)){
+            isct.p = ray.o + isct.distance * ray.d;
+            return true;
+        }
+        return false;
     }
 }

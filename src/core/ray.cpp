@@ -21,5 +21,5 @@
 // SOFTWARE.
 #include <api/ray.h>
 namespace miyuki::core {
-    Float RayBias = 0.01f;
+    Float RayBias = 0.001f;
 }

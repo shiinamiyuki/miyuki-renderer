@@ -26,21 +26,22 @@
 
 namespace miyuki::core {
     int BVHAccelerator::recursiveBuild(int begin, int end, int depth) {
-        log::log("depth: {}, primitives:{} \n", depth, end - begin);
+
+        //   log::log("depth: {}, primitives:{} \n", depth, end - begin);
         Bounds3f box{{MaxFloat, MaxFloat, MaxFloat},
                      {MinFloat, MinFloat, MinFloat}};
         Bounds3f centroidBound{{MaxFloat, MaxFloat, MaxFloat},
                                {MinFloat, MinFloat, MinFloat}};
-        if (depth == 0) {
-            boundBox = box;
-        }
+
 
         if (end == begin)return -1;
         for (auto i = begin; i < end; i++) {
             box = box.unionOf(primitive[i]->getBoundingBox());
             centroidBound = centroidBound.unionOf(primitive[i]->getBoundingBox().centroid());
         }
-
+        if (depth == 0) {
+            boundBox = box;
+        }
 
         if (end - begin <= 4 || depth >= 20) {
             BVHNode node;
@@ -81,15 +82,16 @@ namespace miyuki::core {
                 auto offset = centroidBound.offset(primitive[i]->getBoundingBox().centroid())[axis];
                 int b = std::min<int>(nBuckets - 1, std::floor(offset * nBuckets));
                 if (b < 0) {
+                    //        b = 0;
                     for (int i = begin; i < end; i++) {
-                        fmt::print("{} {} {}\n",
-                                   primitive[i]->getBoundingBox().pMin[0],
-                                   primitive[i]->getBoundingBox().pMin[1],
-                                   primitive[i]->getBoundingBox().pMin[2]);
-                        fmt::print("{} {} {}\n",
-                                   primitive[i]->getBoundingBox().pMax[0],
-                                   primitive[i]->getBoundingBox().pMax[1],
-                                   primitive[i]->getBoundingBox().pMax[2]);
+//                        fmt::print("{} {} {}\n",
+//                                   primitive[i]->getBoundingBox().pMin[0],
+//                                   primitive[i]->getBoundingBox().pMin[1],
+//                                   primitive[i]->getBoundingBox().pMin[2]);
+//                        fmt::print("{} {} {}\n",
+//                                   primitive[i]->getBoundingBox().pMax[0],
+//                                   primitive[i]->getBoundingBox().pMax[1],
+//                                   primitive[i]->getBoundingBox().pMax[2]);
                     }
                 }
                 buckets[b].count++;
@@ -107,7 +109,8 @@ namespace miyuki::core {
                     b1 = b1.unionOf(buckets[j].bound);
                     count1 += buckets[j].count;
                 }
-                cost[i] = 0.125 + (count0 * b0.surfaceArea() + count1 * b1.surfaceArea()) / box.surfaceArea();
+                cost[i] = 0.125 +
+                          (float(count0) * b0.surfaceArea() + float(count1) * b1.surfaceArea()) / box.surfaceArea();
             }
             int splitBuckets = 0;
             Float minCost = cost[0];
@@ -124,6 +127,9 @@ namespace miyuki::core {
                 }
                 return b <= splitBuckets;
             });
+            if (mid == &primitive[begin] || mid == &primitive[end - 1] + 1) {
+                log::log("empty split at {}, {}\n", depth, end - begin);
+            }
             auto ret = nodes.size();
             nodes.emplace_back();
 
