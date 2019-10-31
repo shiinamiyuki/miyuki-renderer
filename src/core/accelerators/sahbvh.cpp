@@ -69,6 +69,19 @@ namespace miyuki::core {
                     axis = 2;
                 }
             }
+            if (size[axis] == 0.0f) {
+                auto ret = nodes.size();
+                nodes.emplace_back();
+
+                BVHNode &node = nodes.back();
+                node.box = box;
+                node.count = -1;
+                auto mid = (begin + end) / 2;
+                nodes[ret].left = recursiveBuild(begin, mid, depth + 1);
+                nodes[ret].right = recursiveBuild(mid, end, depth + 1);
+
+                return ret;
+            }
             constexpr size_t nBuckets = 12;
             struct Bucket {
                 size_t count = 0;
@@ -81,19 +94,6 @@ namespace miyuki::core {
             for (int i = begin; i < end; i++) {
                 auto offset = centroidBound.offset(primitive[i]->getBoundingBox().centroid())[axis];
                 int b = std::min<int>(nBuckets - 1, std::floor(offset * nBuckets));
-                if (b < 0) {
-                    //        b = 0;
-                    for (int i = begin; i < end; i++) {
-//                        fmt::print("{} {} {}\n",
-//                                   primitive[i]->getBoundingBox().pMin[0],
-//                                   primitive[i]->getBoundingBox().pMin[1],
-//                                   primitive[i]->getBoundingBox().pMin[2]);
-//                        fmt::print("{} {} {}\n",
-//                                   primitive[i]->getBoundingBox().pMax[0],
-//                                   primitive[i]->getBoundingBox().pMax[1],
-//                                   primitive[i]->getBoundingBox().pMax[2]);
-                    }
-                }
                 buckets[b].count++;
                 buckets[b].bound = buckets[b].bound.unionOf(primitive[i]->getBoundingBox());
             }

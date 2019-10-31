@@ -4,18 +4,19 @@
     "fov": 80,
     "translate": [
       0,
-      0,
-      0
+      2,
+      9
     ],
     "rotate": [
-      0,
+      180,
       0,
       0
     ]
   },
   "integrator": {
     "type": "RTAO",
-    "spp": 1
+    "spp": 64,
+    "occludeDistance": 4
   },
   "sampler": {
     "type": "RandomSampler"
