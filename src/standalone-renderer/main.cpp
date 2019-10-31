@@ -23,7 +23,7 @@
 
 #include <core/export.h>
 
-int main() {
+int main(int argc, char **argv) {
     miyuki::core::Initialize();
     miyuki::core::Finalize();
     return 0;

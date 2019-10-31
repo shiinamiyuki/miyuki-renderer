@@ -20,6 +20,7 @@ include_directories(external/fmt/include)
 include_directories(external/tinyobjloader/)
 include_directories(external/stb/)
 include_directories(external/lodepng/)
+include_directories(external/cxxopts/include)
 
 file(GLOB MiyukiAPI src/api/*.h src/api/*.hpp src/api/detail/*.hpp src/api/detail/*.h)
 file(GLOB libcoreSource src/core/*.cpp
