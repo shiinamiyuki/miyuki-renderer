@@ -31,6 +31,7 @@
 #include <mutex>
 
 #include <nlohmann/json_fwd.hpp>
+#include <api/detail/entity-funcs.h>
 
 namespace miyuki {
     using json = nlohmann::json;

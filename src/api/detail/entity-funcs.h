@@ -41,6 +41,10 @@ namespace miyuki {
 
     MYK_PUBLIC_API std::shared_ptr<Entity> CreateEntityParams(const nlohmann::json &);
 
+    MYK_PUBLIC_API void BindEntity(const std::shared_ptr<Entity> &entity, const std::string &name);
+
+    MYK_PUBLIC_API std::shared_ptr<Entity> GetEntity(const std::string &name);
+
     template<class T>
     void Register() {
         T::_register();

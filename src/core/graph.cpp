@@ -6,6 +6,7 @@
 #include <api/shape.h>
 #include <api/sampler.h>
 #include <api/film.h>
+#include <api/log.hpp>
 
 namespace miyuki::core {
     void SceneGraph::render(const std::string &outImageFile) {
@@ -21,6 +22,10 @@ namespace miyuki::core {
             scene->primitives.emplace_back(i);
         }
         scene->preprocess();
+        log::log("Start Rendering...\n");
         integrator->render(scene, camera, sampler, film);
+        film.writeImage(outImageFile);
+        log::log("Written to {}\n", outImageFile);
+
     }
 }

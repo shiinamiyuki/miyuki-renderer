@@ -12,7 +12,7 @@
 #include <api/scene.h>
 #include <api/camera.h>
 #include <api/sampler.h>
-
+#include <api/shape.h>
 #include <cereal/types/vector.hpp>
 
 

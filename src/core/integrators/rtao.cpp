@@ -27,12 +27,14 @@
 #include <api/parallel.h>
 #include <api/film.h>
 #include <api/sampling.h>
+#include <api/log.hpp>
 
 namespace miyuki::core {
 
     void RTAO::render(const std::shared_ptr<Scene> &scene, const std::shared_ptr<Camera> &camera,
                       const std::shared_ptr<Sampler> &sampler, Film &film) {
         for (int i = 0; i < film.width; i++) {
+            log::log("{}/{}\n", i + 1, film.width);
             for (int j = 0; j < film.height; j++) {
                 for (int s = 0; s < spp; s++) {
                     CameraSample sample;

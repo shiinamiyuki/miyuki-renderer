@@ -86,7 +86,7 @@ namespace miyuki::core {
             return false;
         }
 
-        Bounds3f getBoundingBox() const override {
+        [[nodiscard]] Bounds3f getBoundingBox() const override {
             return Bounds3f{
                     min(vertex(0), min(vertex(1), vertex(2))),
                     max(vertex(0), max(vertex(1), vertex(2)))
@@ -156,6 +156,7 @@ namespace miyuki::core {
         // TODO: set import directory
         bool importFromFile(const std::string &filename);
 
+
         void toBinary(std::vector<char> &buffer) const;
 
         void fromBinary(const std::vector<char> &buffer);
@@ -163,6 +164,9 @@ namespace miyuki::core {
         bool loadFromFile(const std::string &filename);
 
         void preprocess() override;
+
+        // Alert! This changes Mesh::filename
+        void writeToFile(const std::string&filename);
 
     };
 

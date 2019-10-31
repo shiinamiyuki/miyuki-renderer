@@ -34,7 +34,7 @@ namespace miyuki::core {
 
         MYK_AUTO_INIT(value)
 
-        MYK_DECL_CLASS(FloatShader, "Shader.Float", interface = "Shader")
+        MYK_DECL_CLASS(FloatShader, "FloatShader", interface = "Shader")
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
             return miyuki::core::Spectrum(value);
@@ -48,7 +48,7 @@ namespace miyuki::core {
 
         MYK_AUTO_INIT(value)
 
-        MYK_DECL_CLASS(RGBShader, "Shader.RGB", interface = "Shader")
+        MYK_DECL_CLASS(RGBShader, "RGBShader", interface = "Shader")
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
             return miyuki::core::Spectrum(value);

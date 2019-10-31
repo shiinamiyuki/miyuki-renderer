@@ -24,6 +24,7 @@
 #include <api/log.hpp>
 #include <fstream>
 
+
 namespace miyuki::core {
     template<class T>
     static void write(std::vector<char> &buffer, const T &v) {
@@ -70,7 +71,12 @@ namespace miyuki::core {
 
     void Mesh::preprocess() {
         if (!_loaded) {
-            loadFromFile(filename);
+            auto ext = fs::path(filename).extension().string();
+            if (ext == ".mesh")
+                loadFromFile(filename);
+            else if (ext == ".obj") {
+                importFromFile(filename);
+            }
         }
         accelerator = std::dynamic_pointer_cast<Accelerator>(CreateEntity("BVHAccelerator"));
         std::vector<Primitive *> primitives;
@@ -210,6 +216,15 @@ namespace miyuki::core {
         _loaded = true;
         return true;
     }
+
+    void Mesh::writeToFile(const std::string &filename) {
+        std::vector<char> buffer;
+        toBinary(buffer);
+        this->filename = filename;
+        std::ofstream out(filename, std::ios::out | std::ios::binary);
+        out.write(buffer.data(), buffer.size());
+    }
+
 
     void Mesh::toBinary(std::vector<char> &buffer) const {
         writeString(buffer, "BINARY_MESH");

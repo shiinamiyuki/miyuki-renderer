@@ -22,10 +22,59 @@
 // SOFTWARE.
 
 #include <core/export.h>
+#include <stdexcept>
+#include <iostream>
+#include <cxxopts.hpp>
+#include <api/defs.h>
+#include <fstream>
+#include <api/graph.h>
 
 int main(int argc, char **argv) {
-    miyuki::core::Initialize();
-    miyuki::core::Finalize();
-    return 0;
+    using namespace miyuki;
+    try {
+        cxxopts::Options options("myk-cli", "miyuki-renderer :: Standalone");
+        options.add_options()
+                ("s,ser", "Read scene file as serialized data")
+                ("f,file", "Scene file name", cxxopts::value<std::string>())
+                ("o,out", "Output image file name", cxxopts::value<std::string>())
+                ("h,help", "Print help and exit.");
+        auto result = options.parse(argc, argv);
+        if (result.count("help")) {
+            std::cout << options.help({""}) << std::endl;
+            return 0;
+        }
+        std::string sceneFile = result["file"].as<std::string>(), outFile = "out.png";
+        if (result.count("out") != 0) {
+            outFile = result["out"].as<std::string>();
+        }
+        {
+            CurrentPathGuard _guard;
+            fs::path scenePath = fs::absolute(fs::path(sceneFile));
+            if(!fs::exists(scenePath)){
+                MIYUKI_THROW(std::runtime_error, "file doesn't exist");
+            }
+            fs::path sceneDir = scenePath.parent_path();
+            fs::current_path(sceneDir);
+            sceneFile = fs::path(sceneFile).filename().string();
 
+            core::Initialize();
+
+            std::ifstream in(sceneFile);
+            std::string str((std::istreambuf_iterator<char>(in)),
+                            std::istreambuf_iterator<char>());
+            json data = json::parse(str);
+
+            auto graph = std::make_shared<core::SceneGraph>();
+            graph->initialize(data);
+
+            graph->render(outFile);
+
+            core::Finalize();
+        }
+        return 0;
+    } catch (std::exception &e) {
+        std::cerr << "Fatal error: " << e.what() << std::endl;
+        std::cerr << "Exited." << std::endl;
+        return -1;
+    }
 }

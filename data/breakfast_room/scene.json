@@ -1,3 +1,33 @@
 {
-
+  "camera": {
+    "type": "PerspectiveCamera",
+    "fov": 80,
+    "translate": [
+      0,
+      0,
+      0
+    ],
+    "rotate": [
+      0,
+      0,
+      0
+    ]
+  },
+  "integrator": {
+    "type": "RTAO",
+    "spp": 1
+  },
+  "sampler": {
+    "type": "RandomSampler"
+  },
+  "shapes": [
+    {
+      "type": "Mesh",
+      "filename": "./breakfast_room.mesh"
+    }
+  ],
+  "filmDimension": [
+    1080,
+    720
+  ]
 }

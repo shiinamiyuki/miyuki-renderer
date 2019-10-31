@@ -39,6 +39,7 @@ namespace miyuki {
             return _instance;
         }
 
+        std::unordered_map<std::string, std::weak_ptr<Entity>> bindings;
         std::unordered_map<std::string, Type *> types;
         std::unordered_map<std::string, std::set<std::string>> impls;
     };
@@ -69,13 +70,40 @@ namespace miyuki {
     }
 
     std::shared_ptr<Entity> CreateEntityParams(const nlohmann::json &params) {
-        auto entity = CreateEntity(params.at("type").get<std::string>());
-        if (!entity) {
-            log::log("failed to create entity with type {}\n", params.at("type").get<std::string>());
+        if (params.is_string()) {
+            auto name = params.get<std::string>();
+            return GetEntity(name);
+        } else {
+            auto entity = CreateEntity(params.at("type").get<std::string>());
+            if (!entity) {
+                log::log("failed to create entity with type {}\n", params.at("type").get<std::string>());
+                return nullptr;
+            }
+            if (params.contains("@ref")) {
+                BindEntity(entity, params.at("@ref").get<std::string>());
+            }
+            entity->initialize(params);
+            return entity;
+        }
+    }
+
+    void BindEntity(const std::shared_ptr<Entity> &entity, const std::string &name) {
+        auto &bindings = EntityManager::instance()->bindings;
+        bindings[name] = entity;
+    }
+
+    std::shared_ptr<Entity> GetEntity(const std::string &name) {
+        auto &bindings = EntityManager::instance()->bindings;
+        auto iter = bindings.find(name);
+        if (iter == bindings.end()) {
             return nullptr;
         }
-        entity->initialize(params);
-        return entity;
+        auto &wp = iter->second;
+        if (wp.expired()) {
+            bindings.erase(iter);
+            return nullptr;
+        }
+        return wp.lock();
     }
 
     namespace serialize {

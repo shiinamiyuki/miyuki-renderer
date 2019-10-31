@@ -88,7 +88,7 @@ namespace miyuki {
 
     inline void from_json(const json &j, Matrix4 &m) {
         for (int i = 0; i < 4; i++) {
-            m[i] = j[i].get < Vec < Float, 4 >> ();
+            m[i] = j[i].get<Vec<Float, 4 >>();
         }
     }
 
@@ -101,19 +101,19 @@ namespace miyuki {
         transform = Transform(j.get<Matrix4>());
     }
 
-    template<class T>
-    void from_json(const json &j, std::shared_ptr<T>& p) {
-        p = std::dynamic_pointer_cast<T>(CreateEntityParams(j));
-    }
-
-    template<class T>
-    void from_json(const json &j, std::vector<T>& vec){
-        for(auto& i: j){
-            vec.emplace_back(i.get<T>());
-        }
-    }
 }
+namespace nlohmann {
+    template<typename T>
+    struct adl_serializer<std::shared_ptr<T>> {
+        static void to_json(json &j, const std::shared_ptr<T> &opt) {
+            MIYUKI_NOT_IMPLEMENTED();
+        }
 
+        static void from_json(const json &j, std::shared_ptr<T> &p) {
+            p = std::dynamic_pointer_cast<T>(miyuki::CreateEntityParams(j));
+        }
+    };
+}
 namespace miyuki::serialize {
     using nlohmann::json;
 
@@ -333,7 +333,6 @@ namespace miyuki::serialize {
     };
 
 
-
     struct InitializeVisitor {
         const json &params;
 
@@ -496,7 +495,6 @@ namespace miyuki::serialize {
         miyuki::serialize::InitializeVisitor visitor(params);\
         miyuki::serialize::_accept(visitor, #__VA_ARGS__ , __VA_ARGS__);\
     }
-
 
 
 #endif //MIYUKIRENDERER_SERIALIZE_HPP
