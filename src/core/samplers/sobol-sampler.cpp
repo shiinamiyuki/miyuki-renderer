@@ -66,6 +66,7 @@ namespace miyuki::core {
     }
 
     void SobolSampler::startNextSample() {
+        dimension = 0;
         sample++;
     }
 }

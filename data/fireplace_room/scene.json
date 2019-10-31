@@ -15,11 +15,11 @@
   },
   "integrator": {
     "type": "RTAO",
-    "spp": 64,
+    "spp": 16,
     "occludeDistance": 2
   },
   "sampler": {
-    "type": "RandomSampler"
+    "type": "SobolSampler"
   },
   "shapes": [
     {

@@ -28,6 +28,7 @@
 #include "core/bsdfs/diffusebsdf.h"
 #include "core/integrators/rtao.h"
 #include "core/samplers/random-sampler.h"
+#include "samplers/sobol-sampler.h"
 #include <api/graph.h>
 
 namespace miyuki::core {
@@ -43,6 +44,7 @@ namespace miyuki::core {
         Register<DiffuseBSDF>();
         Register<RTAO>();
         Register<RandomSampler>();
+        Register<SobolSampler>();
     }
 
     void Finalize() {

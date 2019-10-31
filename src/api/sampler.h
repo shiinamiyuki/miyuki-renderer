@@ -38,7 +38,8 @@ namespace miyuki::core {
         }
 
         virtual void startNextSample() = 0;
-        virtual std::shared_ptr<Sampler> clone() const = 0;
+
+        [[nodiscard]] virtual std::shared_ptr<Sampler> clone() const = 0;
     };
 }
 
