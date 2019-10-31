@@ -28,9 +28,11 @@
 #include "core/bsdfs/diffusebsdf.h"
 #include "core/integrators/rtao.h"
 #include "core/samplers/random-sampler.h"
+#include <api/graph.h>
 
 namespace miyuki::core {
     void Initialize() {
+        Register<SceneGraph>();
         Register<BVHAccelerator>();
         Register<Mesh>();
         Register<MeshInstance>();

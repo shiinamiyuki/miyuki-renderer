@@ -44,13 +44,13 @@ namespace miyuki::core {
         DiffuseBSDF(const std::shared_ptr<Shader> &shader) : shader(shader) {}
 
 
-        Spectrum evaluate(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const override;
+        [[nodiscard]] Spectrum evaluate(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const override;
 
         void sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const override;
 
-        Float evaluatePdf(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const override;
+        [[nodiscard]] Float evaluatePdf(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const override;
 
-        Type getBSDFType() const override {
+        [[nodiscard]] Type getBSDFType() const override {
             return Type(EDiffuse | EReflection);
         }
 

@@ -1,2 +1,16 @@
 # miyuki-renderer
 
+## Usage
+
+### Standalone Renderer
+
+```
+myk-cli [-s|--ser] scene-file [-o output-image]
+
+-s, --ser read scene-file as serialized data
+```
+
+
+
+## Extending the renderer
+

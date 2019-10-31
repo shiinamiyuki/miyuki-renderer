@@ -37,5 +37,5 @@ file(GLOB libcoreSource src/core/*.cpp
         )
 add_library(core ${MiyukiAPI} ${libcoreSource})
 target_link_libraries(core fmt)
-add_executable(miyuki-renderer src/standalone-renderer/main.cpp ${MiyukiAPI})
-target_link_libraries(miyuki-renderer core)
+add_executable(myk-cli src/standalone-renderer/main.cpp ${MiyukiAPI})
+target_link_libraries(myk-cli core)

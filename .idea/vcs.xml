@@ -3,6 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/cereal" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/cxxopts" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/fmt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/json" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/linalg" vcs="Git" />

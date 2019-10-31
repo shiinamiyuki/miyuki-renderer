@@ -34,6 +34,86 @@
 namespace miyuki {
     class Entity;
 }
+
+#include <api/math.hpp>
+
+namespace miyuki {
+    template<class>
+    struct shared_ptr_unwrap {
+    };
+
+    template<class T>
+    struct shared_ptr_unwrap<std::shared_ptr<T>> {
+        using type = std::decay_t<T>;
+    };
+
+    using json = nlohmann::json;
+
+    template<class T, size_t N>
+    inline void to_json(json &j, const Vec<T, N> &v) {
+        j = json::array();
+        for (int i = 0; i < N; i++) {
+            j[i] = v[i];
+        }
+    }
+
+    template<class T, size_t N>
+    inline void from_json(const json &j, Vec<T, N> &v) {
+        for (int i = 0; i < N; i++) {
+            v[i] = j[i];
+        }
+    }
+
+    inline void to_json(json &j, const Vec3f &v) {
+        j = json::array();
+        for (int i = 0; i < 3; i++) {
+            j[i] = v[i];
+        }
+    }
+
+
+    inline void from_json(const json &j, Vec3f &v) {
+        for (int i = 0; i < 3; i++) {
+            v[i] = j[i];
+        }
+    }
+
+    inline void to_json(json &j, const Matrix4 &m) {
+        j = json::array();
+        for (int i = 0; i < 4; i++) {
+            j[i] = m[i];
+        }
+    }
+
+
+    inline void from_json(const json &j, Matrix4 &m) {
+        for (int i = 0; i < 4; i++) {
+            m[i] = j[i].get < Vec < Float, 4 >> ();
+        }
+    }
+
+    inline void to_json(json &j, const Transform &transform) {
+        j = transform.matrix();
+    }
+
+
+    inline void from_json(const json &j, Transform &transform) {
+        transform = Transform(j.get<Matrix4>());
+    }
+
+    template<class T>
+    void from_json(const json &j, std::shared_ptr<T>& p) {
+        p = std::dynamic_pointer_cast<T>(CreateEntityParams(j));
+    }
+
+    template<class T>
+    void from_json(const json &j, std::vector<T>& vec){
+        for(auto& i: j){
+            vec.emplace_back(i.get<T>());
+        }
+    }
+}
+
 namespace miyuki::serialize {
     using nlohmann::json;
 
@@ -252,21 +332,7 @@ namespace miyuki::serialize {
         }
     };
 
-    template<class>
-    struct is_shared_ptr {
-        static const bool value = false;
-    };
 
-    template<class T>
-    struct is_shared_ptr<std::shared_ptr<T>> {
-        static const bool value = true;
-    };
-
-    template<class>
-    struct shared_ptr_unwrap{};
-
-    template<class T>
-    struct shared_ptr_unwrap<std::shared_ptr<T>>{using type = std::decay_t<T>;};
 
     struct InitializeVisitor {
         const json &params;
@@ -275,10 +341,9 @@ namespace miyuki::serialize {
 
         template<class T>
         void visit(T &v, const char *name) {
-            if constexpr (is_shared_ptr<T>::value) {
-                v = std::dynamic_pointer_cast<typename shared_ptr_unwrap<T>::type>(CreateEntityParams(params.at(name)));
-            } else {
+            if (params.contains(name)) {
                 v = params.at(name).get<T>();
+
             }
         }
     };
@@ -432,63 +497,6 @@ namespace miyuki::serialize {
         miyuki::serialize::_accept(visitor, #__VA_ARGS__ , __VA_ARGS__);\
     }
 
-#include <api/math.hpp>
-
-namespace miyuki {
-    using json = nlohmann::json;
-
-    template<class T, size_t N>
-    inline void to_json(json &j, const Vec<T, N> &v) {
-        j = json::array();
-        for (int i = 0; i < N; i++) {
-            j[i] = v[i];
-        }
-    }
-
-    template<class T, size_t N>
-    inline void from_json(const json &j, Vec<T, N> &v) {
-        for (int i = 0; i < N; i++) {
-            v[i] = j[i];
-        }
-    }
-
-    inline void to_json(json &j, const Vec3f &v) {
-        j = json::array();
-        for (int i = 0; i < 3; i++) {
-            j[i] = v[i];
-        }
-    }
-
-
-    inline void from_json(const json &j, Vec3f &v) {
-        for (int i = 0; i < 3; i++) {
-            v[i] = j[i];
-        }
-    }
-
-    inline void to_json(json &j, const Matrix4 &m) {
-        j = json::array();
-        for (int i = 0; i < 4; i++) {
-            j[i] = m[i];
-        }
-    }
-
-
-    inline void from_json(const json &j, Matrix4 &m) {
-        for (int i = 0; i < 4; i++) {
-            m[i] = j[i].get < Vec < Float, 4 >> ();
-        }
-    }
-
-    inline void to_json(json &j, const Transform &transform) {
-        j = transform.matrix();
-    }
-
-
-    inline void from_json(const json &j, Transform &transform) {
-        transform = Transform(j.get<Matrix4>());
-    }
-}
 
 
 #endif //MIYUKIRENDERER_SERIALIZE_HPP
