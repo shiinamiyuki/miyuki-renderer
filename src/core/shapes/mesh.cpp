@@ -81,6 +81,11 @@ namespace miyuki::core {
         for (int i = 0; i < triangles.size(); i++) {
             triangles[i].primID = i;
         }
+        _materials.clear();
+        for (const auto &name : _names) {
+            auto mat = materials.at(name);
+            _materials.emplace_back(mat);
+        }
         accelerator = std::dynamic_pointer_cast<Accelerator>(CreateEntity("BVHAccelerator"));
         accelerator->build(this);
     }
@@ -339,7 +344,7 @@ namespace miyuki::core {
     }
 
     Material *MeshTriangle::getMaterial() const {
-        return mesh->materials[name_id].get();
+        return mesh->_materials[name_id].get();
     }
 }
 

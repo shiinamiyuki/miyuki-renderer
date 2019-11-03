@@ -20,48 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_LIGHT_H
-#define MIYUKIRENDERER_LIGHT_H
+#include <api/light.h>
+#include <api/scene.h>
 
-#include <api/spectrum.h>
-#include <api/ray.h>
-#include <api/entity.hpp>
-
-namespace miyuki::core {
-    struct VisibilityTester;
-    struct ShadingPoint;
-
-    class Shape;
-
-    struct LightSample {
-        Vec3f wi;
-        Spectrum Li;
-        float pdf;
-    };
-
-    struct LightRaySample {
-        Ray ray;
-        Spectrum Le;
-        float pdfPos, pdfDir;
-    };
-
-    class Light : public Entity {
-    public:
-        virtual Spectrum Li(ShadingPoint &sp) const = 0;
-
-        virtual void sampleLi(const Point2f &u, Intersection &isct, LightSample &sample, VisibilityTester &) const = 0;
-
-        virtual Float pdfLi(const Intersection &intersection, const Vec3f &wi) const = 0;
-
-        virtual void sampleLe(const Point2f &u1, const Point2f &u2, LightRaySample &sample) = 0;
-
-    };
-    class Scene;
-    struct VisibilityTester {
-        Ray shadowRay;
-
-        bool visible(Scene &scene) ;
-    };
-
+namespace miyuki::core{
+    bool VisibilityTester::visible(miyuki::core::Scene &scene) {
+        Intersection isct;
+        if (!scene.intersect(shadowRay, isct) || isct.distance >= shadowRay.tMax - RayBias) {
+            return true;
+        }
+        return false;
+    }
 }
-#endif //MIYUKIRENDERER_LIGHT_H

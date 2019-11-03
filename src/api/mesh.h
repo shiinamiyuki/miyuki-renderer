@@ -27,9 +27,11 @@
 #include <api/serialize.hpp>
 #include <api/accelerator.h>
 #include <api/material.h>
+#include <cereal/types/unordered_map.hpp>
 
 namespace miyuki::core {
     class Mesh;
+
     class AreaLight;
 
     /// SOA
@@ -42,18 +44,25 @@ namespace miyuki::core {
 
 
     struct MeshTriangle {
-        AreaLight * light = nullptr;
+        AreaLight *light = nullptr;
         Mesh *mesh = nullptr;
         uint16_t name_id = -1;
         uint32_t primID = -1;
 
         MeshTriangle() = default;
 
-        const Point3f &vertex(size_t) const;
+        [[nodiscard]] const Point3f &vertex(size_t) const;
 
-        const Normal3f &normal(size_t) const;
+        [[nodiscard]] const Normal3f &normal(size_t) const;
 
-        const Point2f &texCoord(size_t) const;
+        [[nodiscard]] const Point2f &texCoord(size_t) const;
+
+
+        [[nodiscard]] const Vec3f Ng() const {
+            Vec3f e1 = (vertex(1) - vertex(0));
+            Vec3f e2 = (vertex(2) - vertex(0));
+            return e1.cross(e2).normalized();
+        }
 
         bool intersect(const Ray &ray, Intersection &isct) const {
             float u, v;
@@ -101,6 +110,7 @@ namespace miyuki::core {
                 uv.x = 1.0f - uv.x;
                 uv.y = 1.0f - uv.y;
             }
+            sample.uv = uv;
             sample.pdf = 1 / area();
             sample.p = (1 - uv.x - uv.y) * vertex(0) + uv.x * vertex(1) + uv.y * vertex(1);
             Vec3f e1 = (vertex(1) - vertex(0));
@@ -108,15 +118,27 @@ namespace miyuki::core {
             sample.normal = e1.cross(e2).normalized();
         }
 
-        Float area() const {
+        [[nodiscard]] Float area() const {
             return Vec3f(vertex(1) - vertex(0)).cross(vertex(2) - vertex(0)).length();
         }
 
-        BSDF *getBSDF() const {
+        [[nodiscard]] BSDF *getBSDF() const {
             return nullptr;
         }
 
-        Material * getMaterial()const;
+        [[nodiscard]] Material *getMaterial() const;
+
+        [[nodiscard]] Vec3f positionAt(const Point2f &uv) const {
+            return lerp3(vertex(0), vertex(1), vertex(2), uv[0], uv[1]);
+        }
+
+        [[nodiscard]] Normal3f normalAt(const Point2f &uv) const {
+            return lerp3(normal(0), normal(1), normal(2), uv[0], uv[1]);
+        }
+
+        [[nodiscard]] Point2f texCoordAt(const Point2f &uv) const {
+            return lerp3(texCoord(0), texCoord(1), texCoord(2), uv[0], uv[1]);
+        }
     };
 
 
@@ -128,14 +150,15 @@ namespace miyuki::core {
         VertexData _vertex_data;
         std::vector<Point3i> _indices;
         std::vector<std::string> _names;
-        std::vector<std::shared_ptr<Material>> materials;
+        std::vector<std::shared_ptr<Material>> _materials;
+        std::unordered_map<std::string, std::shared_ptr<Material>> materials;
         std::string filename;
 
         MYK_DECL_CLASS(Mesh, "Mesh", interface = "Shape")
 
-        MYK_AUTO_SER(filename)
+        MYK_AUTO_SER(filename, materials)
 
-        MYK_AUTO_INIT(filename)
+        MYK_AUTO_INIT(filename, materials)
 
         bool intersect(const Ray &ray, Intersection &isct) const {
             return accelerator->intersect(ray, isct);

@@ -41,8 +41,8 @@ namespace miyuki::core {
                 for (int s = 0; s < spp; s++) {
                     CameraSample sample;
                     sampler->startNextSample();
-                    camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i{i, j},
-                                        Point2i{film.width, film.height},
+                    camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i(i, j),
+                                        Point2i(film.width, film.height),
                                         sample);
 
                     Intersection isct;

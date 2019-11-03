@@ -19,17 +19,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#include <core/shapes/mesh.h>
+#include <api/mesh.h>
 
 
 int main(int argc, char **argv) {
     if (argc != 3) {
-        printf("Usage: mesh-importer src dst\n");
+        printf("Usage: mesh-importer scene-file src dst\n");
         return 0;
     }
     miyuki::core::Mesh mesh;
-    mesh.importFromFile(argv[1]);
-    mesh.writeToFile(argv[2]);
+    //
+    mesh.importFromFile(argv[2]);
+    mesh.writeToFile(argv[3]);
     return 0;
 }
 

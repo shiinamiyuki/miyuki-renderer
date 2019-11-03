@@ -22,18 +22,25 @@
 
 #include <api/scene.h>
 #include <api/detail/entity-funcs.h>
+#include <core/lights/arealight.h>
 
 
 namespace miyuki::core {
     void Scene::preprocess() {
         accelerator = std::make_shared<TopLevelBVHAccelerator>();
-        auto setLight = [](MeshTriangle *triangle) {
-
+        auto setLight = [=](MeshTriangle *triangle) {
+            auto mat = triangle->getMaterial();
+            if (mat->emission != nullptr) {
+                auto light = std::make_shared<AreaLight>();
+                light->setTriangle(triangle);
+                lights.emplace_back(light);
+            }
         };
         std::vector<Shape *> v;
         for (auto &i:shapes) {
+            i->preprocess();
             v.push_back(i.get());
-
+            i->foreach(setLight);
         }
         accelerator->build(v);
     }

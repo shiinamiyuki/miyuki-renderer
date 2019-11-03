@@ -28,6 +28,7 @@ file(GLOB libcoreSource src/core/*.cpp
         src/core/shapes/*.*
         src/core/cameras/*.*
         src/core/bsdfs/*.*
+        src/core/lights/*.*
         src/core/integrators/*.*
         src/core/samplers/*.*
         external/tinyobjloader/tiny_obj_loader.cc

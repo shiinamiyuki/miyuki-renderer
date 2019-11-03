@@ -13,9 +13,6 @@ namespace miyuki::core {
         camera->preprocess();
         integrator->preprocess();
         sampler->preprocess();
-        for (auto &i:shapes) {
-            i->preprocess();
-        }
         Film film(filmDimension[0], filmDimension[1]);
         auto scene = std::make_shared<Scene>();
         for (const auto& i: shapes) {

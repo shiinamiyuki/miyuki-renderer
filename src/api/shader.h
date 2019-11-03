@@ -28,7 +28,7 @@
 
 namespace miyuki::core {
     struct ShadingPoint {
-        Point2f uv;
+        Point2f texCoord;
         Normal3f Ns;
         Normal3f Ng;
     };

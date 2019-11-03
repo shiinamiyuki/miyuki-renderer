@@ -20,48 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_LIGHT_H
-#define MIYUKIRENDERER_LIGHT_H
+#ifndef MIYUKIRENDERER_AREALIGHT_H
+#define MIYUKIRENDERER_AREALIGHT_H
 
-#include <api/spectrum.h>
-#include <api/ray.h>
-#include <api/entity.hpp>
+#include <api/light.h>
+#include <api/shader.h>
+#include <api/serialize.hpp>
 
 namespace miyuki::core {
-    struct VisibilityTester;
-    struct ShadingPoint;
-
-    class Shape;
-
-    struct LightSample {
-        Vec3f wi;
-        Spectrum Li;
-        float pdf;
-    };
-
-    struct LightRaySample {
-        Ray ray;
-        Spectrum Le;
-        float pdfPos, pdfDir;
-    };
-
-    class Light : public Entity {
+    class AreaLight final: public Light {
+        MeshTriangle *triangle = nullptr;
+        std::shared_ptr<Shader> emission;
     public:
-        virtual Spectrum Li(ShadingPoint &sp) const = 0;
+        MYK_DECL_CLASS(AreaLight, "AreaLight", interface = "Light")
 
-        virtual void sampleLi(const Point2f &u, Intersection &isct, LightSample &sample, VisibilityTester &) const = 0;
+        Spectrum Li(ShadingPoint &sp) const override;
 
-        virtual Float pdfLi(const Intersection &intersection, const Vec3f &wi) const = 0;
+        void
+        sampleLi(const Point2f &u, Intersection &isct, LightSample &sample, VisibilityTester &tester) const override;
 
-        virtual void sampleLe(const Point2f &u1, const Point2f &u2, LightRaySample &sample) = 0;
+        Float pdfLi(const Intersection &intersection, const Vec3f &wi) const override;
 
+        void sampleLe(const Point2f &u1, const Point2f &u2, LightRaySample &sample) override;
+
+        void setTriangle(MeshTriangle *shape);
     };
-    class Scene;
-    struct VisibilityTester {
-        Ray shadowRay;
-
-        bool visible(Scene &scene) ;
-    };
-
 }
-#endif //MIYUKIRENDERER_LIGHT_H
+#endif //MIYUKIRENDERER_AREALIGHT_H

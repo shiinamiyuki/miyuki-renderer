@@ -35,6 +35,7 @@ namespace miyuki::core {
         Point3f p;
         Float pdf;
         Normal3f normal;
+        Point2f uv;
     };
 
 
