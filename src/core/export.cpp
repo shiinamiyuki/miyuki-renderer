@@ -30,9 +30,11 @@
 #include "core/samplers/random-sampler.h"
 #include "samplers/sobol-sampler.h"
 #include <api/graph.h>
+#include <api/material.h>
 
 namespace miyuki::core {
     void Initialize() {
+        Register<Material>();
         Register<SceneGraph>();
         Register<BVHAccelerator>();
         Register<Mesh>();

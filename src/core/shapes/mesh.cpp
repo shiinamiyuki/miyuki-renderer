@@ -78,7 +78,7 @@ namespace miyuki::core {
                 importFromFile(filename);
             }
         }
-        for(int i =0;i<triangles.size();i++){
+        for (int i = 0; i < triangles.size(); i++) {
             triangles[i].primID = i;
         }
         accelerator = std::dynamic_pointer_cast<Accelerator>(CreateEntity("BVHAccelerator"));
@@ -320,6 +320,12 @@ namespace miyuki::core {
         }
     }
 
+    void Mesh::foreach(const std::function<void(MeshTriangle *)> &func) {
+        for (auto &i :triangles) {
+            func(&i);
+        }
+    }
+
     const Point3f &MeshTriangle::vertex(size_t i) const {
         return mesh->_vertex_data.position[mesh->_indices[primID][i]];
     }
@@ -332,5 +338,8 @@ namespace miyuki::core {
         return mesh->_vertex_data.tex_coord[mesh->_indices[primID][i]];
     }
 
+    Material *MeshTriangle::getMaterial() const {
+        return mesh->materials[name_id].get();
+    }
 }
 

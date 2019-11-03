@@ -27,9 +27,13 @@
 namespace miyuki::core {
     void Scene::preprocess() {
         accelerator = std::make_shared<TopLevelBVHAccelerator>();
+        auto setLight = [](MeshTriangle *triangle) {
+
+        };
         std::vector<Shape *> v;
         for (auto &i:shapes) {
             v.push_back(i.get());
+
         }
         accelerator->build(v);
     }

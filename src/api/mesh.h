@@ -26,9 +26,12 @@
 #include <api/shape.h>
 #include <api/serialize.hpp>
 #include <api/accelerator.h>
+#include <api/material.h>
 
 namespace miyuki::core {
     class Mesh;
+    class AreaLight;
+
     /// SOA
     /// Arranged for efficient OpenGL rendering
     struct VertexData {
@@ -38,7 +41,8 @@ namespace miyuki::core {
     };
 
 
-    struct MeshTriangle{
+    struct MeshTriangle {
+        AreaLight * light = nullptr;
         Mesh *mesh = nullptr;
         uint16_t name_id = -1;
         uint32_t primID = -1;
@@ -51,7 +55,7 @@ namespace miyuki::core {
 
         const Point2f &texCoord(size_t) const;
 
-        bool intersect(const Ray &ray, Intersection &isct) const  {
+        bool intersect(const Ray &ray, Intersection &isct) const {
             float u, v;
             Vec3f e1 = (vertex(1) - vertex(0));
             Vec3f e2 = (vertex(2) - vertex(0));
@@ -84,14 +88,14 @@ namespace miyuki::core {
             return false;
         }
 
-        [[nodiscard]] Bounds3f getBoundingBox() const  {
+        [[nodiscard]] Bounds3f getBoundingBox() const {
             return Bounds3f{
                     min(vertex(0), min(vertex(1), vertex(2))),
                     max(vertex(0), max(vertex(1), vertex(2)))
             };
         }
 
-        void sample(const Point2f &u, SurfaceSample &sample) const  {
+        void sample(const Point2f &u, SurfaceSample &sample) const {
             Point2f uv = u;
             if (uv.x + uv.y > 1.0f) {
                 uv.x = 1.0f - uv.x;
@@ -104,13 +108,15 @@ namespace miyuki::core {
             sample.normal = e1.cross(e2).normalized();
         }
 
-        Float area() const  {
+        Float area() const {
             return Vec3f(vertex(1) - vertex(0)).cross(vertex(2) - vertex(0)).length();
         }
 
-        BSDF *getBSDF() const  {
+        BSDF *getBSDF() const {
             return nullptr;
         }
+
+        Material * getMaterial()const;
     };
 
 
@@ -122,6 +128,7 @@ namespace miyuki::core {
         VertexData _vertex_data;
         std::vector<Point3i> _indices;
         std::vector<std::string> _names;
+        std::vector<std::shared_ptr<Material>> materials;
         std::string filename;
 
         MYK_DECL_CLASS(Mesh, "Mesh", interface = "Shape")
@@ -130,18 +137,13 @@ namespace miyuki::core {
 
         MYK_AUTO_INIT(filename)
 
-        bool intersect(const Ray &ray, Intersection &isct) const  {
+        bool intersect(const Ray &ray, Intersection &isct) const {
             return accelerator->intersect(ray, isct);
         }
 
-        [[nodiscard]] Bounds3f getBoundingBox() const  {
+        [[nodiscard]] Bounds3f getBoundingBox() const {
             return accelerator->getBoundingBox();
         }
-
-        void sample(const Point2f &u, SurfaceSample &sample) const  {
-            MIYUKI_NOT_IMPLEMENTED();
-        }
-
 
         // TODO: set import directory
         bool importFromFile(const std::string &filename);
@@ -150,6 +152,8 @@ namespace miyuki::core {
         void toBinary(std::vector<char> &buffer) const;
 
         void fromBinary(const std::vector<char> &buffer);
+
+        void foreach(const std::function<void(MeshTriangle *)> &func) override;
 
         bool loadFromFile(const std::string &filename);
 
@@ -170,7 +174,7 @@ namespace miyuki::core {
 
         MYK_AUTO_SER(transform, mesh)
 
-        bool intersect(const Ray &ray, Intersection &isct) const  {
+        bool intersect(const Ray &ray, Intersection &isct) const {
             auto o = invTransform(ray.o);
             auto p = invTransform(ray.o + ray.d);
             Float k = (p - o).length();
@@ -197,16 +201,16 @@ namespace miyuki::core {
             return box;
         }
 
-        void sample(const Point2f &u, SurfaceSample &sample) const override {
-            mesh->sample(u, sample);
+        void foreach(const std::function<void(MeshTriangle *)> &func) override {
+            mesh->foreach(func);
         }
-
 
     protected:
         void preprocess() override {
             invTransform = transform.inverse();
         }
     };
+
 
 }
 

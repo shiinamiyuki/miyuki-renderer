@@ -20,26 +20,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_PARALLEL_H
-#define MIYUKIRENDERER_PARALLEL_H
+#ifndef MIYUKIRENDERER_MATERIAL_H
+#define MIYUKIRENDERER_MATERIAL_H
 
-#include <functional>
-#include <thread>
+#include <api/shader.h>
+#include <api/bsdf.h>
+#include <api/serialize.hpp>
 
-namespace miyuki {
-    using WorkFunc = std::function<void(int64_t index, size_t threadIdx)>;
+namespace miyuki::core {
 
-    size_t GetCoreNumber();
+    class Material final : public Entity {
+    public:
+        std::shared_ptr<Shader> emission;
+        std::shared_ptr<BSDF> bsdf;
 
-    void SetCoreNumber(size_t N);
+        MYK_DECL_CLASS(Material, "Material")
 
-    void ParallelFor(int64_t begin, int64_t end, WorkFunc, size_t workSize = 1);
+        MYK_AUTO_INIT(emission, bsdf)
 
-    template<class F1, class F2>
-    void ParallelDo(F1 &&f1, F2 &&f2) {
-        std::thread thread(f2);
-        f1();
-        f2.join();
-    }
+        MYK_AUTO_SER(emission, bsdf)
+    };
 }
-#endif //MIYUKIRENDERER_PARALLEL_H
+
+#endif //MIYUKIRENDERER_MATERIAL_H

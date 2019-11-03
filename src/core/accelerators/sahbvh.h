@@ -69,9 +69,6 @@ namespace miyuki::core {
             return boundBox;
         }
 
-        void sample(const Point2f &u, SurfaceSample &sample) const override {
-            MIYUKI_NOT_IMPLEMENTED();
-        }
 
 
         void build(const Mesh *mesh) override;
@@ -147,9 +144,6 @@ namespace miyuki::core {
             return boundBox;
         }
 
-        void sample(const Point2f &u, SurfaceSample &sample) const override {
-            MIYUKI_NOT_IMPLEMENTED();
-        }
 
         void build(const std::vector<Shape *> &primitives) override;
 

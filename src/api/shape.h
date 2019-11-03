@@ -28,7 +28,8 @@
 #include <api/ray.h>
 
 namespace miyuki::core {
-    class AreaLight;
+
+    class MeshTriangle;
 
     struct SurfaceSample {
         Point3f p;
@@ -43,10 +44,7 @@ namespace miyuki::core {
 
         [[nodiscard]] virtual Bounds3f getBoundingBox() const = 0;
 
-        [[nodiscard]] virtual AreaLight *getAreaLight() const { return nullptr; }
-
-        virtual void sample(const Point2f &u, SurfaceSample &sample) const = 0;
-
+        virtual void foreach(const std::function<void(MeshTriangle *)> &func) {}
 
     };
 }
