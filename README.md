@@ -1,4 +1,4 @@
-# miyuki-renderer
+# miyuki-renderer (previous version in legacy branch)
 
 ## Usage
 
