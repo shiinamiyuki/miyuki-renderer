@@ -37,7 +37,6 @@ namespace miyuki::core {
         Register<BVHAccelerator>();
         Register<Mesh>();
         Register<MeshInstance>();
-        Register<MeshTriangle>();
         Register<FloatShader>();
         Register<RGBShader>();
         Register<PerspectiveCamera>();

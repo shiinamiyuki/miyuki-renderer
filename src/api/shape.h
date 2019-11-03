@@ -23,21 +23,31 @@
 #ifndef MIYUKIRENDERER_SHAPE_H
 #define MIYUKIRENDERER_SHAPE_H
 
-#include <api/primitive.h>
+#include <api/spectrum.h>
+#include <api/entity.hpp>
+#include <api/ray.h>
 
 namespace miyuki::core {
-    class BSDF;
+    class AreaLight;
 
-    class Shape : public Primitive {
+    struct SurfaceSample {
+        Point3f p;
+        Float pdf;
+        Normal3f normal;
+    };
+
+
+    class Shape : public Entity {
     public:
-        [[nodiscard]] virtual BSDF *getBSDF() const = 0;
+        virtual bool intersect(const Ray &ray, Intersection &isct) const = 0;
 
-        // split shape according to given axis
-        // returns true iff split can be performed
-        virtual bool
-        split(Float coord, int axis, std::vector<std::shared_ptr<Shape>> &splitResults) const { return false; }
+        [[nodiscard]] virtual Bounds3f getBoundingBox() const = 0;
+
+        [[nodiscard]] virtual AreaLight *getAreaLight() const { return nullptr; }
+
+        virtual void sample(const Point2f &u, SurfaceSample &sample) const = 0;
+
 
     };
 }
-
 #endif //MIYUKIRENDERER_SHAPE_H

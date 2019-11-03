@@ -78,12 +78,11 @@ namespace miyuki::core {
                 importFromFile(filename);
             }
         }
-        accelerator = std::dynamic_pointer_cast<Accelerator>(CreateEntity("BVHAccelerator"));
-        std::vector<Primitive *> primitives;
-        for (auto &i:triangles) {
-            primitives.emplace_back(&i);
+        for(int i =0;i<triangles.size();i++){
+            triangles[i].primID = i;
         }
-        accelerator->build(primitives);
+        accelerator = std::dynamic_pointer_cast<Accelerator>(CreateEntity("BVHAccelerator"));
+        accelerator->build(this);
     }
 
     bool Mesh::importFromFile(const std::string &filename) {
@@ -322,18 +321,15 @@ namespace miyuki::core {
     }
 
     const Point3f &MeshTriangle::vertex(size_t i) const {
-        size_t prim_id = this - &mesh->triangles[0];
-        return mesh->_vertex_data.position[mesh->_indices[prim_id][i]];
+        return mesh->_vertex_data.position[mesh->_indices[primID][i]];
     }
 
     const Normal3f &MeshTriangle::normal(size_t i) const {
-        size_t prim_id = this - &mesh->triangles[0];
-        return mesh->_vertex_data.normal[mesh->_indices[prim_id][i]];
+        return mesh->_vertex_data.normal[mesh->_indices[primID][i]];
     }
 
     const Point2f &MeshTriangle::texCoord(size_t i) const {
-        size_t prim_id = this - &mesh->triangles[0];
-        return mesh->_vertex_data.tex_coord[mesh->_indices[prim_id][i]];
+        return mesh->_vertex_data.tex_coord[mesh->_indices[primID][i]];
     }
 
 }

@@ -44,8 +44,10 @@ namespace miyuki::core {
 
     class BSDF;
 
+    class MeshTriangle;
+
     struct Intersection {
-        const Shape *shape = nullptr;
+        const MeshTriangle *shape = nullptr;
         const BSDF *bsdf = nullptr;
         float distance = MaxFloat;
         Point3f p;

@@ -23,12 +23,19 @@
 #ifndef MIYUKIRENDERER_ACCELERATOR_H
 #define MIYUKIRENDERER_ACCELERATOR_H
 
-#include <api/primitive.h>
+#include <api/shape.h>
 
 namespace miyuki::core {
-    class Accelerator : public Primitive {
+    class Mesh;
+
+    class Accelerator : public Shape {
     public:
-        virtual void build(const std::vector<Primitive*> &primitives) = 0;
+        virtual void build(const Mesh * mesh) = 0;
+    };
+
+    class TopLevelAccelerator : public Shape{
+    public:
+        virtual void build(const std::vector<Shape*>& ) = 0;
     };
 }
 

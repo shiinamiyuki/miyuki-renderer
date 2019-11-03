@@ -15,7 +15,7 @@
   },
   "integrator": {
     "type": "RTAO",
-    "spp": 16,
+    "spp": 1,
     "occludeDistance": 2
   },
   "sampler": {

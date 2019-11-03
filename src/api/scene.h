@@ -24,18 +24,19 @@
 #define MIYUKIRENDERER_SCENE_H
 
 #include <api/entity.hpp>
-#include <api/primitive.h>
+#include <api/shape.h>
 #include <api/light.h>
 #include <api/ray.h>
 #include <api/accelerator.h>
 
+#include <core/accelerators/sahbvh.h>
 namespace miyuki::core {
 
     class Scene {
-        std::shared_ptr<Accelerator> accelerator;
+        std::shared_ptr<TopLevelBVHAccelerator> accelerator;
     public:
         std::vector<std::shared_ptr<Light>> lights;
-        std::vector<std::shared_ptr<Primitive>> primitives;
+        std::vector<std::shared_ptr<Shape>> shapes;
         bool intersect(const Ray&ray, Intersection& isct);
         void preprocess();
     };

@@ -26,16 +26,16 @@
 
 namespace miyuki::core {
     void Scene::preprocess() {
-        accelerator = std::dynamic_pointer_cast<Accelerator>(CreateEntity("BVHAccelerator"));
-        std::vector<Primitive *> v;
-        for (auto &i:primitives) {
+        accelerator = std::make_shared<TopLevelBVHAccelerator>();
+        std::vector<Shape *> v;
+        for (auto &i:shapes) {
             v.push_back(i.get());
         }
         accelerator->build(v);
     }
 
     bool Scene::intersect(const miyuki::core::Ray &ray, miyuki::core::Intersection &isct) {
-        if(accelerator->intersect(ray, isct)){
+        if (accelerator->intersect(ray, isct)) {
             isct.p = ray.o + isct.distance * ray.d;
             return true;
         }

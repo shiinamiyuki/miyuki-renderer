@@ -18,8 +18,8 @@ namespace miyuki::core {
         }
         Film film(filmDimension[0], filmDimension[1]);
         auto scene = std::make_shared<Scene>();
-        for (auto i: shapes) {
-            scene->primitives.emplace_back(i);
+        for (const auto& i: shapes) {
+            scene->shapes.emplace_back(i);
         }
         scene->preprocess();
         log::log("Start Rendering...\n");
