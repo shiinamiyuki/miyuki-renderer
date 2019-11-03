@@ -20,37 +20,51 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include <api/mesh.h>
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/bsdfs/diffusebsdf.h"
-#include "core/integrators/rtao.h"
-#include "core/samplers/random-sampler.h"
-#include "samplers/sobol-sampler.h"
-#include <api/graph.h>
-#include <api/material.h>
-#include "accelerators/embree-backend.h"
+#include "embree-backend.h"
+#include <embree3/rtcore.h>
+#ifdef MYK_USE_EMBREE
 
-namespace miyuki::core {
-    void Initialize() {
-        Register<Material>();
-        Register<SceneGraph>();
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-        Register<RTAO>();
-        Register<RandomSampler>();
-        Register<SobolSampler>();
-        Register<EmbreeAccelerator>();
+namespace miyuki::core{
+
+    void EmbreeAccelerator::build(const Mesh *mesh) {
+
     }
 
-    void Finalize() {
+    bool EmbreeAccelerator::intersect(const Ray &ray, Intersection &isct) const {
+        return false;
+    }
 
+    Bounds3f EmbreeAccelerator::getBoundingBox() const {
+        return miyuki::Bounds3f();
+    }
+
+    void EmbreeTopLevelAccelerator::build(const std::vector<Shape *> &vector) {
+
+    }
+
+    bool EmbreeTopLevelAccelerator::intersect(const Ray &ray, Intersection &isct) const {
+        return false;
+    }
+
+    Bounds3f EmbreeTopLevelAccelerator::getBoundingBox() const {
+        return miyuki::Bounds3f();
     }
 }
+#else
+namespace miyuki::core{
+
+    void EmbreeAccelerator::build(const Mesh *mesh) {
+        MIYUKI_NOT_IMPLEMENTED();
+    }
+
+    bool EmbreeAccelerator::intersect(const Ray &ray, Intersection &isct) const {
+        MIYUKI_NOT_IMPLEMENTED();
+        return false;
+    }
+
+    Bounds3f EmbreeAccelerator::getBoundingBox() const {
+        MIYUKI_NOT_IMPLEMENTED();
+        return miyuki::Bounds3f();
+    }
+}
+#endif

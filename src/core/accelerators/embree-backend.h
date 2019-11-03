@@ -20,37 +20,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "export.h"
-#include "accelerators/sahbvh.h"
-#include <api/mesh.h>
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/bsdfs/diffusebsdf.h"
-#include "core/integrators/rtao.h"
-#include "core/samplers/random-sampler.h"
-#include "samplers/sobol-sampler.h"
-#include <api/graph.h>
-#include <api/material.h>
-#include "accelerators/embree-backend.h"
+#ifndef MIYUKIRENDERER_EMBREE_BACKEND_H
+#define MIYUKIRENDERER_EMBREE_BACKEND_H
+
+#include <api/accelerator.h>
+#include <api/serialize.hpp>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<Material>();
-        Register<SceneGraph>();
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-        Register<RTAO>();
-        Register<RandomSampler>();
-        Register<SobolSampler>();
-        Register<EmbreeAccelerator>();
-    }
+    class EmbreeAccelerator final : public Accelerator {
+    public:
+        MYK_DECL_CLASS(EmbreeAccelerator, "EmbreeAccelerator", interface = "Accelerator")
 
-    void Finalize() {
+        void build(const Mesh *mesh) override;
 
-    }
+        bool intersect(const Ray &ray, Intersection &isct) const override;
+
+        Bounds3f getBoundingBox() const override;
+    };
+    class EmbreeTopLevelAccelerator final : public TopLevelAccelerator{
+    public:
+        MYK_DECL_CLASS(EmbreeTopLevelAccelerator, "EmbreeTopLevelAccelerator", interface = "TopLevelAccelerator")
+
+        void build(const std::vector<Shape *> &vector) override;
+
+        bool intersect(const Ray &ray, Intersection &isct) const override;
+
+        Bounds3f getBoundingBox() const override;
+    };
 }
+#endif //MIYUKIRENDERER_EMBREE_BACKEND_H
