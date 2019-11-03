@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.1)
 project(MiyukiRenderer)
+
+
+option(USE_EMBREE "Use Embree as ray intersection backend" ON)
+option(EMBREE_FROM_SOUCE "Download and compile embree from souce" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -41,8 +46,24 @@ file(GLOB libcoreSource src/core/*.cpp
         external/lodepng/lodepng.cpp
 
         )
-#include(ExternalProject)
-#include(${PROJECT_SOURCE_DIR}/cmake/cmake-embree)
+
+IF(USE_EMBREE)
+    IF(EMBREE_FROM_SOUCE)
+        include(ExternalProject)
+        include(${PROJECT_SOURCE_DIR}/cmake/cmake-embree)
+    ELSE()
+        IF(WIN32)
+            set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files/Intel/Embree3 x64")
+        ENDIF()
+        find_package(embree 3.6 REQUIRED)
+        #message(${Embree_FOUND})
+        IF(NOT embree_FOUND)
+            message(FATAL_ERROR "Embree 3.6 not found")
+        ENDIF()
+        include_directories(${EMBREE_INCLUDE_DIRS})
+        link_directories(${EMBREE_LIBRARY})
+    ENDIF()
+ENDIF()
 add_library(core ${MiyukiAPI} ${libcoreSource})
 target_link_libraries(core fmt)
 add_executable(myk-cli src/standalone-renderer/main.cpp ${MiyukiAPI})
