@@ -42,4 +42,5 @@ include/
 
 # Imported mesh files
 *.mesh
-external/embree3
+
+external/embree3/
