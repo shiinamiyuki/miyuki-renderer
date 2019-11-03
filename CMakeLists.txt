@@ -1,6 +1,5 @@
-project(MiyukiRenderer)
-
 cmake_minimum_required(VERSION 3.1)
+project(MiyukiRenderer)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(Python3 REQUIRED)

@@ -22,7 +22,7 @@
 
 #include "export.h"
 #include "accelerators/sahbvh.h"
-#include "core/shapes/mesh.h"
+#include <api/mesh.h>
 #include "core/shaders/common-shader.h"
 #include "core/cameras/perspective-camera.h"
 #include "core/bsdfs/diffusebsdf.h"

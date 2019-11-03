@@ -5,6 +5,9 @@
     <mapping directory="$PROJECT_DIR$/external/cereal" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/cxxopts" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/fmt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/gl3w" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/glfw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/jitify" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/json" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/linalg" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/lodepng" vcs="Git" />
