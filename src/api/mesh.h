@@ -89,7 +89,8 @@ namespace miyuki::core {
                 if (t < isct.distance) {
                     isct.distance = t;
                     isct.Ng = Ng;
-                    isct.Ns = lerp3(vertex(0), vertex(1), vertex(2), u, v).normalized();
+                    isct.uv = Point2f(u, v);
+                    isct.Ns = normalAt(isct.uv);
                     isct.shape = this;
                     return true;
                 }
@@ -133,7 +134,7 @@ namespace miyuki::core {
         }
 
         [[nodiscard]] Normal3f normalAt(const Point2f &uv) const {
-            return lerp3(normal(0), normal(1), normal(2), uv[0], uv[1]);
+            return lerp3(normal(0), normal(1), normal(2), uv[0], uv[1]).normalized();
         }
 
         [[nodiscard]] Point2f texCoordAt(const Point2f &uv) const {
@@ -160,11 +161,11 @@ namespace miyuki::core {
 
         MYK_AUTO_INIT(filename, materials)
 
-        bool intersect(const Ray &ray, Intersection &isct) const {
+        bool intersect(const Ray &ray, Intersection &isct) const override {
             return accelerator->intersect(ray, isct);
         }
 
-        [[nodiscard]] Bounds3f getBoundingBox() const {
+        [[nodiscard]] Bounds3f getBoundingBox() const override {
             return accelerator->getBoundingBox();
         }
 
@@ -197,7 +198,7 @@ namespace miyuki::core {
 
         MYK_AUTO_SER(transform, mesh)
 
-        bool intersect(const Ray &ray, Intersection &isct) const {
+        bool intersect(const Ray &ray, Intersection &isct) const override {
             auto o = invTransform(ray.o);
             auto p = invTransform(ray.o + ray.d);
             Float k = (p - o).length();

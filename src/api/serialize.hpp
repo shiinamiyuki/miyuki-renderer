@@ -309,7 +309,7 @@ namespace cereal {
         try {
             ar(CEREAL_NVP_(name, val));
         } catch (cereal::Exception &e) {
-            //
+			(void)e;//
         }
     }
 }

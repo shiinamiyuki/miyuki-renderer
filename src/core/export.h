@@ -23,8 +23,9 @@
 #ifndef MIYUKIRENDERER_EXPORT_H
 #define MIYUKIRENDERER_EXPORT_H
 
+#include <api/defs.h>
 namespace miyuki::core{
-   void Initialize();
-   void Finalize();
+   MYK_PUBLIC_API void Initialize();
+    MYK_PUBLIC_API void Finalize();
 }
 #endif //MIYUKIRENDERER_EXPORT_H

@@ -28,11 +28,14 @@
 #include <api/film.h>
 #include <api/sampling.h>
 #include <api/log.hpp>
+#include <api/profiler.h>
 
 namespace miyuki::core {
 
     void RTAO::render(const std::shared_ptr<Scene> &scene, const std::shared_ptr<Camera> &camera,
                       const std::shared_ptr<Sampler> &_sampler, Film &film) {
+        scene->resetRayCounter();
+        Profiler profiler;
         ParallelFor(0, film.height, [=, &film](int64_t j, uint64_t) {
             auto sampler = _sampler->clone();
             for (int i = 0; i < film.width; i++) {
@@ -48,7 +51,6 @@ namespace miyuki::core {
                     Intersection isct;
                     if (scene->intersect(sample.ray, isct)) {
                         isct.computeLocalFrame();
-                        //       film.addSample(sample.pFilm, isct.Ng, 1);
                         auto wo = isct.worldToLocal(-sample.ray.d);
                         auto w = CosineHemisphereSampling(sampler->next2D());
                         if (wo.y * w.y < 0) {
@@ -67,5 +69,9 @@ namespace miyuki::core {
                 }
             }
         });
+        auto duration = profiler.elapsed<double>();
+        log::log("Rendering done in {}secs, traced {} rays, {} M rays/sec\n", duration.count(),
+                 scene->getRayCounter(),
+                 scene->getRayCounter() / duration.count() / 1e6f);
     }
 }

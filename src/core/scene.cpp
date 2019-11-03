@@ -30,7 +30,7 @@ namespace miyuki::core {
         accelerator = std::make_shared<TopLevelBVHAccelerator>();
         auto setLight = [=](MeshTriangle *triangle) {
             auto mat = triangle->getMaterial();
-            if (mat->emission != nullptr) {
+            if (mat && mat->emission != nullptr) {
                 auto light = std::make_shared<AreaLight>();
                 light->setTriangle(triangle);
                 lights.emplace_back(light);
@@ -46,6 +46,7 @@ namespace miyuki::core {
     }
 
     bool Scene::intersect(const miyuki::core::Ray &ray, miyuki::core::Intersection &isct) {
+        rayCounter++;
         if (accelerator->intersect(ray, isct)) {
             isct.p = ray.o + isct.distance * ray.d;
             return true;

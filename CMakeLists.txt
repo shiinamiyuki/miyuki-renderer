@@ -2,14 +2,20 @@ cmake_minimum_required(VERSION 3.1)
 project(MiyukiRenderer)
 set(CMAKE_CXX_STANDARD 17)
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    IF(WIN32)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -target x86_64-pc-windows-gnu -femulated-tls ")
+    ENDIF()
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+endif()
+
 find_package(Python3 REQUIRED)
 find_package(PythonLibs 3 REQUIRED)
-
 
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(src)
 
-add_subdirectory(external/pybind11)
 add_subdirectory(external/fmt)
 include_directories(external/pybind11/include)
 include_directories(external/linalg)
@@ -35,6 +41,8 @@ file(GLOB libcoreSource src/core/*.cpp
         external/lodepng/lodepng.cpp
 
         )
+#include(ExternalProject)
+#include(${PROJECT_SOURCE_DIR}/cmake/cmake-embree)
 add_library(core ${MiyukiAPI} ${libcoreSource})
 target_link_libraries(core fmt)
 add_executable(myk-cli src/standalone-renderer/main.cpp ${MiyukiAPI})

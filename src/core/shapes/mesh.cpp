@@ -83,8 +83,12 @@ namespace miyuki::core {
         }
         _materials.clear();
         for (const auto &name : _names) {
-            auto mat = materials.at(name);
-            _materials.emplace_back(mat);
+            if(materials.find(name)!=materials.end()) {
+                auto mat = materials.at(name);
+                _materials.emplace_back(mat);
+            }else{
+                _materials.emplace_back(nullptr);
+            }
         }
         accelerator = std::dynamic_pointer_cast<Accelerator>(CreateEntity("BVHAccelerator"));
         accelerator->build(this);

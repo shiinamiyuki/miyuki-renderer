@@ -26,6 +26,7 @@
 #include <api/spectrum.h>
 #include <api/entity.hpp>
 #include <api/ray.h>
+#include <functional>
 
 namespace miyuki::core {
 

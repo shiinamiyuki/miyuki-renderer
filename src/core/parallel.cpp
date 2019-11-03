@@ -28,6 +28,7 @@
 #include <atomic>
 #include <thread>
 #include <deque>
+#include <algorithm>
 
 namespace miyuki {
     class ParallelForContext {

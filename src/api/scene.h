@@ -28,17 +28,30 @@
 #include <api/light.h>
 #include <api/ray.h>
 #include <api/accelerator.h>
+#include <atomic>
 
 #include <core/accelerators/sahbvh.h>
+
 namespace miyuki::core {
 
     class Scene {
         std::shared_ptr<TopLevelBVHAccelerator> accelerator;
+        std::atomic<size_t> rayCounter =  0;
     public:
         std::vector<std::shared_ptr<Light>> lights;
         std::vector<std::shared_ptr<Shape>> shapes;
-        bool intersect(const Ray&ray, Intersection& isct);
+
+        bool intersect(const Ray &ray, Intersection &isct);
+
         void preprocess();
+
+        size_t getRayCounter() const {
+            return rayCounter;
+        }
+
+        void resetRayCounter() {
+            rayCounter = 0;
+        }
     };
 }
 #endif //MIYUKIRENDERER_SCENE_H

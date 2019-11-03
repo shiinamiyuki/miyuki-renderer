@@ -1,0 +1,70 @@
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: C:/msys64/mingw64/bin/clang++.exe 
+Build flags: ;--verbose;-target;x86_64-pc-windows-gnu;-stdlib=libc++;-pthread
+Id flags:  
+
+The output was:
+1
+clang version 9.0.0 (https://github.com/msys2/MINGW-packages.git fdafa4d8c4022588676c8ec0985dafaf834258ae)
+Target: x86_64-pc-windows-gnu
+Thread model: posix
+InstalledDir: C:/msys64/mingw64/bin
+ "C:\\msys64\\mingw64\\bin\\clang++.exe" -cc1 -triple x86_64-pc-windows-gnu -emit-obj -mrelax-all -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerId.cpp -mrelocation-model pic -pic-level 2 -mthread-model posix -fmath-errno -masm-verbose -mconstructor-aliases -munwind-tables -target-cpu x86-64 -dwarf-column-info -debugger-tuning=gdb -momit-leaf-frame-pointer -v -resource-dir "C:\\msys64\\mingw64\\lib\\clang\\9.0.0" -internal-isystem "C:/msys64/mingw64\\x86_64-w64-mingw32\\include\\c++\\v1" -internal-isystem "C:/msys64/mingw64\\include\\c++\\v1" -internal-isystem "C:\\msys64\\mingw64\\lib\\clang\\9.0.0\\include" -internal-isystem "C:/msys64/mingw64\\x86_64-w64-mingw32/sys-root/mingw/include" -internal-isystem "C:/msys64/mingw64\\x86_64-w64-mingw32\\include" -internal-isystem "C:/msys64/mingw64\\include" -fdeprecated-macro -fdebug-compilation-dir "C:\\Users\\xiaoc\\source\\repos\\shiinamiyuki\\miyuki-renderer\\external\\embree3\\src\\Embree3-build\\CMakeFiles\\3.15.3\\CompilerIdCXX" -ferror-limit 19 -fmessage-length 0 -pthread -fno-use-cxa-atexit -fobjc-runtime=gcc -fcxx-exceptions -fexceptions -fseh-exceptions -fdiagnostics-show-option -faddrsig -o "C:\\Users\\xiaoc\\AppData\\Local\\Temp\\CMakeCXXCompilerId-d050cd.o" -x c++ CMakeCXXCompilerId.cpp
+clang -cc1 version 9.0.0 based upon LLVM 9.0.0 default target x86_64-w64-windows-gnu
+ignoring nonexistent directory "C:/msys64/mingw64\x86_64-w64-mingw32\include\c++\v1"
+ignoring nonexistent directory "C:/msys64/mingw64\include\c++\v1"
+ignoring nonexistent directory "C:/msys64/mingw64\x86_64-w64-mingw32/sys-root/mingw/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ C:\msys64\mingw64\lib\clang\9.0.0\include
+ C:/msys64/mingw64\x86_64-w64-mingw32\include
+ C:/msys64/mingw64\include
+End of search list.
+ "C:/msys64/mingw64/bin\\ld" -m i386pep -Bdynamic -o a.exe "C:/msys64/mingw64\\x86_64-w64-mingw32\\lib\\crt2.o" "C:/msys64/mingw64\\lib\\gcc\\x86_64-w64-mingw32\\9.2.0\\crtbegin.o" "-LC:/msys64/mingw64\\lib\\gcc\\x86_64-w64-mingw32\\9.2.0" "-LC:/msys64/mingw64\\x86_64-w64-mingw32\\lib" "-LC:/msys64/mingw64\\lib" "-LC:/msys64/mingw64\\x86_64-w64-mingw32/sys-root/mingw/lib" "C:\\Users\\xiaoc\\AppData\\Local\\Temp\\CMakeCXXCompilerId-d050cd.o" -lc++ -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt "C:/msys64/mingw64\\lib\\gcc\\x86_64-w64-mingw32\\9.2.0\\crtend.o"
+C:/msys64/mingw64/bin\ld: cannot find -lc++
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+Determining if the CXX compiler works failed with the following output:
+Change Dir: C:/Users/xiaoc/source/repos/shiinamiyuki/miyuki-renderer/external/embree3/src/Embree3-build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/msys64/mingw64/bin/mingw32-make.exe cmTC_ac1bb/fast && mingw32-make.exe[4]: Entering directory 'C:/Users/xiaoc/source/repos/shiinamiyuki/miyuki-renderer/external/embree3/src/Embree3-build/CMakeFiles/CMakeTmp'
+C:/msys64/mingw64/bin/mingw32-make.exe -f CMakeFiles\cmTC_ac1bb.dir\build.make CMakeFiles/cmTC_ac1bb.dir/build
+mingw32-make.exe[5]: Entering directory 'C:/Users/xiaoc/source/repos/shiinamiyuki/miyuki-renderer/external/embree3/src/Embree3-build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_ac1bb.dir/testCXXCompiler.cxx.obj
+C:\msys64\mingw64\bin\clang++.exe    --verbose -target x86_64-pc-windows-gnu -stdlib=libc++ -pthread    -o CMakeFiles\cmTC_ac1bb.dir\testCXXCompiler.cxx.obj -c C:\Users\xiaoc\source\repos\shiinamiyuki\miyuki-renderer\external\embree3\src\Embree3-build\CMakeFiles\CMakeTmp\testCXXCompiler.cxx
+clang version 9.0.0 (https://github.com/msys2/MINGW-packages.git fdafa4d8c4022588676c8ec0985dafaf834258ae)
+Target: x86_64-pc-windows-gnu
+Thread model: posix
+InstalledDir: C:\msys64\mingw64\bin
+ "C:\\msys64\\mingw64\\bin\\clang++.exe" -cc1 -triple x86_64-pc-windows-gnu -emit-obj -mrelax-all -disable-free -disable-llvm-verifier -discard-value-names -main-file-name testCXXCompiler.cxx -mrelocation-model pic -pic-level 2 -mthread-model posix -fmath-errno -masm-verbose -mconstructor-aliases -munwind-tables -target-cpu x86-64 -dwarf-column-info -debugger-tuning=gdb -momit-leaf-frame-pointer -v -coverage-notes-file "C:\\Users\\xiaoc\\source\\repos\\shiinamiyuki\\miyuki-renderer\\external\\embree3\\src\\Embree3-build\\CMakeFiles\\CMakeTmp\\CMakeFiles\\cmTC_ac1bb.dir\\testCXXCompiler.cxx.gcno" -resource-dir "C:\\msys64\\mingw64\\lib\\clang\\9.0.0" -internal-isystem "C:\\msys64\\mingw64\\x86_64-w64-mingw32\\include\\c++\\v1" -internal-isystem "C:\\msys64\\mingw64\\include\\c++\\v1" -internal-isystem "C:\\msys64\\mingw64\\lib\\clang\\9.0.0\\include" -internal-isystem "C:\\msys64\\mingw64\\x86_64-w64-mingw32/sys-root/mingw/include" -internal-isystem "C:\\msys64\\mingw64\\x86_64-w64-mingw32\\include" -internal-isystem "C:\\msys64\\mingw64\\include" -fdeprecated-macro -fdebug-compilation-dir "C:\\Users\\xiaoc\\source\\repos\\shiinamiyuki\\miyuki-renderer\\external\\embree3\\src\\Embree3-build\\CMakeFiles\\CMakeTmp" -ferror-limit 19 -fmessage-length 0 -pthread -fno-use-cxa-atexit -fobjc-runtime=gcc -fcxx-exceptions -fexceptions -fseh-exceptions -fdiagnostics-show-option -faddrsig -o "CMakeFiles\\cmTC_ac1bb.dir\\testCXXCompiler.cxx.obj" -x c++ "C:\\Users\\xiaoc\\source\\repos\\shiinamiyuki\\miyuki-renderer\\external\\embree3\\src\\Embree3-build\\CMakeFiles\\CMakeTmp\\testCXXCompiler.cxx"
+clang -cc1 version 9.0.0 based upon LLVM 9.0.0 default target x86_64-w64-windows-gnu
+ignoring nonexistent directory "C:\msys64\mingw64\x86_64-w64-mingw32\include\c++\v1"
+ignoring nonexistent directory "C:\msys64\mingw64\include\c++\v1"
+ignoring nonexistent directory "C:\msys64\mingw64\x86_64-w64-mingw32/sys-root/mingw/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ C:\msys64\mingw64\lib\clang\9.0.0\include
+ C:\msys64\mingw64\x86_64-w64-mingw32\include
+ C:\msys64\mingw64\include
+End of search list.
+Linking CXX executable cmTC_ac1bb.exe
+"C:\Program Files\JetBrains\CLion 2019.2.4\bin\cmake\win\bin\cmake.exe" -E cmake_link_script CMakeFiles\cmTC_ac1bb.dir\link.txt --verbose=1
+"C:\Program Files\JetBrains\CLion 2019.2.4\bin\cmake\win\bin\cmake.exe" -E remove -f CMakeFiles\cmTC_ac1bb.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe cr CMakeFiles\cmTC_ac1bb.dir/objects.a @CMakeFiles\cmTC_ac1bb.dir\objects1.rsp
+C:\msys64\mingw64\bin\clang++.exe  --verbose -target x86_64-pc-windows-gnu -stdlib=libc++ -pthread     -Wl,--whole-archive CMakeFiles\cmTC_ac1bb.dir/objects.a -Wl,--no-whole-archive  -o cmTC_ac1bb.exe -Wl,--out-implib,libcmTC_ac1bb.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\cmTC_ac1bb.dir\linklibs.rsp
+clang version 9.0.0 (https://github.com/msys2/MINGW-packages.git fdafa4d8c4022588676c8ec0985dafaf834258ae)
+Target: x86_64-pc-windows-gnu
+Thread model: posix
+InstalledDir: C:\msys64\mingw64\bin
+clang++: warning: argument unused during compilation: '-pthread' [-Wunused-command-line-argument]
+ "C:\\msys64\\mingw64\\bin\\ld" -m i386pep -Bdynamic -o cmTC_ac1bb.exe "C:\\msys64\\mingw64\\x86_64-w64-mingw32\\lib\\crt2.o" "C:\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\9.2.0\\crtbegin.o" "-LC:\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\9.2.0" "-LC:\\msys64\\mingw64\\x86_64-w64-mingw32\\lib" "-LC:\\msys64\\mingw64\\lib" "-LC:\\msys64\\mingw64\\x86_64-w64-mingw32/sys-root/mingw/lib" --whole-archive "CMakeFiles\\cmTC_ac1bb.dir/objects.a" --no-whole-archive --out-implib libcmTC_ac1bb.dll.a --major-image-version 0 --minor-image-version 0 -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 -lc++ -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt "C:\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\9.2.0\\crtend.o"
+C:\msys64\mingw64\bin\ld: cannot find -lc++
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+mingw32-make.exe[5]: *** [CMakeFiles\cmTC_ac1bb.dir\build.make:88: cmTC_ac1bb.exe] Error 1
+mingw32-make.exe[5]: Leaving directory 'C:/Users/xiaoc/source/repos/shiinamiyuki/miyuki-renderer/external/embree3/src/Embree3-build/CMakeFiles/CMakeTmp'
+mingw32-make.exe[4]: *** [Makefile:120: cmTC_ac1bb/fast] Error 2
+mingw32-make.exe[4]: Leaving directory 'C:/Users/xiaoc/source/repos/shiinamiyuki/miyuki-renderer/external/embree3/src/Embree3-build/CMakeFiles/CMakeTmp'
+
+
+

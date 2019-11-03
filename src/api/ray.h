@@ -60,7 +60,7 @@ namespace miyuki::core {
         }
 
         void computeLocalFrame() {
-            localFrame = CoordinateSystem(Ng);
+            localFrame = CoordinateSystem(Ns);
         }
 
         [[nodiscard]] Vec3f worldToLocal(const Vec3f &v) const {

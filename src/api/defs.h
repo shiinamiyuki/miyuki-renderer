@@ -76,7 +76,7 @@ namespace miyuki{
 
 #define MIYUKI_ASSERT(expr)   _assert(expr, fmt::format("{} failed at {}:{}",#expr, __FILE__,__LINE__))
 
-#ifdef _MSV_VER
+#ifdef _MSC_VER
 
 #define     MYK_PUBLIC_API __declspec(dllexport)
 #elif defined(__GNUC__) || defined(__MINGW32__)
