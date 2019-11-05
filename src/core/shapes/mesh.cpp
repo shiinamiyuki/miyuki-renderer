@@ -90,8 +90,6 @@ namespace miyuki::core {
                 _materials.emplace_back(nullptr);
             }
         }
-        accelerator = std::dynamic_pointer_cast<Accelerator>(CreateEntity("BVHAccelerator"));
-        accelerator->build(this);
     }
 
     bool Mesh::importFromFile(const std::string &filename) {

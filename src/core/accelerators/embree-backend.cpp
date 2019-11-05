@@ -22,49 +22,30 @@
 
 #include "embree-backend.h"
 #include <embree3/rtcore.h>
+
 #ifdef MYK_USE_EMBREE
 
-namespace miyuki::core{
-
-    void EmbreeAccelerator::build(const Mesh *mesh) {
-
+namespace miyuki::core {
+    void miyuki::core::EmbreeAccelerator::build(miyuki::core::Scene &scene) {
+        MIYUKI_NOT_IMPLEMENTED();
     }
 
-    bool EmbreeAccelerator::intersect(const Ray &ray, Intersection &isct) const {
+    bool miyuki::core::EmbreeAccelerator::intersect(const miyuki::core::Ray &ray, miyuki::core::Intersection &isct) {
+        MIYUKI_NOT_IMPLEMENTED();
         return false;
     }
 
-    Bounds3f EmbreeAccelerator::getBoundingBox() const {
-        return miyuki::Bounds3f();
-    }
 
-    void EmbreeTopLevelAccelerator::build(const std::vector<Shape *> &vector) {
-
-    }
-
-    bool EmbreeTopLevelAccelerator::intersect(const Ray &ray, Intersection &isct) const {
-        return false;
-    }
-
-    Bounds3f EmbreeTopLevelAccelerator::getBoundingBox() const {
-        return miyuki::Bounds3f();
-    }
-}
 #else
-namespace miyuki::core{
-
-    void EmbreeAccelerator::build(const Mesh *mesh) {
+    void miyuki::core::EmbreeAccelerator::build(miyuki::core::Scene &scene) {
         MIYUKI_NOT_IMPLEMENTED();
     }
 
-    bool EmbreeAccelerator::intersect(const Ray &ray, Intersection &isct) const {
+    bool miyuki::core::EmbreeAccelerator::intersect(const miyuki::core::Ray &ray, miyuki::core::Intersection &isct) {
         MIYUKI_NOT_IMPLEMENTED();
+    }
         return false;
-    }
 
-    Bounds3f EmbreeAccelerator::getBoundingBox() const {
-        MIYUKI_NOT_IMPLEMENTED();
-        return miyuki::Bounds3f();
-    }
-}
+
 #endif
+}

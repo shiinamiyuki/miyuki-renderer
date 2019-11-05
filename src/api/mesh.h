@@ -143,10 +143,9 @@ namespace miyuki::core {
     };
 
 
-    class Mesh final : public Shape {
+    class Mesh final : public Entity {
         bool _loaded = false;
     public:
-        std::shared_ptr<Accelerator> accelerator;
         std::vector<MeshTriangle> triangles;
         VertexData _vertex_data;
         std::vector<Point3i> _indices;
@@ -161,14 +160,6 @@ namespace miyuki::core {
 
         MYK_AUTO_INIT(filename, materials)
 
-        bool intersect(const Ray &ray, Intersection &isct) const override {
-            return accelerator->intersect(ray, isct);
-        }
-
-        [[nodiscard]] Bounds3f getBoundingBox() const override {
-            return accelerator->getBoundingBox();
-        }
-
         // TODO: set import directory
         bool importFromFile(const std::string &filename);
 
@@ -177,7 +168,7 @@ namespace miyuki::core {
 
         void fromBinary(const std::vector<char> &buffer);
 
-        void foreach(const std::function<void(MeshTriangle *)> &func) override;
+        void foreach(const std::function<void(MeshTriangle *)> &func) ;
 
         bool loadFromFile(const std::string &filename);
 
@@ -189,7 +180,7 @@ namespace miyuki::core {
     };
 
 
-    class MeshInstance final : public Shape {
+    class MeshInstance final : public Entity {
     public:
         MYK_DECL_CLASS(MeshInstance, "MeshInstance", interface = "Shape")
 
@@ -198,34 +189,7 @@ namespace miyuki::core {
 
         MYK_AUTO_SER(transform, mesh)
 
-        bool intersect(const Ray &ray, Intersection &isct) const override {
-            auto o = invTransform(ray.o);
-            auto p = invTransform(ray.o + ray.d);
-            Float k = (p - o).length();
-            Ray transformedRay(o, (p - o).normalized(), k * ray.tMin, k * ray.tMax);
-            Intersection localIsct;
-            if (mesh->intersect(transformedRay, localIsct)) {
-                Float t = localIsct.distance / k;
-                if (t < isct.distance) {
-                    isct = localIsct;
-                    isct.distance = t;
-                    isct.Ng = transform(isct.Ng);
-                    isct.Ns = transform(isct.Ns);
-                    isct.shape = localIsct.shape;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        [[nodiscard]] Bounds3f getBoundingBox() const override {
-            Bounds3f box;
-            box = box.unionOf(transform(mesh->getBoundingBox().pMin));
-            box = box.unionOf(transform(mesh->getBoundingBox().pMax));
-            return box;
-        }
-
-        void foreach(const std::function<void(MeshTriangle *)> &func) override {
+        void foreach(const std::function<void(MeshTriangle *)> &func)  {
             mesh->foreach(func);
         }
 

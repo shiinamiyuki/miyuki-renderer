@@ -35,11 +35,12 @@
 namespace miyuki::core {
 
     class Scene {
-        std::shared_ptr<TopLevelBVHAccelerator> accelerator;
-        std::atomic<size_t> rayCounter =  0;
+        std::shared_ptr<Accelerator> accelerator;
+        std::atomic<size_t> rayCounter = 0;
     public:
         std::vector<std::shared_ptr<Light>> lights;
-        std::vector<std::shared_ptr<Shape>> shapes;
+        std::vector<std::shared_ptr<Mesh>> meshes;
+        std::vector<std::shared_ptr<MeshInstance>> instances;
 
         bool intersect(const Ray &ray, Intersection &isct);
 

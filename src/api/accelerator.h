@@ -28,9 +28,11 @@
 namespace miyuki::core {
     class Scene;
 
-    class Accelerator {
+    class Accelerator : public Entity{
     public:
         virtual void build(Scene &scene) = 0;
+
+        virtual bool intersect(const Ray &ray, Intersection &isct) = 0;
     };
 
 }

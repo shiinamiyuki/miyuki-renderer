@@ -23,11 +23,12 @@
 #include <api/scene.h>
 #include <api/detail/entity-funcs.h>
 #include <core/lights/arealight.h>
+#include <core/accelerators/sahbvh.h>
 
 
 namespace miyuki::core {
     void Scene::preprocess() {
-        accelerator = std::make_shared<TopLevelBVHAccelerator>();
+        accelerator = std::make_shared<BVHAccelerator>();
         auto setLight = [=](MeshTriangle *triangle) {
             auto mat = triangle->getMaterial();
             if (mat && mat->emission != nullptr) {
@@ -36,13 +37,11 @@ namespace miyuki::core {
                 lights.emplace_back(light);
             }
         };
-        std::vector<Shape *> v;
-        for (auto &i:shapes) {
+        for (auto &i:meshes) {
             i->preprocess();
-            v.push_back(i.get());
             i->foreach(setLight);
         }
-        accelerator->build(v);
+        accelerator->build(*this);
     }
 
     bool Scene::intersect(const miyuki::core::Ray &ray, miyuki::core::Intersection &isct) {

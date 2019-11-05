@@ -31,21 +31,11 @@ namespace miyuki::core {
     public:
         MYK_DECL_CLASS(EmbreeAccelerator, "EmbreeAccelerator", interface = "Accelerator")
 
-        void build(const Mesh *mesh) override;
+        void build(Scene &scene) override;
 
-        bool intersect(const Ray &ray, Intersection &isct) const override;
+        bool intersect(const Ray &ray, Intersection &isct) override;
 
-        Bounds3f getBoundingBox() const override;
     };
-    class EmbreeTopLevelAccelerator final : public TopLevelAccelerator{
-    public:
-        MYK_DECL_CLASS(EmbreeTopLevelAccelerator, "EmbreeTopLevelAccelerator", interface = "TopLevelAccelerator")
 
-        void build(const std::vector<Shape *> &vector) override;
-
-        bool intersect(const Ray &ray, Intersection &isct) const override;
-
-        Bounds3f getBoundingBox() const override;
-    };
 }
 #endif //MIYUKIRENDERER_EMBREE_BACKEND_H

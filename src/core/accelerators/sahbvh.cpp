@@ -23,257 +23,206 @@
 #include <vector>
 #include "sahbvh.h"
 #include <api/log.hpp>
+#include <api/mesh.h>
+#include <api/scene.h>
 
 namespace miyuki::core {
-    int BVHAccelerator::recursiveBuild(int begin, int end, int depth) {
+    class BVHAccelerator::BVHAcceleratorInternal final {
+        struct BVHNode {
+            Bounds3f box;
+            uint32_t first = -1;
+            uint32_t count = -1;
+            int left = -1, right = -1;
 
-        //   log::log("depth: {}, primitives:{} \n", depth, end - begin);
-        Bounds3f box{{MaxFloat, MaxFloat, MaxFloat},
-                     {MinFloat, MinFloat, MinFloat}};
-        Bounds3f centroidBound{{MaxFloat, MaxFloat, MaxFloat},
-                               {MinFloat, MinFloat, MinFloat}};
-
-
-        if (end == begin)return -1;
-        for (auto i = begin; i < end; i++) {
-            box = box.unionOf(primitive[i].getBoundingBox());
-            centroidBound = centroidBound.unionOf(primitive[i].getBoundingBox().centroid());
-        }
-        if (depth == 0) {
-            boundBox = box;
-        }
-
-        if (end - begin <= 4 || depth >= 20) {
-            BVHNode node;
-
-            node.box = box;
-            node.first = begin;
-            node.count = end - begin;
-            node.left = node.right = -1;
-            nodes.push_back(node);
-            return nodes.size() - 1;
-        } else {
-
-            int axis = 0;
-            auto size = centroidBound.size();
-            if (size.x > size.y) {
-                if (size.x > size.z) {
-                    axis = 0;
-                } else {
-                    axis = 2;
-                }
-            } else {
-                if (size.y > size.z) {
-                    axis = 1;
-                } else {
-                    axis = 2;
-                }
+            [[nodiscard]] bool isLeaf() const {
+                return left < 0 && right < 0;
             }
-            if (size[axis] == 0.0f) {
+        };
+
+        std::vector<MeshTriangle> primitive;
+        std::vector<BVHNode> nodes;
+
+        Bounds3f boundBox;
+
+        static Float intersectAABB(const Bounds3f &box, const Ray &ray, const Vec3f &invd) {
+            Vec3f t0 = (box.pMin - ray.o) * invd;
+            Vec3f t1 = (box.pMax - ray.o) * invd;
+            Vec3f tMin = min(t0, t1), tMax = max(t0, t1);
+            if (tMin.max() <= tMax.min()) {
+                auto t = std::max(ray.tMin + RayBias, tMin.max());
+                if (t >= ray.tMax + RayBias) {
+                    return -1;
+                }
+                return t;
+            }
+            return -1;
+        }
+
+        int recursiveBuild(int begin, int end, int depth) {
+//            log::log("depth: {}, primitives:{} \n", depth, end - begin);
+            Bounds3f box{{MaxFloat, MaxFloat, MaxFloat},
+                         {MinFloat, MinFloat, MinFloat}};
+            Bounds3f centroidBound{{MaxFloat, MaxFloat, MaxFloat},
+                                   {MinFloat, MinFloat, MinFloat}};
+            if (depth == 0) {
+                boundBox = box;
+            }
+
+            if (end == begin)return -1;
+            for (auto i = begin; i < end; i++) {
+                box = box.unionOf(primitive[i].getBoundingBox());
+                centroidBound = centroidBound.unionOf(primitive[i].getBoundingBox().centroid());
+            }
+
+
+            if (end - begin <= 4 || depth >= 20) {
+                BVHNode node;
+
+                node.box = box;
+                node.first = begin;
+                node.count = end - begin;
+                node.left = node.right = -1;
+                nodes.push_back(node);
+                return nodes.size() - 1;
+            } else {
+
+                int axis = 0;
+                auto size = centroidBound.size();
+                if (size.x > size.y) {
+                    if (size.x > size.z) {
+                        axis = 0;
+                    } else {
+                        axis = 2;
+                    }
+                } else {
+                    if (size.y > size.z) {
+                        axis = 1;
+                    } else {
+                        axis = 2;
+                    }
+                }
+                constexpr size_t nBuckets = 12;
+                struct Bucket {
+                    size_t count = 0;
+                    Bounds3f bound;
+
+                    Bucket() : bound({{MaxFloat, MaxFloat, MaxFloat},
+                                      {MinFloat, MinFloat, MinFloat}}) {}
+                };
+                Bucket buckets[nBuckets];
+                for (int i = begin; i < end; i++) {
+                    auto offset = centroidBound.offset(primitive[i].getBoundingBox().centroid())[axis];
+                    int b = std::min<int>(nBuckets - 1, std::floor(offset * nBuckets));
+                    buckets[b].count++;
+                    buckets[b].bound = buckets[b].bound.unionOf(primitive[i].getBoundingBox());
+                }
+                Float cost[nBuckets - 1] = {0};
+                for (int i = 0; i < nBuckets - 1; i++) {
+                    Bounds3f b0, b1;
+                    int count0 = 0, count1 = 0;
+                    for (int j = 0; j <= i; j++) {
+                        b0 = b0.unionOf(buckets[j].bound);
+                        count0 += buckets[j].count;
+                    }
+                    for (int j = i + 1; j < nBuckets; j++) {
+                        b1 = b1.unionOf(buckets[j].bound);
+                        count1 += buckets[j].count;
+                    }
+                    cost[i] = 0.125 + (count0 * b0.surfaceArea() + count1 * b1.surfaceArea()) / box.surfaceArea();
+                }
+                int splitBuckets = 0;
+                Float minCost = cost[0];
+                for (int i = 1; i < nBuckets - 1; i++) {
+                    if (cost[i] <= minCost) {
+                        minCost = cost[i];
+                        splitBuckets = i;
+                    }
+                }
+                auto mid = std::partition(&primitive[begin], &primitive[end - 1] + 1, [&](MeshTriangle &p) {
+                    int b = centroidBound.offset(p.getBoundingBox().centroid())[axis] * nBuckets;
+                    if (b == nBuckets) {
+                        b = nBuckets - 1;
+                    }
+                    return b <= splitBuckets;
+                });
                 auto ret = nodes.size();
                 nodes.emplace_back();
 
                 BVHNode &node = nodes.back();
                 node.box = box;
                 node.count = -1;
-                auto mid = (begin + end) / 2;
-                nodes[ret].left = recursiveBuild(begin, mid, depth + 1);
-                nodes[ret].right = recursiveBuild(mid, end, depth + 1);
+                nodes.push_back(node);
+                nodes[ret].left = recursiveBuild(begin, mid - &primitive[0], depth + 1);
+                nodes[ret].right = recursiveBuild(mid - &primitive[0], end, depth + 1);
 
                 return ret;
             }
-            constexpr size_t nBuckets = 12;
-            struct Bucket {
-                size_t count = 0;
-                Bounds3f bound;
-
-                Bucket() : bound({{MaxFloat, MaxFloat, MaxFloat},
-                                  {MinFloat, MinFloat, MinFloat}}) {}
-            };
-            Bucket buckets[nBuckets];
-            for (int i = begin; i < end; i++) {
-                auto offset = centroidBound.offset(primitive[i].getBoundingBox().centroid())[axis];
-                int b = std::min<int>(nBuckets - 1, std::floor(offset * nBuckets));
-                buckets[b].count++;
-                buckets[b].bound = buckets[b].bound.unionOf(primitive[i].getBoundingBox());
-            }
-            Float cost[nBuckets - 1] = {0};
-            for (int i = 0; i < nBuckets - 1; i++) {
-                Bounds3f b0, b1;
-                int count0 = 0, count1 = 0;
-                for (int j = 0; j <= i; j++) {
-                    b0 = b0.unionOf(buckets[j].bound);
-                    count0 += buckets[j].count;
-                }
-                for (int j = i + 1; j < nBuckets; j++) {
-                    b1 = b1.unionOf(buckets[j].bound);
-                    count1 += buckets[j].count;
-                }
-                cost[i] = 0.125 +
-                          (float(count0) * b0.surfaceArea() + float(count1) * b1.surfaceArea()) / box.surfaceArea();
-            }
-            int splitBuckets = 0;
-            Float minCost = cost[0];
-            for (int i = 1; i < nBuckets - 1; i++) {
-                if (cost[i] <= minCost) {
-                    minCost = cost[i];
-                    splitBuckets = i;
-                }
-            }
-            auto mid = std::partition(&primitive[begin], &primitive[end - 1] + 1, [&](MeshTriangle &p) {
-                int b = centroidBound.offset(p.getBoundingBox().centroid())[axis] * nBuckets;
-                if (b == nBuckets) {
-                    b = nBuckets - 1;
-                }
-                return b <= splitBuckets;
-            });
-            if (mid == &primitive[begin] || mid == &primitive[end - 1] + 1) {
-                log::log("empty split at {}, {}\n", depth, end - begin);
-            }
-            auto ret = nodes.size();
-            nodes.emplace_back();
-
-            BVHNode &node = nodes.back();
-            node.box = box;
-            node.count = -1;
-            nodes[ret].left = recursiveBuild(begin, mid - &primitive[0], depth + 1);
-            nodes[ret].right = recursiveBuild(mid - &primitive[0], end, depth + 1);
-
-            return ret;
-        }
-    }
-
-    void BVHAccelerator::build(const Mesh *mesh) {
-        nodes.clear();
-        log::log("Building BVH\n");
-        primitive = mesh->triangles;
-        recursiveBuild(0, primitive.size(), 0);
-        log::log("BVH nodes:{}\n", nodes.size());
-    }
-
-    int TopLevelBVHAccelerator::recursiveBuild(int begin, int end, int depth) {
-
-        //   log::log("depth: {}, primitives:{} \n", depth, end - begin);
-        Bounds3f box{{MaxFloat, MaxFloat, MaxFloat},
-                     {MinFloat, MinFloat, MinFloat}};
-        Bounds3f centroidBound{{MaxFloat, MaxFloat, MaxFloat},
-                               {MinFloat, MinFloat, MinFloat}};
-
-
-        if (end == begin)return -1;
-        for (auto i = begin; i < end; i++) {
-            box = box.unionOf(primitive[i]->getBoundingBox());
-            centroidBound = centroidBound.unionOf(primitive[i]->getBoundingBox().centroid());
-        }
-        if (depth == 0) {
-            boundBox = box;
         }
 
-        if (end - begin <= 4 || depth >= 20) {
-            BVHNode node;
+    public:
+        void build(const std::vector<MeshTriangle> &primitives) {
+            nodes.clear();
+            primitive = primitives;
+            recursiveBuild(0, primitive.size(), 0);
+            log::log("BVH nodes:{}\n", nodes.size());
+        }
 
-            node.box = box;
-            node.first = begin;
-            node.count = end - begin;
-            node.left = node.right = -1;
-            nodes.push_back(node);
-            return nodes.size() - 1;
-        } else {
+        bool intersect(const Ray &ray, Intersection &isct) const {
+            bool hit = false;
+            auto invd = Vec3f(1) / ray.d;
+            constexpr int maxDepth = 40;
+            const BVHNode *stack[maxDepth];
+            int sp = 0;
+            stack[sp++] = &nodes[0];
+            while (sp > 0) {
+                auto p = stack[--sp];
+                auto t = intersectAABB(p->box, ray, invd);
 
-            int axis = 0;
-            auto size = centroidBound.size();
-            if (size.x > size.y) {
-                if (size.x > size.z) {
-                    axis = 0;
+                if (t < 0 || t > isct.distance) {
+                    continue;
+                }
+                if (p->isLeaf()) {
+                    for (int i = p->first; i < p->first + p->count; i++) {
+                        if (primitive[i].intersect(ray, isct)) {
+                            hit = true;
+                        }
+                    }
                 } else {
-                    axis = 2;
-                }
-            } else {
-                if (size.y > size.z) {
-                    axis = 1;
-                } else {
-                    axis = 2;
+                    if (p->left >= 0)
+                        stack[sp++] = &nodes[p->left];
+                    if (p->right >= 0)
+                        stack[sp++] = &nodes[p->right];
                 }
             }
-            if (size[axis] == 0.0f) {
-                auto ret = nodes.size();
-                nodes.emplace_back();
+            return hit;
+        }
 
-                BVHNode &node = nodes.back();
-                node.box = box;
-                node.count = -1;
-                auto mid = (begin + end) / 2;
-                nodes[ret].left = recursiveBuild(begin, mid, depth + 1);
-                nodes[ret].right = recursiveBuild(mid, end, depth + 1);
 
-                return ret;
-            }
-            constexpr size_t nBuckets = 12;
-            struct Bucket {
-                size_t count = 0;
-                Bounds3f bound;
+        [[nodiscard]] Bounds3f getBoundingBox() const {
+            return boundBox;
+        }
+    };
 
-                Bucket() : bound({{MaxFloat, MaxFloat, MaxFloat},
-                                  {MinFloat, MinFloat, MinFloat}}) {}
-            };
-            Bucket buckets[nBuckets];
-            for (int i = begin; i < end; i++) {
-                auto offset = centroidBound.offset(primitive[i]->getBoundingBox().centroid())[axis];
-                int b = std::min<int>(nBuckets - 1, std::floor(offset * nBuckets));
-                buckets[b].count++;
-                buckets[b].bound = buckets[b].bound.unionOf(primitive[i]->getBoundingBox());
-            }
-            Float cost[nBuckets - 1] = {0};
-            for (int i = 0; i < nBuckets - 1; i++) {
-                Bounds3f b0, b1;
-                int count0 = 0, count1 = 0;
-                for (int j = 0; j <= i; j++) {
-                    b0 = b0.unionOf(buckets[j].bound);
-                    count0 += buckets[j].count;
-                }
-                for (int j = i + 1; j < nBuckets; j++) {
-                    b1 = b1.unionOf(buckets[j].bound);
-                    count1 += buckets[j].count;
-                }
-                cost[i] = 0.125 +
-                          (float(count0) * b0.surfaceArea() + float(count1) * b1.surfaceArea()) / box.surfaceArea();
-            }
-            int splitBuckets = 0;
-            Float minCost = cost[0];
-            for (int i = 1; i < nBuckets - 1; i++) {
-                if (cost[i] <= minCost) {
-                    minCost = cost[i];
-                    splitBuckets = i;
-                }
-            }
-            auto mid = std::partition(&primitive[begin], &primitive[end - 1] + 1, [&](Shape *p) {
-                int b = centroidBound.offset(p->getBoundingBox().centroid())[axis] * nBuckets;
-                if (b == nBuckets) {
-                    b = nBuckets - 1;
-                }
-                return b <= splitBuckets;
-            });
-            if (mid == &primitive[begin] || mid == &primitive[end - 1] + 1) {
-                log::log("empty split at {}, {}\n", depth, end - begin);
-            }
-            auto ret = nodes.size();
-            nodes.emplace_back();
-
-            BVHNode &node = nodes.back();
-            node.box = box;
-            node.count = -1;
-            nodes[ret].left = recursiveBuild(begin, mid - &primitive[0], depth + 1);
-            nodes[ret].right = recursiveBuild(mid - &primitive[0], end, depth + 1);
-
-            return ret;
+    void BVHAccelerator::build(Scene &scene) {
+        for (const auto &i: scene.meshes) {
+            auto node = new BVHAcceleratorInternal();
+            node->build(i->triangles);
+            internal.emplace_back(node);
         }
     }
 
-    void TopLevelBVHAccelerator::build(const std::vector<Shape *> &primitives) {
-        nodes.clear();
-        log::log("Building BVH\n");
-        primitive = primitives;
-        recursiveBuild(0, primitive.size(), 0);
-        log::log("BVH nodes:{}\n", nodes.size());
+    bool BVHAccelerator::intersect(const Ray &ray, Intersection &isct) {
+        bool hit = false;
+        for (auto i : internal) {
+            if (i->intersect(ray, isct))
+                hit = true;
+        }
+        return hit;
+    }
+
+    BVHAccelerator::~BVHAccelerator() {
+        for (auto i: internal) {
+            delete i;
+        }
     }
 }
