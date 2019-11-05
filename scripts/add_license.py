@@ -21,7 +21,8 @@ LICENSE = r'''// MIT License
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.'''
+// SOFTWARE.
+'''
 
 SRC_DIR = r'../src'
 
@@ -35,6 +36,7 @@ for parent, dirs, files in os.walk(SRC_DIR):
 			s = f.read()
 			if not s.startswith(LICENSE):
 				out = LICENSE + s
+				print('add license to ' + path)
 			else:
 				out = s
 		with open(path, 'w',encoding='utf-8') as f:
