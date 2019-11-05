@@ -27,9 +27,15 @@ SRC_DIR = r'../src'
 
 for parent, dirs, files in os.walk(SRC_DIR):
 	for file in files:
+		if file in {"sobolmat.hpp"}:
+			continue
+		out = ''
 		path = os.path.join(parent, file)
-		with open(path, 'rw',encoding='utf-8') as f:
+		with open(path, 'r',encoding='utf-8') as f:
 			s = f.read()
 			if not s.startswith(LICENSE):
-				s = LICENSE + s
-			f.write(s)
+				out = LICENSE + s
+			else:
+				out = s
+		with open(path, 'w',encoding='utf-8') as f:
+			f.write(out)
