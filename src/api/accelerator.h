@@ -26,17 +26,13 @@
 #include <api/shape.h>
 
 namespace miyuki::core {
-    class Mesh;
+    class Scene;
 
-    class Accelerator : public Shape {
+    class Accelerator {
     public:
-        virtual void build(const Mesh * mesh) = 0;
+        virtual void build(Scene &scene) = 0;
     };
 
-    class TopLevelAccelerator : public Shape{
-    public:
-        virtual void build(const std::vector<Shape*>& ) = 0;
-    };
 }
 
 #endif //MIYUKIRENDERER_ACCELERATOR_H

@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
         {
             CurrentPathGuard _guard;
             fs::path scenePath = fs::absolute(fs::path(sceneFile));
-            if(!fs::exists(scenePath)){
+            if (!fs::exists(scenePath)) {
                 MIYUKI_THROW(std::runtime_error, "file doesn't exist");
             }
             fs::path sceneDir = scenePath.parent_path();
