@@ -34,7 +34,7 @@ for parent, dirs, files in os.walk(SRC_DIR):
 		path = os.path.join(parent, file)
 		with open(path, 'r',encoding='utf-8') as f:
 			s = f.read()
-			if not s.startswith(LICENSE):
+			if not s.startswith('// MIT License'):
 				out = LICENSE + s
 				print('add license to ' + path)
 			else:
