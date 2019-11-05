@@ -7,6 +7,9 @@ option(EMBREE_FROM_SOUCE "Download and compile embree from souce" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 
+if(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Qpar /arch:AVX2 /std:c++17 /GL")
+endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     IF(WIN32)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -47,11 +50,13 @@ file(GLOB libcoreSource src/core/*.cpp
 
         )
 
+
 IF(USE_EMBREE)
     add_compile_definitions(MYK_USE_EMBREE)
     IF(EMBREE_FROM_SOUCE)
         include(ExternalProject)
         include(${PROJECT_SOURCE_DIR}/cmake/cmake-embree)
+		include_directories(${EMBREE_INCLUDE_DIRS})
     ELSE()
         IF(WIN32)
             set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files/Intel/Embree3 x64")
@@ -61,12 +66,13 @@ IF(USE_EMBREE)
             message(FATAL_ERROR "Embree 3.6 not found")
         ENDIF()
         include_directories(${EMBREE_INCLUDE_DIRS})
-        link_directories(${EMBREE_LIBRARY})
+
     ENDIF()
 ENDIF()
 add_library(core ${MiyukiAPI} ${libcoreSource})
 target_link_libraries(core fmt)
 add_executable(myk-cli src/standalone-renderer/main.cpp ${MiyukiAPI})
 add_executable(mesh-importer src/mesh-importer/importer.cpp ${MiyukiAPI})
-target_link_libraries(mesh-importer core)
-target_link_libraries(myk-cli core)
+target_link_libraries(mesh-importer core ${EMBREE_LIBRARY})
+target_link_libraries(myk-cli core ${EMBREE_LIBRARY})
+

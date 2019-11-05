@@ -1,17 +1,17 @@
 // MIT License
-// 
+//
 // Copyright (c) 2019 椎名深雪
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,11 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <vector>
 #include "sahbvh.h"
 #include <api/log.hpp>
 #include <api/mesh.h>
 #include <api/scene.h>
+#include <vector>
 
 namespace miyuki::core {
     class BVHAccelerator::BVHAcceleratorInternal final {
@@ -34,9 +34,7 @@ namespace miyuki::core {
             uint32_t count = -1;
             int left = -1, right = -1;
 
-            [[nodiscard]] bool isLeaf() const {
-                return left < 0 && right < 0;
-            }
+            [[nodiscard]] bool isLeaf() const { return left < 0 && right < 0; }
         };
 
         std::vector<MeshTriangle> primitive;
@@ -44,7 +42,8 @@ namespace miyuki::core {
 
         Bounds3f boundBox;
 
-        static Float intersectAABB(const Bounds3f &box, const Ray &ray, const Vec3f &invd) {
+        static Float intersectAABB(const Bounds3f &box, const Ray &ray,
+                                   const Vec3f &invd) {
             Vec3f t0 = (box.pMin - ray.o) * invd;
             Vec3f t1 = (box.pMax - ray.o) * invd;
             Vec3f tMin = min(t0, t1), tMax = max(t0, t1);
@@ -59,7 +58,8 @@ namespace miyuki::core {
         }
 
         int recursiveBuild(int begin, int end, int depth) {
-//            log::log("depth: {}, primitives:{} \n", depth, end - begin);
+            //            log::log("depth: {}, primitives:{} \n", depth, end -
+            //            begin);
             Bounds3f box{{MaxFloat, MaxFloat, MaxFloat},
                          {MinFloat, MinFloat, MinFloat}};
             Bounds3f centroidBound{{MaxFloat, MaxFloat, MaxFloat},
@@ -68,12 +68,13 @@ namespace miyuki::core {
                 boundBox = box;
             }
 
-            if (end == begin)return -1;
+            if (end == begin)
+                return -1;
             for (auto i = begin; i < end; i++) {
                 box = box.unionOf(primitive[i].getBoundingBox());
-                centroidBound = centroidBound.unionOf(primitive[i].getBoundingBox().centroid());
+                centroidBound = centroidBound.unionOf(
+                    primitive[i].getBoundingBox().centroid());
             }
-
 
             if (end - begin <= 4 || depth >= 20) {
                 BVHNode node;
@@ -106,15 +107,19 @@ namespace miyuki::core {
                     size_t count = 0;
                     Bounds3f bound;
 
-                    Bucket() : bound({{MaxFloat, MaxFloat, MaxFloat},
-                                      {MinFloat, MinFloat, MinFloat}}) {}
+                    Bucket()
+                        : bound({{MaxFloat, MaxFloat, MaxFloat},
+                                 {MinFloat, MinFloat, MinFloat}}) {}
                 };
                 Bucket buckets[nBuckets];
                 for (int i = begin; i < end; i++) {
-                    auto offset = centroidBound.offset(primitive[i].getBoundingBox().centroid())[axis];
-                    int b = std::min<int>(nBuckets - 1, std::floor(offset * nBuckets));
+                    auto offset = centroidBound.offset(
+                        primitive[i].getBoundingBox().centroid())[axis];
+                    int b = std::min<int>(nBuckets - 1,
+                                          std::floor(offset * nBuckets));
                     buckets[b].count++;
-                    buckets[b].bound = buckets[b].bound.unionOf(primitive[i].getBoundingBox());
+                    buckets[b].bound =
+                        buckets[b].bound.unionOf(primitive[i].getBoundingBox());
                 }
                 Float cost[nBuckets - 1] = {0};
                 for (int i = 0; i < nBuckets - 1; i++) {
@@ -128,7 +133,9 @@ namespace miyuki::core {
                         b1 = b1.unionOf(buckets[j].bound);
                         count1 += buckets[j].count;
                     }
-                    cost[i] = 0.125 + (count0 * b0.surfaceArea() + count1 * b1.surfaceArea()) / box.surfaceArea();
+                    cost[i] = 0.125 + (count0 * b0.surfaceArea() +
+                                       count1 * b1.surfaceArea()) /
+                                          box.surfaceArea();
                 }
                 int splitBuckets = 0;
                 Float minCost = cost[0];
@@ -138,13 +145,17 @@ namespace miyuki::core {
                         splitBuckets = i;
                     }
                 }
-                auto mid = std::partition(&primitive[begin], &primitive[end - 1] + 1, [&](MeshTriangle &p) {
-                    int b = centroidBound.offset(p.getBoundingBox().centroid())[axis] * nBuckets;
-                    if (b == nBuckets) {
-                        b = nBuckets - 1;
-                    }
-                    return b <= splitBuckets;
-                });
+                auto mid = std::partition(
+                    &primitive[begin], &primitive[end - 1] + 1,
+                    [&](MeshTriangle &p) {
+                        int b = centroidBound.offset(
+                                    p.getBoundingBox().centroid())[axis] *
+                                nBuckets;
+                        if (b == nBuckets) {
+                            b = nBuckets - 1;
+                        }
+                        return b <= splitBuckets;
+                    });
                 auto ret = nodes.size();
                 nodes.emplace_back();
 
@@ -152,14 +163,16 @@ namespace miyuki::core {
                 node.box = box;
                 node.count = -1;
                 nodes.push_back(node);
-                nodes[ret].left = recursiveBuild(begin, mid - &primitive[0], depth + 1);
-                nodes[ret].right = recursiveBuild(mid - &primitive[0], end, depth + 1);
+                nodes[ret].left =
+                    recursiveBuild(begin, mid - &primitive[0], depth + 1);
+                nodes[ret].right =
+                    recursiveBuild(mid - &primitive[0], end, depth + 1);
 
                 return ret;
             }
         }
 
-    public:
+      public:
         void build(const std::vector<MeshTriangle> &primitives) {
             nodes.clear();
             primitive = primitives;
@@ -197,14 +210,11 @@ namespace miyuki::core {
             return hit;
         }
 
-
-        [[nodiscard]] Bounds3f getBoundingBox() const {
-            return boundBox;
-        }
+        [[nodiscard]] Bounds3f getBoundingBox() const { return boundBox; }
     };
 
     void BVHAccelerator::build(Scene &scene) {
-        for (const auto &i: scene.meshes) {
+        for (const auto &i : scene.meshes) {
             auto node = new BVHAcceleratorInternal();
             node->build(i->triangles);
             internal.emplace_back(node);
@@ -217,12 +227,15 @@ namespace miyuki::core {
             if (i->intersect(ray, isct))
                 hit = true;
         }
+        if (hit) {
+            isct.p = isct.distance * ray.d + ray.o;
+		}
         return hit;
     }
 
     BVHAccelerator::~BVHAccelerator() {
-        for (auto i: internal) {
+        for (auto i : internal) {
             delete i;
         }
     }
-}
+} // namespace miyuki::core

@@ -1,17 +1,17 @@
 // MIT License
-// 
+//
 // Copyright (c) 2019 椎名深雪
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,18 +20,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <api/defs.h>
+#include <api/graph.h>
 #include <api/mesh.h>
-
+#include <fstream>
+#include <string>
 
 int main(int argc, char **argv) {
+    using namespace miyuki;
     if (argc != 3) {
-        printf("Usage: mesh-importer scene-file src dst\n");
+        printf("Usage: mesh-importer src dst\n");
         return 0;
     }
-    miyuki::core::Mesh mesh;
+    core::Mesh mesh;
     //
-    mesh.importFromFile(argv[2]);
-    mesh.writeToFile(argv[3]);
+    mesh.importFromFile(argv[1]);
+    mesh.writeToFile(argv[2]);
+	
     return 0;
 }
-

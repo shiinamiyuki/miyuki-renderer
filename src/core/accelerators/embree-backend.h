@@ -25,15 +25,21 @@
 
 #include <api/accelerator.h>
 #include <api/serialize.hpp>
+#include <api/noncopyable.hpp>
 
 namespace miyuki::core {
-    class EmbreeAccelerator final : public Accelerator {
+    class EmbreeAccelerator final : public Accelerator, private NonCopyable{
+        class Impl;
+        Impl *impl = nullptr;
     public:
+        EmbreeAccelerator();
         MYK_DECL_CLASS(EmbreeAccelerator, "EmbreeAccelerator", interface = "Accelerator")
 
         void build(Scene &scene) override;
 
         bool intersect(const Ray &ray, Intersection &isct) override;
+
+		~EmbreeAccelerator();
 
     };
 
