@@ -28,7 +28,7 @@ SRC_DIR = r'../src'
 for parent, dirs, files in os.walk(SRC_DIR):
 	for file in files:
 		path = os.path.join(parent, file)
-		with open(path, 'rw') as f:
+		with open(path, 'rw',encoding='utf-8') as f:
 			s = f.read()
 			if not s.startswith(LICENSE):
 				s = LICENSE + s
