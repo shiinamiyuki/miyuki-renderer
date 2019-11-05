@@ -30,7 +30,7 @@
 
 namespace miyuki::core {
 
-    class MeshTriangle;
+    struct MeshTriangle;
 
     struct SurfaceSample {
         Point3f p;

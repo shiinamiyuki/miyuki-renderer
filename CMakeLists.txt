@@ -9,12 +9,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     IF(WIN32)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -target x86_64-pc-windows-gnu -femulated-tls ")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     ENDIF()
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 endif()
-link_libraries(stdc++)
+
 find_package(Python3 REQUIRED)
 find_package(PythonLibs 3 REQUIRED)
 

@@ -1,17 +1,17 @@
 // MIT License
-// 
+//
 // Copyright (c) 2019 椎名深雪
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,36 +21,34 @@
 // SOFTWARE.
 
 #include "export.h"
+#include "accelerators/embree-backend.h"
 #include "accelerators/sahbvh.h"
-#include <api/mesh.h>
-#include "core/shaders/common-shader.h"
-#include "core/cameras/perspective-camera.h"
 #include "core/bsdfs/diffusebsdf.h"
+#include "core/cameras/perspective-camera.h"
 #include "core/integrators/rtao.h"
 #include "core/samplers/random-sampler.h"
+#include "core/shaders/common-shader.h"
 #include "samplers/sobol-sampler.h"
 #include <api/graph.h>
 #include <api/material.h>
-#include "accelerators/embree-backend.h"
+#include <api/mesh.h>
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<Material>();
-        Register<SceneGraph>();
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-        Register<RTAO>();
-        Register<RandomSampler>();
-        Register<SobolSampler>();
-        Register<EmbreeAccelerator>();
-    }
-
-    void Finalize() {
-
-    }
+void Initialize() {
+    Register<Material>();
+    Register<SceneGraph>();
+    Register<BVHAccelerator>();
+    Register<Mesh>();
+    Register<MeshInstance>();
+    Register<FloatShader>();
+    Register<RGBShader>();
+    Register<PerspectiveCamera>();
+    Register<DiffuseBSDF>();
+    Register<RTAO>();
+    Register<RandomSampler>();
+    Register<SobolSampler>();
+    Register<EmbreeAccelerator>();
 }
+
+void Finalize() {}
+} // namespace miyuki::core

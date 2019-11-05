@@ -44,7 +44,7 @@ namespace miyuki::core {
 
     class BSDF;
 
-    class MeshTriangle;
+    struct MeshTriangle;
 
     struct Intersection {
         const MeshTriangle *shape = nullptr;
