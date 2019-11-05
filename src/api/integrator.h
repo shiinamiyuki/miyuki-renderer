@@ -32,7 +32,7 @@ namespace miyuki::core {
 
     class Sampler;
 
-    class Film;
+    struct Film;
 
     class Integrator : public Entity {
     public:

@@ -27,6 +27,9 @@
 #include <api/profiler.h>
 #include <api/sampler.h>
 #include <api/sampling.h>
+#include <api/scene.h>
+#include <api/sampler.h>
+#include <api/camera.h>
 
 namespace miyuki::core {
 
