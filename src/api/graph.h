@@ -41,7 +41,7 @@ namespace miyuki::core {
         std::shared_ptr<Camera> camera;
         std::shared_ptr<Integrator> integrator;
         std::shared_ptr<Sampler> sampler;
-        std::vector<std::shared_ptr<Entity>> shapes;
+        std::vector<std::shared_ptr<MeshBase>> shapes;
         Point2i filmDimension;
     public:
         MYK_AUTO_SER(camera, sampler, integrator, shapes, filmDimension)
