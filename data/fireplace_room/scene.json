@@ -19,7 +19,7 @@
     "occludeDistance": 2
   },
   "sampler": {
-    "type": "SobolSampler"
+    "type": "RandomSampler"
   },
   "shapes": [
     {
