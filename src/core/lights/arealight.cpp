@@ -1,17 +1,17 @@
 // MIT License
-// 
+//
 // Copyright (c) 2019 椎名深雪
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,19 +23,16 @@
 #include "arealight.h"
 #include <api/mesh.h>
 
-
 namespace miyuki::core {
     void AreaLight::setTriangle(MeshTriangle *shape) {
         this->triangle = shape;
         emission = triangle->getMaterial()->emission;
     }
 
-    Spectrum AreaLight::Li(ShadingPoint &sp) const {
-        return emission->evaluate(sp);
-    }
+    Spectrum AreaLight::Li(ShadingPoint &sp) const { return emission->evaluate(sp); }
 
-    void
-    AreaLight::sampleLi(const Point2f &u, Intersection &isct, LightSample &sample, VisibilityTester &tester) const {
+    void AreaLight::sampleLi(const Point2f &u, Intersection &isct, LightSample &sample,
+                             VisibilityTester &tester) const {
         SurfaceSample surfaceSample;
         triangle->sample(u, surfaceSample);
         auto wi = surfaceSample.p - isct.p;
@@ -59,7 +56,5 @@ namespace miyuki::core {
         return 1.0f / SA;
     }
 
-    void AreaLight::sampleLe(const Point2f &u1, const Point2f &u2, LightRaySample &sample) {
-        MIYUKI_NOT_IMPLEMENTED();
-    }
-}
+    void AreaLight::sampleLe(const Point2f &u1, const Point2f &u2, LightRaySample &sample) { MIYUKI_NOT_IMPLEMENTED(); }
+} // namespace miyuki::core
