@@ -62,4 +62,5 @@ namespace miyuki::refl {
         }
         accept<Visitor, Args...>(visitor, a, args...);
     }
-}
+} // namespace miyuki::refl
+#define MYK_REFL(Visitor, ...) miyuki::refl::accept(Visitor, #__VA_ARGS__, __VA_ARGS__)

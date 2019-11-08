@@ -335,18 +335,18 @@ namespace miyuki::serialize {
 #define MYK_AUTO_SER(...)                                                                                              \
     template <class Archive> void save(Archive &ar) const {                                                            \
         miyuki::serialize::ArchivingVisitor v(ar);                                                                     \
-        miyuki::refl::accept(v, #__VA_ARGS__, __VA_ARGS__);                                                            \
+        MYK_REFL(v, __VA_ARGS__);                                                                                      \
     }                                                                                                                  \
     template <class Archive> void load(Archive &ar) {                                                                  \
         miyuki::serialize::ArchivingVisitor v(ar);                                                                     \
-        miyuki::refl::accept(v, #__VA_ARGS__, __VA_ARGS__);                                                            \
+        MYK_REFL(v, __VA_ARGS__);                                                                                      \
     }                                                                                                                  \
     _MYK_POLY_SER
 
 #define MYK_AUTO_INIT(...)                                                                                             \
     void initialize(const json &params) override {                                                                     \
         miyuki::serialize::InitializeVisitor visitor(params);                                                          \
-        miyuki::refl::accept(visitor, #__VA_ARGS__, __VA_ARGS__);                                                      \
+        MYK_REFL(visitor, __VA_ARGS__);                                                                                \
     }
 
 #endif // MIYUKIRENDERER_SERIALIZE_HPP
