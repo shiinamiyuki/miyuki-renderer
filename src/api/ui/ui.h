@@ -20,6 +20,13 @@ namespace miyuki::ui {
             children.emplace_back(child);
             child->parent = weak_from_this();
         }
+        virtual void replace(const std::shared_ptr<UIObject> &old, const std::shared_ptr<UIObject> &val) {
+            for (int i = 0; i < children.size(); i++) {
+                if (children[i] == old) {
+                    children[i] = val;
+                }
+            }
+        }
         bool isClosed() const { return !showed; }
         void setClosed(bool c) { showed = !c; }
     };
@@ -33,6 +40,7 @@ namespace miyuki::ui {
         // Inherited via UIObject
         virtual void draw() override;
     };
+
     class Modal : public UIObject {
         std::function<void(Modal *)> func;
 
@@ -40,6 +48,7 @@ namespace miyuki::ui {
         Modal(const std::function<void(Modal *)> &func) : func(func) {}
         void draw() { func(this); }
     };
+
     class MainWindow : public UIObject {
         class Impl;
         Impl *impl = nullptr;
@@ -47,7 +56,6 @@ namespace miyuki::ui {
       public:
         MainWindow(int width, int height, const std::string &title);
         void draw() override;
-        void add(const std::shared_ptr<UIObject> &child)override;
         ~MainWindow();
     };
 

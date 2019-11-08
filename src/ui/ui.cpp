@@ -218,8 +218,5 @@ namespace miyuki::ui {
         return {};
     }
 
-	void MainWindow::add(
-
-	)
 
 } // namespace miyuki::ui
