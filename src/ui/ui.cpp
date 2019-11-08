@@ -21,7 +21,9 @@
 // SOFTWARE.
 
 #include <api/graph.h>
+#include <api/property.hpp>
 #include <api/ui/ui.h>
+#include <api/log.hpp>
 
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -29,6 +31,7 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <api/defs.h>
+#include <fstream>
 #include <imgui.h>
 #include <mutex>
 
@@ -166,7 +169,7 @@ namespace miyuki::ui {
 
         ImGui::End();
     }
-    class MainWindow : public AbstractMainWindow {
+    class MainWindow : public AbstractMainWindow, public PropertyVisitor {
         std::shared_ptr<core::SceneGraph> graph;
         void showExplorer() {
             if (ImGui::Begin("Explorer")) {
@@ -181,14 +184,91 @@ namespace miyuki::ui {
             }
         }
 
+        void showMenu() {
+            if (ImGui::BeginMainMenuBar()) {
+                if (ImGui::BeginMenu("File")) {
+                    if (ImGui::MenuItem("Open")) {
+                        auto filename = GetOpenFileNameWithDialog(nullptr);
+                        if (!filename.empty()) {
+                            auto path = fs::path(filename);
+                            std::ifstream in(filename);
+                            if (path.extension().string() == ".json") {
+                                std::string str((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+                                json data = json::parse(str);
+                                graph = std::make_shared<core::SceneGraph>();
+                                graph->initialize(data);
+                            } else {
+                                serialize::InputArchive ar(in);
+                                graph = std::dynamic_pointer_cast<core::SceneGraph>(ReadEntity(ar));
+                            }
+                        }
+                    }
+
+                    if (ImGui::MenuItem("Save")) {
+                    }
+
+                    if (ImGui::MenuItem("Save As")) {
+                    }
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+            }
+        }
+
       public:
         using AbstractMainWindow::AbstractMainWindow;
         void update() override {
             SetupDockingSpace("DockingSpace");
+            showMenu();
             showExplorer();
             showInspector();
         }
+
+        // Inherited via PropertyVisitor
+        virtual void visit(IntProperty *prop) override {
+            auto value = prop->getConstRef();
+            if (ImGui::InputInt(prop->name(), &value, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue)) {
+                prop->getRef() = value;
+            }
+        }
+
+        virtual void visit(FloatProperty *prop) override {
+            auto value = prop->getConstRef();
+            if (ImGui::InputFloat(prop->name(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue)) {
+                prop->getRef() = value;
+            }
+        }
+
+        virtual void visit(Vec3fProperty *prop) override {
+            auto value = prop->getConstRef();
+            if (ImGui::InputFloat3(prop->name(), (float *)&value, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue)) {
+                prop->getRef() = value;
+            }
+        }
+
+        virtual void visit(EntityProperty *prop) override {
+            if (ImGui::TreeNodeEx(prop->name(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                ImGui::PushID(prop->name());
+
+                if (prop->getConstRef()) {
+                    prop->getRef()->accept(this);
+                }
+
+                ImGui::PopID();
+            }
+        }
+        virtual void visit(FileProperty *prop) override {
+            ImGui::PushID(prop->name());
+            if (ImGui::Button("select")) {
+                auto filename = GetOpenFileNameWithDialog(nullptr);
+                if (!filename.empty()) {
+                    prop->getRef() = fs::path(filename);
+                }
+            }
+            ImGui::PopID();
+        }
     };
+
     std::shared_ptr<AbstractMainWindow> MakeMainWindow(int width, int height, const std::string &title) {
         return std::make_shared<MainWindow>(width, height, title);
     }

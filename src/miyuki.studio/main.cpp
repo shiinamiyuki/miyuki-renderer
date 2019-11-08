@@ -26,7 +26,7 @@
 int main() {
     using namespace miyuki;
     try {
-        auto window = ui::MakeMainWindow(800, 600, "miyuki.studio");
+        auto window = ui::MakeMainWindow(1280, 720, "miyuki.studio");
         window->show();
     } catch (std::runtime_error &e) {
         std::cerr << e.what() << std::endl;

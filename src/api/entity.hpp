@@ -57,7 +57,7 @@ namespace miyuki {
 
         virtual void preprocess() {}
 
-        virtual void acceptPropertyVisitor(PropertyVisitor *) {}
+        virtual void accept(PropertyVisitor *) {}
     };
 
     namespace serialize {

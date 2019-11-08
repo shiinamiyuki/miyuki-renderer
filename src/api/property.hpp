@@ -1,17 +1,17 @@
 // MIT License
-// 
+//
 // Copyright (c) 2019 椎名深雪
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,14 +40,15 @@ namespace miyuki {
     namespace detail {
         template <class T> class BasicProperty {
             std::reference_wrapper<T> ref;
-            const char *name;
+            const char *_name;
 
           public:
-            BasicProperty(const char *name, T &ref) : name(name), ref(ref) {}
+            BasicProperty(const char *name, T &ref) : _name(name), ref(ref) {}
             const T &getConstRef() const { return ref; }
             T &getRef() { return ref; }
             void set(const T &v) { ref = v; }
             void accept(PropertyVisitor *visitor) { visitor->visit(this); }
+            const char *name() const { return _name; }
         };
     } // namespace detail
     using IntProperty = detail::BasicProperty<int>;
@@ -92,7 +93,7 @@ namespace miyuki {
         }
     };
 #define MYK_PROP(...)                                                                                                  \
-    void acceptPropertyVisitor(miyuki::PropertyVisitor *visitor) override {                                            \
+    void accept(miyuki::PropertyVisitor *visitor) override {                                                           \
         miyuki::ReflPropertyVisitor refl(visitor);                                                                     \
         MYK_REFL(refl, __VA_ARGS__);                                                                                   \
     }
