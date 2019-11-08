@@ -21,9 +21,9 @@
 // SOFTWARE.
 
 #include <api/graph.h>
+#include <api/log.hpp>
 #include <api/property.hpp>
 #include <api/ui/ui.h>
-#include <api/log.hpp>
 
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -169,11 +169,85 @@ namespace miyuki::ui {
 
         ImGui::End();
     }
-    class MainWindow : public AbstractMainWindow, public PropertyVisitor {
+
+    class InspectorPropertyVisitor : public PropertyVisitor {
+      public:
+        // Inherited via PropertyVisitor
+        virtual void visit(IntProperty *prop) override {
+            auto value = prop->getConstRef();
+            if (ImGui::InputInt(prop->name(), &value, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue)) {
+                prop->getRef() = value;
+            }
+        }
+
+        virtual void visit(FloatProperty *prop) override {
+            auto value = prop->getConstRef();
+            if (ImGui::InputFloat(prop->name(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue)) {
+                prop->getRef() = value;
+            }
+        }
+
+        virtual void visit(Float3Property *prop) override {
+            auto value = prop->getConstRef();
+            if (ImGui::InputFloat3(prop->name(), (float *)&value, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue)) {
+                prop->getRef() = value;
+            }
+        }
+
+        virtual void visit(EntityProperty *prop) override {
+            if (ImGui::TreeNodeEx(prop->name(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                ImGui::PushID(prop->name());
+
+                if (prop->getConstRef()) {
+                    prop->getRef()->accept(this);
+                }
+                ImGui::TreePop();
+
+                ImGui::PopID();
+            }
+        }
+        virtual void visit(FileProperty *prop) override {
+            ImGui::PushID(prop->name());
+            if (ImGui::Button("select")) {
+                auto filename = GetOpenFileNameWithDialog(nullptr);
+                if (!filename.empty()) {
+                    prop->getRef() = fs::path(filename);
+                }
+            }
+            ImGui::PopID();
+        }
+    };
+
+    class ExplorerPropertyVisitor : public PropertyVisitor {
+      public:
+        // Inherited via PropertyVisitor
+        virtual void visit(IntProperty *) override {}
+        virtual void visit(FloatProperty *) override {}
+        virtual void visit(Float3Property *) override {}
+        virtual void visit(EntityProperty *prop) override {
+            if (ImGui::TreeNodeEx(prop->name(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                ImGui::PushID(prop->name());
+
+                if (prop->getConstRef()) {
+                    prop->getRef()->accept(this);
+                }
+                ImGui::TreePop();
+
+                ImGui::PopID();
+            }
+        }
+        virtual void visit(FileProperty *) override {}
+        virtual void visit(Int2Property *) override {}
+        virtual void visit(Float2Property *) override {}
+    };
+    class MainWindow : public AbstractMainWindow {
         std::shared_ptr<core::SceneGraph> graph;
         void showExplorer() {
             if (ImGui::Begin("Explorer")) {
-
+                if (graph) {
+                    ExplorerPropertyVisitor visitor;
+                    graph->accept(&visitor);
+                }
                 ImGui::End();
             }
         }
@@ -222,50 +296,6 @@ namespace miyuki::ui {
             showMenu();
             showExplorer();
             showInspector();
-        }
-
-        // Inherited via PropertyVisitor
-        virtual void visit(IntProperty *prop) override {
-            auto value = prop->getConstRef();
-            if (ImGui::InputInt(prop->name(), &value, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue)) {
-                prop->getRef() = value;
-            }
-        }
-
-        virtual void visit(FloatProperty *prop) override {
-            auto value = prop->getConstRef();
-            if (ImGui::InputFloat(prop->name(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue)) {
-                prop->getRef() = value;
-            }
-        }
-
-        virtual void visit(Vec3fProperty *prop) override {
-            auto value = prop->getConstRef();
-            if (ImGui::InputFloat3(prop->name(), (float *)&value, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue)) {
-                prop->getRef() = value;
-            }
-        }
-
-        virtual void visit(EntityProperty *prop) override {
-            if (ImGui::TreeNodeEx(prop->name(), ImGuiTreeNodeFlags_DefaultOpen)) {
-                ImGui::PushID(prop->name());
-
-                if (prop->getConstRef()) {
-                    prop->getRef()->accept(this);
-                }
-
-                ImGui::PopID();
-            }
-        }
-        virtual void visit(FileProperty *prop) override {
-            ImGui::PushID(prop->name());
-            if (ImGui::Button("select")) {
-                auto filename = GetOpenFileNameWithDialog(nullptr);
-                if (!filename.empty()) {
-                    prop->getRef() = fs::path(filename);
-                }
-            }
-            ImGui::PopID();
         }
     };
 

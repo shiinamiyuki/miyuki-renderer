@@ -53,7 +53,10 @@ namespace miyuki {
     } // namespace detail
     using IntProperty = detail::BasicProperty<int>;
     using FloatProperty = detail::BasicProperty<float>;
-    using Vec3fProperty = detail::BasicProperty<Vec3f>;
+    using Float3Property = detail::BasicProperty<Vec3f>;
+    using Float2Property = detail::BasicProperty<Point2f>;
+    using Int2Property = detail::BasicProperty<Point2i>;
+
     using EntityProperty = detail::BasicProperty<std::shared_ptr<Entity>>;
     // using VectorProperty = detail::BasicProperty<std::vector<std::shared_ptr<Entity>>>;
     using FileProperty = detail::BasicProperty<fs::path>;
@@ -63,14 +66,16 @@ namespace miyuki {
         virtual void visit(Property *prop) { prop->accept(this); }
         virtual void visit(IntProperty *) = 0;
         virtual void visit(FloatProperty *) = 0;
-        virtual void visit(Vec3fProperty *) = 0;
+        virtual void visit(Float3Property *) = 0;
         virtual void visit(EntityProperty *) = 0;
         virtual void visit(FileProperty *) = 0;
+        virtual void visit(Int2Property *) = 0;
+        virtual void visit(Float2Property *) = 0;
     };
 
     struct ReflPropertyVisitor {
         PropertyVisitor *visitor;
-
+        ReflPropertyVisitor(PropertyVisitor *visitor) : visitor(visitor) {}
         void visit(int &v, const char *name) {
             IntProperty prop(name, v);
             prop.accept(visitor);
@@ -82,14 +87,26 @@ namespace miyuki {
         }
 
         void visit(Vec3f &v, const char *name) {
-            Vec3fProperty prop(name, v);
+            Float3Property prop(name, v);
+            prop.accept(visitor);
+        }
+
+        void visit(Point2f &v, const char *name) {
+            Float2Property prop(name, v);
+            prop.accept(visitor);
+        }
+
+        void visit(Point2i &v, const char *name) {
+            Int2Property prop(name, v);
             prop.accept(visitor);
         }
 
         template <class T>
         std::enable_if_t<std::is_base_of_v<Entity, T>, void> visit(std::shared_ptr<T> &v, const char *name) {
-            EntityProperty prop(name, v);
+            std::shared_ptr<Entity> p = v;
+            EntityProperty prop(name, p);
             prop.accept(visitor);
+            v = std::dynamic_pointer_cast<T>(p);
         }
     };
 #define MYK_PROP(...)                                                                                                  \

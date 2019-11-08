@@ -23,7 +23,7 @@
 
 #include <api/rng.h>
 #include "sobol-sampler.h"
-#include "sobolmat.hpp"
+#include <sobolmat.hpp>
 
 
 namespace miyuki::core {

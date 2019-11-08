@@ -29,6 +29,7 @@ add_subdirectory(external/glfw)
 add_subdirectory(external/gl3w)
 add_subdirectory(external/fmt)
 
+include_directories(external/sobol)
 include_directories(external/pybind11/include)
 include_directories(external/linalg)
 include_directories(external/cereal/include)

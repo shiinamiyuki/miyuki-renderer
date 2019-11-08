@@ -27,6 +27,7 @@
 #include <api/camera.h>
 #include <api/entity.hpp>
 #include <api/integrator.h>
+#include <api/property.hpp>
 #include <api/sampler.h>
 #include <api/scene.h>
 #include <api/serialize.hpp>
@@ -46,6 +47,8 @@ namespace miyuki::core {
         MYK_AUTO_SER(camera, sampler, integrator, shapes, filmDimension)
 
         MYK_AUTO_INIT(camera, sampler, integrator, shapes, filmDimension)
+
+        MYK_PROP(camera, sampler, integrator)
 
         MYK_DECL_CLASS(SceneGraph, "SceneGraph")
 
