@@ -1,4 +1,27 @@
-﻿#include <api/ui/ui.h>
+// MIT License
+//
+// Copyright (c) 2019 椎名深雪
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#include <api/graph.h>
+#include <api/ui/ui.h>
 
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -35,10 +58,10 @@ namespace miyuki::ui {
         });
     }
 
-    class MainWindow::Impl {
+    class AbstractMainWindow::Impl {
 
       public:
-        MainWindow *mw;
+        AbstractMainWindow *mw;
         GLFWwindow *window;
         Impl(int width, int height, const std::string &title) {
             InitializeGLFW();
@@ -70,9 +93,9 @@ namespace miyuki::ui {
                 ImGui_ImplOpenGL3_NewFrame();
                 ImGui_ImplGlfw_NewFrame();
                 ImGui::NewFrame();
-                for (auto &i : mw->children) {
-                    i->draw();
-                }
+
+                mw->update();
+
                 ImGui::Render();
                 int display_w, display_h;
                 glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -91,36 +114,14 @@ namespace miyuki::ui {
             }
         }
     };
-    MainWindow::MainWindow(int width, int height, const std::string &title) {
+    AbstractMainWindow::AbstractMainWindow(int width, int height, const std::string &title) {
         impl = new Impl(width, height, title);
         impl->mw = this;
     }
-    MainWindow::~MainWindow() { delete impl; }
-    void MainWindow::draw() { impl->draw(); }
+    AbstractMainWindow::~AbstractMainWindow() { delete impl; }
+    void AbstractMainWindow::show() { impl->draw(); }
 
-    void Text::draw() { ImGui::Text("%s", text.c_str()); }
-
-    void TreeNode::draw() {
-        ImGui::PushID((void *)this);
-        if (ImGui::TreeNode(name.c_str())) {
-            for (auto &i : children) {
-                i->draw();
-            }
-            ImGui::TreePop();
-        }
-        ImGui::PopID();
-    }
-    void Window::draw() {
-        if (ImGui::Begin(name.c_str())) {
-            for (auto &i : children) {
-                i->draw();
-            }
-            ImGui::End();
-        }
-    }
-    void DemoWindow::draw() { ImGui::ShowDemoWindow(&showed); }
-
-    void DockingSpace::draw() {
+    void SetupDockingSpace(const std::string &name) {
         static bool opt_fullscreen_persistant = true;
         bool opt_fullscreen = opt_fullscreen_persistant;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
@@ -160,63 +161,35 @@ namespace miyuki::ui {
         // DockSpace
         ImGuiIO &io = ImGui::GetIO();
 
-        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+        ImGuiID dockspace_id = ImGui::GetID(name.c_str());
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
-        for (auto &i : children) {
-            i->draw();
-        }
         ImGui::End();
     }
+    class MainWindow : public AbstractMainWindow {
+        std::shared_ptr<core::SceneGraph> graph;
+        void showExplorer() {
+            if (ImGui::Begin("Explorer")) {
 
-    void Button::draw() {
-        if (ImGui::Button(text.c_str())) {
-            callback();
+                ImGui::End();
+            }
         }
-    }
+        void showInspector() {
+            if (ImGui::Begin("Inspector")) {
 
-    void CheckBox::draw() {
-        if (ImGui::Checkbox(text.c_str(), &checked)) {
-            callback(checked);
+                ImGui::End();
+            }
         }
-    }
 
-    void Slider::draw() {
-        if (ImGui::SliderFloat(label.c_str(), &value, min, max)) {
-            callback(value);
+      public:
+        using AbstractMainWindow::AbstractMainWindow;
+        void update() override {
+            SetupDockingSpace("DockingSpace");
+            showExplorer();
+            showInspector();
         }
+    };
+    std::shared_ptr<AbstractMainWindow> MakeMainWindow(int width, int height, const std::string &title) {
+        return std::make_shared<MainWindow>(width, height, title);
     }
-
-    std::optional<int> GetInput(const char *label, int value) {
-        int tmp = value;
-        if (ImGui::InputInt(label, &tmp, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue)) {
-            return tmp;
-        }
-        return {};
-    }
-    std::optional<float> GetInput(const char *label, float value) {
-        float tmp = value;
-        if (ImGui::InputFloat(label, &tmp, 0.1, 1.0f, "0.3f", ImGuiInputTextFlags_EnterReturnsTrue)) {
-            return tmp;
-        }
-        return {};
-    }
-    std::optional<Vec3f> GetInput(const char *label, const Vec3f &value) {
-        Vec3f tmp = value;
-        if (ImGui::InputFloat3(label, (float *)&tmp, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue)) {
-            return tmp;
-        }
-        return {};
-    }
-    std::optional<std::string> GetInput(const char *label, const std::string &s) {
-        std::vector<char> buffer(2014);
-        for (int i = 0; i < s.length(); i++)
-            buffer[i] = s[i];
-        if (ImGui::InputText(label, &buffer[0], buffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
-            return std::string(&buffer[0]);
-        }
-        return {};
-    }
-
-
 } // namespace miyuki::ui

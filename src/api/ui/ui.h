@@ -1,3 +1,24 @@
+// MIT License
+//
+// Copyright (c) 2019 椎名深雪
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 #pragma once
 #include <api/math.hpp>
 #include <functional>
@@ -6,141 +27,20 @@
 #include <string>
 #include <vector>
 
-// Serves as a thin Object-Oriented wrapper against ImGui library
 namespace miyuki::ui {
-    class UIObject : public std::enable_shared_from_this<UIObject> {
-      protected:
-        std::vector<std::shared_ptr<UIObject>> children;
-        std::weak_ptr<UIObject> parent;
-        bool showed = true;
 
-      public:
-        virtual void draw() = 0;
-        virtual void add(const std::shared_ptr<UIObject> &child) {
-            children.emplace_back(child);
-            child->parent = weak_from_this();
-        }
-        virtual void replace(const std::shared_ptr<UIObject> &old, const std::shared_ptr<UIObject> &val) {
-            for (int i = 0; i < children.size(); i++) {
-                if (children[i] == old) {
-                    children[i] = val;
-                }
-            }
-        }
-        bool isClosed() const { return !showed; }
-        void setClosed(bool c) { showed = !c; }
-    };
-
-    class Text : public UIObject {
-        std::string text;
-
-      public:
-        Text(const std::string &text) : text(text) {}
-
-        // Inherited via UIObject
-        virtual void draw() override;
-    };
-
-    class Modal : public UIObject {
-        std::function<void(Modal *)> func;
-
-      public:
-        Modal(const std::function<void(Modal *)> &func) : func(func) {}
-        void draw() { func(this); }
-    };
-
-    class MainWindow : public UIObject {
+    class AbstractMainWindow {
         class Impl;
         Impl *impl = nullptr;
 
       public:
-        MainWindow(int width, int height, const std::string &title);
-        void draw() override;
-        ~MainWindow();
+        AbstractMainWindow(int width, int height, const std::string &title);
+        void show();
+        virtual void update() = 0;
+        ~AbstractMainWindow();
     };
 
-    class Window : public UIObject {
-        std::string name;
-
-      public:
-        Window(const std::string &name) : name(name) {}
-        void draw() override;
-    };
-
-    class TreeNode : public UIObject {
-        std::string name;
-
-      public:
-        TreeNode(const std::string &name) : name(name) {}
-        void draw() override;
-    };
-
-    class DemoWindow : public UIObject {
-      public:
-        void draw() override;
-    };
-
-    class DockingSpace : public UIObject {
-        std::string name;
-
-      public:
-        DockingSpace(const std::string &name) : name(name) {}
-        void draw() override;
-    };
-
-    class Button : public UIObject {
-        std::string text;
-        std::function<void(void)> callback;
-
-      public:
-        Button(const std::string &text) : text(text), callback([]() {}) {}
-        void draw() override;
-        void setCallback(const std::function<void(void)> &cb) { callback = cb; }
-    };
-
-    class CheckBox : public UIObject {
-        std::string text;
-        std::function<void(bool)> callback;
-        bool checked = false;
-
-      public:
-        CheckBox(const std::string &text, bool checked = false) : text(text), checked(checked), callback([](bool) {}) {}
-        void draw() override;
-        void setCallback(const std::function<void(bool)> &cb) { callback = cb; }
-    };
-
-    class Slider : public UIObject {
-        std::string label;
-        std::function<void(float)> callback;
-        float min, max;
-        float value;
-
-      public:
-        Slider(const std::string &label, float value, float min, float max)
-            : value(value), min(min), max(max), label(label) {}
-        void draw() override;
-        void setCallback(const std::function<void(float)> &cb) { callback = cb; }
-    };
-
-    std::optional<int> GetInput(const char *, int);
-    std::optional<float> GetInput(const char *, float);
-    std::optional<Vec3f> GetInput(const char *, const Vec3f &);
-    std::optional<std::string> GetInput(const char *, const std::string &);
-
-    template <class T> class Input : public UIObject {
-        std::string label;
-        T value;
-        std::function<void(T)> callback;
-
-      public:
-        Input(const std::string &label, T value) : label(label), value(value) {}
-        void draw() override {
-
-            if (auto r = GetInput(label.c_str(), &value)) {
-                callback(r.value());
-            }
-        }
-        void setCallback(const std::function<void(T)> &cb) { callback = cb; }
-    };
+  
+    std::shared_ptr<AbstractMainWindow> MakeMainWindow(int width, int height, const std::string &title);
 
 } // namespace miyuki::ui
