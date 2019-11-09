@@ -26,6 +26,7 @@
 #include "accelerators/embree-backend.h"
 #include "accelerators/sahbvh.h"
 #include "core/bsdfs/diffusebsdf.h"
+#include "bsdfs/mixbsdf.h"
 #include "core/cameras/perspective-camera.h"
 #include "core/integrators/rtao.h"
 #include "core/samplers/random-sampler.h"
@@ -46,6 +47,7 @@ namespace miyuki::core {
         Register<RGBShader>();
         Register<PerspectiveCamera>();
         Register<DiffuseBSDF>();
+        Register<MixBSDF>();
         Register<RTAO>();
         Register<RandomSampler>();
         Register<SobolSampler>();

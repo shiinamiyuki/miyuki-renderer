@@ -199,6 +199,7 @@ namespace miyuki::ui {
                 ImGui::PushID(prop->name());
 
                 if (prop->getConstRef()) {
+                    ImGui::Text("%s", prop->getConstRef()->getType()->name());
                     prop->getRef()->accept(this);
                 }
                 ImGui::TreePop();
@@ -216,6 +217,10 @@ namespace miyuki::ui {
             }
             ImGui::PopID();
         }
+
+        // Inherited via PropertyVisitor
+        virtual void visit(Int2Property *) override {}
+        virtual void visit(Float2Property *) override {}
     };
 
     class ExplorerPropertyVisitor : public PropertyVisitor {
@@ -229,6 +234,7 @@ namespace miyuki::ui {
                 ImGui::PushID(prop->name());
 
                 if (prop->getConstRef()) {
+                  
                     prop->getRef()->accept(this);
                 }
                 ImGui::TreePop();
@@ -245,7 +251,7 @@ namespace miyuki::ui {
         void showExplorer() {
             if (ImGui::Begin("Explorer")) {
                 if (graph) {
-                    ExplorerPropertyVisitor visitor;
+                    InspectorPropertyVisitor visitor;
                     graph->accept(&visitor);
                 }
                 ImGui::End();
@@ -296,6 +302,7 @@ namespace miyuki::ui {
             showMenu();
             showExplorer();
             showInspector();
+            ImGui::ShowDemoWindow();
         }
     };
 
