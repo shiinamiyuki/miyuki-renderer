@@ -58,6 +58,8 @@ namespace miyuki {
         virtual void preprocess() {}
 
         virtual void accept(PropertyVisitor *) {}
+
+		virtual std::string toString() const;
     };
 
     namespace serialize {

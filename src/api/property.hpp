@@ -58,7 +58,7 @@ namespace miyuki {
     using Int2Property = detail::BasicProperty<Point2i>;
 
     using EntityProperty = detail::BasicProperty<std::shared_ptr<Entity>>;
-    // using VectorProperty = detail::BasicProperty<std::vector<std::shared_ptr<Entity>>>;
+    using VectorProperty = detail::BasicProperty<std::vector<std::shared_ptr<Entity>>>;
     using FileProperty = detail::BasicProperty<fs::path>;
 
     class PropertyVisitor {
@@ -71,6 +71,7 @@ namespace miyuki {
         virtual void visit(FileProperty *) = 0;
         virtual void visit(Int2Property *) = 0;
         virtual void visit(Float2Property *) = 0;
+        virtual void visit(VectorProperty *) = 0;
     };
 
     struct ReflPropertyVisitor {
@@ -99,6 +100,21 @@ namespace miyuki {
         void visit(Point2i &v, const char *name) {
             Int2Property prop(name, v);
             prop.accept(visitor);
+        }
+
+        template <class T>
+        std::enable_if_t<std::is_base_of_v<Entity, T>, void> visit(std::vector<std::shared_ptr<T>> &v,
+                                                                   const char *name) {
+            std::vector<std::shared_ptr<Entity>> vec;
+            for (auto &i : v) {
+                vec.emplace_back(i);
+            }
+            VectorProperty prop(vec, p);
+            prop.accept(visitor);
+            v.clear();
+            for (auto &i : vec) {
+                v.emplace_back(i);
+            }
         }
 
         template <class T>

@@ -221,39 +221,51 @@ namespace miyuki::ui {
         // Inherited via PropertyVisitor
         virtual void visit(Int2Property *) override {}
         virtual void visit(Float2Property *) override {}
+        virtual void visit(VectorProperty *) override {}
     };
 
-    class ExplorerPropertyVisitor : public PropertyVisitor {
-      public:
-        // Inherited via PropertyVisitor
-        virtual void visit(IntProperty *) override {}
-        virtual void visit(FloatProperty *) override {}
-        virtual void visit(Float3Property *) override {}
-        virtual void visit(EntityProperty *prop) override {
-            if (ImGui::TreeNodeEx(prop->name(), ImGuiTreeNodeFlags_DefaultOpen)) {
-                ImGui::PushID(prop->name());
-
-                if (prop->getConstRef()) {
-                  
-                    prop->getRef()->accept(this);
-                }
-                ImGui::TreePop();
-
-                ImGui::PopID();
-            }
-        }
-        virtual void visit(FileProperty *) override {}
-        virtual void visit(Int2Property *) override {}
-        virtual void visit(Float2Property *) override {}
-    };
     class MainWindow : public AbstractMainWindow {
         std::shared_ptr<core::SceneGraph> graph;
+        std::weak_ptr<Entity> selected;
+        std::function<void(void)> modalFunc = []() {};
+
+        template <class F> void showModal(const char *name, F &&f) {
+            modalFunc = [=]() {
+                if (ImGui::BeginPopupModal(name)) {
+                    f();
+                    ImGui::EndPopup();
+                }
+            };
+        }
+        void closeModal() {
+            modalFunc = []() {};
+        }
+
+        void showSelectable(const std::string &name, const std::shared_ptr<Entity> &p) {
+            if (ImGui::Selectable(name.c_str(), selected.expired() ? false : p == selected.lock())) {
+                selected = p;
+            }
+        }
+
+        void explore() {
+            if (!graph)
+                return;
+            if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
+                if (ImGui::TreeNodeEx("Shapes", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    for (auto &i : graph->shapes) {
+                        showSelectable(i->toString(), i);
+                    }
+                    ImGui::TreePop();
+                }
+                showSelectable("Camera", graph->camera);
+                showSelectable("Sampler", graph->sampler);
+                showSelectable("Integrator", graph->integrator);
+                ImGui::TreePop();
+            }
+        }
         void showExplorer() {
             if (ImGui::Begin("Explorer")) {
-                if (graph) {
-                    InspectorPropertyVisitor visitor;
-                    graph->accept(&visitor);
-                }
+                explore();
                 ImGui::End();
             }
         }
@@ -298,6 +310,7 @@ namespace miyuki::ui {
       public:
         using AbstractMainWindow::AbstractMainWindow;
         void update() override {
+            modalFunc();
             SetupDockingSpace("DockingSpace");
             showMenu();
             showExplorer();

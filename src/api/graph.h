@@ -37,13 +37,14 @@
 namespace miyuki::core {
 
     class SceneGraph final : public Entity {
+      public:
         std::shared_ptr<Camera> camera;
         std::shared_ptr<Integrator> integrator;
         std::shared_ptr<Sampler> sampler;
         std::vector<std::shared_ptr<MeshBase>> shapes;
         Point2i filmDimension;
 
-      public:
+     
         MYK_AUTO_SER(camera, sampler, integrator, shapes, filmDimension)
 
         MYK_AUTO_INIT(camera, sampler, integrator, shapes, filmDimension)
