@@ -23,11 +23,11 @@
 #ifndef MIYUKIRENDERER_SAMPLER_H
 #define MIYUKIRENDERER_SAMPLER_H
 
-#include <api/entity.hpp>
+#include <api/object.hpp>
 #include <api/math.hpp>
 
 namespace miyuki::core {
-    class Sampler : public Entity {
+    class Sampler : public Object {
     public:
         virtual void startPixel(const Point2i &, const Point2i &filmDimension) = 0;
 

@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_CAMERA_H
 #define MIYUKIRENDERER_CAMERA_H
 
-#include <api/entity.hpp>
+#include <api/object.hpp>
 #include <api/ray.h>
 
 namespace miyuki::core {
@@ -33,7 +33,7 @@ namespace miyuki::core {
         Ray ray;
     };
 
-    class Camera : public Entity {
+    class Camera : public Object {
     public:
         virtual const Transform &getTransform() const = 0;
 

@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_SCENE_H
 
 #include <api/accelerator.h>
-#include <api/entity.hpp>
+#include <api/object.hpp>
 #include <api/light.h>
 #include <api/ray.h>
 #include <api/shape.h>

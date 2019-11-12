@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_BSDF_H
 #define MIYUKIRENDERER_BSDF_H
 
-#include <api/entity.hpp>
+#include <api/object.hpp>
 #include <api/spectrum.h>
 
 
@@ -31,7 +31,7 @@ namespace miyuki::core {
     struct BSDFSample;
     struct ShadingPoint;
 
-    class BSDF : public Entity {
+    class BSDF : public Object {
     public:
         enum Type {
             ENone = 0,

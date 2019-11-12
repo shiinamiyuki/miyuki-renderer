@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_SHADER_H
 #define MIYUKIRENDERER_SHADER_H
 
-#include <api/entity.hpp>
+#include <api/object.hpp>
 #include <api/spectrum.h>
 
 namespace miyuki::core {
@@ -33,7 +33,7 @@ namespace miyuki::core {
         Normal3f Ng;
     };
 
-    class Shader : public Entity {
+    class Shader : public Object {
     public:
         virtual Spectrum evaluate(const ShadingPoint &) const = 0;
     };

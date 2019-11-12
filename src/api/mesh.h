@@ -133,7 +133,7 @@ namespace miyuki::core {
         }
     };
 
-    class MeshBase : public Entity {};
+    class MeshBase : public Object {};
 
     class Mesh final : public MeshBase {
         bool _loaded = false;

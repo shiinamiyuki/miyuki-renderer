@@ -20,17 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_ENTITY_HPP
-#define MIYUKIRENDERER_ENTITY_HPP
+#pragma once
 
 #include <api/defs.h>
-#include <api/entity.hpp>
 #include <memory>
 #include <mutex>
 #include <unordered_map>
 #include <variant>
 
-#include <api/detail/entity-funcs.h>
+#include <api/detail/object-funcs.h>
 #include <nlohmann/json_fwd.hpp>
 
 namespace miyuki {
@@ -42,8 +40,9 @@ namespace miyuki {
     } // namespace serialize
     class Type;
     class PropertyVisitor;
+
     // Base class for all entities in rendering
-    class Entity {
+    class Object {
       public:
         [[nodiscard]] virtual Type *getType() const = 0;
 
@@ -63,14 +62,14 @@ namespace miyuki {
     };
 
     namespace serialize {
-        void WriteEntity(serialize::OutputArchive &ar, const std::shared_ptr<Entity> &);
+        void WriteObject(serialize::OutputArchive &ar, const std::shared_ptr<Object> &);
 
-        std::shared_ptr<Entity> ReadEntity(serialize::InputArchive &ar);
+        std::shared_ptr<Object> ReadObject(serialize::InputArchive &ar);
     } // namespace serialize
 
     class Type {
       public:
-        virtual std::shared_ptr<Entity> create() const = 0;
+        virtual std::shared_ptr<Object> create() const = 0;
 
         virtual const char *name() const = 0;
     };
@@ -81,7 +80,7 @@ namespace miyuki {
 
             explicit TypeImpl(const char *name) : _name(name) {}
 
-            [[nodiscard]] std::shared_ptr<Entity> create() const override { return std::make_shared<T>(); }
+            [[nodiscard]] std::shared_ptr<Object> create() const override { return std::make_shared<T>(); }
 
             [[nodiscard]] const char *name() const override { return _name; }
         };
@@ -92,5 +91,3 @@ namespace miyuki {
     }
 
 } // namespace miyuki
-
-#endif // MIYUKIRENDERER_ENTITY_HPP

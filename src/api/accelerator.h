@@ -28,7 +28,7 @@
 namespace miyuki::core {
     class Scene;
 
-    class Accelerator : public Entity{
+    class Accelerator : public Object {
     public:
         virtual void build(Scene &scene) = 0;
 

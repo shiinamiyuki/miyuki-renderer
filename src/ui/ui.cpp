@@ -194,7 +194,7 @@ namespace miyuki::ui {
             }
         }
 
-        virtual void visit(EntityProperty *prop) override {
+        virtual void visit(ObjectProperty *prop) override {
             if (ImGui::TreeNodeEx(prop->name(), ImGuiTreeNodeFlags_DefaultOpen)) {
                 ImGui::PushID(prop->name());
 
@@ -226,12 +226,14 @@ namespace miyuki::ui {
 
     class MainWindow : public AbstractMainWindow {
         std::shared_ptr<core::SceneGraph> graph;
-        std::weak_ptr<Entity> selected;
+        std::weak_ptr<Object> selected;
         std::function<void(void)> modalFunc = []() {};
+        bool _modalOpen = false;
 
         template <class F> void showModal(const char *name, F &&f) {
+            _modalOpen = true;
             modalFunc = [=]() {
-                if (ImGui::BeginPopupModal(name)) {
+                if (ImGui::BeginPopupModal(name, &_modalOpen)) {
                     f();
                     ImGui::EndPopup();
                 }
@@ -239,9 +241,10 @@ namespace miyuki::ui {
         }
         void closeModal() {
             modalFunc = []() {};
+            _modalOpen = false;
         }
 
-        void showSelectable(const std::string &name, const std::shared_ptr<Entity> &p) {
+        void showSelectable(const std::string &name, const std::shared_ptr<Object> &p) {
             if (ImGui::Selectable(name.c_str(), selected.expired() ? false : p == selected.lock())) {
                 selected = p;
             }
@@ -284,23 +287,56 @@ namespace miyuki::ui {
                         if (!filename.empty()) {
                             auto path = fs::path(filename);
                             std::ifstream in(filename);
-                            if (path.extension().string() == ".json") {
-                                std::string str((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-                                json data = json::parse(str);
-                                graph = std::make_shared<core::SceneGraph>();
-                                graph->initialize(data);
-                            } else {
-                                serialize::InputArchive ar(in);
-                                graph = std::dynamic_pointer_cast<core::SceneGraph>(ReadEntity(ar));
-                            }
+                            serialize::InputArchive ar(in);
+                            graph = std::dynamic_pointer_cast<core::SceneGraph>(serialize::ReadObject(ar));
                         }
                     }
+                    if (ImGui::MenuItem("Open (json)")) {
+                        auto filename = GetOpenFileNameWithDialog(nullptr);
+                        if (!filename.empty()) {
+                            auto path = fs::path(filename);
+                            std::ifstream in(filename);
 
+                            std::string str((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+                            json data = json::parse(str);
+                            graph = std::make_shared<core::SceneGraph>();
+                            graph->initialize(data);
+                        }
+                    }
                     if (ImGui::MenuItem("Save")) {
                     }
 
                     if (ImGui::MenuItem("Save As")) {
+                        if (!graph) {
+
+                            showModal("Error", [=]() {
+                                if (ImGui::Button("Close"))
+                                    ImGui::CloseCurrentPopup();
+                            });
+
+                        } else {
+                            auto filename = GetSaveFileNameWithDialog(nullptr);
+                            if (!filename.empty()) {
+                                std::ofstream out(filename);
+                                serialize::OutputArchive ar(out);
+                                serialize::WriteObject(ar, graph);
+                            }
+                        }
                     }
+
+                    if (ImGui::MenuItem("Import")) {
+                        auto filename = GetOpenFileNameWithDialog(nullptr);
+                        if (!filename.empty()) {
+                            std::thread th([=]() {
+                                showModal("Importing", [=]() {
+
+                                });
+                                closeModal();
+                            });
+                            th.detach();
+                        }
+                    }
+
                     ImGui::EndMenu();
                 }
                 ImGui::EndMainMenuBar();

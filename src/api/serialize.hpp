@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_SERIALIZE_HPP
 
 #include <api/defs.h>
-#include <api/detail/entity-funcs.h>
+#include <api/detail/object-funcs.h>
 #include <api/reflection-visitor.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/cereal.hpp>
@@ -33,7 +33,7 @@
 #include <unordered_set>
 
 namespace miyuki {
-    class Entity;
+    class Object;
 }
 
 #include <api/math.hpp>
@@ -94,7 +94,7 @@ namespace nlohmann {
         static void to_json(json &j, const std::shared_ptr<T> &opt) { MIYUKI_NOT_IMPLEMENTED(); }
 
         static void from_json(const json &j, std::shared_ptr<T> &p) {
-            p = std::dynamic_pointer_cast<T>(miyuki::CreateEntityParams(j));
+            p = std::dynamic_pointer_cast<T>(miyuki::CreateObjectParams(j));
         }
     };
 } // namespace nlohmann
@@ -106,7 +106,7 @@ namespace miyuki::serialize {
     class OutputArchive;
 
     class InputArchive : public cereal::JSONInputArchive {
-        std::unordered_map<size_t, std::shared_ptr<Entity>> _refs;
+        std::unordered_map<size_t, std::shared_ptr<Object>> _refs;
         std::unordered_set<size_t> _serialized;
 
       public:
@@ -128,7 +128,7 @@ namespace miyuki::serialize {
     };
 
     class OutputArchive : public cereal::JSONOutputArchive {
-        std::unordered_set<Entity *> _serialized;
+        std::unordered_set<Object *> _serialized;
 
       public:
         using JSONOutputArchive::JSONOutputArchive;
@@ -155,7 +155,7 @@ namespace cereal {
         } else {
 
             ar(CEREAL_NVP_("#type", std::string(p->getType()->name())));
-            ar(CEREAL_NVP_("#addr", reinterpret_cast<size_t>(static_cast<miyuki::Entity *>(p.get()))));
+            ar(CEREAL_NVP_("#addr", reinterpret_cast<size_t>(static_cast<miyuki::Object *>(p.get()))));
             auto _archive = dynamic_cast<miyuki::serialize::OutputArchive *>(&ar);
             if (!_archive) {
                 MIYUKI_THROW(std::runtime_error, "Archive must be of OutputArchive");
@@ -187,7 +187,7 @@ namespace cereal {
             }
             auto &archive = *_archive;
             if (!archive.hasRegistered(addr)) {
-                p = std::dynamic_pointer_cast<T>(miyuki::CreateEntity(type));
+                p = std::dynamic_pointer_cast<T>(miyuki::CreateObject(type));
                 archive.addRef(addr, p);
             } else {
                 p = archive.getRef<T>(addr);
@@ -202,7 +202,7 @@ namespace cereal {
         }
     }
 
-    template <class Archive, class T, typename = std::enable_if_t<std::is_base_of_v<miyuki::Entity, T>>>
+    template <class Archive, class T, typename = std::enable_if_t<std::is_base_of_v<miyuki::Object, T>>>
     inline void save(Archive &ar, std::weak_ptr<T> const &p) {
         // using Archive = kaede::OutputArchive;
         if (!p) {
@@ -210,7 +210,7 @@ namespace cereal {
         } else {
 
             ar(CEREAL_NVP_("#type", std::string(p->getType()->name())));
-            ar(CEREAL_NVP_("#addr", reinterpret_cast<size_t>(static_cast<miyuki::Entity *>(p.get()))));
+            ar(CEREAL_NVP_("#addr", reinterpret_cast<size_t>(static_cast<miyuki::Object *>(p.get()))));
             auto _archive = dynamic_cast<miyuki::serialize::OutputArchive *>(&ar);
             if (!_archive) {
                 MIYUKI_THROW(std::runtime_error, "Archive must be of OutputArchive");
@@ -242,7 +242,7 @@ namespace cereal {
             }
             auto &archive = *_archive;
             if (!archive.hasRegistered(addr)) {
-                auto ref = std::dynamic_pointer_cast<T>(miyuki::CreateEntity(type));
+                auto ref = std::dynamic_pointer_cast<T>(miyuki::CreateObject(type));
                 archive.addRef(addr, ref);
                 p = ref;
             } else {
@@ -305,7 +305,7 @@ namespace miyuki::serialize {
     miyuki::Type *getType() const override { return staticType(); }                                                    \
     static void _register() {                                                                                          \
         static_assert(std::is_final_v<Self>, Alias " must be final");                                                  \
-        miyuki::RegisterEntity(Alias, staticType());                                                                   \
+        miyuki::RegisterObject(Alias, staticType());                                                                   \
         std::string interface;                                                                                         \
         miyuki::serialize::_assign(__VA_ARGS__);                                                                       \
         if (!interface.empty()) {                                                                                      \

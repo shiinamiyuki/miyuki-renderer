@@ -25,7 +25,7 @@
 
 #include <api/spectrum.h>
 #include <api/ray.h>
-#include <api/entity.hpp>
+#include <api/object.hpp>
 
 namespace miyuki::core {
     struct VisibilityTester;
@@ -45,7 +45,7 @@ namespace miyuki::core {
         float pdfPos, pdfDir;
     };
 
-    class Light : public Entity {
+    class Light : public Object {
     public:
         virtual Spectrum Li(ShadingPoint &sp) const = 0;
 

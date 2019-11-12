@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_SHAPE_H
 
 #include <api/spectrum.h>
-#include <api/entity.hpp>
+#include <api/object.hpp>
 #include <api/ray.h>
 #include <functional>
 
@@ -40,7 +40,7 @@ namespace miyuki::core {
     };
 
 
-    class Shape : public Entity {
+    class Shape : public Object {
     public:
         virtual bool intersect(const Ray &ray, Intersection &isct) const = 0;
 

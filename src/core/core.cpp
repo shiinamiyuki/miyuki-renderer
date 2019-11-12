@@ -23,7 +23,7 @@
 #include <api/detail/staticobject.hpp>
 #include <cstdio>
 
-#include <api/entity.hpp>
+#include <api/object.hpp>
 #include <api/serialize.hpp>
 
 

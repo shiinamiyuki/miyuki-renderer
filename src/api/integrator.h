@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_INTEGRATOR_H
 #define MIYUKIRENDERER_INTEGRATOR_H
 
-#include <api/entity.hpp>
+#include <api/object.hpp>
 
 namespace miyuki::core {
     class Camera;
@@ -34,7 +34,7 @@ namespace miyuki::core {
 
     struct Film;
 
-    class Integrator : public Entity {
+    class Integrator : public Object {
     public:
         virtual void render(const std::shared_ptr<Scene> &,
                             const std::shared_ptr<Camera> &,

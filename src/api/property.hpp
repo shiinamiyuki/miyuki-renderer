@@ -30,7 +30,7 @@
 #include <api/reflection-visitor.hpp>
 
 namespace miyuki {
-    class Entity;
+    class Object;
     class PropertyVisitor;
     class Property : public std::enable_shared_from_this<Property> {
       public:
@@ -39,9 +39,8 @@ namespace miyuki {
 
     namespace detail {
         template <class T> class BasicProperty {
-            std::reference_wrapper<T> ref;
             const char *_name;
-
+            std::reference_wrapper<T> ref;
           public:
             BasicProperty(const char *name, T &ref) : _name(name), ref(ref) {}
             const T &getConstRef() const { return ref; }
@@ -57,8 +56,8 @@ namespace miyuki {
     using Float2Property = detail::BasicProperty<Point2f>;
     using Int2Property = detail::BasicProperty<Point2i>;
 
-    using EntityProperty = detail::BasicProperty<std::shared_ptr<Entity>>;
-    using VectorProperty = detail::BasicProperty<std::vector<std::shared_ptr<Entity>>>;
+    using ObjectProperty = detail::BasicProperty<std::shared_ptr<Object>>;
+    using VectorProperty = detail::BasicProperty<std::vector<std::shared_ptr<Object>>>;
     using FileProperty = detail::BasicProperty<fs::path>;
 
     class PropertyVisitor {
@@ -67,7 +66,7 @@ namespace miyuki {
         virtual void visit(IntProperty *) = 0;
         virtual void visit(FloatProperty *) = 0;
         virtual void visit(Float3Property *) = 0;
-        virtual void visit(EntityProperty *) = 0;
+        virtual void visit(ObjectProperty *) = 0;
         virtual void visit(FileProperty *) = 0;
         virtual void visit(Int2Property *) = 0;
         virtual void visit(Float2Property *) = 0;
@@ -103,9 +102,9 @@ namespace miyuki {
         }
 
         template <class T>
-        std::enable_if_t<std::is_base_of_v<Entity, T>, void> visit(std::vector<std::shared_ptr<T>> &v,
+        std::enable_if_t<std::is_base_of_v<Object, T>, void> visit(std::vector<std::shared_ptr<T>> &v,
                                                                    const char *name) {
-            std::vector<std::shared_ptr<Entity>> vec;
+            std::vector<std::shared_ptr<Object>> vec;
             for (auto &i : v) {
                 vec.emplace_back(i);
             }
@@ -113,14 +112,14 @@ namespace miyuki {
             prop.accept(visitor);
             v.clear();
             for (auto &i : vec) {
-                v.emplace_back(i);
+                v.emplace_back(std::dynamic_pointer_cast<T>(i));
             }
         }
 
         template <class T>
-        std::enable_if_t<std::is_base_of_v<Entity, T>, void> visit(std::shared_ptr<T> &v, const char *name) {
-            std::shared_ptr<Entity> p = v;
-            EntityProperty prop(name, p);
+        std::enable_if_t<std::is_base_of_v<Object, T>, void> visit(std::shared_ptr<T> &v, const char *name) {
+            std::shared_ptr<Object> p = v;
+            ObjectProperty prop(name, p);
             prop.accept(visitor);
             v = std::dynamic_pointer_cast<T>(p);
         }

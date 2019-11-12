@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <api/detail/entity-funcs.h>
+#include <api/detail/object-funcs.h>
 #include <api/scene.h>
 #include <core/accelerators/embree-backend.h>
 #include <core/accelerators/sahbvh.h>

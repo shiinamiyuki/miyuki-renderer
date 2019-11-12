@@ -25,7 +25,7 @@
 
 #include <api/bsdf.h>
 #include <api/camera.h>
-#include <api/entity.hpp>
+#include <api/object.hpp>
 #include <api/integrator.h>
 #include <api/property.hpp>
 #include <api/sampler.h>
@@ -36,7 +36,7 @@
 
 namespace miyuki::core {
 
-    class SceneGraph final : public Entity {
+    class SceneGraph final : public Object {
       public:
         std::shared_ptr<Camera> camera;
         std::shared_ptr<Integrator> integrator;

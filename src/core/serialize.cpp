@@ -22,7 +22,7 @@
 
 #include <api/serialize.hpp>
 
-#include <api/entity.hpp>
+#include <api/object.hpp>
 #include <api/log.hpp>
 #include <nlohmann/json.hpp>
 #include <set>
@@ -30,38 +30,38 @@
 #include <unordered_set>
 
 namespace miyuki {
-    struct EntityManager {
-        static EntityManager *_instance;
+    struct ObjectManager {
+        static ObjectManager *_instance;
 
-        static EntityManager *instance() {
+        static ObjectManager *instance() {
             static std::once_flag flag;
-            std::call_once(flag, [&]() { _instance = new EntityManager(); });
+            std::call_once(flag, [&]() { _instance = new ObjectManager(); });
             return _instance;
         }
 
-        std::unordered_map<std::string, std::weak_ptr<Entity>> bindings;
+        std::unordered_map<std::string, std::weak_ptr<Object>> bindings;
         std::unordered_map<std::string, Type *> types;
         std::unordered_map<std::string, std::set<std::string>> impls;
     };
 
-    EntityManager *EntityManager::_instance;
+    ObjectManager *ObjectManager::_instance;
 
-    void RegisterEntity(const std::string &alias, Type *type) {
-        EntityManager::instance()->types[alias] = type;
+    void RegisterObject(const std::string &alias, Type *type) {
+        ObjectManager::instance()->types[alias] = type;
         log::log("Registered {}\n", alias);
     }
 
     void BindInterfaceImplementation(const std::string &interface, const std::string &impl) {
-        auto &m = EntityManager::instance()->impls;
+        auto &m = ObjectManager::instance()->impls;
         if (m.find(interface) == m.end()) {
             m[interface] = {};
         }
         m[interface].insert(impl);
     }
 
-    std::shared_ptr<Entity> CreateEntity(const std::string &type) {
-        auto it = EntityManager::instance()->types.find(type);
-        if (it != EntityManager::instance()->types.end()) {
+    std::shared_ptr<Object> CreateObject(const std::string &type) {
+        auto it = ObjectManager::instance()->types.find(type);
+        if (it != ObjectManager::instance()->types.end()) {
             auto ty = it->second;
             auto entity = ty->create();
             return entity;
@@ -69,31 +69,31 @@ namespace miyuki {
         return {};
     }
 
-    std::shared_ptr<Entity> CreateEntityParams(const nlohmann::json &params) {
+    std::shared_ptr<Object> CreateObjectParams(const nlohmann::json &params) {
         if (params.is_string()) {
             auto name = params.get<std::string>();
-            return GetEntity(name);
+            return GetObject(name);
         } else {
-            auto entity = CreateEntity(params.at("type").get<std::string>());
+            auto entity = CreateObject(params.at("type").get<std::string>());
             if (!entity) {
                 log::log("failed to create entity with type {}\n", params.at("type").get<std::string>());
                 return nullptr;
             }
             if (params.contains("@ref")) {
-                BindEntity(entity, params.at("@ref").get<std::string>());
+                BindObject(entity, params.at("@ref").get<std::string>());
             }
             entity->initialize(params);
             return entity;
         }
     }
 
-    void BindEntity(const std::shared_ptr<Entity> &entity, const std::string &name) {
-        auto &bindings = EntityManager::instance()->bindings;
+    void BindObject(const std::shared_ptr<Object> &entity, const std::string &name) {
+        auto &bindings = ObjectManager::instance()->bindings;
         bindings[name] = entity;
     }
 
-    std::shared_ptr<Entity> GetEntity(const std::string &name) {
-        auto &bindings = EntityManager::instance()->bindings;
+    std::shared_ptr<Object> GetObject(const std::string &name) {
+        auto &bindings = ObjectManager::instance()->bindings;
         auto iter = bindings.find(name);
         if (iter == bindings.end()) {
             return nullptr;
@@ -106,13 +106,13 @@ namespace miyuki {
         return wp.lock();
     }
 
-    std::string Entity::toString() const { return fmt::format("[{} at {}]", getType()->name(), (void *)this); }
+    std::string Object::toString() const { return fmt::format("[{} at {}]", getType()->name(), (void *)this); }
 
     namespace serialize {
-        void WriteEntity(serialize::OutputArchive &ar, const std::shared_ptr<Entity> &e) { ar(e); }
+        void WriteObject(serialize::OutputArchive &ar, const std::shared_ptr<Object> &e) { ar(e); }
 
-        std::shared_ptr<Entity> ReadEntity(serialize::InputArchive &ar) {
-            std::shared_ptr<Entity> e;
+        std::shared_ptr<Object> ReadObject(serialize::InputArchive &ar) {
+            std::shared_ptr<Object> e;
             ar(e);
             return e;
         }

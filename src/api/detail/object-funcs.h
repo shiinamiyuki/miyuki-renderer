@@ -29,21 +29,21 @@
 #include <nlohmann/json_fwd.hpp>
 
 namespace miyuki {
-    class Entity;
+    class Object;
 
     class Type;
 
-    MYK_PUBLIC_API std::shared_ptr<Entity> CreateEntity(const std::string &type);
+    MYK_PUBLIC_API std::shared_ptr<Object> CreateObject(const std::string &type);
 
-    MYK_PUBLIC_API void RegisterEntity(const std::string &type, Type *);
+    MYK_PUBLIC_API void RegisterObject(const std::string &type, Type *);
 
     MYK_PUBLIC_API void BindInterfaceImplementation(const std::string &interface, const std::string &alias);
 
-    MYK_PUBLIC_API std::shared_ptr<Entity> CreateEntityParams(const nlohmann::json &);
+    MYK_PUBLIC_API std::shared_ptr<Object> CreateObjectParams(const nlohmann::json &);
 
-    MYK_PUBLIC_API void BindEntity(const std::shared_ptr<Entity> &entity, const std::string &name);
+    MYK_PUBLIC_API void BindObject(const std::shared_ptr<Object> &entity, const std::string &name);
 
-    MYK_PUBLIC_API std::shared_ptr<Entity> GetEntity(const std::string &name);
+    MYK_PUBLIC_API std::shared_ptr<Object> GetObject(const std::string &name);
 
     template<class T>
     void Register() {

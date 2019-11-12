@@ -29,7 +29,7 @@
 
 namespace miyuki::core {
 
-    class Material final : public Entity {
+    class Material final : public Object {
     public:
         std::shared_ptr<Shader> emission;
         std::shared_ptr<BSDF> bsdf;
