@@ -53,6 +53,7 @@ file(GLOB libcoreSource src/core/*.cpp
         src/core/lights/*.*
         src/core/integrators/*.*
         src/core/samplers/*.*
+		src/core/mesh-importers/*.*
         external/tinyobjloader/tiny_obj_loader.cc
         external/lodepng/lodepng.cpp
 

@@ -25,6 +25,7 @@
 #include <api/mesh.h>
 #include <fstream>
 #include <string>
+#include <core/mesh-importers/wavefront-importer.h>
 
 int main(int argc, char **argv) {
     using namespace miyuki;
@@ -32,10 +33,8 @@ int main(int argc, char **argv) {
         printf("Usage: mesh-importer src dst\n");
         return 0;
     }
-    core::Mesh mesh;
-    //
-    mesh.importFromFile(argv[1]);
-    mesh.writeToFile(argv[2]);
-	
+    auto importer = std::make_shared<core::WavefrontImporter>();
+    auto result = importer->importMesh(argv[1]);
+    result.mesh->writeToFile(argv[2]);	
     return 0;
 }

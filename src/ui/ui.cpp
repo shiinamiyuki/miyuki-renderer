@@ -221,7 +221,6 @@ namespace miyuki::ui {
         // Inherited via PropertyVisitor
         virtual void visit(Int2Property *) override {}
         virtual void visit(Float2Property *) override {}
-        virtual void visit(VectorProperty *) override {}
     };
 
     class MainWindow : public AbstractMainWindow {
@@ -229,13 +228,20 @@ namespace miyuki::ui {
         std::weak_ptr<Object> selected;
         std::function<void(void)> modalFunc = []() {};
         bool _modalOpen = false;
-
+        bool _updated = false;
         template <class F> void showModal(const char *name, F &&f) {
             _modalOpen = true;
+            _updated = false;
             modalFunc = [=]() {
-                if (ImGui::BeginPopupModal(name, &_modalOpen)) {
-                    f();
-                    ImGui::EndPopup();
+                if (!_updated) {
+                    ImGui::OpenPopup(name);
+                    _updated = true;
+                }
+                if (_modalOpen) {
+                    if (ImGui::BeginPopupModal(name)) {
+                        f();
+                        ImGui::EndPopup();
+                    }
                 }
             };
         }
@@ -308,10 +314,11 @@ namespace miyuki::ui {
 
                     if (ImGui::MenuItem("Save As")) {
                         if (!graph) {
-
                             showModal("Error", [=]() {
-                                if (ImGui::Button("Close"))
+                                ImGui::Text("%s", "Current scene is empty!");
+                                if (ImGui::Button("Close")) {
                                     ImGui::CloseCurrentPopup();
+                                }
                             });
 
                         } else {

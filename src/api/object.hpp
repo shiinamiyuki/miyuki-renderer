@@ -59,6 +59,11 @@ namespace miyuki {
         virtual void accept(PropertyVisitor *) {}
 
 		virtual std::string toString() const;
+
+		// get a ObjectProperty from name
+		//virtual std::shared_ptr<Object> getProperty(const char *name);
+
+		//virtual void setProperty(const char * name, )
     };
 
     namespace serialize {
@@ -89,5 +94,7 @@ namespace miyuki {
         std::call_once(flag, [&]() { type = new TypeImpl(_name); });
         return type;
     }
+
+
 
 } // namespace miyuki

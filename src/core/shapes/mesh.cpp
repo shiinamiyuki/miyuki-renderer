@@ -27,7 +27,7 @@
 
 namespace miyuki::core {
     template<class T>
-    static void write(std::vector<char> &buffer, const T &v) {
+    void write(std::vector<char> &buffer, const T &v) {
         unsigned char _buffer[sizeof(T)];
         *(T *) _buffer = v;
         for (auto i: _buffer) {
@@ -36,7 +36,7 @@ namespace miyuki::core {
     }
 
     template<class Iter, class T>
-    static Iter read(Iter begin, Iter end, T &v) {
+    Iter read(Iter begin, Iter end, T &v) {
         unsigned char _buffer[sizeof(T)];
         for (auto &i: _buffer) {
             if (begin == end) {
@@ -50,7 +50,7 @@ namespace miyuki::core {
         return begin;
     }
 
-    static void writeString(std::vector<char> &buffer, const std::string &s) {
+    void writeString(std::vector<char> &buffer, const std::string &s) {
         write(buffer, s.length());
         for (int i = 0; i < s.length(); i++) {
             write(buffer, s[i]);
@@ -58,7 +58,7 @@ namespace miyuki::core {
     }
 
     template<class Iter>
-    static Iter readString(Iter begin, Iter end, std::string &s) {
+    Iter readString(Iter begin, Iter end, std::string &s) {
         size_t length;
         begin = read(begin, end, length);
         for (int i = 0; i < length; i++) {
@@ -74,9 +74,9 @@ namespace miyuki::core {
             auto ext = fs::path(filename).extension().string();
             if (ext == ".mesh")
                 loadFromFile(filename);
-            else if (ext == ".obj") {
-                importFromFile(filename);
-            }
+            else {
+                throw std::runtime_error("Only .mesh files are supported");
+			}
         }
         for (int i = 0; i < triangles.size(); i++) {
             triangles[i].primID = i;
@@ -90,137 +90,6 @@ namespace miyuki::core {
                 _materials.emplace_back(nullptr);
             }
         }
-    }
-
-    bool Mesh::importFromFile(const std::string &filename) {
-        fs::path path(filename);
-        fs::path parent_path = path.parent_path();
-        fs::path file = path.filename();
-        CurrentPathGuard _guard;
-        if (!parent_path.empty())
-            fs::current_path(parent_path);
-
-        tinyobj::attrib_t attrib;
-        std::vector<tinyobj::shape_t> shapes;
-        std::vector<tinyobj::material_t> materials;
-
-        std::string warn;
-        std::string err;
-
-        std::string _file = file.string();
-        bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, _file.c_str());
-        if (!ret) {
-            log::log("error loading {}\n", filename);
-            return false;
-        }
-
-        auto mesh = this;
-
-        mesh->_vertex_data.position.reserve(attrib.vertices.size());
-        for (size_t i = 0; i < attrib.vertices.size(); i += 3) {
-            mesh->_vertex_data.position.emplace_back(Vec3f(
-                    attrib.vertices[i + 0],
-                    attrib.vertices[i + 1],
-                    attrib.vertices[i + 2]));
-        }
-
-        mesh->_vertex_data.normal.resize(mesh->_vertex_data.position.size());
-        mesh->_vertex_data.tex_coord.resize(mesh->_vertex_data.position.size());
-
-
-        std::unordered_map<std::string, size_t> name_to_id;
-        std::unordered_map<size_t, std::string> id_to_name;
-        std::unordered_map<std::string, std::unordered_map<int, std::string>> to_mangled_name;
-
-        for (size_t i = 0; i < shapes.size(); i++) {
-            const auto &name = shapes[i].name;
-            auto iter = to_mangled_name.find(name);
-
-
-            if (iter == to_mangled_name.end()) {
-                to_mangled_name[name] = {};
-            }
-            auto &m = to_mangled_name[name];
-            size_t count = 0;
-            for (size_t f = 0; f < shapes[i].mesh.num_face_vertices.size(); f++) {
-                bool new_name = false;
-                std::string final_name;
-
-                auto mat_id = shapes[i].mesh.material_ids[f];
-                if (m.find(mat_id) == m.end() || mat_id == -1) {
-                    new_name = true;
-                    if (mat_id >= 0) {
-                        final_name = fmt::format("{}:{}", name, materials[mat_id].name);
-                    } else {
-                        final_name = fmt::format("{}:part{}", name, count + 1);
-                    }
-                }
-                if (new_name) {
-                    count++;
-                    m[mat_id] = final_name;
-                    name_to_id[final_name] = name_to_id.size();
-                    id_to_name[name_to_id[final_name]] = final_name;
-                    fmt::print("generated {}\n", final_name);
-                }
-            }
-        }
-        for (size_t i = 0; i < name_to_id.size(); i++) {
-            mesh->_names.emplace_back(id_to_name[i]);
-        }
-
-        // Loop over shapes
-        for (size_t s = 0; s < shapes.size(); s++) {
-            // Loop over faces(polygon)
-            size_t index_offset = 0;
-            for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
-                MeshTriangle primitive;
-                auto mat_id = shapes[s].mesh.material_ids[f];
-                primitive.name_id = name_to_id.at(to_mangled_name.at(shapes[s].name).at(mat_id));
-                int fv = shapes[s].mesh.num_face_vertices[f];
-                Point3i vertex_indices;
-                // Loop over vertices in the face.
-                for (size_t v = 0; v < fv; v++) {
-                    // access to vertex
-                    tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-                    vertex_indices[v] = idx.vertex_index;
-                    if (idx.normal_index >= 0) {
-                        mesh->_vertex_data.normal[idx.vertex_index] = Vec3f(
-                                attrib.normals[3 * idx.normal_index + 0],
-                                attrib.normals[3 * idx.normal_index + 1],
-                                attrib.normals[3 * idx.normal_index + 2]
-                        );
-                    } else {
-                        // use the last normal (Ng)
-
-                        Vec3f e1 = mesh->_vertex_data.position[vertex_indices[2]] -
-                                   mesh->_vertex_data.position[vertex_indices[0]];
-                        Vec3f e2 = mesh->_vertex_data.position[vertex_indices[1]] -
-                                   mesh->_vertex_data.position[vertex_indices[0]];
-                        mesh->_vertex_data.normal[idx.vertex_index] = e1.cross(e2).normalized();
-                    }
-                    if (idx.texcoord_index >= 0) {
-                        mesh->_vertex_data.tex_coord[idx.vertex_index] =
-                                Point2f(attrib.texcoords[2 * idx.texcoord_index + 0],
-                                        attrib.texcoords[2 * idx.texcoord_index + 1]);
-                    } else {
-                        mesh->_vertex_data.tex_coord[idx.vertex_index] = Point2f(v > 0, v > 1);
-                    }
-                }
-                index_offset += fv;
-
-                // per-face material
-                shapes[s].mesh.material_ids[f];
-
-                primitive.mesh = this;
-                mesh->triangles.push_back(primitive);
-                mesh->_indices.push_back(vertex_indices);
-            }
-        }
-        log::log("loaded {} vertices, {} normals, {} primitives\n",
-                 mesh->_vertex_data.position.size(), mesh->_vertex_data.normal.size(),
-                 mesh->triangles.size());
-        _loaded = true;
-        return true;
     }
 
     void Mesh::writeToFile(const std::string &filename) {

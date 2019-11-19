@@ -31,6 +31,13 @@
 
 namespace miyuki {
     class Object;
+
+    class PropertyIterator {
+      public:
+        virtual void next(PropertyVisitor *visitor) = 0;
+        virtual bool hasNext() const = 0;
+        virtual ~PropertyIterator() = default;
+    };
     class PropertyVisitor;
     class Property : public std::enable_shared_from_this<Property> {
       public:
@@ -41,6 +48,7 @@ namespace miyuki {
         template <class T> class BasicProperty {
             const char *_name;
             std::reference_wrapper<T> ref;
+
           public:
             BasicProperty(const char *name, T &ref) : _name(name), ref(ref) {}
             const T &getConstRef() const { return ref; }
@@ -55,9 +63,7 @@ namespace miyuki {
     using Float3Property = detail::BasicProperty<Vec3f>;
     using Float2Property = detail::BasicProperty<Point2f>;
     using Int2Property = detail::BasicProperty<Point2i>;
-
     using ObjectProperty = detail::BasicProperty<std::shared_ptr<Object>>;
-    using VectorProperty = detail::BasicProperty<std::vector<std::shared_ptr<Object>>>;
     using FileProperty = detail::BasicProperty<fs::path>;
 
     class PropertyVisitor {
@@ -70,7 +76,15 @@ namespace miyuki {
         virtual void visit(FileProperty *) = 0;
         virtual void visit(Int2Property *) = 0;
         virtual void visit(Float2Property *) = 0;
-        virtual void visit(VectorProperty *) = 0;
+        virtual void visit(PropertyIterator *iter) {
+            iterPrologue(iter);
+            while (iter->hasNext()) {
+                iter->next(this);
+            }
+            iterEpilogue(iter);
+        }
+        virtual void iterPrologue(PropertyIterator *iter) {}
+        virtual void iterEpilogue(PropertyIterator *iter) {}
     };
 
     struct ReflPropertyVisitor {
@@ -104,16 +118,23 @@ namespace miyuki {
         template <class T>
         std::enable_if_t<std::is_base_of_v<Object, T>, void> visit(std::vector<std::shared_ptr<T>> &v,
                                                                    const char *name) {
-            std::vector<std::shared_ptr<Object>> vec;
-            for (auto &i : v) {
-                vec.emplace_back(i);
-            }
-            VectorProperty prop(vec, p);
-            prop.accept(visitor);
-            v.clear();
-            for (auto &i : vec) {
-                v.emplace_back(std::dynamic_pointer_cast<T>(i));
-            }
+            class Iter : public PropertyIterator {
+                std::vector<std::shared_ptr<T>> &vec;
+                std::vector<std::shared_ptr<T>>::iterator iter;
+
+              public:
+                Iter(std::vector<std::shared_ptr<T>> &vec) : vec(vec) { iter = vec.begin(); }
+                void next(PropertyVisitor *visitor) {
+                    std::shared_ptr<Object> p = *iter;
+                    ObjectProperty prop(name, p);
+                    prop.accept(visitor);
+                    *iter = std::dynamic_pointer_cast<T>(p);
+                }
+
+                bool hasNext() const { iter != vec.end(); }
+            };
+            Iter iter(v);
+            visitor->visit(&iter);
         }
 
         template <class T>

@@ -135,10 +135,10 @@ namespace miyuki::core {
 
     class MeshBase : public Object {};
 
-    class Mesh final : public MeshBase {
-        bool _loaded = false;
+    class Mesh final : public MeshBase {      
 
       public:
+        bool _loaded = false;
         std::vector<MeshTriangle> triangles;
         VertexData _vertex_data;
         std::vector<Point3i> _indices;
@@ -152,9 +152,6 @@ namespace miyuki::core {
         MYK_AUTO_SER(filename, materials)
 
         MYK_AUTO_INIT(filename, materials)
-
-        // TODO: set import directory
-        bool importFromFile(const std::string &filename);
 
         void toBinary(std::vector<char> &buffer) const;
 
