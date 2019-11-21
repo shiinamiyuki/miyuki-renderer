@@ -22,6 +22,7 @@
 
 #include <api/graph.h>
 #include <api/log.hpp>
+#include <api/mesh-importer.h>
 #include <api/property.hpp>
 #include <api/ui/ui.h>
 
@@ -227,9 +228,11 @@ namespace miyuki::ui {
         std::shared_ptr<core::SceneGraph> graph;
         std::weak_ptr<Object> selected;
         std::function<void(void)> modalFunc = []() {};
+        std::mutex _modalMutex;
         bool _modalOpen = false;
         bool _updated = false;
         template <class F> void showModal(const char *name, F &&f) {
+            std::lock_guard<std::mutex> guard(_modalMutex);
             _modalOpen = true;
             _updated = false;
             modalFunc = [=]() {
@@ -336,8 +339,15 @@ namespace miyuki::ui {
                         if (!filename.empty()) {
                             std::thread th([=]() {
                                 showModal("Importing", [=]() {
-
+                                   
                                 });
+                                try {
+                                    auto importer = std::dynamic_pointer_cast<core::MeshImporter>(
+                                        CreateObject("WavefrontImporter"));
+                                    auto result = importer->importMesh(filename);
+                                } catch (std::exception &e) {
+                                    log::log("Failed to import {} due to {}\n", filename, e.what());
+                                }
                                 closeModal();
                             });
                             th.detach();

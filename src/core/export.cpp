@@ -31,6 +31,7 @@
 #include "core/integrators/rtao.h"
 #include "core/samplers/random-sampler.h"
 #include "core/shaders/common-shader.h"
+#include "mesh-importers/wavefront-importer.h"
 #include "samplers/sobol-sampler.h"
 #include <api/graph.h>
 #include <api/material.h>
@@ -52,6 +53,7 @@ namespace miyuki::core {
         Register<RandomSampler>();
         Register<SobolSampler>();
         Register<EmbreeAccelerator>();
+        Register<WavefrontImporter>();
     }
 
     void Finalize() {}

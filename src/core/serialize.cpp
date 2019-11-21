@@ -22,8 +22,8 @@
 
 #include <api/serialize.hpp>
 
-#include <api/object.hpp>
 #include <api/log.hpp>
+#include <api/object.hpp>
 #include <nlohmann/json.hpp>
 #include <set>
 #include <string>
@@ -64,6 +64,10 @@ namespace miyuki {
         if (it != ObjectManager::instance()->types.end()) {
             auto ty = it->second;
             auto entity = ty->create();
+            if (!entity) {
+                log::log("failed to create entity with type {}\n", type);
+                return nullptr;
+            }
             return entity;
         }
         return {};
@@ -75,10 +79,6 @@ namespace miyuki {
             return GetObject(name);
         } else {
             auto entity = CreateObject(params.at("type").get<std::string>());
-            if (!entity) {
-                log::log("failed to create entity with type {}\n", params.at("type").get<std::string>());
-                return nullptr;
-            }
             if (params.contains("@ref")) {
                 BindObject(entity, params.at("@ref").get<std::string>());
             }

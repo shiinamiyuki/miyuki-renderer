@@ -1,17 +1,17 @@
 // MIT License
-// 
+//
 // Copyright (c) 2019 椎名深雪
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,14 +23,16 @@
 #ifndef MIYUKIRENDERER_MATERIAL_H
 #define MIYUKIRENDERER_MATERIAL_H
 
-#include <api/shader.h>
 #include <api/bsdf.h>
+#include <api/shader.h>
+#include <api/property.hpp>
 #include <api/serialize.hpp>
+
 
 namespace miyuki::core {
 
     class Material final : public Object {
-    public:
+      public:
         std::shared_ptr<Shader> emission;
         std::shared_ptr<BSDF> bsdf;
 
@@ -39,7 +41,9 @@ namespace miyuki::core {
         MYK_AUTO_INIT(emission, bsdf)
 
         MYK_AUTO_SER(emission, bsdf)
-    };
-}
 
-#endif //MIYUKIRENDERER_MATERIAL_H
+        MYK_PROP(emission, bsdf)
+    };
+} // namespace miyuki::core
+
+#endif // MIYUKIRENDERER_MATERIAL_H
