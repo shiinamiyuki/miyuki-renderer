@@ -38,7 +38,7 @@ out/
 build/
 generated.*
 cmake-*/
-include/
+./include/
 
 # Imported mesh files
 *.mesh

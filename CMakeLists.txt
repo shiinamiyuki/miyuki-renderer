@@ -86,7 +86,8 @@ target_link_libraries(mesh-importer core ${EMBREE_LIBRARY})
 target_link_libraries(myk-cli core ${EMBREE_LIBRARY})
 
 file(GLOB IMGUI_SRC external/imgui/*.cpp)
-
+add_compile_definitions(IMGUI_IMPL_OPENGL_LOADER_GL3W)
+include_directories(external/gl3w/include)
 add_library(imgui 	${IMGUI_SRC}
 	 external/imgui/examples/imgui_impl_opengl3.cpp
 	 external/imgui/examples/imgui_impl_glfw.cpp

@@ -19,12 +19,12 @@ namespace miyuki::core {
 
         MYK_PROP(fraction, bsdfA, bsdfB)
 
-        [[nodiscard]] virtual Type getBSDFType() const;
+        [[nodiscard]] virtual Type getBSDFType() const override;
 
-        [[nodiscard]] virtual Spectrum evaluate(const ShadingPoint &, const Vec3f &wo, const Vec3f &wi) const;
+        [[nodiscard]] virtual Spectrum evaluate(const ShadingPoint &, const Vec3f &wo, const Vec3f &wi) const override;
 
-        [[nodiscard]] virtual Float evaluatePdf(const ShadingPoint &, const Vec3f &wo, const Vec3f &wi) const;
+        [[nodiscard]] virtual Float evaluatePdf(const ShadingPoint &, const Vec3f &wo, const Vec3f &wi) const override;
 
-        virtual void sample(Point2f u, const ShadingPoint &, BSDFSample &sample) const;
+        virtual void sample(Point2f u, const ShadingPoint &, BSDFSample &sample) const override;
     };
 } // namespace miyuki::core
