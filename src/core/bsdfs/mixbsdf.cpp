@@ -6,7 +6,7 @@ namespace miyuki::core {
         return mix<Spectrum>(bsdfA->evaluate(sp, wo, wi), bsdfB->evaluate(sp, wo, wi), fraction->evaluate(sp));
     }
     Float MixBSDF::evaluatePdf(const ShadingPoint &sp, const Vec3f &wo, const Vec3f &wi) const {
-        return mix<Float>(bsdfA->evaluatePdf(sp, wo, wi), bsdfB->evaluatePdf(sp, wo, wi), fraction->evaluate(sp)[0]);
+        return mix<Float>(bsdfB->evaluatePdf(sp, wo, wi), bsdfA->evaluatePdf(sp, wo, wi), fraction->evaluate(sp)[0]);
     }
 
     void MixBSDF::sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const {
