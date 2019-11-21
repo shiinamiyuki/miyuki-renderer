@@ -28,10 +28,10 @@
 #include <xmmintrin.h>
 
 namespace miyuki {
-	using Float = float;
+    using Float = float;
 #include <linalg.hpp>
 
-    template <class T> T mix(const T &a, const T &b, const T &x) { return a * x + (T(1) - x) * b; }
+    template <class T> T mix(const T &a, const T &b, const T &x) { return a * (T(1) - x) + x * b; }
 } // namespace miyuki
 
 namespace cereal {

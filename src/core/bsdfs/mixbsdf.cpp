@@ -27,8 +27,8 @@ namespace miyuki::core {
 
         // evaluate whole bsdf if not sampled specular
         if ((sample.sampledType & BSDF::ESpecular) == 0) {
-            sample.f = mix<Spectrum>(sample.f, second->evaluate(sp, sample.wo, sample.wi), frac);
-            sample.pdf = mix<Float>(sample.pdf, second->evaluatePdf(sp, sample.wo, sample.wi), frac);
+            sample.f = mix<Spectrum>(second->evaluate(sp, sample.wo, sample.wi), sample.f, frac);
+            sample.pdf = mix<Float>(second->evaluatePdf(sp, sample.wo, sample.wi), sample.pdf, frac);
         }
     }
 
