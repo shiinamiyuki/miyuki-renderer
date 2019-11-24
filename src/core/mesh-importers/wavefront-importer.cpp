@@ -144,7 +144,7 @@ namespace miyuki::core {
                 index_offset += fv;
 
                 // per-face material
-                shapes[s].mesh.material_ids[f];
+                // shapes[s].mesh.material_ids[f];
 
                 primitive.mesh = mesh.get();
                 mesh->triangles.push_back(primitive);

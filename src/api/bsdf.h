@@ -65,9 +65,5 @@ namespace miyuki::core {
         BSDF::Type sampledType = BSDF::ENone;
     };
 
-
-    inline Vec3f Reflect(const Vec3f &v, const Normal3f &n) {
-        return v - 2.0f * v.dot(n) * n;
-    }
 }
 #endif //MIYUKIRENDERER_BSDF_H

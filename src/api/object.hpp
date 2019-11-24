@@ -60,6 +60,8 @@ namespace miyuki {
 
 		virtual std::string toString() const;
 
+		virtual ~Object() = default;
+
 		// get a ObjectProperty from name
 		//virtual std::shared_ptr<Object> getProperty(const char *name);
 

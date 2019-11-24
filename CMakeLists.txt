@@ -42,6 +42,7 @@ include_directories(external/cxxopts/include)
 include_directories(external/gl3w/include)
 include_directories(external/glfw/include)
 include_directories(external/imgui/)
+include_directories(external/glm)
 
 file(GLOB MiyukiAPI src/api/*.h src/api/*.hpp src/api/detail/*.hpp src/api/detail/*.h)
 file(GLOB libcoreSource src/core/*.cpp
