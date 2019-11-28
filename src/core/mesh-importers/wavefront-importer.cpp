@@ -1,3 +1,24 @@
+// MIT License
+// 
+// Copyright (c) 2019 椎名深雪
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 #include "wavefront-importer.h"
 #include <api/graph.h>
 #include <api/log.hpp>
@@ -5,6 +26,10 @@
 #include <fstream>
 #include <optional>
 #include <tiny_obj_loader.h>
+
+#include <core/bsdfs/diffusebsdf.h>
+#include <core/bsdfs/microfacet.h>
+#include <core/bsdfs/mixbsdf.h>
 
 namespace miyuki::core {
     void split(const std::string &src, const char delim, std::vector<std::string> &result) {
@@ -28,7 +53,9 @@ namespace miyuki::core {
 
     std::shared_ptr<Material> convertFromMTL(const tinyobj::material_t &mat) {
         auto material = std::make_shared<Material>();
-        std::shared_ptr<BSDF> ks, kd;
+        auto kd = Vec3f(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
+        auto ks = Vec3f(mat.specular[0], mat.specular[1], mat.specular[2]);
+        auto emission = Vec3f(mat.emission[0], mat.emission[1], mat.emission[2]);
 		
         return material;
     }
