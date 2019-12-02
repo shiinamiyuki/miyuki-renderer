@@ -20,21 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <api/ui/ui.h>
-#include <core/export.h>
-#include <iostream>
-#include <stdexcept>
-#include <variant>
 
-int main() {
-    using namespace miyuki;
-     try {
-         core::Initialize();
-         auto window = ui::MakeMainWindow(1280, 720, "miyuki.studio");
-         window->show();
-     } catch (std::runtime_error &e) {
-         std::cerr << e.what() << std::endl;
-     }
-     core::Finalize();
-    return 0;
+int main(){
 }

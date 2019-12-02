@@ -24,20 +24,25 @@ LICENSE = r'''// MIT License
 // SOFTWARE.
 '''
 
-SRC_DIR = r'../src'
 
-for parent, dirs, files in os.walk(SRC_DIR):
-	for file in files:
-		if file in {"sobolmat.hpp"}:
-			continue
-		out = ''
-		path = os.path.join(parent, file)
-		with open(path, 'r',encoding='utf-8') as f:
-			s = f.read()
-			if not s.startswith('// MIT License'):
-				out = LICENSE + s
-				print('add license to ' + path)
-			else:
-				out = s
-		with open(path, 'w',encoding='utf-8') as f:
-			f.write(out)
+
+def f(SRC_DIR):
+    for parent, dirs, files in os.walk(SRC_DIR):
+	    for file in files:
+		    if file in {"sobolmat.hpp"}:
+			    continue
+		    out = ''
+		    path = os.path.join(parent, file)
+		    with open(path, 'r',encoding='utf-8') as f:
+			    s = f.read()
+			    if not s.startswith('// MIT License'):
+				    out = LICENSE + s
+				    print('add license to ' + path)
+			    else:
+				    out = s
+		    with open(path, 'w',encoding='utf-8') as f:
+			    f.write(out)
+
+f(r'../src')
+f(r'../miyuki.foundation/include')
+f(r'../miyuki.foundation/src')
