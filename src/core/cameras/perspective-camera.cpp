@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #include "perspective-camera.h"
+#include <glm/gtx/transform.hpp>
 
 namespace miyuki::core {
     void PerspectiveCamera::initialize(const json &params) {
@@ -33,11 +34,12 @@ namespace miyuki::core {
             auto translate = params.at("translate").get<Vec3f>();
             auto rotation = DegreesToRadians(params.at("rotate").get<Vec3f>());
             mat4 m =identity<mat4>();
-            m = rotate(m, rotation.z,Vec3f(0, 0, 1));
-            m = rotate(m, rotation.y,Vec3f(1, 0, 0));
-            m = rotate(m, rotation.x,Vec3f(0, 1, 0));
-            m = glm::translate(m,translate);
+            m = rotate(rotation.z,Vec3f(0, 0, 1)) * m;
+            m = rotate(rotation.y,Vec3f(1, 0, 0)) * m;
+            m = rotate(rotation.x,Vec3f(0, 1, 0)) * m;
+            m = glm::translate(translate) * m;
             transform = Transform(m);
+
         } else {
             MIYUKI_THROW(std::runtime_error, "Unknown input format to PerspectiveCamera");
         }

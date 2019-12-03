@@ -21,13 +21,13 @@
 // SOFTWARE.
 
 
-#include <core/export.h>
+#include "../core/export.h"
 #include <stdexcept>
 #include <iostream>
 #include <cxxopts.hpp>
-#include <api/defs.h>
+#include <miyuki.foundation/defs.h>
 #include <fstream>
-#include <api/graph.h>
+#include <miyuki.renderer/graph.h>
 
 
 int main(int argc, char **argv) {
