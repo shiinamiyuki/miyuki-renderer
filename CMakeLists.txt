@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(external/miyuki.foundation)
 
-file(GLOB SHADER_SRC shaders/*.*)
+file(GLOB SHADER_SRC src/shaders/*.*)
 
 
 set(GENERATED_SHADER_SOURCE "generated/shadersources.cpp")

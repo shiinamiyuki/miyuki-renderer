@@ -1,4 +1,6 @@
-float AbsCosTheta(vec3 w) { return abs(w.y); }
+float AbsCosTheta(vec3 w) { 
+	return abs(w.y);
+}
 float CosTheta(vec3 w) { return w.y; }
 float Cos2Theta(vec3 w) { 
 	return w.y * w.y; 

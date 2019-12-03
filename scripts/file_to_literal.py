@@ -3,7 +3,7 @@ import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 os.chdir(dir_path)
 
-SRC_DIR = r"../shaders"
+SRC_DIR = r"../src/shaders"
 OUT1= r"../generated/shadersources.cpp"
 
 out = '#include <string>\n'
