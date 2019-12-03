@@ -23,8 +23,8 @@
 #ifndef MIYUKIRENDERER_COMMON_SHADER_H
 #define MIYUKIRENDERER_COMMON_SHADER_H
 
-#include <api/shader.h>
-#include <api/serialize.hpp>
+#include <miyuki.renderer/shader.h>
+#include <miyuki.foundation/serialize.hpp>
 
 namespace miyuki::core {
     class FloatShader final : public Shader {
@@ -42,7 +42,7 @@ namespace miyuki::core {
     };
 
     class RGBShader final : public Shader {
-        Vec3f value = 1.0f;
+        Vec3f value = vec3(1.0f);
     public:
         MYK_AUTO_SER(value)
 

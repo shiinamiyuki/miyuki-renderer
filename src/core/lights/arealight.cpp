@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 #include "arealight.h"
-#include <api/mesh.h>
+#include <miyuki.renderer/mesh.h>
 
 namespace miyuki::core {
     void AreaLight::setTriangle(MeshTriangle *shape) {
@@ -42,8 +42,8 @@ namespace miyuki::core {
         sp.Ns = triangle->normalAt(surfaceSample.uv);
         sp.texCoord = triangle->texCoordAt(surfaceSample.uv);
         sample.Li = Li(sp);
-        sample.wi = wi.normalized();
-        sample.pdf = wi.lengthSquared() / sample.wi.absDot(surfaceSample.normal) * surfaceSample.pdf;
+        sample.wi = normalize(wi);
+        sample.pdf = dot(wi, wi) / abs(dot(sample.wi, surfaceSample.normal)) * surfaceSample.pdf;
     }
 
     Float AreaLight::pdfLi(const Intersection &intersection, const Vec3f &wi) const {
@@ -52,7 +52,7 @@ namespace miyuki::core {
         if (!triangle->intersect(ray, _isct)) {
             return 0.0f;
         }
-        Float SA = triangle->area() * wi.absDot(_isct.Ng) / (_isct.distance * _isct.distance);
+        Float SA = triangle->area() * abs(dot(wi,_isct.Ng)) / (_isct.distance * _isct.distance);
         return 1.0f / SA;
     }
 

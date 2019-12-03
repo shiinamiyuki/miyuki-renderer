@@ -21,8 +21,8 @@
 // SOFTWARE.
 
 #include "diffusebsdf.h"
-#include <api/shader.h>
-#include <api/sampling.h>
+#include <miyuki.renderer/shader.h>
+#include <miyuki.renderer/sampling.h>
 
 namespace miyuki::core {
     Spectrum DiffuseBSDF::evaluate(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {

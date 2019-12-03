@@ -19,27 +19,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+#pragma once
 
-#ifndef MIYUKIRENDERER_PARALLEL_H
-#define MIYUKIRENDERER_PARALLEL_H
+#include <miyuki.foundation/math.hpp>
+#include <miyuki.foundation/object.hpp>
 
-#include <functional>
-#include <thread>
-
-namespace miyuki {
-    using WorkFunc = std::function<void(int64_t index, size_t threadIdx)>;
-
-    size_t GetCoreNumber();
-
-    void SetCoreNumber(size_t N);
-
-    void ParallelFor(int64_t begin, int64_t end, WorkFunc, size_t workSize = 1);
-
-    template<class F1, class F2>
-    void ParallelDo(F1 &&f1, F2 &&f2) {
-        std::thread thread(f2);
-        f1();
-        f2.join();
-    }
-}
-#endif //MIYUKIRENDERER_PARALLEL_H
+namespace miyuki::core {
+    class Frensel : public Object {
+      public:
+        virtual Float evaluate(const Float cosTheta) const = 0;
+    };
+} // namespace miyuki::core

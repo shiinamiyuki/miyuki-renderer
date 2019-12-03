@@ -23,10 +23,10 @@
 #ifndef MIYUKIRENDERER_MESH_H
 #define MIYUKIRENDERER_MESH_H
 
-#include <api/accelerator.h>
-#include <api/material.h>
-#include <api/serialize.hpp>
-#include <api/shape.h>
+#include <miyuki.renderer/accelerator.h>
+#include <miyuki.renderer/material.h>
+#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.renderer/shape.h>
 #include <cereal/types/unordered_map.hpp>
 
 namespace miyuki::core {
@@ -59,25 +59,25 @@ namespace miyuki::core {
         [[nodiscard]] const Vec3f Ng() const {
             Vec3f e1 = (vertex(1) - vertex(0));
             Vec3f e2 = (vertex(2) - vertex(0));
-            return e1.cross(e2).normalized();
+            return normalize(cross(e1, e2));
         }
 
         bool intersect(const Ray &ray, Intersection &isct) const {
             float u, v;
             Vec3f e1 = (vertex(1) - vertex(0));
             Vec3f e2 = (vertex(2) - vertex(0));
-            auto Ng = e1.cross(e2).normalized();
-            float denom = (ray.d.dot(Ng));
-            float t = -(ray.o - vertex(0)).dot(Ng) / denom;
+            auto Ng = normalize(cross(e1, e2));
+            float denom = dot(ray.d, Ng);
+            float t = -dot(ray.o - vertex(0), Ng) / denom;
             if (denom == 0)
                 return false;
             if (t < ray.tMin)
                 return false;
             Vec3f p = ray.o + t * ray.d;
-            double det = e1.cross(e2).length();
-            auto u0 = e1.cross(p - vertex(0));
-            auto v0 = Vec3f(p - vertex(0)).cross(e2);
-            if (u0.dot(Ng) < 0 || v0.dot(Ng) < 0)
+            double det = length(cross(e1, e2));
+            auto u0 = cross(e1, p - vertex(0));
+            auto v0 = cross(Vec3f(p - vertex(0)), e2);
+            if (dot(u0, Ng) < 0 || dot(v0, Ng) < 0)
                 return false;
             v = u0.length() / det;
             u = v0.length() / det;
@@ -109,12 +109,10 @@ namespace miyuki::core {
             sample.uv = uv;
             sample.pdf = 1 / area();
             sample.p = (1 - uv.x - uv.y) * vertex(0) + uv.x * vertex(1) + uv.y * vertex(1);
-            Vec3f e1 = (vertex(1) - vertex(0));
-            Vec3f e2 = (vertex(2) - vertex(0));
-            sample.normal = e1.cross(e2).normalized();
+            sample.normal = Ng();
         }
 
-        [[nodiscard]] Float area() const { return Vec3f(vertex(1) - vertex(0)).cross(vertex(2) - vertex(0)).length(); }
+        [[nodiscard]] Float area() const { return length(cross(Vec3f(vertex(1) - vertex(0)),(vertex(2) - vertex(0)))); }
 
         [[nodiscard]] BSDF *getBSDF() const { return nullptr; }
 
@@ -125,7 +123,7 @@ namespace miyuki::core {
         }
 
         [[nodiscard]] Normal3f normalAt(const Point2f &uv) const {
-            return lerp3(normal(0), normal(1), normal(2), uv[0], uv[1]).normalized();
+            return normalize(lerp3(normal(0), normal(1), normal(2), uv[0], uv[1]));
         }
 
         [[nodiscard]] Point2f texCoordAt(const Point2f &uv) const {
@@ -133,11 +131,12 @@ namespace miyuki::core {
         }
     };
 
-    class MeshBase : public Object {};
+    class MeshBase : public Object {
+    };
 
-    class Mesh final : public MeshBase {      
+    class Mesh final : public MeshBase {
 
-      public:
+    public:
         bool _loaded = false;
         std::vector<MeshTriangle> triangles;
         VertexData _vertex_data;
@@ -157,7 +156,7 @@ namespace miyuki::core {
 
         void fromBinary(const std::vector<char> &buffer);
 
-        void foreach (const std::function<void(MeshTriangle *)> &func);
+        void foreach(const std::function<void(MeshTriangle *)> &func);
 
         bool loadFromFile(const std::string &filename);
 
@@ -168,7 +167,7 @@ namespace miyuki::core {
     };
 
     class MeshInstance final : public MeshBase {
-      public:
+    public:
         MYK_DECL_CLASS(MeshInstance, "MeshInstance", interface = "MeshBase")
 
         Transform transform, invTransform;
@@ -176,9 +175,9 @@ namespace miyuki::core {
 
         MYK_AUTO_SER(transform, mesh)
 
-        void foreach (const std::function<void(MeshTriangle *)> &func) { mesh->foreach (func); }
+        void foreach(const std::function<void(MeshTriangle *)> &func) { mesh->foreach(func); }
 
-      protected:
+    protected:
         void preprocess() override { invTransform = transform.inverse(); }
     };
 

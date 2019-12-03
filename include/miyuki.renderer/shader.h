@@ -19,19 +19,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#pragma once
-#include <api/defs.h>
-#include <api/material.h>
-#include <api/object.hpp>
-namespace miyuki ::core {
-    class Mesh;
 
-    struct MeshImportResult {
-        std::vector<Material> materials;
-        std::shared_ptr<Mesh> mesh;
+#ifndef MIYUKIRENDERER_SHADER_H
+#define MIYUKIRENDERER_SHADER_H
+
+#include <miyuki.foundation/object.hpp>
+#include <miyuki.renderer/spectrum.h>
+
+namespace miyuki::core {
+    struct ShadingPoint {
+        Point2f texCoord;
+        Normal3f Ns;
+        Normal3f Ng;
     };
-    class MeshImporter : public Object {
-      public:
-        virtual MeshImportResult importMesh(const fs::path &) = 0;
+
+    class Shader : public Object {
+    public:
+        virtual Spectrum evaluate(const ShadingPoint &) const = 0;
     };
-} // namespace miyuki::core
+
+}
+#endif //MIYUKIRENDERER_SHADER_H

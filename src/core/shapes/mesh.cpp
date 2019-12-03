@@ -19,9 +19,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#include <api/mesh.h>
-#include <tiny_obj_loader.h>
-#include <api/log.hpp>
+#include <miyuki.renderer/mesh.h>
+#include <miyuki.foundation/log.hpp>
 #include <fstream>
 
 

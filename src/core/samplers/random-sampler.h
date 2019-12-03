@@ -23,9 +23,9 @@
 #ifndef MIYUKIRENDERER_RANDOM_SAMPLER_H
 #define MIYUKIRENDERER_RANDOM_SAMPLER_H
 
-#include <api/rng.h>
-#include <api/sampler.h>
-#include <api/serialize.hpp>
+#include <miyuki.foundation/rng.h>
+#include <miyuki.renderer/sampler.h>
+#include <miyuki.foundation/serialize.hpp>
 
 namespace miyuki::core {
     class RandomSampler final : public Sampler {

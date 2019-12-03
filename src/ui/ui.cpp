@@ -1,4 +1,4 @@
-// MIT License
+﻿// MIT License
 //
 // Copyright (c) 2019 椎名深雪
 //
@@ -20,21 +20,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <api/graph.h>
-#include <api/log.hpp>
-#include <api/mesh-importer.h>
-#include <api/property.hpp>
-#include <api/ui/ui.h>
+#include <miyuki.renderer/graph.h>
+#include <miyuki.foundation/log.hpp>
+#include <miyuki.renderer/mesh-importer.h>
+#include <miyuki.foundation/property.hpp>
+#include <miyuki.renderer/ui/ui.h>
 
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
-#include <api/defs.h>
+#include <miyuki.foundation/defs.h>
 #include <fstream>
 #include <imgui.h>
 #include <mutex>
+#include <thread>
 
 #include <examples/imgui_impl_glfw.h>
 #include <examples/imgui_impl_opengl3.h>

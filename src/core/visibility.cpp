@@ -20,8 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <api/light.h>
-#include <api/scene.h>
+#include <miyuki.renderer/light.h>
+#include <miyuki.renderer/scene.h>
 
 namespace miyuki::core{
     bool VisibilityTester::visible(miyuki::core::Scene &scene) {

@@ -20,36 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_STATICOBJECT_HPP
-#define MIYUKIRENDERER_STATICOBJECT_HPP
+#ifndef MIYUKIRENDERER_SAMPLER_H
+#define MIYUKIRENDERER_SAMPLER_H
 
-namespace miyuki {
-    namespace detail {
-        template<class T>
-        class StaticObject {
-        private:
+#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/math.hpp>
 
-            static T &create() {
-                static T t;
-                //! Forces instantiation at pre-execution time
-                instantiate(instance);
-                return t;
-            }
-            static void instantiate(T const & instance){}\
-            StaticObject(StaticObject const & /*other*/ ) {}
+namespace miyuki::core {
+    class Sampler : public Object {
+    public:
+        virtual void startPixel(const Point2i &, const Point2i &filmDimension) = 0;
 
-        public:
-            static T &getInstance() {
-                return create();
-            }
+        virtual Float next1D() = 0;
 
+        virtual Point2f next2D() {
+            return Point2f(next1D(), next1D());
+        }
 
-        private:
-            static T &instance;
-        };
+        virtual void startNextSample() = 0;
 
-        template<class T> T &StaticObject<T>::instance = StaticObject<T>::create();
-    }
+        [[nodiscard]] virtual std::shared_ptr<Sampler> clone() const = 0;
+    };
 }
 
-#endif //MIYUKIRENDERER_STATICOBJECT_HPP
+#endif //MIYUKIRENDERER_SAMPLER_H

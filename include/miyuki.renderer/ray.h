@@ -23,8 +23,8 @@
 #ifndef MIYUKIRENDERER_RAY_H
 #define MIYUKIRENDERER_RAY_H
 
-#include <api/defs.h>
-#include <api/math.hpp>
+#include <miyuki.foundation/defs.h>
+#include <miyuki.foundation/math.hpp>
 
 namespace miyuki::core {
     struct Ray {
@@ -72,12 +72,12 @@ namespace miyuki::core {
         }
 
         // w should be normalized
-        Ray spawnRay(const Vec3f &w) const {
-            auto t = RayBias / w.absDot(Ng);
+        [[nodiscard]] Ray spawnRay(const Vec3f &w) const {
+            auto t = RayBias / abs(dot(w, Ng));
             return Ray(p, w, t, MaxFloat);
         }
 
-        Ray spawnTo(const Point3f &p) const {
+        [[nodiscard]] Ray spawnTo(const Point3f &p) const {
             return Ray(this->p, (p - this->p), RayBias, 1);
         }
     };

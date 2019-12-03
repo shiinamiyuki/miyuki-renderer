@@ -21,9 +21,9 @@
 // SOFTWARE.
 
 #include "embree-backend.h"
-#include <api/log.hpp>
-#include <api/ray.h>
-#include <api/scene.h>
+#include <miyuki.foundation/log.hpp>
+#include <miyuki.renderer/ray.h>
+#include <miyuki.renderer/scene.h>
 #include <embree3/rtcore.h>
 
 #ifdef MYK_USE_EMBREE

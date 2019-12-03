@@ -1,30 +1,14 @@
-[submodule "external/linalg"]
-	path = external/linalg
-	url = https://github.com/shiinamiyuki/linalg
-[submodule "external/json"]
-	path = external/json
-	url = https://github.com/nlohmann/json
-[submodule "external/stb"]
-	path = external/stb
-	url = https://github.com/nothings/stb
 [submodule "external/tinyobjloader"]
 	path = external/tinyobjloader
 	url = https://github.com/syoyo/tinyobjloader
 [submodule "external/pybind11"]
 	path = external/pybind11
 	url = https://github.com/pybind/pybind11
-[submodule "external/cereal"]
-	path = external/cereal
-	url = https://github.com/USCiLab/cereal
-[submodule "external/fmt"]
-	path = external/fmt
-	url = https://github.com/fmtlib/fmt
-[submodule "external/lodepng"]
-	path = external/lodepng
-	url = https://github.com/lvandeve/lodepng
+
 [submodule "external/cxxopts"]
 	path = external/cxxopts
 	url = https://github.com/jarro2783/cxxopts
-[submodule "external/glfw"]
-	path = external/glfw
-	url = https://github.com/glfw/glfw
+
+[submodule "external/miyuki.foundation"]
+	path = external/miyuki.foundation
+	url = https://github.com/shiinamiyuki/miyuki.foundation

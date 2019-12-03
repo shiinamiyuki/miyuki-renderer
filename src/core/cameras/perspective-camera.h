@@ -23,26 +23,27 @@
 #ifndef MIYUKIRENDERER_PERSPECTIVE_CAMERA_H
 #define MIYUKIRENDERER_PERSPECTIVE_CAMERA_H
 
-#include <api/camera.h>
-#include <api/property.hpp>
-#include <api/serialize.hpp>
+#include <miyuki.renderer/camera.h>
+#include <miyuki.foundation/property.hpp>
+#include <miyuki.foundation/serialize.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace miyuki::core {
     class PerspectiveCamera final : public Camera {
         Transform transform, invTransform;
         float fov;
 
-      public:
+    public:
         PerspectiveCamera() = default;
 
         PerspectiveCamera(const Vec3f &p1, const Vec3f &p2, Float fov) : fov(fov) {
-            transform = Transform(Matrix4::lookAt(p1, p2));
+            transform = Transform(lookAt(p1, p2, vec3(0, 1, 0)));
             invTransform = transform.inverse();
         }
 
         const Transform &getTransform() const override { return transform; }
 
-      public:
+    public:
         MYK_DECL_CLASS(PerspectiveCamera, "PerspectiveCamera", interface = "Camera")
 
         MYK_AUTO_SER(transform, fov)

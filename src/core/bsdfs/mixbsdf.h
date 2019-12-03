@@ -21,10 +21,10 @@
 // SOFTWARE.
 #pragma once
 
-#include <api/bsdf.h>
-#include <api/property.hpp>
-#include <api/serialize.hpp>
-#include <api/shader.h>
+#include <miyuki.renderer/bsdf.h>
+#include <miyuki.foundation/property.hpp>
+#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.renderer/shader.h>
 
 namespace miyuki::core {
     class MixBSDF final : public BSDF {

@@ -23,9 +23,9 @@
 #ifndef MIYUKIRENDERER_AREALIGHT_H
 #define MIYUKIRENDERER_AREALIGHT_H
 
-#include <api/light.h>
-#include <api/shader.h>
-#include <api/serialize.hpp>
+#include <miyuki.renderer/light.h>
+#include <miyuki.renderer/shader.h>
+#include <miyuki.foundation/serialize.hpp>
 
 namespace miyuki::core {
     class AreaLight final: public Light {

@@ -21,9 +21,9 @@
 // SOFTWARE.
 
 #include "sahbvh.h"
-#include <api/log.hpp>
-#include <api/mesh.h>
-#include <api/scene.h>
+#include <miyuki.foundation/log.hpp>
+#include <miyuki.renderer/mesh.h>
+#include <miyuki.renderer/scene.h>
 #include <vector>
 
 namespace miyuki::core {
@@ -47,8 +47,8 @@ namespace miyuki::core {
             Vec3f t0 = (box.pMin - ray.o) * invd;
             Vec3f t1 = (box.pMax - ray.o) * invd;
             Vec3f tMin = min(t0, t1), tMax = max(t0, t1);
-            if (tMin.max() <= tMax.min()) {
-                auto t = std::max(ray.tMin + RayBias, tMin.max());
+            if (maxComp(tMin) <= minComp(tMax)) {
+                auto t = std::max(ray.tMin + RayBias, maxComp(tMin));
                 if (t >= ray.tMax + RayBias) {
                     return -1;
                 }
@@ -73,7 +73,7 @@ namespace miyuki::core {
             for (auto i = begin; i < end; i++) {
                 box = box.unionOf(primitive[i].getBoundingBox());
                 centroidBound = centroidBound.unionOf(
-                    primitive[i].getBoundingBox().centroid());
+                        primitive[i].getBoundingBox().centroid());
             }
 
             if (end - begin <= 4 || depth >= 20) {
@@ -108,18 +108,18 @@ namespace miyuki::core {
                     Bounds3f bound;
 
                     Bucket()
-                        : bound({{MaxFloat, MaxFloat, MaxFloat},
-                                 {MinFloat, MinFloat, MinFloat}}) {}
+                            : bound({{MaxFloat, MaxFloat, MaxFloat},
+                                     {MinFloat, MinFloat, MinFloat}}) {}
                 };
                 Bucket buckets[nBuckets];
                 for (int i = begin; i < end; i++) {
                     auto offset = centroidBound.offset(
-                        primitive[i].getBoundingBox().centroid())[axis];
+                            primitive[i].getBoundingBox().centroid())[axis];
                     int b = std::min<int>(nBuckets - 1,
                                           std::floor(offset * nBuckets));
                     buckets[b].count++;
                     buckets[b].bound =
-                        buckets[b].bound.unionOf(primitive[i].getBoundingBox());
+                            buckets[b].bound.unionOf(primitive[i].getBoundingBox());
                 }
                 Float cost[nBuckets - 1] = {0};
                 for (int i = 0; i < nBuckets - 1; i++) {
@@ -135,7 +135,7 @@ namespace miyuki::core {
                     }
                     cost[i] = 0.125 + (count0 * b0.surfaceArea() +
                                        count1 * b1.surfaceArea()) /
-                                          box.surfaceArea();
+                                      box.surfaceArea();
                 }
                 int splitBuckets = 0;
                 Float minCost = cost[0];
@@ -146,16 +146,16 @@ namespace miyuki::core {
                     }
                 }
                 auto mid = std::partition(
-                    &primitive[begin], &primitive[end - 1] + 1,
-                    [&](MeshTriangle &p) {
-                        int b = centroidBound.offset(
+                        &primitive[begin], &primitive[end - 1] + 1,
+                        [&](MeshTriangle &p) {
+                            int b = centroidBound.offset(
                                     p.getBoundingBox().centroid())[axis] *
-                                nBuckets;
-                        if (b == nBuckets) {
-                            b = nBuckets - 1;
-                        }
-                        return b <= splitBuckets;
-                    });
+                                    nBuckets;
+                            if (b == nBuckets) {
+                                b = nBuckets - 1;
+                            }
+                            return b <= splitBuckets;
+                        });
                 auto ret = nodes.size();
                 nodes.emplace_back();
 
@@ -164,15 +164,15 @@ namespace miyuki::core {
                 node.count = -1;
                 nodes.push_back(node);
                 nodes[ret].left =
-                    recursiveBuild(begin, mid - &primitive[0], depth + 1);
+                        recursiveBuild(begin, mid - &primitive[0], depth + 1);
                 nodes[ret].right =
-                    recursiveBuild(mid - &primitive[0], end, depth + 1);
+                        recursiveBuild(mid - &primitive[0], end, depth + 1);
 
                 return ret;
             }
         }
 
-      public:
+    public:
         void build(const std::vector<MeshTriangle> &primitives) {
             nodes.clear();
             primitive = primitives;
@@ -229,7 +229,7 @@ namespace miyuki::core {
         }
         if (hit) {
             isct.p = isct.distance * ray.d + ray.o;
-		}
+        }
         return hit;
     }
 

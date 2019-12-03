@@ -23,9 +23,10 @@
 #ifndef MIYUKIRENDERER_EMBREE_BACKEND_H
 #define MIYUKIRENDERER_EMBREE_BACKEND_H
 
-#include <api/accelerator.h>
-#include <api/serialize.hpp>
-#include <api/noncopyable.hpp>
+#include <miyuki.renderer/accelerator.h>
+#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/noncopyable.hpp>
+#include <miyuki.renderer/ray.h>
 
 namespace miyuki::core {
     class EmbreeAccelerator final : public Accelerator, private NonCopyable{

@@ -20,31 +20,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <api/film.h>
+#ifndef MIYUKIRENDERER_SPECTRUM_H
+#define MIYUKIRENDERER_SPECTRUM_H
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-
-#include <stb_image.h>
-#include <stb_image_write.h>
-#include <lodepng.h>
-#include <api/log.hpp>
+#include <miyuki.foundation/defs.h>
+#include <miyuki.foundation/math.hpp>
 
 namespace miyuki::core {
-    void Film::writeImage(const std::string &filename) {
-        std::vector<unsigned char> pixelBuffer;
-        for (const auto &i : pixels) {
-            auto out = i.eval();
-            pixelBuffer.emplace_back(toInt(out[0]));
-            pixelBuffer.emplace_back(toInt(out[1]));
-            pixelBuffer.emplace_back(toInt(out[2]));
-            pixelBuffer.emplace_back(255);
+
+        using Spectrum = Vec3f;
+
+        inline bool IsBlack(const Spectrum &s) {
+            return s.x <= 0 || s.y <= 0 || s.z <= 0;
         }
-        auto error = lodepng::encode(filename, pixelBuffer, (uint32_t) width, (uint32_t) height);
-        if (error) {
-            log::log("error saving {}: {}\n", filename, lodepng_error_text(error));
-        } else {
-            log::log("saved to {}\n", filename);
-        }
-    }
+
 }
+#endif //MIYUKIRENDERER_SPECTRUM_H

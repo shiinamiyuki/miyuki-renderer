@@ -25,18 +25,18 @@
 #include "export.h"
 #include "accelerators/embree-backend.h"
 #include "accelerators/sahbvh.h"
-#include "core/bsdfs/diffusebsdf.h"
+#include "bsdfs/diffusebsdf.h"
 #include "bsdfs/microfacet.h"
 #include "bsdfs/mixbsdf.h"
-#include "core/cameras/perspective-camera.h"
-#include "core/integrators/rtao.h"
-#include "core/samplers/random-sampler.h"
-#include "core/shaders/common-shader.h"
+#include "cameras/perspective-camera.h"
+#include "integrators/rtao.h"
+#include "samplers/random-sampler.h"
+#include "shaders/common-shader.h"
 #include "mesh-importers/wavefront-importer.h"
 #include "samplers/sobol-sampler.h"
-#include <api/graph.h>
-#include <api/material.h>
-#include <api/mesh.h>
+#include <miyuki.renderer/graph.h>
+#include <miyuki.renderer/material.h>
+#include <miyuki.renderer/mesh.h>
 
 namespace miyuki::core {
     void Initialize() {

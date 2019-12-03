@@ -23,9 +23,9 @@
 #ifndef MIYUKIRENDERER_RTAO_H
 #define MIYUKIRENDERER_RTAO_H
 
-#include <api/integrator.h>
-#include <api/property.hpp>
-#include <api/serialize.hpp>
+#include <miyuki.renderer/integrator.h>
+#include <miyuki.foundation/property.hpp>
+#include <miyuki.foundation/serialize.hpp>
 
 namespace miyuki::core {
     class RTAO final : public Integrator {

@@ -1,17 +1,17 @@
 // MIT License
-// 
+//
 // Copyright (c) 2019 椎名深雪
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,34 +19,28 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+#pragma once
+#include <miyuki.foundation/math.hpp>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
 
-#ifndef MIYUKIRENDERER_SAMPLING_H
-#define MIYUKIRENDERER_SAMPLING_H
+namespace miyuki::ui {
+    std::string GetOpenFileNameWithDialog(const char *filter);
+    std::string GetSaveFileNameWithDialog(const char *filter);
+    class AbstractMainWindow {
+        class Impl;
+        Impl *impl = nullptr;
 
-#include <api/math.hpp>
+      public:
+        AbstractMainWindow(int width, int height, const std::string &title);
+        void show();
+        virtual void update() = 0;
+        virtual ~AbstractMainWindow();
+    };
 
-namespace miyuki::core {
-    inline Point2f ConcentricSampleDisk(const Point2f &u) {
-        Point2f uOffset = 2.f * u - Point2f(1, 1);
-        if (uOffset.x == 0 && uOffset.y == 0)
-            return Point2f(0, 0);
+    std::shared_ptr<AbstractMainWindow> MakeMainWindow(int width, int height, const std::string &title);
 
-        Float theta, r;
-        if (std::abs(uOffset.x) > std::abs(uOffset.y)) {
-            r = uOffset.x;
-            theta = Pi4 * (uOffset.y / uOffset.x);
-        } else {
-            r = uOffset.y;
-            theta = Pi2 - Pi4 * (uOffset.x / uOffset.y);
-        }
-        return r * Point2f(std::cos(theta), std::sin(theta));
-    }
-
-    inline Vec3f CosineHemisphereSampling(const Point2f &u) {
-        auto uv = ConcentricSampleDisk(u);
-        auto r = uv.lengthSquared();
-        auto h = std::sqrt(1 - r);
-        return Vec3f(uv.x, h, uv.y);
-    }
-}
-#endif //MIYUKIRENDERER_SAMPLING_H
+} // namespace miyuki::ui

@@ -23,9 +23,9 @@
 #ifndef MIYUKIRENDERER_SAHBVH_H
 #define MIYUKIRENDERER_SAHBVH_H
 
-#include <api/accelerator.h>
-#include <api/serialize.hpp>
-#include <api/mesh.h>
+#include <miyuki.renderer/accelerator.h>
+#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.renderer/mesh.h>
 
 
 namespace miyuki::core {

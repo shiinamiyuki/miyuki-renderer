@@ -20,30 +20,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_MATERIAL_H
-#define MIYUKIRENDERER_MATERIAL_H
+#ifndef MIYUKIRENDERER_GRAPH_H
+#define MIYUKIRENDERER_GRAPH_H
 
-#include <api/bsdf.h>
-#include <api/shader.h>
-#include <api/property.hpp>
-#include <api/serialize.hpp>
-
+#include <miyuki.renderer/bsdf.h>
+#include <miyuki.renderer/camera.h>
+#include <miyuki.foundation/object.hpp>
+#include <miyuki.renderer/integrator.h>
+#include <miyuki.foundation/property.hpp>
+#include <miyuki.renderer/sampler.h>
+#include <miyuki.renderer/scene.h>
+#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.renderer/shape.h>
+#include <cereal/types/vector.hpp>
 
 namespace miyuki::core {
 
-    class Material final : public Object {
+    class SceneGraph final : public Object {
       public:
-        std::shared_ptr<Shader> emission;
-        std::shared_ptr<BSDF> bsdf;
+        std::shared_ptr<Camera> camera;
+        std::shared_ptr<Integrator> integrator;
+        std::shared_ptr<Sampler> sampler;
+        std::vector<std::shared_ptr<MeshBase>> shapes;
+        Point2i filmDimension;
 
-        MYK_DECL_CLASS(Material, "Material")
+     
+        MYK_AUTO_SER(camera, sampler, integrator, shapes, filmDimension)
 
-        MYK_AUTO_INIT(emission, bsdf)
+        MYK_AUTO_INIT(camera, sampler, integrator, shapes, filmDimension)
 
-        MYK_AUTO_SER(emission, bsdf)
+        MYK_PROP(camera, sampler, integrator)
 
-        MYK_PROP(emission, bsdf)
+        MYK_DECL_CLASS(SceneGraph, "SceneGraph")
+
+        void render(const std::string &outImageFile);
     };
 } // namespace miyuki::core
-
-#endif // MIYUKIRENDERER_MATERIAL_H
+#endif // MIYUKIRENDERER_GRAPH_H

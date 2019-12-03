@@ -20,11 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <api/detail/object-funcs.h>
-#include <api/scene.h>
-#include <core/accelerators/embree-backend.h>
-#include <core/accelerators/sahbvh.h>
-#include <core/lights/arealight.h>
+#include <miyuki.foundation/detail/object-funcs.h>
+#include <miyuki.renderer/scene.h>
+#include "accelerators/sahbvh.h"
+#include "accelerators/embree-backend.h"
+#include "lights/arealight.h"
 
 namespace miyuki::core {
     void Scene::preprocess() {

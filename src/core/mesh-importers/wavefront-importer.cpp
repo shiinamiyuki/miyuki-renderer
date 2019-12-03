@@ -20,16 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #include "wavefront-importer.h"
-#include <api/graph.h>
-#include <api/log.hpp>
-#include <api/mesh.h>
+#include <miyuki.renderer/graph.h>
+#include <miyuki.foundation/log.hpp>
+#include <miyuki.renderer/mesh.h>
 #include <fstream>
 #include <optional>
 #include <tiny_obj_loader.h>
+#include <miyuki.renderer/mesh-importer.h>
 
-#include <core/bsdfs/diffusebsdf.h>
-#include <core/bsdfs/microfacet.h>
-#include <core/bsdfs/mixbsdf.h>
+#include "../bsdfs/diffusebsdf.h"
+#include "../bsdfs/microfacet.h"
+#include "../bsdfs/mixbsdf.h"
 
 namespace miyuki::core {
     void split(const std::string &src, const char delim, std::vector<std::string> &result) {
@@ -56,7 +57,7 @@ namespace miyuki::core {
         auto kd = Vec3f(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
         auto ks = Vec3f(mat.specular[0], mat.specular[1], mat.specular[2]);
         auto emission = Vec3f(mat.emission[0], mat.emission[1], mat.emission[2]);
-		
+
         return material;
     }
 
@@ -87,7 +88,7 @@ namespace miyuki::core {
         mesh->_vertex_data.position.reserve(attrib.vertices.size());
         for (size_t i = 0; i < attrib.vertices.size(); i += 3) {
             mesh->_vertex_data.position.emplace_back(
-                Vec3f(attrib.vertices[i + 0], attrib.vertices[i + 1], attrib.vertices[i + 2]));
+                    Vec3f(attrib.vertices[i + 0], attrib.vertices[i + 1], attrib.vertices[i + 2]));
         }
 
         mesh->_vertex_data.normal.resize(mesh->_vertex_data.position.size());
@@ -150,8 +151,9 @@ namespace miyuki::core {
                     vertex_indices[v] = idx.vertex_index;
                     if (idx.normal_index >= 0) {
                         mesh->_vertex_data.normal[idx.vertex_index] =
-                            Vec3f(attrib.normals[3 * idx.normal_index + 0], attrib.normals[3 * idx.normal_index + 1],
-                                  attrib.normals[3 * idx.normal_index + 2]);
+                                Vec3f(attrib.normals[3 * idx.normal_index + 0],
+                                      attrib.normals[3 * idx.normal_index + 1],
+                                      attrib.normals[3 * idx.normal_index + 2]);
                     } else {
                         // use the last normal (Ng)
 
@@ -159,11 +161,12 @@ namespace miyuki::core {
                                    mesh->_vertex_data.position[vertex_indices[0]];
                         Vec3f e2 = mesh->_vertex_data.position[vertex_indices[1]] -
                                    mesh->_vertex_data.position[vertex_indices[0]];
-                        mesh->_vertex_data.normal[idx.vertex_index] = e1.cross(e2).normalized();
+                        mesh->_vertex_data.normal[idx.vertex_index] = normalize(cross(e1, e2));
                     }
                     if (idx.texcoord_index >= 0) {
                         mesh->_vertex_data.tex_coord[idx.vertex_index] = Point2f(
-                            attrib.texcoords[2 * idx.texcoord_index + 0], attrib.texcoords[2 * idx.texcoord_index + 1]);
+                                attrib.texcoords[2 * idx.texcoord_index + 0],
+                                attrib.texcoords[2 * idx.texcoord_index + 1]);
                     } else {
                         mesh->_vertex_data.tex_coord[idx.vertex_index] = Point2f(v > 0, v > 1);
                     }

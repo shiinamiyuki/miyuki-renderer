@@ -23,8 +23,8 @@
 #ifndef MIYUKIRENDERER_DIFFUSEBSDF_H
 #define MIYUKIRENDERER_DIFFUSEBSDF_H
 
-#include <api/bsdf.h>
-#include <api/serialize.hpp>
+#include <miyuki.renderer/bsdf.h>
+#include <miyuki.foundation/serialize.hpp>
 
 namespace miyuki::core {
     class Shader;

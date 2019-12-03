@@ -23,8 +23,8 @@
 #ifndef MIYUKIRENDERER_BSDF_H
 #define MIYUKIRENDERER_BSDF_H
 
-#include <api/object.hpp>
-#include <api/spectrum.h>
+#include <miyuki.foundation/object.hpp>
+#include <miyuki.renderer/spectrum.h>
 
 
 namespace miyuki::core {

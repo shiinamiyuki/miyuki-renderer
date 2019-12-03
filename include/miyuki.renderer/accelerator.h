@@ -19,17 +19,22 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#pragma once
 
-#include <api/defs.h>
-#include <api/image.hpp>
+#ifndef MIYUKIRENDERER_ACCELERATOR_H
+#define MIYUKIRENDERER_ACCELERATOR_H
 
-namespace miyuki {
-    class ImageLoader {
-        class Impl;
-        std::shared_ptr<Impl> impl;
-      public:
-        ImageLoader();
-        std::shared_ptr<RGBAImage> loadRGBAImage(const fs::path &);
+#include <miyuki.renderer/shape.h>
+
+namespace miyuki::core {
+    class Scene;
+
+    class Accelerator : public Object {
+    public:
+        virtual void build(Scene &scene) = 0;
+
+        virtual bool intersect(const Ray &ray, Intersection &isct) = 0;
     };
-} // namespace miyuki
+
+}
+
+#endif //MIYUKIRENDERER_ACCELERATOR_H

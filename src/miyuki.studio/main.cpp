@@ -20,8 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <api/ui/ui.h>
-#include <core/export.h>
+#include <miyuki.renderer/ui/ui.h>
+#include "../core/export.h"
 #include <iostream>
 #include <stdexcept>
 #include <variant>

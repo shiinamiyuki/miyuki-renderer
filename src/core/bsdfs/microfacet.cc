@@ -20,15 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #include "microfacet.h"
-#include <api/shader.h>
-#include <api/trignometry.hpp>
+#include <miyuki.renderer/shader.h>
+#include <miyuki.renderer/trignometry.hpp>
 
 namespace miyuki::core {
     static float SchlickWeight(float cosTheta) {
         float m = std::clamp(1.0 - cosTheta, 0.0, 1.0);
         return (m * m) * (m * m) * m;
     }
-    static float Schlick(float R0, float cosTheta) { return mix<float>(R0, 1.0, SchlickWeight(cosTheta)); }
+    static float Schlick(float R0, float cosTheta) { return lerp(R0, 1.0f, SchlickWeight(cosTheta)); }
     static float GGX_D(float alpha, const Vec3f &m) {
         if (m.y <= 0.0f)
             return 0.0f;
@@ -39,7 +39,7 @@ namespace miyuki::core {
         return a2 / (Pi * c2 * c2 * at * at);
     }
     static float GGX_G1(float alpha, const Vec3f &v, const Vec3f &m) {
-        if (v.dot(m) * v.y <= 0.0f) {
+        if (dot(v,m) * v.y <= 0.0f) {
             return 0.0f;
         }
         return 2.0 / (1.0 + sqrt(1.0 + alpha * alpha * Tan2Theta(m)));
@@ -65,7 +65,7 @@ namespace miyuki::core {
             return Spectrum(0);
         if (wh.x == 0 && wh.y == 0 && wh.z == 0)
             return Spectrum(0);
-        wh.normalize();
+        wh = normalize(wh);
         float F = 1.0; // Schlick(0.4f, abs(dot(wi, wh)));
         auto R = color->evaluate(point);
         auto alpha = roughness->evaluate(point).x;
@@ -86,7 +86,7 @@ namespace miyuki::core {
         if (!SameHemisphere(wo, wi)) {
             return 0.0f;
         }
-        auto wh = (wo + wi).normalized();
+        auto wh = normalize(wo + wi);
         auto alpha = roughness->evaluate(point).x;
         alpha *= alpha;
         return GGX_D(alpha, wh) * AbsCosTheta(wh);

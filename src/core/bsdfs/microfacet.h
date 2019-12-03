@@ -21,8 +21,8 @@
 // SOFTWARE.
 #pragma once
 
-#include <api/bsdf.h>
-#include <api/serialize.hpp>
+#include <miyuki.renderer/bsdf.h>
+#include <miyuki.foundation/serialize.hpp>
 
 
 namespace miyuki::core {

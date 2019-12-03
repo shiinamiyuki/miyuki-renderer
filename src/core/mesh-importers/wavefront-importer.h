@@ -21,8 +21,8 @@
 // SOFTWARE.
 #pragma once
 
-#include <api/mesh-importer.h>
-#include <api/serialize.hpp>
+#include <miyuki.renderer/mesh-importer.h>
+#include <miyuki.foundation/serialize.hpp>
 
 namespace miyuki::core {
 

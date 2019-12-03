@@ -21,7 +21,7 @@
 // SOFTWARE.
 #pragma once
 
-#include <api/math.hpp>
+#include <miyuki.foundation/math.hpp>
 
 namespace miyuki {
 
@@ -34,6 +34,6 @@ namespace miyuki {
     inline Float TanTheta(const Vec3f &w) { return std::sqrt(std::fmax(0.0f, Tan2Theta(w))); }
     inline bool SameHemisphere(const Vec3f &wo, const Vec3f &wi) { return wo.y * wi.y >= 0; }
 
-    inline Vec3f Reflect(const Vec3f &w, const Normal3f &n) { return -w + 2.0f * w.dot(n) * n; }
+    inline Vec3f Reflect(const Vec3f &w, const Normal3f &n) { return -w + 2.0f * dot(w, n) * n; }
 
 } // namespace miyuki

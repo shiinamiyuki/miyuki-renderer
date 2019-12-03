@@ -1,17 +1,17 @@
 // MIT License
-//
+// 
 // Copyright (c) 2019 椎名深雪
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,41 +20,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_SCENE_H
-#define MIYUKIRENDERER_SCENE_H
+#ifndef MIYUKIRENDERER_LIGHT_H
+#define MIYUKIRENDERER_LIGHT_H
 
-#include <api/accelerator.h>
-#include <api/object.hpp>
-#include <api/light.h>
-#include <api/ray.h>
-#include <api/shape.h>
-#include <atomic>
+#include <miyuki.renderer/spectrum.h>
+#include <miyuki.renderer/ray.h>
+#include <miyuki.foundation/object.hpp>
 
-#include <core/accelerators/embree-backend.h>
-#include <core/accelerators/sahbvh.h>
 namespace miyuki::core {
+    struct VisibilityTester;
+    struct ShadingPoint;
 
-    class Scene {
-#ifdef MYK_USE_EMBREE
-        std::shared_ptr<EmbreeAccelerator> accelerator;
-#else
-        std::shared_ptr<Accelerator> accelerator;
-#endif
+    class Shape;
 
-        std::atomic<size_t> rayCounter = 0;
-
-      public:
-        std::vector<std::shared_ptr<Light>> lights;
-        std::vector<std::shared_ptr<Mesh>> meshes;
-        std::vector<std::shared_ptr<MeshInstance>> instances;
-
-        bool intersect(const Ray &ray, Intersection &isct);
-
-        void preprocess();
-
-        size_t getRayCounter() const { return rayCounter; }
-
-        void resetRayCounter() { rayCounter = 0; }
+    struct LightSample {
+        Vec3f wi;
+        Spectrum Li;
+        float pdf;
     };
-} // namespace miyuki::core
-#endif // MIYUKIRENDERER_SCENE_H
+
+    struct LightRaySample {
+        Ray ray;
+        Spectrum Le;
+        float pdfPos, pdfDir;
+    };
+
+    class Light : public Object {
+    public:
+        virtual Spectrum Li(ShadingPoint &sp) const = 0;
+
+        virtual void sampleLi(const Point2f &u, Intersection &isct, LightSample &sample, VisibilityTester &) const = 0;
+
+        virtual Float pdfLi(const Intersection &intersection, const Vec3f &wi) const = 0;
+
+        virtual void sampleLe(const Point2f &u1, const Point2f &u2, LightRaySample &sample) = 0;
+
+    };
+    class Scene;
+    struct VisibilityTester {
+        Ray shadowRay;
+
+        bool visible(Scene &scene) ;
+    };
+
+}
+#endif //MIYUKIRENDERER_LIGHT_H

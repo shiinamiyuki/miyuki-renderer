@@ -20,19 +20,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_SPECTRUM_H
-#define MIYUKIRENDERER_SPECTRUM_H
+#ifndef MIYUKIRENDERER_INTEGRATOR_H
+#define MIYUKIRENDERER_INTEGRATOR_H
 
-#include <api/defs.h>
-#include <api/math.hpp>
+#include <miyuki.foundation/object.hpp>
 
 namespace miyuki::core {
+    class Camera;
 
-        using Spectrum = Vec3f;
+    class Scene;
 
-        inline bool IsBlack(const Spectrum &s) {
-            return s.x <= 0 || s.y <= 0 || s.z <= 0;
-        }
+    class Sampler;
 
+    struct Film;
+
+    class Integrator : public Object {
+    public:
+        virtual void render(const std::shared_ptr<Scene> &,
+                            const std::shared_ptr<Camera> &,
+                            const std::shared_ptr<Sampler> &,
+                            Film &film) = 0;
+    };
 }
-#endif //MIYUKIRENDERER_SPECTRUM_H
+
+
+#endif //MIYUKIRENDERER_INTEGRATOR_H

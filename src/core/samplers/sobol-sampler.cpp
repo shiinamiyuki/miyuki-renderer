@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 
-#include <api/rng.h>
+#include <miyuki.foundation/rng.h>
 #include "sobol-sampler.h"
 #include <sobolmat.hpp>
 

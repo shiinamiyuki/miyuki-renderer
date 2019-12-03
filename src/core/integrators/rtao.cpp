@@ -21,14 +21,14 @@
 // SOFTWARE.
 
 #include "rtao.h"
-#include <api/camera.h>
-#include <api/film.h>
-#include <api/log.hpp>
-#include <api/parallel.h>
-#include <api/profiler.h>
-#include <api/sampler.h>
-#include <api/sampling.h>
-#include <api/scene.h>
+#include <miyuki.renderer/camera.h>
+#include <miyuki.foundation/film.h>
+#include <miyuki.foundation/log.hpp>
+#include <miyuki.foundation/parallel.h>
+#include <miyuki.foundation/profiler.h>
+#include <miyuki.renderer/sampler.h>
+#include <miyuki.renderer/sampling.h>
+#include <miyuki.renderer/scene.h>
 
 namespace miyuki::core {
 

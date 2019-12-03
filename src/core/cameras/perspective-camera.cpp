@@ -28,15 +28,15 @@ namespace miyuki::core {
         if (params.contains("eye")) {
             auto viewpoint = params.at("eye").get<Vec3f>();
             auto at = params.at("at").get<Vec3f>();
-            transform = Transform(Matrix4::lookAt(viewpoint, at));
+            transform = Transform(lookAt(viewpoint, at,vec3(0,1,0)));
         } else if (params.contains("translate")) {
             auto translate = params.at("translate").get<Vec3f>();
             auto rotation = DegreesToRadians(params.at("rotate").get<Vec3f>());
-            Matrix4 m = Matrix4::identity();
-            m *= Matrix4::rotate(Vec3f(0, 0, 1), rotation.z);
-            m *= Matrix4::rotate(Vec3f(1, 0, 0), rotation.y);
-            m *= Matrix4::rotate(Vec3f(0, 1, 0), rotation.x);
-            m *= Matrix4::translate(translate);
+            mat4 m =identity<mat4>();
+            m = rotate(m, rotation.z,Vec3f(0, 0, 1));
+            m = rotate(m, rotation.y,Vec3f(1, 0, 0));
+            m = rotate(m, rotation.x,Vec3f(0, 1, 0));
+            m = glm::translate(m,translate);
             transform = Transform(m);
         } else {
             MIYUKI_THROW(std::runtime_error, "Unknown input format to PerspectiveCamera");
@@ -64,10 +64,10 @@ namespace miyuki::core {
         y *= float(filmDimension.y) / filmDimension.x;
         float z = 1.0f / std::atan(fov / 2);
         Vec3f d = Vec3f(x, y, 0) - Vec3f(0, 0, -z);
-        d.normalize();
+        d = normalize(d);
         Point3f o = Vec3f(sample.pLens.x, sample.pLens.y, 0);
-        o = transform(o);
-        d = transform(d);
+        o = transform.transformPoint3(o);
+        d = transform.transformVec3(d);
         sample.ray = Ray(o, d, RayBias);
     }
 

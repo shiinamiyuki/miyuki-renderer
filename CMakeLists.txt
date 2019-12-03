@@ -14,7 +14,8 @@ if(MSVC)
 endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     IF(WIN32)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -target x86_64-pc-windows-gnu -femulated-tls ")
+        set(CXX_FS_LIBS stdc++fs)
     ENDIF()
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
@@ -24,27 +25,18 @@ find_package(Python3 REQUIRED)
 find_package(PythonLibs 3 REQUIRED)
 
 include_directories(${PYTHON_INCLUDE_DIRS})
-include_directories(src)
-add_subdirectory(external/glfw)
+include_directories(include)
 add_subdirectory(external/gl3w)
-add_subdirectory(external/fmt)
+add_subdirectory(external/miyuki.foundation)
 
 include_directories(external/sobol)
 include_directories(external/pybind11/include)
-include_directories(external/linalg)
-include_directories(external/cereal/include)
-include_directories(external/json/include)
-include_directories(external/fmt/include)
 include_directories(external/tinyobjloader/)
-include_directories(external/stb/)
-include_directories(external/lodepng/)
 include_directories(external/cxxopts/include)
 include_directories(external/gl3w/include)
-include_directories(external/glfw/include)
 include_directories(external/imgui/)
-include_directories(external/glm)
 
-file(GLOB MiyukiAPI src/api/*.h src/api/*.hpp src/api/detail/*.hpp src/api/detail/*.h)
+file(GLOB MiyukiAPI include/miyuki.renderer/*.h include/miyuki.renderer/*.hpp include/miyuki.renderer/detail/*.hpp include/miyuki.renderer/detail/*.h)
 file(GLOB libcoreSource src/core/*.cpp
         src/core/accelerators/*.*
         src/core/shaders/*.*
@@ -80,23 +72,19 @@ IF(USE_EMBREE)
     ENDIF()
 ENDIF()
 add_library(core ${MiyukiAPI} ${libcoreSource})
-target_link_libraries(core fmt)
+target_link_libraries(core foundation ${CXX_FS_LIBS})
 add_executable(myk-cli src/standalone-renderer/main.cpp ${MiyukiAPI})
 add_executable(mesh-importer src/mesh-importer/importer.cpp ${MiyukiAPI})
 target_link_libraries(mesh-importer core ${EMBREE_LIBRARY})
 target_link_libraries(myk-cli core ${EMBREE_LIBRARY})
 
-file(GLOB IMGUI_SRC external/imgui/*.cpp)
+file(GLOB IMGUI_SRC external/imgui/*.cpp
+        external/imgui/examples/imgui_impl_opengl3.cpp
+        external/imgui/examples/imgui_impl_glfw.cpp)
 add_compile_definitions(IMGUI_IMPL_OPENGL_LOADER_GL3W)
 include_directories(external/gl3w/include)
-add_library(imgui 	${IMGUI_SRC}
-	 external/imgui/examples/imgui_impl_opengl3.cpp
-	 external/imgui/examples/imgui_impl_glfw.cpp
-)
-
-target_link_libraries(imgui gl3w)
 
 file(GLOB UI_SRC src/ui/*.*)
 
-add_executable(miyuki.studio src/miyuki.studio/main.cpp ${UI_SRC}  ${MiyukiAPI})
-target_link_libraries(miyuki.studio core ${EMBREE_LIBRARY} imgui glfw)
+add_executable(miyuki.studio src/miyuki.studio/main.cpp ${UI_SRC}  ${MiyukiAPI} ${IMGUI_SRC})
+target_link_libraries(miyuki.studio core ${EMBREE_LIBRARY} glfw gl3w)

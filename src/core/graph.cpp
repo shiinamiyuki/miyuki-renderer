@@ -20,11 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <api/graph.h>
-#include <api/shape.h>
-#include <api/sampler.h>
-#include <api/film.h>
-#include <api/log.hpp>
+#include <miyuki.renderer/graph.h>
+#include <miyuki.renderer/shape.h>
+#include <miyuki.renderer/sampler.h>
+#include <miyuki.foundation/film.h>
+#include <miyuki.foundation/log.hpp>
 
 namespace miyuki::core {
     void SceneGraph::render(const std::string &outImageFile) {

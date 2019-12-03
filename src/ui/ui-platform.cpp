@@ -1,4 +1,4 @@
-// MIT License
+﻿// MIT License
 // 
 // Copyright (c) 2019 椎名深雪
 // 
@@ -19,8 +19,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#include <api/defs.h>
-#include <api/ui/ui.h>
+#include <miyuki.foundation/defs.h>
+#include <miyuki.renderer/ui/ui.h>
 
 
 #if defined(_WIN64) || defined(_WIN32)

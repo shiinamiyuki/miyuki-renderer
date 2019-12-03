@@ -19,22 +19,19 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+#pragma once
+#include <miyuki.foundation/defs.h>
+#include <miyuki.renderer/material.h>
+#include <miyuki.foundation/object.hpp>
+namespace miyuki ::core {
+    class Mesh;
 
-#ifndef MIYUKIRENDERER_ACCELERATOR_H
-#define MIYUKIRENDERER_ACCELERATOR_H
-
-#include <api/shape.h>
-
-namespace miyuki::core {
-    class Scene;
-
-    class Accelerator : public Object {
-    public:
-        virtual void build(Scene &scene) = 0;
-
-        virtual bool intersect(const Ray &ray, Intersection &isct) = 0;
+    struct MeshImportResult {
+        std::vector<Material> materials;
+        std::shared_ptr<Mesh> mesh;
     };
-
-}
-
-#endif //MIYUKIRENDERER_ACCELERATOR_H
+    class MeshImporter : public Object {
+      public:
+        virtual MeshImportResult importMesh(const fs::path &) = 0;
+    };
+} // namespace miyuki::core
