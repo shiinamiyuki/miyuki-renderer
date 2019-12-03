@@ -1,3 +1,8 @@
 #pragma once
+
 #include <string>
-extern std::string ShaderSource_trignometry;
+
+namespace miyuki::core {
+    extern std::string ShaderSource_trignometry;
+}
+

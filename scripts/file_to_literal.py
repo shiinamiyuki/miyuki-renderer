@@ -6,7 +6,7 @@ os.chdir(dir_path)
 SRC_DIR = r"../src/shaders"
 OUT1= r"../generated/shadersources.cpp"
 
-out = '#include <string>\n'
+out = '#include <string>\nnamespace miyuki::core{\n'
 
 if not os.path.exists("../generated/"):
     os.mkdir("../generated/")
@@ -19,6 +19,7 @@ for filename in os.listdir(SRC_DIR):
         s = f.read()
         out += r'std::string ShaderSource_' + stem + '=R"SS(' + s + ')SS";\n'
         
+out += '}\n'
 f = open(OUT1, 'w')
 f.write(out)
 f.close()

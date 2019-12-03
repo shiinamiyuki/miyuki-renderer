@@ -25,12 +25,23 @@ else()
 	message("Vulkan include dirs: " ${Vulkan_INCLUDE_DIRS})
 endif()
 
-include_directories(Vulkan_INCLUDE_DIRS)
+include_directories(${Vulkan_INCLUDE_DIRS})
+include_directories(external/imgui)
 include_directories(include/)
 
-file(GLOB RENDERER_SOURCE include/*/*/*.* include/*/*.* src/*.cpp src/core/*.cpp)
 
+file(GLOB RENDERER_SOURCE include/*/*/*.* include/*/*.* src/*.cpp
+	src/core/*.cpp
+	src/ui/*.cpp
+	)
 
-add_executable(miyuki.studio src/miyuki.studio/main.cpp ${RENDERER_SOURCE} ${GENERATED_SHADER_SOURCE})
+file(GLOB IMGUI_SRC 
+	external/imgui/*.cpp
+	external/imgui/*.h
+	external/imgui/examples/imgui_impl_glfw.cpp
+	external/imgui/examples/imgui_impl_vulkan.cpp
+	)
+
+add_executable(miyuki.studio src/miyuki.studio/main.cpp ${RENDERER_SOURCE} ${GENERATED_SHADER_SOURCE} ${IMGUI_SRC})
 target_link_libraries(miyuki.studio foundation ${Vulkan_LIBRARIES})
 add_dependencies(miyuki.studio BUILD_SHADERS)

@@ -20,6 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <miyuki.renderer/ui/ui.h>
 
-int main(){
- }
+int main() {
+    using namespace miyuki;
+    try {
+
+        auto window = ui::MakeMainWindow(1280, 720, "miyuki.studio");
+        window->show();
+    } catch (std::exception &e) {
+        fprintf(stderr, "%s\n", e.what());
+	}
+}
