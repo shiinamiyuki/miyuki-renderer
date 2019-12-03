@@ -37,6 +37,7 @@
 #include <miyuki.foundation/defs.h>
 #include <miyuki.renderer/ui/ui.h>
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 #define IMGUI_VULKAN_DEBUG_REPORT
 

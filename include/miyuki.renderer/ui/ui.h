@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include <vulkan/vulkan.h>
+
 namespace miyuki::ui {
     std::string GetOpenFileNameWithDialog(const char *filter);
     std::string GetSaveFileNameWithDialog(const char *filter);
