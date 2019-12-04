@@ -19,6 +19,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+
 #include "wavefront-importer.h"
 #include <miyuki.renderer/graph.h>
 #include <miyuki.foundation/log.hpp>
@@ -31,6 +32,7 @@
 #include "../bsdfs/diffusebsdf.h"
 #include "../bsdfs/microfacet.h"
 #include "../bsdfs/mixbsdf.h"
+#include "../shaders/common-shader.h"
 
 namespace miyuki::core {
     void split(const std::string &src, const char delim, std::vector<std::string> &result) {
@@ -57,7 +59,11 @@ namespace miyuki::core {
         auto kd = Vec3f(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
         auto ks = Vec3f(mat.specular[0], mat.specular[1], mat.specular[2]);
         auto emission = Vec3f(mat.emission[0], mat.emission[1], mat.emission[2]);
-
+        auto diffuse = std::make_shared<DiffuseBSDF>(std::make_shared<RGBShader>(kd));
+        auto specular = std::make_shared<DiffuseBSDF>(std::make_shared<RGBShader>(ks));
+        auto mixed = std::make_shared<MixBSDF>(std::make_shared<FloatShader>(0.5f), diffuse, specular);
+        material->bsdf = mixed;
+        material->emission = std::make_shared<RGBShader>(emission);
         return material;
     }
 

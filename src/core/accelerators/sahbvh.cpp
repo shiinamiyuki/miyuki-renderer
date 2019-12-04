@@ -58,8 +58,6 @@ namespace miyuki::core {
         }
 
         int recursiveBuild(int begin, int end, int depth) {
-            //            log::log("depth: {}, primitives:{} \n", depth, end -
-            //            begin);
             Bounds3f box{{MaxFloat, MaxFloat, MaxFloat},
                          {MinFloat, MinFloat, MinFloat}};
             Bounds3f centroidBound{{MaxFloat, MaxFloat, MaxFloat},
@@ -76,7 +74,7 @@ namespace miyuki::core {
                         primitive[i].getBoundingBox().centroid());
             }
 
-            if (end - begin <= 4 || depth >= 20) {
+            if (end - begin <= 4 || depth >= 64) {
                 BVHNode node;
 
                 node.box = box;
@@ -87,7 +85,7 @@ namespace miyuki::core {
                 return nodes.size() - 1;
             } else {
 
-                int axis = 0;
+                int axis = depth % 3;
                 auto size = centroidBound.size();
                 if (size.x > size.y) {
                     if (size.x > size.z) {
@@ -102,6 +100,7 @@ namespace miyuki::core {
                         axis = 2;
                     }
                 }
+
                 constexpr size_t nBuckets = 12;
                 struct Bucket {
                     size_t count = 0;
@@ -183,7 +182,7 @@ namespace miyuki::core {
         bool intersect(const Ray &ray, Intersection &isct) const {
             bool hit = false;
             auto invd = Vec3f(1) / ray.d;
-            constexpr int maxDepth = 40;
+            constexpr int maxDepth = 128;
             const BVHNode *stack[maxDepth];
             int sp = 0;
             stack[sp++] = &nodes[0];

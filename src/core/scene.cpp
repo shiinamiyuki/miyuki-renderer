@@ -28,7 +28,7 @@
 
 namespace miyuki::core {
     void Scene::preprocess() {
-        accelerator = std::make_shared<EmbreeAccelerator>();
+        accelerator = std::make_shared<BVHAccelerator>();
         auto setLight = [=](MeshTriangle *triangle) {
             auto mat = triangle->getMaterial();
             if (mat && mat->emission != nullptr) {

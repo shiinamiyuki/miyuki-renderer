@@ -30,18 +30,17 @@ namespace miyuki::core {
     class Shader;
 
     class DiffuseBSDF final : public BSDF {
-        std::shared_ptr<Shader> shader;
+        std::shared_ptr<Shader> color;
     public:
-
         MYK_DECL_CLASS(DiffuseBSDF, "DiffuseBSDF", interface = "BSDF")
 
-        MYK_AUTO_SER(shader)
+        MYK_AUTO_SER(color)
 
-        MYK_AUTO_INIT(shader)
+        MYK_AUTO_INIT(color)
 
         DiffuseBSDF() = default;
 
-        DiffuseBSDF(const std::shared_ptr<Shader> &shader) : shader(shader) {}
+        explicit DiffuseBSDF(const std::shared_ptr<Shader> &color) : color(color) {}
 
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const override;

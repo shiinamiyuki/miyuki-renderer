@@ -31,7 +31,12 @@ namespace miyuki::core {
         std::shared_ptr<BSDF> bsdfA, bsdfB;
         std::shared_ptr<Shader> fraction;
 
-      public:
+    public:
+        MixBSDF() = default;
+        MixBSDF(const std::shared_ptr<Shader> &fraction,
+                const std::shared_ptr<BSDF> &bsdfA,
+                const std::shared_ptr<BSDF> &bsdfB) : fraction(fraction), bsdfA(bsdfA), bsdfB(bsdfB) {        }
+
         MYK_DECL_CLASS(MixBSDF, "MixBDSF", interface = "BSDF")
 
         MYK_AUTO_SER(fraction, bsdfA, bsdfB)

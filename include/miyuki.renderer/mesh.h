@@ -63,27 +63,26 @@ namespace miyuki::core {
         }
 
         bool intersect(const Ray &ray, Intersection &isct) const {
-            float u, v;
             Vec3f e1 = (vertex(1) - vertex(0));
             Vec3f e2 = (vertex(2) - vertex(0));
             auto Ng = normalize(cross(e1, e2));
-            float denom = dot(ray.d, Ng);
-            float t = -dot(ray.o - vertex(0), Ng) / denom;
-            if (denom == 0)
+            float a, f, u, v;
+            auto h = cross(ray.d, e2);
+            a = dot(e1, h);
+            if (a > -1e-6f && a < 1e-6f)
                 return false;
-            if (t < ray.tMin)
+            f = 1.0f / a;
+            auto s = ray.o - vertex(0);
+            u = f * dot(s, h);
+            if (u < 0.0 || u > 1.0)
                 return false;
-            Vec3f p = ray.o + t * ray.d;
-            double det = length(cross(e1, e2));
-            auto u0 = cross(e1, p - vertex(0));
-            auto v0 = cross(Vec3f(p - vertex(0)), e2);
-            if (dot(u0, Ng) < 0 || dot(v0, Ng) < 0)
+            auto q = cross(s, e1);
+            v = f * dot(ray.d, q);
+            if (v < 0.0 || u + v > 1.0)
                 return false;
-            v = u0.length() / det;
-            u = v0.length() / det;
-            if (u < 0 || v < 0 || u > 1 || v > 1)
-                return false;
-            if (u + v <= 1) {
+            float t = f * dot(e2, q);
+            if (t > ray.tMin)
+            {
                 if (t < isct.distance) {
                     isct.distance = t;
                     isct.Ng = Ng;
@@ -92,8 +91,11 @@ namespace miyuki::core {
                     isct.shape = this;
                     return true;
                 }
+                return false;
+            } else
+            {
+                return false;
             }
-            return false;
         }
 
         [[nodiscard]] Bounds3f getBoundingBox() const {
@@ -112,7 +114,9 @@ namespace miyuki::core {
             sample.normal = Ng();
         }
 
-        [[nodiscard]] Float area() const { return length(cross(Vec3f(vertex(1) - vertex(0)),(vertex(2) - vertex(0)))); }
+        [[nodiscard]] Float area() const {
+            return length(cross(Vec3f(vertex(1) - vertex(0)), (vertex(2) - vertex(0))));
+        }
 
         [[nodiscard]] BSDF *getBSDF() const { return nullptr; }
 
