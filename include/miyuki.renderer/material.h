@@ -32,17 +32,18 @@
 namespace miyuki::core {
 
     class Material final : public Object {
-      public:
+    public:
         std::shared_ptr<Shader> emission;
+        std::shared_ptr<Shader> emissionStrength;
         std::shared_ptr<BSDF> bsdf;
 
         MYK_DECL_CLASS(Material, "Material")
 
-        MYK_AUTO_INIT(emission, bsdf)
+        MYK_AUTO_INIT(emission, emissionStrength, bsdf)
 
-        MYK_AUTO_SER(emission, bsdf)
+        MYK_AUTO_SER(emission, emissionStrength, bsdf)
 
-        MYK_PROP(emission, bsdf)
+        MYK_PROP(emission, emissionStrength, bsdf)
     };
 } // namespace miyuki::core
 

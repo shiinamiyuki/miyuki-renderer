@@ -59,16 +59,19 @@ namespace miyuki::core {
         auto kd = Vec3f(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
         auto ks = Vec3f(mat.specular[0], mat.specular[1], mat.specular[2]);
         auto emission = Vec3f(mat.emission[0], mat.emission[1], mat.emission[2]);
+        auto strength = maxComp(emission) == 0.0 ? 0.0 : maxComp(emission);
+        emission = strength == 0.0 ? vec3(0) : emission / maxComp(emission);
         auto diffuse = std::make_shared<DiffuseBSDF>(std::make_shared<RGBShader>(kd));
         auto specular = std::make_shared<DiffuseBSDF>(std::make_shared<RGBShader>(ks));
         auto mixed = std::make_shared<MixBSDF>(std::make_shared<FloatShader>(0.5f), diffuse, specular);
         material->bsdf = mixed;
         material->emission = std::make_shared<RGBShader>(emission);
+        material->emissionStrength = std::make_shared<FloatShader>(strength);
         return material;
     }
 
     MeshImportResult WavefrontImporter::importMesh(const fs::path &path) {
-        log::log("Importing {}\n",path.string());
+        log::log("Importing {}\n", path.string());
         fs::path parent_path = fs::absolute(path).parent_path();
         fs::path file = path.filename();
         CurrentPathGuard _guard;
