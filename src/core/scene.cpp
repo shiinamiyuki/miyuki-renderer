@@ -28,7 +28,7 @@
 
 namespace miyuki::core {
     void Scene::preprocess() {
-        accelerator = std::make_shared<BVHAccelerator>();
+        accelerator = std::make_shared<EmbreeAccelerator>();
         auto setLight = [=](MeshTriangle *triangle) {
             auto mat = triangle->getMaterial();
             if (mat && mat->emission != nullptr) {
@@ -47,6 +47,7 @@ namespace miyuki::core {
     bool Scene::intersect(const miyuki::core::Ray &ray, miyuki::core::Intersection &isct) {
         rayCounter++;
         if (accelerator->intersect(ray, isct)) {
+            isct.Ns = isct.shape->normalAt(isct.uv);
             isct.computeLocalFrame();
             return true;
 		}

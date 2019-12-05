@@ -35,12 +35,7 @@
 namespace miyuki::core {
     class EmbreeAccelerator;
     class Scene {
-#ifdef MYK_USE_EMBREE
         std::shared_ptr<Accelerator> accelerator;
-#else
-        std::shared_ptr<Accelerator> accelerator;
-#endif
-
         std::atomic<size_t> rayCounter = 0;
 
       public:
@@ -52,7 +47,7 @@ namespace miyuki::core {
 
         void preprocess();
 
-        size_t getRayCounter() const { return rayCounter; }
+        [[nodiscard]] size_t getRayCounter() const { return rayCounter; }
 
         void resetRayCounter() { rayCounter = 0; }
     };

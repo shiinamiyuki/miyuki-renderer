@@ -68,7 +68,8 @@ namespace miyuki::core {
     }
 
     MeshImportResult WavefrontImporter::importMesh(const fs::path &path) {
-        fs::path parent_path = path.parent_path();
+        log::log("Importing {}\n",path.string());
+        fs::path parent_path = fs::absolute(path).parent_path();
         fs::path file = path.filename();
         CurrentPathGuard _guard;
         if (!parent_path.empty())
@@ -88,9 +89,9 @@ namespace miyuki::core {
             log::log("error loading {}\n", path.string());
             return result;
         }
-
+        //log::log("vert: {}\n",attrib.vertices.size());
         auto mesh = std::make_shared<Mesh>();
-
+        mesh->filename = path.string();
         mesh->_vertex_data.position.reserve(attrib.vertices.size());
         for (size_t i = 0; i < attrib.vertices.size(); i += 3) {
             mesh->_vertex_data.position.emplace_back(
@@ -131,6 +132,9 @@ namespace miyuki::core {
                     count++;
                     m[mat_id] = final_name;
                     name_to_id[final_name] = name_to_id.size();
+                    auto mat = convertFromMTL(materials[mat_id]);
+                    result.materials.emplace_back(mat);
+                    mesh->materials[final_name] = mat;
                     id_to_name[name_to_id[final_name]] = final_name;
                     fmt::print("generated {}\n", final_name);
                 }
@@ -152,9 +156,12 @@ namespace miyuki::core {
                 Point3i vertex_indices;
                 // Loop over vertices in the face.
                 for (size_t v = 0; v < fv; v++) {
-                    // access to vertex
                     tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
                     vertex_indices[v] = idx.vertex_index;
+                }
+                for (size_t v = 0; v < fv; v++) {
+                    // access to vertex
+                    tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
                     if (idx.normal_index >= 0) {
                         mesh->_vertex_data.normal[idx.vertex_index] =
                                 Vec3f(attrib.normals[3 * idx.normal_index + 0],

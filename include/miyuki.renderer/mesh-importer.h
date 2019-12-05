@@ -20,18 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #pragma once
+
 #include <miyuki.foundation/defs.h>
 #include <miyuki.renderer/material.h>
 #include <miyuki.foundation/object.hpp>
+
 namespace miyuki ::core {
     class Mesh;
 
     struct MeshImportResult {
-        std::vector<Material> materials;
+        std::vector<std::shared_ptr<Material>> materials;
         std::shared_ptr<Mesh> mesh;
     };
+
     class MeshImporter : public Object {
-      public:
+    public:
         virtual MeshImportResult importMesh(const fs::path &) = 0;
     };
 } // namespace miyuki::core

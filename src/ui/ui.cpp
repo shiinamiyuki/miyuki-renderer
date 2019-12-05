@@ -29,6 +29,7 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <miyuki.foundation/defs.h>
@@ -43,6 +44,7 @@
 static void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
+
 namespace miyuki::ui {
     void InitializeGLFW() {
         static std::once_flag flag;
@@ -53,6 +55,7 @@ namespace miyuki::ui {
             }
         });
     }
+
     void InitializeOpenGLLoader() {
         static std::once_flag flag;
         std::call_once(flag, []() {
@@ -65,9 +68,10 @@ namespace miyuki::ui {
 
     class AbstractMainWindow::Impl {
 
-      public:
+    public:
         AbstractMainWindow *mw;
         GLFWwindow *window;
+
         Impl(int width, int height, const std::string &title) {
             InitializeGLFW();
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -79,7 +83,7 @@ namespace miyuki::ui {
 
             ImGui::CreateContext();
             ImGuiIO &io = ImGui::GetIO();
-            (void)io;
+            (void) io;
             io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
             // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
             io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
@@ -89,9 +93,10 @@ namespace miyuki::ui {
             ImGui_ImplGlfw_InitForOpenGL(window, true);
             ImGui_ImplOpenGL3_Init(glsl_version);
         }
+
         void draw() {
             ImGuiIO &io = ImGui::GetIO();
-            (void)io;
+            (void) io;
             while (!glfwWindowShouldClose(window)) {
                 glfwPollEvents();
 
@@ -119,11 +124,14 @@ namespace miyuki::ui {
             }
         }
     };
+
     AbstractMainWindow::AbstractMainWindow(int width, int height, const std::string &title) {
         impl = new Impl(width, height, title);
         impl->mw = this;
     }
+
     AbstractMainWindow::~AbstractMainWindow() { delete impl; }
+
     void AbstractMainWindow::show() { impl->draw(); }
 
     void SetupDockingSpace(const std::string &name) {
@@ -173,7 +181,7 @@ namespace miyuki::ui {
     }
 
     class InspectorPropertyVisitor : public PropertyVisitor {
-      public:
+    public:
         // Inherited via PropertyVisitor
         virtual void visit(IntProperty *prop) override {
             auto value = prop->getConstRef();
@@ -191,7 +199,7 @@ namespace miyuki::ui {
 
         virtual void visit(Float3Property *prop) override {
             auto value = prop->getConstRef();
-            if (ImGui::InputFloat3(prop->name(), (float *)&value, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue)) {
+            if (ImGui::InputFloat3(prop->name(), (float *) &value, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue)) {
                 prop->getRef() = value;
             }
         }
@@ -209,6 +217,7 @@ namespace miyuki::ui {
                 ImGui::PopID();
             }
         }
+
         virtual void visit(FileProperty *prop) override {
             ImGui::PushID(prop->name());
             if (ImGui::Button("select")) {
@@ -222,6 +231,7 @@ namespace miyuki::ui {
 
         // Inherited via PropertyVisitor
         virtual void visit(Int2Property *) override {}
+
         virtual void visit(Float2Property *) override {}
     };
 
@@ -232,7 +242,10 @@ namespace miyuki::ui {
         std::mutex _modalMutex;
         bool _modalOpen = false;
         bool _updated = false;
-        template <class F> void showModal(const char *name, F &&f) {
+        fs::path sceneFilePath;
+
+        template<class F>
+        void showModal(const char *name, F &&f) {
             std::lock_guard<std::mutex> guard(_modalMutex);
             _modalOpen = true;
             _updated = false;
@@ -249,6 +262,7 @@ namespace miyuki::ui {
                 }
             };
         }
+
         void closeModal() {
             modalFunc = []() {};
             _modalOpen = false;
@@ -276,12 +290,14 @@ namespace miyuki::ui {
                 ImGui::TreePop();
             }
         }
+
         void showExplorer() {
             if (ImGui::Begin("Explorer")) {
                 explore();
                 ImGui::End();
             }
         }
+
         void showInspector() {
             if (ImGui::Begin("Inspector")) {
 
@@ -292,17 +308,21 @@ namespace miyuki::ui {
         void showMenu() {
             if (ImGui::BeginMainMenuBar()) {
                 if (ImGui::BeginMenu("File")) {
+                    if (ImGui::MenuItem("New")) {
+                        graph.reset(new core::SceneGraph());
+                    }
                     if (ImGui::MenuItem("Open")) {
-                        auto filename = GetOpenFileNameWithDialog(nullptr);
+                        auto filename = GetOpenFileNameWithDialog("Scene File\0*.json\0Any File\0*.*\0");
                         if (!filename.empty()) {
                             auto path = fs::path(filename);
                             std::ifstream in(filename);
                             serialize::InputArchive ar(in);
                             graph = std::dynamic_pointer_cast<core::SceneGraph>(serialize::ReadObject(ar));
+                            sceneFilePath = fs::absolute(filename);
                         }
                     }
                     if (ImGui::MenuItem("Open (json)")) {
-                        auto filename = GetOpenFileNameWithDialog(nullptr);
+                        auto filename = GetOpenFileNameWithDialog("Json\0*.json\0Any File\0*.*\0");
                         if (!filename.empty()) {
                             auto path = fs::path(filename);
                             std::ifstream in(filename);
@@ -311,48 +331,94 @@ namespace miyuki::ui {
                             json data = json::parse(str);
                             graph = std::make_shared<core::SceneGraph>();
                             graph->initialize(data);
+                            sceneFilePath = fs::absolute(filename);
                         }
                     }
+                    auto selectFilenameAndSave = [=]() {
+                        auto filename = GetSaveFileNameWithDialog(nullptr);
+                        if (!filename.empty()) {
+                            std::ofstream out(filename);
+                            serialize::OutputArchive ar(out);
+                            serialize::WriteObject(ar, graph);
+                        }
+                        sceneFilePath = fs::absolute(filename);
+                    };
+                    auto errorCurrentSceneEmpty = [=]() {
+                        showModal("Error", [=]() {
+                            ImGui::Text("%s", "Current scene is empty!");
+                            if (ImGui::Button("Close")) {
+                                ImGui::CloseCurrentPopup();
+                            }
+                        });
+                    };
+                    auto errorNotSaved = [=]() {
+                        showModal("Error", [=]() {
+                            ImGui::Text("%s", "Current scene hasn't been saved!");
+                            if (ImGui::Button("Close")) {
+                                ImGui::CloseCurrentPopup();
+                            }
+                        });
+                    };
                     if (ImGui::MenuItem("Save")) {
+                        if (graph) {
+                            if (sceneFilePath.empty()) {
+                                selectFilenameAndSave();
+                            } else {
+                                std::ofstream out(sceneFilePath);
+                                serialize::OutputArchive ar(out);
+                                serialize::WriteObject(ar, graph);
+                            }
+                        } else {
+                            errorCurrentSceneEmpty();
+                        }
                     }
 
                     if (ImGui::MenuItem("Save As")) {
                         if (!graph) {
-                            showModal("Error", [=]() {
-                                ImGui::Text("%s", "Current scene is empty!");
-                                if (ImGui::Button("Close")) {
-                                    ImGui::CloseCurrentPopup();
-                                }
-                            });
-
+                            errorCurrentSceneEmpty();
                         } else {
-                            auto filename = GetSaveFileNameWithDialog(nullptr);
-                            if (!filename.empty()) {
-                                std::ofstream out(filename);
-                                serialize::OutputArchive ar(out);
-                                serialize::WriteObject(ar, graph);
-                            }
+                            selectFilenameAndSave();
                         }
                     }
 
                     if (ImGui::MenuItem("Import")) {
-                        auto filename = GetOpenFileNameWithDialog(nullptr);
-                        if (!filename.empty()) {
-                            std::thread th([=]() {
-                                showModal("Importing", [=]() {
-                                   
+                        if (sceneFilePath.empty()) {
+                            errorNotSaved();
+                        } else {
+                            auto filename = GetOpenFileNameWithDialog("Wavefront OBJ\0*.obj\0Any File\0*.*\0");
+                            if (!filename.empty()) {
+                                std::thread th([=]() {
+                                    showModal("Importing", [=]() {
+
+                                    });
+                                    try {
+                                        auto importer = std::dynamic_pointer_cast<core::MeshImporter>(
+                                                CreateObject("WavefrontImporter"));
+                                        auto result = importer->importMesh(filename);
+                                        if (result.mesh) {
+                                            graph->shapes.emplace_back(result.mesh);
+                                            auto old = result.mesh->filename;
+                                            auto relativePath = fs::relative(fs::path(old.append(".mesh")),
+                                                                             fs::path(
+                                                                                     sceneFilePath).parent_path()).string();
+                                            CurrentPathGuard _guard;
+                                            fs::current_path(fs::path( sceneFilePath).parent_path());
+                                            result.mesh->writeToFile(relativePath);
+                                        } else {
+                                            log::log("Failed to import {}\n", filename);
+                                        }
+                                    } catch (std::exception &e) {
+                                        log::log("Failed to import {} due to {}\n", filename, e.what());
+                                    }
+                                    closeModal();
                                 });
-                                try {
-                                    auto importer = std::dynamic_pointer_cast<core::MeshImporter>(
-                                        CreateObject("WavefrontImporter"));
-                                    auto result = importer->importMesh(filename);
-                                } catch (std::exception &e) {
-                                    log::log("Failed to import {} due to {}\n", filename, e.what());
-                                }
-                                closeModal();
-                            });
-                            th.detach();
+                                th.detach();
+                            }
                         }
+                    }
+                    if (ImGui::MenuItem("Close")) {
+                        graph = nullptr;
+                        sceneFilePath = fs::path();
                     }
 
                     ImGui::EndMenu();
@@ -361,8 +427,9 @@ namespace miyuki::ui {
             }
         }
 
-      public:
+    public:
         using AbstractMainWindow::AbstractMainWindow;
+
         void update() override {
             modalFunc();
             SetupDockingSpace("DockingSpace");

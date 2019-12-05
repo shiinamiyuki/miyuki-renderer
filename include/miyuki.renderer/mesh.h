@@ -87,7 +87,6 @@ namespace miyuki::core {
                     isct.distance = t;
                     isct.Ng = Ng;
                     isct.uv = Point2f(u, v);
-                    isct.Ns = normalAt(isct.uv);
                     isct.shape = this;
                     return true;
                 }

@@ -2,15 +2,17 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/external/cereal" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/cxxopts" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/external/fmt" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/external/json" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/external/linalg" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/external/lodepng" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/miyuki.foundation" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/cereal" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/fmt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/glfw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/glm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/json" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/lodepng" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/stb" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/pybind11" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/pybind11/tools/clang" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/external/stb" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/tinyobjloader" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/tinyobjloader/pybind11/tools/clang" vcs="Git" />
   </component>
