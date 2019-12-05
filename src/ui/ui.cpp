@@ -25,6 +25,7 @@
 #include <miyuki.renderer/mesh-importer.h>
 #include <miyuki.foundation/property.hpp>
 #include <miyuki.renderer/ui/ui.h>
+#include <miyuki.renderer/ui/myk-ui.h>
 
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -44,6 +45,8 @@
 static void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
+
+void SetupDockingSpace(const std::string &name);
 
 namespace miyuki::ui {
     void InitializeGLFW() {
@@ -134,51 +137,63 @@ namespace miyuki::ui {
 
     void AbstractMainWindow::show() { impl->draw(); }
 
-    void SetupDockingSpace(const std::string &name) {
-        static bool opt_fullscreen_persistant = true;
-        bool opt_fullscreen = opt_fullscreen_persistant;
-        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-        // because it would be confusing to have two docking targets within each others.
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-        if (opt_fullscreen) {
-            ImGuiViewport *viewport = ImGui::GetMainViewport();
-            ImGui::SetNextWindowPos(viewport->Pos);
-            ImGui::SetNextWindowSize(viewport->Size);
-            ImGui::SetNextWindowViewport(viewport->ID);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-            window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                            ImGuiWindowFlags_NoMove;
-            window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+    struct ImplSelector {
+        std::unordered_map<std::string, Type *> _map;
+        std::unordered_map<Type *, std::string> _invmap;
+        std::vector<std::string> _list;
+
+        void loadImpl(const std::string &interface) {
+            ForeachImplementation(interface, [=](const std::string &impl) {
+                auto type = GetType(impl);;
+                _map[impl] = type;
+                _invmap[type] = impl;
+                _list.emplace_back(impl);
+            });
         }
 
-        // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the
-        // pass-thru hole, so we ask Begin() to not render a background.
-        if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-            window_flags |= ImGuiWindowFlags_NoBackground;
+        template<class T>
+        std::optional<std::shared_ptr<T>> select(const std::string &label, const std::shared_ptr<T> &current) {
+            auto itemName = !current ? "Empty" : _invmap.at(current->getType());
+            std::optional<std::shared_ptr<T>> opt = std::nullopt;
+            Combo().name(label).item(itemName).with(true, [=, &opt]() {
+                SingleSelectableText().name("Empty").selected(current == nullptr).with(true, [=, &opt]() {
+                    if (current) {
+                        opt = {nullptr};
+                    }
+                    if (!current) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }).show();
 
-        // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-        // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-        // all active windows docked into it will lose their parent and become undocked.
-        // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-        // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-        ImGui::Begin(name.c_str(), nullptr, window_flags);
-        ImGui::PopStyleVar();
+                for (const auto &ty : _list) {
+                    auto currentTy = current ? current->getType() : nullptr;
+                    bool is_selected = _map.at(ty) == currentTy;
+                    SingleSelectableText().name(ty).selected(is_selected).with(true, [=, &opt]() {
+                        if (currentTy != _map.at(ty)) {
+                            opt = std::dynamic_pointer_cast<T>(_map.at(ty)->create());
+                        }
+                    }).show();
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+            }).show();
+            return opt;
+        }
+    };
 
-        if (opt_fullscreen)
-            ImGui::PopStyleVar(2);
 
-        // DockSpace
-        ImGuiIO &io = ImGui::GetIO();
-
-        ImGuiID dockspace_id = ImGui::GetID(name.c_str());
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-
-        ImGui::End();
+    template<class T>
+    std::optional<std::shared_ptr<T>>
+    selectImpl(const std::shared_ptr<T> &p, const std::string &interface, const std::string &label) {
+        static ImplSelector selector;
+        static std::once_flag flag;
+        std::call_once(flag, [&]() {
+            selector.loadImpl(interface);
+        });
+        return selector.select<T>(label, p);
     }
+
 
     class InspectorPropertyVisitor : public PropertyVisitor {
     public:
@@ -204,18 +219,33 @@ namespace miyuki::ui {
             }
         }
 
-        virtual void visit(ObjectProperty *prop) override {
-            if (ImGui::TreeNodeEx(prop->name(), ImGuiTreeNodeFlags_DefaultOpen)) {
-                ImGui::PushID(prop->name());
+        virtual void visit(RGBProperty *prop) override {
+            auto value = prop->getConstRef();
+            if (ImGui::ColorPicker3(prop->name(), (float *) &value,  ImGuiColorEditFlags_DisplayRGB |
+                                                                    ImGuiColorEditFlags_DisplayHSV |
+                                                                    ImGuiColorEditFlags_DisplayHex)) {
+                prop->getRef() = value;
+            }
+        }
 
+        virtual void visit(ObjectProperty *prop) override {
+            ImGui::PushID(prop->getRef().get());
+            if (ImGui::TreeNodeEx(prop->name(), ImGuiTreeNodeFlags_DefaultOpen)) {
+
+                if (prop->type->isInterface()) {
+                    ImplSelector selector;
+                    selector.loadImpl(prop->type->name());
+                    if (auto opt = selector.select(prop->name(), prop->getRef())) {
+                        prop->getRef() = opt.value();
+                    }
+                }
                 if (prop->getConstRef()) {
                     ImGui::Text("%s", prop->getConstRef()->getType()->name());
                     prop->getRef()->accept(this);
                 }
                 ImGui::TreePop();
-
-                ImGui::PopID();
             }
+            ImGui::PopID();
         }
 
         virtual void visit(FileProperty *prop) override {
@@ -230,12 +260,23 @@ namespace miyuki::ui {
         }
 
         // Inherited via PropertyVisitor
-        virtual void visit(Int2Property *) override {}
+        virtual void visit(Int2Property *prop) override {
+            auto value = prop->getConstRef();
+            if (ImGui::InputInt2(prop->name(), (int *) &value[0], ImGuiInputTextFlags_EnterReturnsTrue)) {
+                prop->getRef() = value;
+            }
+        }
 
-        virtual void visit(Float2Property *) override {}
+        virtual void visit(Float2Property *prop) override {
+            auto value = prop->getConstRef();
+            if (ImGui::InputFloat2(prop->name(), (float *) &value, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue)) {
+                prop->getRef() = value;
+            }
+        }
     };
 
     class MainWindow : public AbstractMainWindow {
+    public:
         std::shared_ptr<core::SceneGraph> graph;
         std::weak_ptr<Object> selected;
         std::function<void(void)> modalFunc = []() {};
@@ -274,20 +315,34 @@ namespace miyuki::ui {
             }
         }
 
+        template<class F>
+        void showSelectableTreeNode(const std::string &name, const std::shared_ptr<Object> &p, const F &f) {
+            int flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+            if (selected.expired() ? false : p == selected.lock()) {
+                flags |= ImGuiTreeNodeFlags_Selected;
+            }
+            if (ImGui::TreeNodeEx(name.c_str(), flags)) {
+                if (ImGui::IsItemClicked()) {
+                    selected = p;
+                }
+                f();
+                ImGui::TreePop();
+            }
+        }
+
         void explore() {
             if (!graph)
                 return;
             if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
-                if (ImGui::TreeNodeEx("Shapes", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    for (auto &i : graph->shapes) {
-                        showSelectable(i->toString(), i);
+                for (auto &mesh: graph->shapes) {
+                    if (auto m = std::dynamic_pointer_cast<core::Mesh>(mesh)) {
+                        showSelectableTreeNode(m->toString(), m, [=]() {
+                            for (auto &kv:m->materials) {
+                                showSelectable(kv.first, kv.second);
+                            }
+                        });
                     }
-                    ImGui::TreePop();
                 }
-                showSelectable("Camera", graph->camera);
-                showSelectable("Sampler", graph->sampler);
-                showSelectable("Integrator", graph->integrator);
-                ImGui::TreePop();
             }
         }
 
@@ -298,9 +353,49 @@ namespace miyuki::ui {
             }
         }
 
-        void showInspector() {
-            if (ImGui::Begin("Inspector")) {
+        void showIntegrator() {
+            if (ImGui::BeginTabItem("Integrator")) {
+                if (auto r = selectImpl<core::Integrator>(graph->integrator, "Integrator", "Integrator")) {
+                    graph->integrator = r.value();
 
+                }
+                if (graph->integrator) {
+                    InspectorPropertyVisitor visitor;
+                    graph->integrator->accept(&visitor);
+                }
+                ImGui::EndTabItem();
+            }
+        }
+
+        void showSettings() {
+            if (ImGui::BeginTabItem("Settings")) {
+                if (auto dim = GetInput("Film Dimension", graph->filmDimension)) {
+                    graph->filmDimension = dim.value();
+                }
+                ImGui::EndTabItem();
+            }
+        }
+
+        void showProperties() {
+            if (ImGui::BeginTabItem("Properties")) {
+                auto p = selected.lock();
+                if (p) {
+                    InspectorPropertyVisitor visitor;
+                    p->accept(&visitor);
+                }
+                ImGui::EndTabItem();
+            }
+        }
+
+        void showInspector() {
+
+            if (ImGui::Begin("Inspector")) {
+                if (ImGui::BeginTabBar("Tabs#00")) {
+                    showSettings();
+                    showIntegrator();
+                    showProperties();
+                    ImGui::EndTabBar();
+                }
                 ImGui::End();
             }
         }
@@ -402,7 +497,7 @@ namespace miyuki::ui {
                                                                              fs::path(
                                                                                      sceneFilePath).parent_path()).string();
                                             CurrentPathGuard _guard;
-                                            fs::current_path(fs::path( sceneFilePath).parent_path());
+                                            fs::current_path(fs::path(sceneFilePath).parent_path());
                                             result.mesh->writeToFile(relativePath);
                                         } else {
                                             log::log("Failed to import {}\n", filename);
@@ -434,8 +529,10 @@ namespace miyuki::ui {
             modalFunc();
             SetupDockingSpace("DockingSpace");
             showMenu();
-            showExplorer();
-            showInspector();
+            if (graph) {
+                showExplorer();
+                showInspector();
+            }
             ImGui::ShowDemoWindow();
         }
     };
@@ -444,3 +541,50 @@ namespace miyuki::ui {
         return std::make_shared<MainWindow>(width, height, title);
     }
 } // namespace miyuki::ui
+
+
+void SetupDockingSpace(const std::string &name) {
+    static bool opt_fullscreen_persistant = true;
+    bool opt_fullscreen = opt_fullscreen_persistant;
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+    // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+    // because it would be confusing to have two docking targets within each others.
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    if (opt_fullscreen) {
+        ImGuiViewport *viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowViewport(viewport->ID);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                        ImGuiWindowFlags_NoMove;
+        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+    }
+
+    // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the
+    // pass-thru hole, so we ask Begin() to not render a background.
+    if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+        window_flags |= ImGuiWindowFlags_NoBackground;
+
+    // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+    // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+    // all active windows docked into it will lose their parent and become undocked.
+    // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+    // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::Begin(name.c_str(), nullptr, window_flags);
+    ImGui::PopStyleVar();
+
+    if (opt_fullscreen)
+        ImGui::PopStyleVar(2);
+
+    // DockSpace
+    ImGuiIO &io = ImGui::GetIO();
+
+    ImGuiID dockspace_id = ImGui::GetID(name.c_str());
+    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+
+    ImGui::End();
+}

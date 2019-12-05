@@ -29,6 +29,7 @@
 namespace miyuki::core {
     class Sampler : public Object {
     public:
+        MYK_INTERFACE(Sampler, "Sampler")
         virtual void startPixel(const Point2i &, const Point2i &filmDimension) = 0;
 
         virtual Float next1D() = 0;

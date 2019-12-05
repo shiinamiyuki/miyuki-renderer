@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_SHAPE_H
 #define MIYUKIRENDERER_SHAPE_H
 
-#include <miyuki.renderer/spectrum.h>
+#include <miyuki.foundation/spectrum.h>
 #include <miyuki.foundation/object.hpp>
 #include <miyuki.renderer/ray.h>
 #include <functional>
@@ -42,6 +42,8 @@ namespace miyuki::core {
 
     class Shape : public Object {
     public:
+        MYK_INTERFACE(Shape, "Shape")
+
         virtual bool intersect(const Ray &ray, Intersection &isct) const = 0;
 
         [[nodiscard]] virtual Bounds3f getBoundingBox() const = 0;

@@ -35,6 +35,7 @@ namespace miyuki::core {
 
     class Camera : public Object {
     public:
+        MYK_INTERFACE(Camera, "Camera")
         virtual const Transform &getTransform() const = 0;
 
         virtual void generateRay(const Point2f &u1,

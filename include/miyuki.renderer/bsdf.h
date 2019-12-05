@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_BSDF_H
 
 #include <miyuki.foundation/object.hpp>
-#include <miyuki.renderer/spectrum.h>
+#include <miyuki.foundation/spectrum.h>
 
 
 namespace miyuki::core {
@@ -33,6 +33,7 @@ namespace miyuki::core {
 
     class BSDF : public Object {
     public:
+        MYK_INTERFACE(BSDF, "BSDF")
         enum Type {
             ENone = 0,
             EDiffuse = 1ULL,

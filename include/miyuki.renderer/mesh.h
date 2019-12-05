@@ -155,6 +155,8 @@ namespace miyuki::core {
 
         MYK_AUTO_INIT(filename, materials)
 
+        MYK_PROP(_materials)
+
         void toBinary(std::vector<char> &buffer) const;
 
         void fromBinary(const std::vector<char> &buffer);

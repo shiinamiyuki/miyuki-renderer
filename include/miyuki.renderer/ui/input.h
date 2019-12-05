@@ -20,19 +20,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_SPECTRUM_H
-#define MIYUKIRENDERER_SPECTRUM_H
+#ifndef MIYUKIRENDERER_INPUT_H
+#define MIYUKIRENDERER_INPUT_H
 
-#include <miyuki.foundation/defs.h>
-#include <miyuki.foundation/math.hpp>
+#include <optional>
+#include <miyuki.foundation/spectrum.h>
 
-namespace miyuki::core {
+namespace miyuki::ui {
+    std::optional<Transform> GetInput(const std::string &, const Transform &initial);
 
-        using Spectrum = Vec3f;
+    std::optional<bool> GetInput(const std::string &, bool initial);
 
-        inline bool IsBlack(const Spectrum &s) {
-            return s.x <= 0 || s.y <= 0 || s.z <= 0;
-        }
+    std::optional<int> GetInput(const std::string &, int initial);
 
+    std::optional<Float> GetInput(const std::string &, Float initial);
+
+    std::optional<size_t> GetInput(const std::string &, size_t initial);
+
+    std::optional<Point2i> GetInput(const std::string &prompt, Point2i initial);
+
+    std::optional<Point2f> GetInput(const std::string &prompt, Point2f initial);
+
+    std::optional<Vec3f> GetInput(const std::string &, Vec3f initial);
+
+    std::optional<core::Spectrum> GetInput(const std::string &, core::Spectrum initial);
+
+    std::optional<Float> GetFloatClamped(const std::string &, Float initial, Float minVal, Float maxVal);
+
+    std::optional<std::string> GetInput(const std::string &, const std::string &);
 }
-#endif //MIYUKIRENDERER_SPECTRUM_H
+#endif //MIYUKIRENDERER_INPUT_H

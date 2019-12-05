@@ -36,6 +36,7 @@ namespace miyuki::core {
 
     class Integrator : public Object {
     public:
+        MYK_INTERFACE(Integrator, "Integrator")
         virtual void render(const std::shared_ptr<Scene> &,
                             const std::shared_ptr<Camera> &,
                             const std::shared_ptr<Sampler> &,

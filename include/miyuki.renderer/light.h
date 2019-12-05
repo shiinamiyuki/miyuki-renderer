@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_LIGHT_H
 #define MIYUKIRENDERER_LIGHT_H
 
-#include <miyuki.renderer/spectrum.h>
+#include <miyuki.foundation/spectrum.h>
 #include <miyuki.renderer/ray.h>
 #include <miyuki.foundation/object.hpp>
 
@@ -47,6 +47,7 @@ namespace miyuki::core {
 
     class Light : public Object {
     public:
+        MYK_INTERFACE(Light, "Light")
         virtual Spectrum Li(ShadingPoint &sp) const = 0;
 
         virtual void sampleLi(const Point2f &u, Intersection &isct, LightSample &sample, VisibilityTester &) const = 0;

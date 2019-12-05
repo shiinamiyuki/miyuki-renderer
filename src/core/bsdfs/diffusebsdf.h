@@ -25,6 +25,7 @@
 
 #include <miyuki.renderer/bsdf.h>
 #include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/property.hpp>
 
 namespace miyuki::core {
     class Shader;
@@ -37,6 +38,8 @@ namespace miyuki::core {
         MYK_AUTO_SER(color)
 
         MYK_AUTO_INIT(color)
+
+        MYK_PROP(color)
 
         DiffuseBSDF() = default;
 

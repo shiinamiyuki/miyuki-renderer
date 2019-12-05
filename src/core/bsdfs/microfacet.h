@@ -23,7 +23,7 @@
 
 #include <miyuki.renderer/bsdf.h>
 #include <miyuki.foundation/serialize.hpp>
-
+#include <miyuki.foundation/property.hpp>
 
 namespace miyuki::core {
     class Fresnel;
@@ -39,6 +39,8 @@ namespace miyuki::core {
         MYK_AUTO_SER(color, roughness)
 
         MYK_AUTO_INIT(color, roughness)
+
+        MYK_PROP(color, roughness)
 
         MicrofacetBSDF() = default;
 

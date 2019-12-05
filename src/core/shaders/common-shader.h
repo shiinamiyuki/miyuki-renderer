@@ -26,6 +26,7 @@
 #include <miyuki.renderer/shader.h>
 #include <miyuki.foundation/serialize.hpp>
 #include <miyuki.foundation/image.hpp>
+#include <miyuki.foundation/property.hpp>
 
 namespace miyuki::core {
     class FloatShader final : public Shader {
@@ -39,6 +40,8 @@ namespace miyuki::core {
 
         MYK_AUTO_INIT(value)
 
+        MYK_PROP(value)
+
         MYK_DECL_CLASS(FloatShader, "FloatShader", interface = "Shader")
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
@@ -47,15 +50,17 @@ namespace miyuki::core {
     };
 
     class RGBShader final : public Shader {
-        Vec3f value = vec3(1.0f);
+        RGBSpectrum value = RGBSpectrum(0);
     public:
         RGBShader() = default;
 
-        RGBShader(Vec3f v) : value(v) {}
+        explicit RGBShader(RGBSpectrum v) : value(v) {}
 
         MYK_AUTO_SER(value)
 
         MYK_AUTO_INIT(value)
+
+        MYK_PROP(value)
 
         MYK_DECL_CLASS(RGBShader, "RGBShader", interface = "Shader")
 
@@ -72,6 +77,8 @@ namespace miyuki::core {
         MYK_AUTO_SER(imagePath)
 
         MYK_AUTO_INIT(imagePath)
+
+       // MYK_PROP(imagePath)
 
         MYK_DECL_CLASS(ImageTextureShader, "ImageTextureShader", interface = "Shader")
 

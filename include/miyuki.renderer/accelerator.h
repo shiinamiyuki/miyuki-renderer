@@ -30,6 +30,8 @@ namespace miyuki::core {
 
     class Accelerator : public Object {
     public:
+        MYK_INTERFACE(Accelerator, "Acclerator")
+
         virtual void build(Scene &scene) = 0;
 
         virtual bool intersect(const Ray &ray, Intersection &isct) = 0;

@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_SHADER_H
 
 #include <miyuki.foundation/object.hpp>
-#include <miyuki.renderer/spectrum.h>
+#include <miyuki.foundation/spectrum.h>
 
 namespace miyuki::core {
     struct ShadingPoint {
@@ -35,6 +35,7 @@ namespace miyuki::core {
 
     class Shader : public Object {
     public:
+        MYK_INTERFACE(Shader, "Shader")
         virtual Spectrum evaluate(const ShadingPoint &) const = 0;
     };
 

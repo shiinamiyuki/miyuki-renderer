@@ -27,7 +27,7 @@
 namespace miyuki::core {
     Spectrum DiffuseBSDF::evaluate(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {
         if (wo.y * wi.y > 0)
-            return color->evaluate(point) * InvPi;
+            return Spectrum(color->evaluate(point) * InvPi);
         return {};
     }
 

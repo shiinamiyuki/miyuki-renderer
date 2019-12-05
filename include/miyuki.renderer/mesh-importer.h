@@ -35,6 +35,7 @@ namespace miyuki ::core {
 
     class MeshImporter : public Object {
     public:
+        MYK_INTERFACE(MeshImporter, "MeshImporter")
         virtual MeshImportResult importMesh(const fs::path &) = 0;
     };
 } // namespace miyuki::core
