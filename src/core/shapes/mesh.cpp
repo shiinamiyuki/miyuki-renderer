@@ -71,8 +71,11 @@ namespace miyuki::core {
     void Mesh::preprocess() {
         if (!_loaded) {
             auto ext = fs::path(filename).extension().string();
-            if (ext == ".mesh")
-                loadFromFile(filename);
+            if (ext == ".mesh") {
+                if (!loadFromFile(filename)) {
+                    log::log("failed to load {}\n", fs::absolute(fs::path(filename)).string());
+                }
+            }
             else {
                 throw std::runtime_error("Only .mesh files are supported");
 			}

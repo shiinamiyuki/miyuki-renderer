@@ -23,7 +23,11 @@
 #ifndef MIYUKIRENDERER_INTEGRATOR_H
 #define MIYUKIRENDERER_INTEGRATOR_H
 
+#include <miyuki.foundation/math.hpp>
 #include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/mpsc.hpp>
+#include <miyuki.foundation/task.hpp>
+
 
 namespace miyuki::core {
     class Camera;
@@ -34,13 +38,22 @@ namespace miyuki::core {
 
     struct Film;
 
+    struct RenderSettings {
+        Point2i filmDimension;
+    };
+
+    struct RenderOutput{
+        std::shared_ptr<Film> film;
+    };
     class Integrator : public Object {
     public:
         MYK_INTERFACE(Integrator, "Integrator")
-        virtual void render(const std::shared_ptr<Scene> &,
+
+        virtual Task<RenderOutput> createRenderTask(const RenderSettings &settings,
+                            const std::shared_ptr<Scene> &,
                             const std::shared_ptr<Camera> &,
                             const std::shared_ptr<Sampler> &,
-                            Film &film) = 0;
+                            const mpsc::Sender<std::shared_ptr<Film>> &tx) = 0;
     };
 }
 

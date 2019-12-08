@@ -30,30 +30,32 @@
 
 namespace miyuki::core {
     class PerspectiveCamera final : public Camera {
-        Transform transform, invTransform;
-        float fov;
-
+        Transform _transform{}, _invTransform{};
+        float fov = DegreesToRadians(80);
+        TransformManipulator transform{};
     public:
         PerspectiveCamera() = default;
 
         PerspectiveCamera(const Vec3f &p1, const Vec3f &p2, Float fov) : fov(fov) {
-            transform = Transform(lookAt(p1, p2, vec3(0, 1, 0)));
-            invTransform = transform.inverse();
+            _transform = Transform(lookAt(p1, p2, vec3(0, 1, 0)));
+            _invTransform = _transform.inverse();
         }
 
-        const Transform &getTransform() const override { return transform; }
+        [[nodiscard]] const Transform &getTransform() const override { return _transform; }
 
     public:
         MYK_DECL_CLASS(PerspectiveCamera, "PerspectiveCamera", interface = "Camera")
 
         MYK_AUTO_SER(transform, fov)
 
-        MYK_PROP(fov)
+        MYK_PROP(transform, fov)
 
         void initialize(const json &params) override;
 
         void generateRay(const Point2f &u1, const Point2f &u2, const Point2i &raster, Point2i filmDimension,
                          CameraSample &sample) const override;
+
+        void preprocess()override;
     };
 
 } // namespace miyuki::core

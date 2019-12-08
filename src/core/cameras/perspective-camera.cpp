@@ -26,24 +26,20 @@
 namespace miyuki::core {
     void PerspectiveCamera::initialize(const json &params) {
         fov = DegreesToRadians(params.at("fov").get<Float>());
-        if (params.contains("eye")) {
-            auto viewpoint = params.at("eye").get<Vec3f>();
-            auto at = params.at("at").get<Vec3f>();
-            transform = Transform(lookAt(viewpoint, at,vec3(0,1,0)));
-        } else if (params.contains("translate")) {
+        if (params.contains("translate")) {
             auto translate = params.at("translate").get<Vec3f>();
             auto rotation = DegreesToRadians(params.at("rotate").get<Vec3f>());
-            mat4 m =identity<mat4>();
-            m = rotate(rotation.z,Vec3f(0, 0, 1)) * m;
-            m = rotate(rotation.y,Vec3f(1, 0, 0)) * m;
-            m = rotate(rotation.x,Vec3f(0, 1, 0)) * m;
+            mat4 m = identity<mat4>();
+            m = rotate(rotation.z, Vec3f(0, 0, 1)) * m;
+            m = rotate(rotation.y, Vec3f(1, 0, 0)) * m;
+            m = rotate(rotation.x, Vec3f(0, 1, 0)) * m;
             m = glm::translate(translate) * m;
-            transform = Transform(m);
-
+            _transform = Transform(m);
+            transform = {rotation, translate};
         } else {
             MIYUKI_THROW(std::runtime_error, "Unknown input format to PerspectiveCamera");
         }
-        invTransform = transform.inverse();
+        _invTransform = _transform.inverse();
     }
 
     void PerspectiveCamera::generateRay(const Point2f &u1,
@@ -68,9 +64,13 @@ namespace miyuki::core {
         Vec3f d = Vec3f(x, y, 0) - Vec3f(0, 0, -z);
         d = normalize(d);
         Point3f o = Vec3f(sample.pLens.x, sample.pLens.y, 0);
-        o = transform.transformPoint3(o);
-        d = transform.transformVec3(d);
+        o = _transform.transformPoint3(o);
+        d = _transform.transformVec3(d);
         sample.ray = Ray(o, d, RayBias);
     }
 
+    void PerspectiveCamera::preprocess() {
+        _transform = transform.toTransform();
+        _invTransform = _transform.inverse();
+    }
 }

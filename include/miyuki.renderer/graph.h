@@ -54,6 +54,8 @@ namespace miyuki::core {
         MYK_DECL_CLASS(SceneGraph, "SceneGraph")
 
         void render(const std::string &outImageFile);
+
+        Task<RenderOutput> createRenderTask(const mpsc::Sender<std::shared_ptr<Film>> & tx);
     };
 } // namespace miyuki::core
 #endif // MIYUKIRENDERER_GRAPH_H

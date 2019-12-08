@@ -41,9 +41,24 @@
 
 #include <examples/imgui_impl_glfw.h>
 #include <examples/imgui_impl_opengl3.h>
+#include <miyuki.foundation/film.h>
 
 static void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+}
+
+static void GLAPIENTRY
+MessageCallback(GLenum source,
+                GLenum type,
+                GLuint id,
+                GLenum severity,
+                GLsizei length,
+                const GLchar *message,
+                const void *userParam) {
+    if (GL_DEBUG_SEVERITY_HIGH == severity)
+        fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+                (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+                type, severity, message);
 }
 
 void SetupDockingSpace(const std::string &name);
@@ -66,6 +81,9 @@ namespace miyuki::ui {
             if (err) {
                 MIYUKI_THROW(std::runtime_error, "Cannot initialize OpenGL loader!");
             }
+
+            glEnable(GL_DEBUG_OUTPUT);
+            glDebugMessageCallback(MessageCallback, 0);
         });
     }
 
@@ -198,6 +216,14 @@ namespace miyuki::ui {
     class InspectorPropertyVisitor : public PropertyVisitor {
     public:
         // Inherited via PropertyVisitor
+
+        virtual void visit(BoolProperty *prop) override {
+            auto value = prop->getConstRef();
+            if (ImGui::Checkbox(prop->name(), &value)) {
+                prop->getRef() = value;
+            }
+        }
+
         virtual void visit(IntProperty *prop) override {
             auto value = prop->getConstRef();
             if (ImGui::InputInt(prop->name(), &value, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -221,7 +247,7 @@ namespace miyuki::ui {
 
         virtual void visit(RGBProperty *prop) override {
             auto value = prop->getConstRef();
-            if (ImGui::ColorPicker3(prop->name(), (float *) &value,  ImGuiColorEditFlags_DisplayRGB |
+            if (ImGui::ColorPicker3(prop->name(), (float *) &value, ImGuiColorEditFlags_DisplayRGB |
                                                                     ImGuiColorEditFlags_DisplayHSV |
                                                                     ImGuiColorEditFlags_DisplayHex)) {
                 prop->getRef() = value;
@@ -275,6 +301,133 @@ namespace miyuki::ui {
         }
     };
 
+    struct Viewport {
+        const ivec2 computeDispatchSize = ivec2(16, 16);
+        mpsc::channel_t<std::shared_ptr<core::Film>> channel = mpsc::channel<std::shared_ptr<core::Film>>();
+        GLuint color = -1;
+        GLuint weight = -1;
+        GLuint composed = -1;
+        ivec2 dim;
+
+        GLuint program;
+
+        void compileShader() {
+            GLuint shader = glCreateShader(GL_COMPUTE_SHADER);
+            const char *source = R"(
+#version 430
+layout(local_size_x = 16, local_size_y = 16,local_size_z = 1) in;
+layout(binding = 1, rgba32f)  readonly uniform image2D color;
+layout(binding = 2, rgba32f)  readonly uniform image2D weight;
+layout(binding = 3, rgba32f)  writeonly uniform image2D composedImage;
+
+uniform vec2 iResolution;
+
+void main(){
+    if(any(greaterThanEqual(gl_GlobalInvocationID.xy, iResolution)))
+        return;
+    ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
+    vec3 c = imageLoad(color, pixelCoord).rgb;
+    float w = imageLoad(weight, pixelCoord).r;
+    if(w == 0.0) w =1.0;
+    c = c / w;
+    c = pow(c, vec3(1.0/2.2));
+    imageStore(composedImage, pixelCoord, vec4(c, 1.0f));
+}
+)";
+            GLint success;
+            std::vector<char> error(4096);
+            glShaderSource(shader, 1, &source, nullptr);
+            glCompileShader(shader);
+            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+            if (!success) {
+                glGetShaderInfoLog(shader, error.size(), nullptr, error.data());
+                std::cout << "ERROR::SHADER::COMPUTE::COMPILATION_FAILED\n" << error.data() << std::endl;
+                exit(1);
+            };
+
+            program = glCreateProgram();
+            glAttachShader(program, shader);
+            glLinkProgram(program);
+            glGetProgramiv(program, GL_LINK_STATUS, &success);
+            if (!success) {
+                glGetProgramInfoLog(program, error.size(), nullptr, error.data());
+                std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << error.data() << std::endl;
+                exit(1);
+            }
+            glDeleteShader(shader);
+        }
+
+        void genTexture() {
+            auto setup = [=](GLuint &texture) {
+                glGenTextures(1, &texture);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, dim[0], dim[1], 0, GL_RGBA,
+                             GL_FLOAT, NULL);
+            };
+
+            setup(color);
+            setup(weight);
+            setup(composed);
+        }
+
+        void writeData(const core::Film &film) {
+            if (ivec2(film.width, film.height) != dim) {
+                resize(ivec2(film.width, film.height));
+            }
+            glBindTexture(GL_TEXTURE_2D, color);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dim[0], dim[1], GL_RGBA,
+                            GL_FLOAT, film.pixels.color.data());
+
+            glBindTexture(GL_TEXTURE_2D, weight);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dim[0], dim[1], GL_RGBA,
+                            GL_FLOAT, film.pixels.weight.data());
+        }
+
+        explicit Viewport(ivec2 dim) : dim(dim), channel(mpsc::channel<std::shared_ptr<core::Film>>()) {
+            genTexture();
+
+        }
+
+        void resize(ivec2 _dim) {
+            dim = _dim;
+            glDeleteTextures(1, &color);
+            glDeleteTextures(1, &weight);
+            glDeleteTextures(1, &composed);
+            genTexture();
+        }
+
+        ~Viewport() {
+            glDeleteTextures(1, &color);
+            glDeleteTextures(1, &weight);
+            glDeleteTextures(1, &composed);
+        }
+
+        void show() {
+            if (!channel.rx.block()) {
+
+                if (auto p = channel.rx.recv()) {
+                    writeData(*p.value());
+                }
+            }
+            glUseProgram(program);
+            glBindTexture(GL_TEXTURE_2D, color);
+            glUniform2f(glGetUniformLocation(program, "iResolution"), dim[0], dim[1]);
+            glBindImageTexture(1, color, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+            glBindImageTexture(2, weight, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+            glBindImageTexture(3, composed, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+            glDispatchCompute(std::ceil(dim[0] / float(computeDispatchSize[0])),
+                              std::ceil(dim[1] / float(computeDispatchSize[1])), 1);
+            glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+            glFinish();
+            ImGui::Image(reinterpret_cast<void *> (composed), ImVec2(dim[0], dim[1]));
+        }
+    };
+
     class MainWindow : public AbstractMainWindow {
     public:
         std::shared_ptr<core::SceneGraph> graph;
@@ -284,6 +437,8 @@ namespace miyuki::ui {
         bool _modalOpen = false;
         bool _updated = false;
         fs::path sceneFilePath;
+        std::shared_ptr<Viewport> viewport;
+        std::optional<Task<core::RenderOutput>> renderTask;
 
         template<class F>
         void showModal(const char *name, F &&f) {
@@ -346,10 +501,59 @@ namespace miyuki::ui {
             }
         }
 
+
+        void showView() {
+            if (ImGui::Begin("View", nullptr, ImGuiWindowFlags_NoScrollWithMouse)) {
+                if (graph) {
+                    bool checked = renderTask.has_value();
+                    if (ImGui::Checkbox("Render", &checked)) {
+                        if (!checked) {
+                            if (renderTask.has_value()) {
+                                renderTask.value().kill();
+                                renderTask = std::nullopt;
+                            }
+                        } else {
+                            if (renderTask.has_value()) {
+                                renderTask.value().wait();
+                                renderTask = std::nullopt;
+                            }
+                            if (!graph->integrator) {
+                                checked = false;
+                            } else {
+                                CurrentPathGuard _guard;
+                                fs::current_path(fs::path(sceneFilePath).parent_path());
+                                renderTask = std::move(graph->createRenderTask(viewport->channel.tx));
+                                renderTask.value().launch();
+                            }
+                        }
+                    }
+
+                    if (graph->filmDimension != viewport->dim) {
+                        viewport->resize(graph->filmDimension);
+                    }
+                    viewport->show();
+                }
+                ImGui::End();
+            }
+        }
+
         void showExplorer() {
             if (ImGui::Begin("Explorer")) {
                 explore();
                 ImGui::End();
+            }
+        }
+
+        void showCamera() {
+            if (ImGui::BeginTabItem("Camera")) {
+                if (auto r = selectImpl<core::Camera>(graph->camera, "Camera", "Camera")) {
+                    graph->camera = r.value();
+                }
+                if (graph->camera) {
+                    InspectorPropertyVisitor visitor;
+                    graph->camera->accept(&visitor);
+                }
+                ImGui::EndTabItem();
             }
         }
 
@@ -391,9 +595,11 @@ namespace miyuki::ui {
 
             if (ImGui::Begin("Inspector")) {
                 if (ImGui::BeginTabBar("Tabs#00")) {
-                    showSettings();
-                    showIntegrator();
                     showProperties();
+                    showSettings();
+                    showCamera();
+                    showIntegrator();
+
                     ImGui::EndTabBar();
                 }
                 ImGui::End();
@@ -523,7 +729,10 @@ namespace miyuki::ui {
         }
 
     public:
-        using AbstractMainWindow::AbstractMainWindow;
+        MainWindow(int w, int h, const std::string &title) : AbstractMainWindow(w, h, title) {
+            viewport = std::make_shared<Viewport>(ivec2(1280, 720));
+            viewport->compileShader();
+        }
 
         void update() override {
             modalFunc();
@@ -532,6 +741,7 @@ namespace miyuki::ui {
             if (graph) {
                 showExplorer();
                 showInspector();
+                showView();
             }
             ImGui::ShowDemoWindow();
         }

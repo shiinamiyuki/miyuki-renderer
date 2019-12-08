@@ -25,16 +25,17 @@
 #include <iostream>
 #include <stdexcept>
 #include <variant>
+#include <miyuki.foundation/mpsc.hpp>
 
 int main() {
     using namespace miyuki;
-     try {
-         core::Initialize();
-         auto window = ui::MakeMainWindow(1280, 720, "miyuki.studio");
-         window->show();
-     } catch (std::runtime_error &e) {
-         std::cerr << e.what() << std::endl;
-     }
-     core::Finalize();
+    try {
+        core::Initialize();
+        auto window = ui::MakeMainWindow(1280, 720, "miyuki.studio");
+        window->show();
+    } catch (std::runtime_error &e) {
+        std::cerr << e.what() << std::endl;
+    }
+    core::Finalize();
     return 0;
 }

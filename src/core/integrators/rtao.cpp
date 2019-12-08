@@ -31,22 +31,27 @@
 #include <miyuki.renderer/scene.h>
 
 namespace miyuki::core {
-
-    void RTAO::render(const std::shared_ptr<Scene> &scene, const std::shared_ptr<Camera> &camera,
-                      const std::shared_ptr<Sampler> &_sampler, Film &film) {
+    RenderOutput RTAO::render(const miyuki::Task<void>::ContFunc &cont, const RenderSettings &settings,
+                      const std::shared_ptr<Scene> &scene,
+                      const std::shared_ptr<Camera> &camera,
+                      const std::shared_ptr<Sampler> &_sampler, const mpsc::Sender<std::shared_ptr<Film>> &tx) {
         scene->resetRayCounter();
         Profiler profiler;
+        auto filmPtr = std::make_shared<Film>(settings.filmDimension);
+        auto &film = *filmPtr;
+        log::log("Integrator: RTAO, samples: {}\n",spp);
         ParallelFor(0, film.height, [=, &film](int64_t j, uint64_t) {
             auto sampler = _sampler->clone();
-            for (int i = 0; i < film.width; i++) {
+            for (int i = 0; i < film.width && cont(); i++) {
 
                 sampler->startPixel(Point2i(i, j), Point2i(film.width, film.height));
-                for (int s = 0; s < spp; s++) {
+                for (int s = 0; s < spp && cont(); s++) {
                     CameraSample sample;
                     sampler->startNextSample();
                     camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i(i, j),
                                         Point2i(film.width, film.height), sample);
-                    // log::log("{} {} {}\n",sample.ray.o.x,sample.ray.o.y,sample.ray.o.z);
+                  //  film.addSample(sample.pFilm,sample.ray.d, 1);
+                   //  log::log("{} {} {}\n",sample.ray.o.x,sample.ray.o.y,sample.ray.o.z);
                     Intersection isct;
                     if (scene->intersect(sample.ray, isct)) {
                         auto wo = isct.worldToLocal(-sample.ray.d);
@@ -63,12 +68,28 @@ namespace miyuki::core {
                         } else {
                             film.addSample(sample.pFilm, Spectrum(0), 1);
                         }
+                    }else{
+                        film.addSample(sample.pFilm, Spectrum(0), 1);
                     }
                 }
             }
         });
+        if (!cont()) {
+            return {};
+        }
         auto duration = profiler.elapsed<double>();
         log::log("Rendering done in {}secs, traced {} rays, {} M rays/sec\n", duration.count(), scene->getRayCounter(),
                  scene->getRayCounter() / duration.count() / 1e6f);
+        tx.send(std::shared_ptr<Film>(filmPtr));
+        return RenderOutput{filmPtr};
+    }
+
+    Task<RenderOutput> RTAO::createRenderTask(const RenderSettings &settings, const std::shared_ptr<Scene> &scene,
+                                      const std::shared_ptr<Camera> &camera,
+                                      const std::shared_ptr<Sampler> &_sampler,
+                                      const mpsc::Sender<std::shared_ptr<Film>> &tx) {
+        return Task<RenderOutput>([=](const Task<void>::ContFunc &cont) {
+            return render(cont, settings, scene, camera, _sampler, tx);
+        });
     }
 } // namespace miyuki::core
