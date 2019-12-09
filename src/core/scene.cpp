@@ -31,7 +31,7 @@ namespace miyuki::core {
         accelerator = std::make_shared<EmbreeAccelerator>();
         auto setLight = [=](MeshTriangle *triangle) {
             auto mat = triangle->getMaterial();
-            if (mat && mat->markAsLight) {
+            if (mat && mat->markAsLight && mat->emission && mat->emissionStrength) {
                 auto light = std::make_shared<AreaLight>();
                 light->setTriangle(triangle);
                 lights.emplace_back(light);

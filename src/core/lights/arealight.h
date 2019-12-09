@@ -30,7 +30,7 @@
 namespace miyuki::core {
     class AreaLight final: public Light {
         MeshTriangle *triangle = nullptr;
-        std::shared_ptr<Shader> emission;
+        std::shared_ptr<Shader> emission, emissionStrength;
     public:
         MYK_DECL_CLASS(AreaLight, "AreaLight", interface = "Light")
 

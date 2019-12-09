@@ -94,7 +94,7 @@ namespace miyuki::core {
                         lightPdf *= lightSample.pdf;
                         auto f = bsdf->evaluate(sp, wo, intersection.worldToLocal(lightSample.wi)) *
                                  abs(dot(lightSample.wi, intersection.Ns));
-                        if (!IsBlack(f) && visibilityTester.visible(*scene)) {
+                        if (lightPdf > 0 && !IsBlack(f) && visibilityTester.visible(*scene)) {
                             Li += beta * f * lightSample.Li / lightPdf;
                         }
                     }

@@ -27,9 +27,10 @@ namespace miyuki::core {
     void AreaLight::setTriangle(MeshTriangle *shape) {
         this->triangle = shape;
         emission = triangle->getMaterial()->emission;
+        emissionStrength = triangle->getMaterial()->emissionStrength;
     }
 
-    Spectrum AreaLight::Li(ShadingPoint &sp) const { return emission->evaluate(sp); }
+    Spectrum AreaLight::Li(ShadingPoint &sp) const { return emission->evaluate(sp) * triangle->getMaterial()->emissionStrength->evaluate(sp); }
 
     void AreaLight::sampleLi(const Point2f &u, Intersection &isct, LightSample &sample,
                              VisibilityTester &tester) const {
@@ -43,7 +44,7 @@ namespace miyuki::core {
         sp.texCoord = triangle->texCoordAt(surfaceSample.uv);
         sample.Li = Li(sp);
         sample.wi = normalize(wi);
-        sample.pdf = dot(wi, wi) / abs(dot(sample.wi, surfaceSample.normal)) * surfaceSample.pdf;
+        sample.pdf = dot(wi, wi) / (-dot(sample.wi, surfaceSample.normal)) * surfaceSample.pdf;
     }
 
     Float AreaLight::pdfLi(const Intersection &intersection, const Vec3f &wi) const {
