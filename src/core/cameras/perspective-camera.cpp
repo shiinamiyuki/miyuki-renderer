@@ -25,7 +25,7 @@
 
 namespace miyuki::core {
     void PerspectiveCamera::initialize(const json &params) {
-        fov = DegreesToRadians(params.at("fov").get<Float>());
+        fov = (params.at("fov").get<Radians<float>>());
         if (params.contains("translate")) {
             auto translate = params.at("translate").get<Vec3f>();
             auto rotation = DegreesToRadians(params.at("rotate").get<Vec3f>());
@@ -35,7 +35,7 @@ namespace miyuki::core {
             m = rotate(rotation.x, Vec3f(0, 1, 0)) * m;
             m = glm::translate(translate) * m;
             _transform = Transform(m);
-            transform = {rotation, translate};
+            transform = {Radians<vec3>(rotation), translate};
         } else {
             MIYUKI_THROW(std::runtime_error, "Unknown input format to PerspectiveCamera");
         }
@@ -60,7 +60,7 @@ namespace miyuki::core {
         x = -(2 * x - 1);
         y = 2 * y - 1;
         y *= float(filmDimension.y) / filmDimension.x;
-        float z = 1.0f / std::atan(fov / 2);
+        float z = 1.0f / std::atan(fov.get() / 2);
         Vec3f d = Vec3f(x, y, 0) - Vec3f(0, 0, -z);
         d = normalize(d);
         Point3f o = Vec3f(sample.pLens.x, sample.pLens.y, 0);

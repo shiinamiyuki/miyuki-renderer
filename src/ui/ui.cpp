@@ -83,14 +83,14 @@ namespace miyuki::ui {
             }
 
             glEnable(GL_DEBUG_OUTPUT);
-            glDebugMessageCallback(MessageCallback, 0);
+            glDebugMessageCallback(MessageCallback, nullptr);
         });
     }
 
     class AbstractMainWindow::Impl {
 
     public:
-        AbstractMainWindow *mw;
+        AbstractMainWindow *mw{};
         GLFWwindow *window;
 
         Impl(int width, int height, const std::string &title) {
@@ -546,7 +546,7 @@ void main(){
 
         void showCamera() {
             if (ImGui::BeginTabItem("Camera")) {
-                if (auto r = selectImpl<core::Camera>(graph->camera, "Camera", "Camera")) {
+                if (auto r = selectImpl<core::Camera>(graph->camera, "Camera", "Camera##")) {
                     graph->camera = r.value();
                 }
                 if (graph->camera) {
@@ -557,9 +557,21 @@ void main(){
             }
         }
 
+        void showSampler(){
+            if(ImGui::BeginTabItem("Sampler")){
+                if(auto r = selectImpl<core::Sampler>(graph->sampler, "Sampler","Sampler##")){
+                    graph->sampler = r.value();
+                }
+                if(graph->sampler){
+                    InspectorPropertyVisitor visitor;
+                    graph->sampler->accept(&visitor);
+                }
+
+            }
+        }
         void showIntegrator() {
             if (ImGui::BeginTabItem("Integrator")) {
-                if (auto r = selectImpl<core::Integrator>(graph->integrator, "Integrator", "Integrator")) {
+                if (auto r = selectImpl<core::Integrator>(graph->integrator, "Integrator", "Integrator##")) {
                     graph->integrator = r.value();
 
                 }
@@ -598,6 +610,7 @@ void main(){
                     showProperties();
                     showSettings();
                     showCamera();
+                    showSampler();
                     showIntegrator();
 
                     ImGui::EndTabBar();

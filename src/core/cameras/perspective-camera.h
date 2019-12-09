@@ -31,12 +31,12 @@
 namespace miyuki::core {
     class PerspectiveCamera final : public Camera {
         Transform _transform{}, _invTransform{};
-        float fov = DegreesToRadians(80);
+        Radians<float> fov = Radians<float>(Degrees<float>(80.0));
         TransformManipulator transform{};
     public:
         PerspectiveCamera() = default;
 
-        PerspectiveCamera(const Vec3f &p1, const Vec3f &p2, Float fov) : fov(fov) {
+        PerspectiveCamera(const Vec3f &p1, const Vec3f &p2, Radians<float> fov) : fov(fov) {
             _transform = Transform(lookAt(p1, p2, vec3(0, 1, 0)));
             _invTransform = _transform.inverse();
         }
