@@ -33,6 +33,7 @@ namespace miyuki::core {
             auto mat = triangle->getMaterial();
             if (mat && mat->markAsLight && mat->emission && mat->emissionStrength) {
                 auto light = std::make_shared<AreaLight>();
+                triangle->light = light.get();
                 light->setTriangle(triangle);
                 lights.emplace_back(light);
             }

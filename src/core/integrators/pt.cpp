@@ -31,6 +31,7 @@
 #include <miyuki.renderer/scene.h>
 #include <miyuki.renderer/lightdistribution.h>
 
+
 namespace miyuki::core {
 
     static float MisWeight(float pdfA, float pdfB) {
@@ -54,6 +55,8 @@ namespace miyuki::core {
             return Spectrum(0);
         };
 
+
+
         auto Li = [=](Sampler &sampler, Ray ray) -> Spectrum {
             Spectrum Li(0);
             Spectrum beta(1);
@@ -62,6 +65,7 @@ namespace miyuki::core {
             if (!scene->intersect(ray, intersection)) {
                 return backgroundLi(ray);
             }
+            Float prevScatteringPdf = 0.0f;
             int depth = 0;
             while (true) {
 
@@ -75,12 +79,35 @@ namespace miyuki::core {
                 sp.texCoord = intersection.shape->texCoordAt(intersection.uv);
                 sp.Ng = intersection.Ng;
                 sp.Ns = intersection.Ns;
-                if (depth == 0 && intersection.material->emission && intersection.material->emissionStrength) {
-                    Li += beta * intersection.material->emission->evaluate(sp)
-                          * intersection.material->emissionStrength->evaluate(sp);
+                if (intersection.material->emission && intersection.material->emissionStrength) {
+                    auto light = intersection.shape->light;
+                    auto lightPdf = settings.lightDistribution->lightPdf(light);
+                    if (depth == 0 || !light || lightPdf <= 0.0f || specular) {
+                        Li += beta * intersection.material->emission->evaluate(sp)
+                              * intersection.material->emissionStrength->evaluate(sp);
+                    } else {
+                        lightPdf *= light->pdfLi(intersection, ray.d);
+                        auto weight = MisWeight(lightPdf, prevScatteringPdf);
+                        Li += beta * weight * intersection.material->emission->evaluate(sp)
+                              * intersection.material->emissionStrength->evaluate(sp);
+                    }
                 }
                 if (++depth > maxDepth) {
                     break;
+                }
+
+
+                BSDFSample bsdfSample;
+                // BSDF Sampling
+                {
+
+                    bsdfSample.wo = wo;
+                    bsdf->sample(sampler.next2D(), sp, bsdfSample);
+                    if (std::isnan(bsdfSample.pdf) || bsdfSample.pdf <= 0.0f) {
+                        break;
+                    }
+                    prevScatteringPdf = bsdfSample.pdf;
+                    specular = (bsdfSample.sampledType & BSDF::ESpecular) != 0;
                 }
 
                 // Light Sampling
@@ -95,31 +122,29 @@ namespace miyuki::core {
                         auto f = bsdf->evaluate(sp, wo, intersection.worldToLocal(lightSample.wi)) *
                                  abs(dot(lightSample.wi, intersection.Ns));
                         if (lightPdf > 0 && !IsBlack(f) && visibilityTester.visible(*scene)) {
-                            Li += beta * f * lightSample.Li / lightPdf;
+                            if (specular) {
+                                Li += beta * f * lightSample.Li / lightPdf;
+                            } else {
+                                auto scatteringPdf = bsdf->evaluatePdf(sp, wo,
+                                                                       intersection.worldToLocal(lightSample.wi));
+                                MIYUKI_CHECK(!std::isnan(scatteringPdf));
+                                MIYUKI_CHECK(scatteringPdf >= 0.0f);
+                                auto weight = MisWeight(lightPdf, scatteringPdf);
+                                Li += beta * f * lightSample.Li / lightPdf * weight;
+                            }
                         }
                     }
                 }
 
-                // BSDF Sampling
-                {
-                    BSDFSample bsdfSample;
-                    bsdfSample.wo = wo;
-                    bsdf->sample(sampler.next2D(), sp, bsdfSample);
-                    if (std::isnan(bsdfSample.pdf) || bsdfSample.pdf <= 0.0f) {
-                        break;
-                    }
-                    specular = (bsdfSample.sampledType & BSDF::ESpecular) != 0;
-
-                    auto wiW = intersection.localToWorld(bsdfSample.wi);
-                    beta *= bsdfSample.f * abs(dot(intersection.Ng, wiW)) / bsdfSample.pdf;
-                    ray = intersection.spawnRay(wiW);
-                }
-
+                auto wiW = intersection.localToWorld(bsdfSample.wi);
+                beta *= bsdfSample.f * abs(dot(intersection.Ng, wiW)) / bsdfSample.pdf;
+                ray = intersection.spawnRay(wiW);
 
                 intersection = Intersection();
                 if (!scene->intersect(ray, intersection)) {
                     return Li + beta * backgroundLi(ray);
                 }
+
             }
             return Li;
         };

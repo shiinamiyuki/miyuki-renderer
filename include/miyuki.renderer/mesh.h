@@ -42,8 +42,10 @@ namespace miyuki::core {
         std::vector<Point2f> tex_coord;
     };
 
+    class Light;
+
     struct MeshTriangle {
-        AreaLight *light = nullptr;
+        Light *light = nullptr;
         Mesh *mesh = nullptr;
         uint16_t name_id = -1;
         uint32_t primID = -1;
@@ -81,8 +83,7 @@ namespace miyuki::core {
             if (v < 0.0 || u + v > 1.0)
                 return false;
             float t = f * dot(e2, q);
-            if (t > ray.tMin)
-            {
+            if (t > ray.tMin) {
                 if (t < isct.distance) {
                     isct.distance = t;
                     isct.Ng = Ng;
@@ -91,8 +92,7 @@ namespace miyuki::core {
                     return true;
                 }
                 return false;
-            } else
-            {
+            } else {
                 return false;
             }
         }
