@@ -64,7 +64,7 @@ namespace miyuki::core {
         auto diffuse = std::make_shared<DiffuseBSDF>(std::make_shared<RGBShader>(kd));
         auto specular = std::make_shared<DiffuseBSDF>(std::make_shared<RGBShader>(ks));
         auto mixed = std::make_shared<MixBSDF>(std::make_shared<FloatShader>(0.5f), diffuse, specular);
-        material->bsdf = mixed;
+        material->bsdf = diffuse;// mixed;
         material->emission = std::make_shared<RGBShader>(emission);
         material->emissionStrength = std::make_shared<FloatShader>(strength);
         return material;

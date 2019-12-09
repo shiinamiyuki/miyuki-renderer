@@ -31,7 +31,7 @@ namespace miyuki::core {
         accelerator = std::make_shared<EmbreeAccelerator>();
         auto setLight = [=](MeshTriangle *triangle) {
             auto mat = triangle->getMaterial();
-            if (mat && mat->emission != nullptr) {
+            if (mat && mat->markAsLight) {
                 auto light = std::make_shared<AreaLight>();
                 light->setTriangle(triangle);
                 lights.emplace_back(light);
@@ -39,7 +39,7 @@ namespace miyuki::core {
         };
         for (auto &i : meshes) {
             i->preprocess();
-            i->foreach (setLight);
+            i->foreach(setLight);
         }
         accelerator->build(*this);
     }
@@ -48,9 +48,10 @@ namespace miyuki::core {
         rayCounter++;
         if (accelerator->intersect(ray, isct)) {
             isct.Ns = isct.shape->normalAt(isct.uv);
+            isct.material = isct.shape->getMaterial();
             isct.computeLocalFrame();
             return true;
-		}
+        }
         return false;
     }
 } // namespace miyuki::core

@@ -20,46 +20,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_INTEGRATOR_H
-#define MIYUKIRENDERER_INTEGRATOR_H
+#ifndef MIYUKIRENDERER_PT_H
+#define MIYUKIRENDERER_PT_H
 
-#include <miyuki.foundation/math.hpp>
-#include <miyuki.foundation/object.hpp>
-#include <miyuki.foundation/mpsc.hpp>
-#include <miyuki.foundation/task.hpp>
-
+#include <miyuki.renderer/integrator.h>
+#include <miyuki.foundation/property.hpp>
+#include <miyuki.foundation/serialize.hpp>
 
 namespace miyuki::core {
-    class Camera;
-
-    class Scene;
-
-    class Sampler;
-
-    class LightDistribution;
-
-    struct Film;
-
-    struct RenderSettings {
-        Point2i filmDimension;
-        std::shared_ptr<Scene> scene;
-        std::shared_ptr<Camera> camera;
-        std::shared_ptr<Sampler> sampler;
-        std::shared_ptr<LightDistribution> lightDistribution;
-    };
-
-    struct RenderOutput {
-        std::shared_ptr<Film> film;
-
-    };
-
-    class Integrator : public Object {
+    class PathTracer final : public Integrator {
+        int spp = 16;
+        int minDepth  = 3;
+        int maxDepth = 5;
     public:
-        MYK_INTERFACE(Integrator, "Integrator")
+        MYK_DECL_CLASS(PathTracer, "PathTracer", interface = "Integrator");
 
-        virtual Task<RenderOutput> createRenderTask(const RenderSettings &settings, const mpsc::Sender<std::shared_ptr<Film>>& tx) = 0;
+        MYK_AUTO_SER(spp,minDepth,maxDepth)
+
+        MYK_AUTO_INIT(spp,minDepth,maxDepth)
+
+        MYK_PROP(spp,minDepth,maxDepth)
+
+        virtual Task<RenderOutput> createRenderTask(const RenderSettings &settings,const mpsc::Sender<std::shared_ptr<Film>>& tx) override;
     };
-}
+} // namespace miyuki::core
 
-
-#endif //MIYUKIRENDERER_INTEGRATOR_H
+#endif //MIYUKIRENDERER_PT_H

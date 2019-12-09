@@ -20,46 +20,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_INTEGRATOR_H
-#define MIYUKIRENDERER_INTEGRATOR_H
+#ifndef MIYUKIRENDERER_LIGHTDISTRIBUTION_H
+#define MIYUKIRENDERER_LIGHTDISTRIBUTION_H
 
-#include <miyuki.foundation/math.hpp>
 #include <miyuki.foundation/object.hpp>
-#include <miyuki.foundation/mpsc.hpp>
-#include <miyuki.foundation/task.hpp>
 
-
-namespace miyuki::core {
-    class Camera;
-
-    class Scene;
-
+namespace miyuki::core{
     class Sampler;
-
-    class LightDistribution;
-
-    struct Film;
-
-    struct RenderSettings {
-        Point2i filmDimension;
-        std::shared_ptr<Scene> scene;
-        std::shared_ptr<Camera> camera;
-        std::shared_ptr<Sampler> sampler;
-        std::shared_ptr<LightDistribution> lightDistribution;
-    };
-
-    struct RenderOutput {
-        std::shared_ptr<Film> film;
-
-    };
-
-    class Integrator : public Object {
+    class Light;
+    class Scene;
+    class LightDistribution : public Object{
     public:
-        MYK_INTERFACE(Integrator, "Integrator")
-
-        virtual Task<RenderOutput> createRenderTask(const RenderSettings &settings, const mpsc::Sender<std::shared_ptr<Film>>& tx) = 0;
+        MYK_INTERFACE(LightDistribution, "LightDistribution")
+        virtual const Light * sampleLight(Sampler & sampler, Float * pdf) = 0;
+        virtual Float lightPdf(const Light * light) = 0;
+        virtual void build(Scene & scene) = 0;
     };
 }
 
-
-#endif //MIYUKIRENDERER_INTEGRATOR_H
+#endif //MIYUKIRENDERER_LIGHTDISTRIBUTION_H

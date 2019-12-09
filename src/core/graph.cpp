@@ -25,6 +25,7 @@
 #include <miyuki.renderer/sampler.h>
 #include <miyuki.foundation/film.h>
 #include <miyuki.foundation/log.hpp>
+#include <miyuki.renderer/lightdistribution.h>
 
 namespace miyuki::core {
     Task<RenderOutput> SceneGraph::createRenderTask(const mpsc::Sender<std::shared_ptr<Film>> &tx) {
@@ -44,13 +45,18 @@ namespace miyuki::core {
         }
         scene->preprocess();
 
-        RenderSettings settings{};
+        RenderSettings settings;
         settings.filmDimension = filmDimension;
-        return integrator->createRenderTask(settings, scene, camera, sampler, tx);
+        settings.scene = scene;
+        settings.camera = camera;
+        settings.sampler = sampler;
+        settings.lightDistribution = std::dynamic_pointer_cast<LightDistribution>(CreateObject("UniformLightDistribution"));
+        settings.lightDistribution->build(*scene);
+        return integrator->createRenderTask(settings, tx);
     }
 
     void SceneGraph::render(const std::string &outImageFile) {
-        auto [tx, rx] = mpsc::channel<std::shared_ptr<Film>>();
+        auto[tx, rx] = mpsc::channel<std::shared_ptr<Film>>();
         Task<RenderOutput> task = createRenderTask(tx);
         log::log("Start Rendering...\n");
         task.launch();

@@ -33,11 +33,7 @@ namespace miyuki::core {
         float occludeDistance = 100000;
 
         RenderOutput render(
-                const Task<void>::ContFunc &, const RenderSettings &settings,
-                const std::shared_ptr<Scene> &,
-                const std::shared_ptr<Camera> &,
-                const std::shared_ptr<Sampler> &,
-                const mpsc::Sender<std::shared_ptr<Film>> &tx);
+                const Task<void>::ContFunc &, const RenderSettings &settings,const mpsc::Sender<std::shared_ptr<Film>>& tx);
 
     public:
         MYK_DECL_CLASS(RTAO, "RTAO", interface = "Integrator");
@@ -48,11 +44,7 @@ namespace miyuki::core {
 
         MYK_PROP(spp, occludeDistance)
 
-        virtual Task<RenderOutput> createRenderTask(const RenderSettings &settings,
-                                            const std::shared_ptr<Scene> &,
-                                            const std::shared_ptr<Camera> &,
-                                            const std::shared_ptr<Sampler> &,
-                                            const mpsc::Sender<std::shared_ptr<Film>> &tx) override;
+        virtual Task<RenderOutput> createRenderTask(const RenderSettings &settings,const mpsc::Sender<std::shared_ptr<Film>>& tx) override;
     };
 } // namespace miyuki::core
 

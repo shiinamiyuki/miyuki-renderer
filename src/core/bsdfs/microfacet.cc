@@ -68,13 +68,13 @@ namespace miyuki::core {
         wh = normalize(wh);
         float F = 1.0; // Schlick(0.4f, abs(dot(wi, wh)));
         auto R = color->evaluate(point);
-        auto alpha = roughness->evaluate(point).x;
+        auto alpha = std::max(1e-6f,roughness->evaluate(point).x);
         alpha *= alpha;
         return max(Spectrum(0), R * F * GGX_D(alpha, wh) * GGX_G(alpha, wo, wi, wh) / (4.0f * cosThetaI * cosThetaO));
     }
 
     void MicrofacetBSDF::sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const {
-        auto alpha = roughness->evaluate(sp).x;
+        auto alpha = std::max(1e-6f,roughness->evaluate(sp).x);
         alpha *= alpha;
         Normal3f wh = GGX_SampleWh(alpha, sample.wo, u);
         sample.wi = Reflect(sample.wo, wh);

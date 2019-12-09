@@ -30,6 +30,7 @@
 #include "bsdfs/mixbsdf.h"
 #include "cameras/perspective-camera.h"
 #include "integrators/rtao.h"
+#include "integrators/pt.h"
 #include "samplers/random-sampler.h"
 #include "shaders/common-shader.h"
 #include "mesh-importers/wavefront-importer.h"
@@ -37,6 +38,7 @@
 #include <miyuki.renderer/graph.h>
 #include <miyuki.renderer/material.h>
 #include <miyuki.renderer/mesh.h>
+#include "lightdistributions/uniformlightdistribution.h"
 
 namespace miyuki::core {
     void Initialize() {
@@ -52,11 +54,13 @@ namespace miyuki::core {
         Register<MicrofacetBSDF>();
         Register<MixBSDF>();
         Register<RTAO>();
+        Register<PathTracer>();
         Register<RandomSampler>();
         Register<SobolSampler>();
         Register<EmbreeAccelerator>();
         Register<WavefrontImporter>();
-      
+        Register<UniformLightDistribution>();
+
     }
 
     void Finalize() {}
