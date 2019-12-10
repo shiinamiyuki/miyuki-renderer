@@ -20,31 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "diffusebsdf.h"
-#include <miyuki.renderer/shader.h>
-#include <miyuki.renderer/sampling.h>
+#ifndef MIYUKIRENDERER_OIDNDENOISER_H
+#define MIYUKIRENDERER_OIDNDENOISER_H
+
+#include <miyuki.renderer/denoiser.h>
+#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/noncopyable.hpp>
+#include <miyuki.foundation/film.h>
 
 namespace miyuki::core {
-    Spectrum DiffuseBSDF::evaluate(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {
-        if (wo.y * wi.y > 0)
-            return Spectrum(color->evaluate(point) * InvPi);
-        return {};
-    }
+    class OIDNDenoiser final: public Denoiser{
+        class Impl;
+        std::shared_ptr<Impl> impl;
+    public:
+        MYK_DECL_CLASS(OIDNDenoiser, "OIDNDenoiser",interface="Denoiser")
 
-    void DiffuseBSDF::sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const {
-        sample.wi = CosineHemisphereSampling(u);
-        sample.sampledType = BSDF::Type(sample.sampledType | getBSDFType());
-        if (sample.wo.y * sample.wi.y < 0) {
-            sample.wi.y = -sample.wi.y;
-        }
-        sample.pdf = std::abs(sample.wi.y) * InvPi;
-        sample.f = evaluate(sp, sample.wo, sample.wi);
-        sample.sampledType = BSDF::Type(int(BSDF::Type::EReflection) | int(BSDF::Type::EDiffuse));
-    }
+        void denoise(const Film &film, RGBAImage &image) override;
 
-    Float DiffuseBSDF::evaluatePdf(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {
-        if (wo.y * wi.y > 0)
-            return std::abs(wi.y) * InvPi;
-        return 0;
-    }
+    };
 }
+#endif //MIYUKIRENDERER_OIDNDENOISER_H

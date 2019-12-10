@@ -53,7 +53,7 @@ namespace miyuki::core {
         if (!triangle->intersect(ray, _isct)) {
             return 0.0f;
         }
-        Float SA = triangle->area() * abs(dot(wi,_isct.Ng)) / (_isct.distance * _isct.distance);
+        Float SA = triangle->area() * (-dot(wi,_isct.Ng)) / (_isct.distance * _isct.distance);
         return 1.0f / SA;
     }
 

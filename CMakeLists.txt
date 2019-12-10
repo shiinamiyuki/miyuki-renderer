@@ -3,6 +3,7 @@ project(MiyukiRenderer)
 
 
 option(USE_EMBREE "Use Embree as ray intersection backend" ON)
+option(USE_OIDN "Use OIDN as denoiser" ON)
 option(EMBREE_FROM_SOUCE "Download and compile embree from souce" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -49,6 +50,7 @@ file(GLOB libcoreSource src/core/*.cpp
         src/core/samplers/*.*
 		src/core/mesh-importers/*.*
         src/core/lightdistributions/*.*
+        src/core/denoisers/*.*
         external/tinyobjloader/tiny_obj_loader.cc
         external/lodepng/lodepng.cpp
 
@@ -73,8 +75,18 @@ IF(USE_EMBREE)
 
     ENDIF()
 ENDIF()
+
+
+IF(USE_OIDN)
+    link_libraries(tbb)
+    add_subdirectory(external/oidn)
+    include_directories(external/oidn/include)
+    add_compile_definitions(MYK_USE_OIDN)
+    set(OIDN_LIBRARIES OpenImageDenoise)
+ENDIF()
+
 add_library(core ${MiyukiAPI} ${libcoreSource})
-target_link_libraries(core foundation ${CXX_FS_LIBS})
+target_link_libraries(core foundation ${CXX_FS_LIBS} ${OIDN_LIBRARIES})
 add_executable(myk-cli src/standalone-renderer/main.cpp ${MiyukiAPI})
 add_executable(mesh-importer src/mesh-importer/importer.cpp ${MiyukiAPI})
 target_link_libraries(mesh-importer core ${EMBREE_LIBRARY})

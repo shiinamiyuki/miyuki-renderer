@@ -24,8 +24,7 @@
 #include "../core/export.h"
 #include <iostream>
 #include <stdexcept>
-#include <variant>
-#include <miyuki.foundation/mpsc.hpp>
+
 
 int main() {
     using namespace miyuki;

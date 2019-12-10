@@ -34,7 +34,7 @@ namespace miyuki::core {
     class BSDF : public Object {
     public:
         MYK_INTERFACE(BSDF, "BSDF")
-        enum Type {
+        enum Type : int {
             ENone = 0,
             EDiffuse = 1ULL,
             EGlossy = 1ULL << 1U,

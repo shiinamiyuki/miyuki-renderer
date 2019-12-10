@@ -381,11 +381,11 @@ void main(){
             }
             glBindTexture(GL_TEXTURE_2D, color);
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dim[0], dim[1], GL_RGBA,
-                            GL_FLOAT, film.pixels.color.data());
+                            GL_FLOAT, film.color.data());
 
             glBindTexture(GL_TEXTURE_2D, weight);
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dim[0], dim[1], GL_RGBA,
-                            GL_FLOAT, film.pixels.weight.data());
+                            GL_FLOAT, film.weight.data());
         }
 
         explicit Viewport(ivec2 dim) : dim(dim), channel(mpsc::channel<std::shared_ptr<core::Film>>()) {

@@ -42,6 +42,7 @@ namespace miyuki::core {
 
     struct RenderSettings {
         Point2i filmDimension;
+        size_t tileSize = 16;
         std::shared_ptr<Scene> scene;
         std::shared_ptr<Camera> camera;
         std::shared_ptr<Sampler> sampler;

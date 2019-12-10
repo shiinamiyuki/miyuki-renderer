@@ -44,6 +44,8 @@ namespace miyuki::core {
 
         MicrofacetBSDF() = default;
 
+        MicrofacetBSDF(const std::shared_ptr<Shader>& color, const std::shared_ptr<Shader> & roughness):color(color),roughness(roughness){}
+
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const override;
 
         void sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const override;

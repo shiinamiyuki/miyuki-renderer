@@ -29,9 +29,10 @@ namespace miyuki::core {
         return (m * m) * (m * m) * m;
     }
     static float Schlick(float R0, float cosTheta) { return lerp(R0, 1.0f, SchlickWeight(cosTheta)); }
-    static float GGX_D(float alpha, const Vec3f &m) {
-        if (m.y <= 0.0f)
+    static float GGX_D(float alpha, Vec3f m) {
+        if (m.y <= 0.0f) {
             return 0.0f;
+        }
         float a2 = alpha * alpha;
         float c2 = Cos2Theta(m);
         float t2 = Tan2Theta(m);
@@ -39,10 +40,10 @@ namespace miyuki::core {
         return a2 / (Pi * c2 * c2 * at * at);
     }
     static float GGX_G1(float alpha, const Vec3f &v, const Vec3f &m) {
-        if (dot(v,m) * v.y <= 0.0f) {
-            return 0.0f;
-        }
-        return 2.0 / (1.0 + sqrt(1.0 + alpha * alpha * Tan2Theta(m)));
+//        if (dot(v,m) * v.y <= 0.0f) {
+//            return 0.0f;
+//        }
+        return 2.0f / (1.0 + sqrt(1.0 + alpha * alpha * Tan2Theta(m)));
     }
     static float GGX_G(float alpha, const Vec3f &i, const Vec3f &o, const Vec3f &m) {
         return GGX_G1(alpha, i, m) * GGX_G1(alpha, o, m);
@@ -61,11 +62,13 @@ namespace miyuki::core {
         float cosThetaO = AbsCosTheta(wo);
         float cosThetaI = AbsCosTheta(wi);
         Vec3f wh = (wo + wi);
+
         if (cosThetaI == 0 || cosThetaO == 0)
             return Spectrum(0);
         if (wh.x == 0 && wh.y == 0 && wh.z == 0)
             return Spectrum(0);
         wh = normalize(wh);
+        wh = FaceForward(wh, vec3(0,1,0));
         float F = 1.0; // Schlick(0.4f, abs(dot(wi, wh)));
         auto R = color->evaluate(point);
         auto alpha = std::max(1e-6f,roughness->evaluate(point).x);
@@ -80,6 +83,8 @@ namespace miyuki::core {
         sample.wi = Reflect(sample.wo, wh);
         sample.f = evaluate(sp, sample.wo, sample.wi);
         sample.pdf = evaluatePdf(sp, sample.wo, sample.wi);
+        sample.sampledType = BSDF::Type(int(BSDF::Type::EReflection) | int(BSDF::Type::EGlossy));
+       // printf("%f %f %f %f %f\n",sample.wo.y, sample.wi.y, wh.y, maxComp(sample.f),sample.pdf);
     }
 
     Float MicrofacetBSDF::evaluatePdf(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {
@@ -89,7 +94,7 @@ namespace miyuki::core {
         auto wh = normalize(wo + wi);
         auto alpha = roughness->evaluate(point).x;
         alpha *= alpha;
-        return GGX_D(alpha, wh) * AbsCosTheta(wh);
+        return GGX_D(alpha, FaceForward(wh, vec3(0,1,0))) * AbsCosTheta(wh);
     }
 
 } // namespace miyuki::core
