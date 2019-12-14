@@ -37,17 +37,18 @@
 namespace miyuki::core {
 
     class SceneGraph final : public Object {
-      public:
+    public:
         std::shared_ptr<Camera> camera;
         std::shared_ptr<Integrator> integrator;
         std::shared_ptr<Sampler> sampler;
         std::vector<std::shared_ptr<MeshBase>> shapes;
         Point2i filmDimension;
+        Float rayBias = 1e-5f;
 
-     
-        MYK_AUTO_SER(camera, sampler, integrator, shapes, filmDimension)
 
-        MYK_AUTO_INIT(camera, sampler, integrator, shapes, filmDimension)
+        MYK_AUTO_SER(camera, sampler, integrator, shapes, filmDimension, rayBias)
+
+        MYK_AUTO_INIT(camera, sampler, integrator, shapes, filmDimension, rayBias)
 
         MYK_PROP(camera, sampler, integrator)
 
@@ -55,7 +56,7 @@ namespace miyuki::core {
 
         void render(const std::string &outImageFile);
 
-        Task<RenderOutput> createRenderTask(const mpsc::Sender<std::shared_ptr<Film>> & tx);
+        Task<RenderOutput> createRenderTask(const mpsc::Sender<std::shared_ptr<Film>> &tx);
     };
 } // namespace miyuki::core
 #endif // MIYUKIRENDERER_GRAPH_H

@@ -49,6 +49,7 @@ namespace miyuki::core {
         Register<MeshInstance>();
         Register<FloatShader>();
         Register<RGBShader>();
+        Register<ImageTextureShader>();
         Register<PerspectiveCamera>();
         Register<DiffuseBSDF>();
         Register<MicrofacetBSDF>();
@@ -60,7 +61,13 @@ namespace miyuki::core {
         Register<EmbreeAccelerator>();
         Register<WavefrontImporter>();
         Register<UniformLightDistribution>();
-
+        Register<MathShader>();
+        Register<MathShaderAdd>();
+        Register<MathShaderMul>();
+        Register<NoiseShader>();
+        Register<SeparateX>();
+        Register<SeparateY>();
+        Register<SeparateZ>();
     }
 
     void Finalize() {}

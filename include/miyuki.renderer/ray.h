@@ -52,6 +52,7 @@ namespace miyuki::core {
         const MeshTriangle *shape = nullptr;
         const Material * material = nullptr;
         float distance = MaxFloat;
+        Vec3f wo;
         Point3f p;
         Normal3f Ns, Ng;
         Point2f uv;

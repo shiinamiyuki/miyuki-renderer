@@ -24,16 +24,16 @@
 namespace miyuki::core {
 
     Spectrum MixBSDF::evaluate(const ShadingPoint &sp, const Vec3f &wo, const Vec3f &wi) const {
-        return lerp<Spectrum>(bsdfA->evaluate(sp, wo, wi), bsdfB->evaluate(sp, wo, wi), fraction->evaluate(sp));
+        return lerp<Spectrum>(bsdfA->evaluate(sp, wo, wi), bsdfB->evaluate(sp, wo, wi), vec3(1) - fraction->evaluate(sp));
     }
     Float MixBSDF::evaluatePdf(const ShadingPoint &sp, const Vec3f &wo, const Vec3f &wi) const {
-        return lerp(bsdfB->evaluatePdf(sp, wo, wi), bsdfA->evaluatePdf(sp, wo, wi), (float)fraction->evaluate(sp)[0]);
+        return lerp(bsdfB->evaluatePdf(sp, wo, wi), bsdfA->evaluatePdf(sp, wo, wi), 1.0f - (float)fraction->evaluate(sp)[0]);
     }
 
     void MixBSDF::sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const {
         auto frac = fraction->evaluate(sp)[0];
         BSDF *first, *second;
-        if (frac < u[0]) {
+        if (u[0] < frac) {
             u[0] /= frac;
             first = bsdfA.get();
             second = bsdfB.get();
@@ -48,8 +48,8 @@ namespace miyuki::core {
 
         // evaluate whole bsdf if not sampled specular
         if ((sample.sampledType & BSDF::ESpecular) == 0) {
-            sample.f = lerp<Spectrum>(second->evaluate(sp, sample.wo, sample.wi), sample.f, Vec3f(frac));
-            sample.pdf = lerp<Float>(second->evaluatePdf(sp, sample.wo, sample.wi), sample.pdf, frac);
+            sample.f = lerp<Spectrum>(second->evaluate(sp, sample.wo, sample.wi), sample.f, vec3(1) - Vec3f(frac));
+            sample.pdf = lerp<Float>(second->evaluatePdf(sp, sample.wo, sample.wi), sample.pdf, 1 - frac);
         }
     }
 

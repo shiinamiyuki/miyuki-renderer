@@ -588,6 +588,10 @@ void main(){
                 if (auto dim = GetInput("Film Dimension", graph->filmDimension)) {
                     graph->filmDimension = dim.value();
                 }
+                if (auto rayBias = GetInput("Ray Bias", graph->rayBias)) {
+                    core::RayBias = rayBias.value();
+                    graph->rayBias = core::RayBias;
+                }
                 ImGui::EndTabItem();
             }
         }

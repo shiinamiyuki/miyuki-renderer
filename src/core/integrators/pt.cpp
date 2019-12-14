@@ -78,6 +78,7 @@ namespace miyuki::core {
                 sp.texCoord = intersection.shape->texCoordAt(intersection.uv);
                 sp.Ng = intersection.Ng;
                 sp.Ns = intersection.Ns;
+
                 if (intersection.material->emission && intersection.material->emissionStrength &&
                     dot(ray.d, intersection.Ng) < 0) {
                     auto light = intersection.shape->light;
@@ -104,6 +105,7 @@ namespace miyuki::core {
                     bsdfSample.wo = wo;
                     bsdf->sample(sampler.next2D(), sp, bsdfSample);
                     MIYUKI_CHECK(!std::isnan(bsdfSample.pdf));
+                    MIYUKI_CHECK(bsdfSample.pdf >= 0.0);
                     if (std::isnan(bsdfSample.pdf) || bsdfSample.pdf <= 0.0f) {
                         break;
                     }
@@ -123,13 +125,14 @@ namespace miyuki::core {
                         auto f = bsdf->evaluate(sp, wo, intersection.worldToLocal(lightSample.wi)) *
                                  abs(dot(lightSample.wi, intersection.Ns));
                         if (lightPdf > 0 && !IsBlack(f) && visibilityTester.visible(*scene)) {
+
                             if (specular) {
                                 Li += beta * f * lightSample.Li / lightPdf;
                             } else {
                                 auto scatteringPdf = bsdf->evaluatePdf(sp, wo,
                                                                        intersection.worldToLocal(lightSample.wi));
                                 MIYUKI_CHECK(!std::isnan(scatteringPdf));
-                                MIYUKI_CHECK(scatteringPdf >= 0.0f);
+                                MIYUKI_CHECK(scatteringPdf > 0.0f);
                                 auto weight = MisWeight(lightPdf, scatteringPdf);
                                 Li += beta * f * lightSample.Li / lightPdf * weight;
                             }
@@ -142,7 +145,7 @@ namespace miyuki::core {
                 ray = intersection.spawnRay(wiW);
 
                 if (depth > minDepth) {
-                    auto p = maxComp(beta) * 0.95;
+                    auto p = std::min(1.0f, maxComp(beta)) * 0.95;
                     if (sampler.next1D() < p) {
                         beta /= p;
                     } else {
@@ -153,11 +156,13 @@ namespace miyuki::core {
                 prevIntersection = intersection;
                 intersection = Intersection();
                 if (!scene->intersect(ray, intersection)) {
-                    return Li + beta * backgroundLi(ray);
+                    Li += beta * backgroundLi(ray);
+                    break;
                 }
 
             }
-            return RemoveNaN(Li);
+            MIYUKI_CHECK(minComp(Li) >= 0.0f);
+            return RemoveNaN(clamp(Li,vec3(0),vec3(1e16f)));
         };
 
         ParallelFor(0, film.height, [=, &film](int64_t j, uint64_t) {

@@ -23,12 +23,13 @@
 #include <miyuki.renderer/light.h>
 #include <miyuki.renderer/scene.h>
 
-namespace miyuki::core{
+namespace miyuki::core {
     bool VisibilityTester::visible(miyuki::core::Scene &scene) {
         Intersection isct;
-        if (!scene.intersect(shadowRay, isct) || isct.distance >= shadowRay.tMax - RayBias) {
+        if (!scene.intersect(shadowRay, isct) || isct.distance >= shadowRay.tMax * 0.99) {
             return true;
         }
+        if (target && isct.shape == target)return true;
         return false;
     }
 }

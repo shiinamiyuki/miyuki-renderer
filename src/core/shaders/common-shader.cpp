@@ -22,13 +22,24 @@
 
 #include "common-shader.h"
 #include <miyuki.foundation/imageloader.h>
+#include <PerlinNoise.hpp>
+#include <miyuki.foundation/log.hpp>
 
 namespace miyuki::core {
     [[nodiscard]] Spectrum ImageTextureShader::evaluate(const ShadingPoint &point) const {
-        return (*image)(point.texCoord);
+        return image ?  (*image)(mod(point.texCoord,vec2(1))) : Spectrum(0);
     }
 
     void ImageTextureShader::preprocess() {
         image = ImageLoader::getInstance()->loadRGBAImage(fs::path(imagePath));
+        if(!image){
+            log::log("Warning: ImageShader[{}] is not loaded correctly\n",imagePath);
+        }
+    }
+
+    static const siv::PerlinNoise perlin(0);
+
+    Spectrum NoiseShader::evaluate(const miyuki::core::ShadingPoint &point) const {
+        return Spectrum(perlin.noise0_1(scale * point.texCoord.x, scale * point.texCoord.y));
     }
 }

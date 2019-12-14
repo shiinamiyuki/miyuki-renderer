@@ -1,11 +1,11 @@
 {
     "value0": {
         "#type": "SceneGraph",
-        "#addr": 46869168,
+        "#addr": 128226304,
         "#data": {
             "camera": {
                 "#type": "PerspectiveCamera",
-                "#addr": 46865680,
+                "#addr": 128576512,
                 "#data": {
                     "transform": {
                         "value0": {
@@ -29,12 +29,12 @@
             },
             "sampler": {
                 "#type": "SobolSampler",
-                "#addr": 47210592,
+                "#addr": 128664736,
                 "#valid": 2
             },
             "integrator": {
                 "#type": "PathTracer",
-                "#addr": 47210736,
+                "#addr": 128665120,
                 "#data": {
                     "spp": 1,
                     "minDepth": 3,
@@ -45,7 +45,7 @@
             "shapes": [
                 {
                     "#type": "Mesh",
-                    "#addr": 46890928,
+                    "#addr": 129039888,
                     "#data": {
                         "filename": "CornellBox-Original.obj.mesh",
                         "materials": [
@@ -53,12 +53,12 @@
                                 "key": "leftWall:shortBox",
                                 "value": {
                                     "#type": "Material",
-                                    "#addr": 46908736,
+                                    "#addr": 128282704,
                                     "#data": {
                                         "markAsLight": false,
                                         "emission": {
                                             "#type": "RGBShader",
-                                            "#addr": 46853920,
+                                            "#addr": 128753360,
                                             "#data": {
                                                 "value": {
                                                     "value0": 0.0,
@@ -70,7 +70,7 @@
                                         },
                                         "emissionStrength": {
                                             "#type": "FloatShader",
-                                            "#addr": 46854496,
+                                            "#addr": 128754944,
                                             "#data": {
                                                 "value": 0.0
                                             },
@@ -78,11 +78,11 @@
                                         },
                                         "bsdf": {
                                             "#type": "DiffuseBSDF",
-                                            "#addr": 46854256,
+                                            "#addr": 128754752,
                                             "#data": {
                                                 "color": {
                                                     "#type": "RGBShader",
-                                                    "#addr": 46855744,
+                                                    "#addr": 128753552,
                                                     "#data": {
                                                         "value": {
                                                             "value0": 0.7250000238418579,
@@ -103,12 +103,12 @@
                                 "key": "leftWall:leftWall",
                                 "value": {
                                     "#type": "Material",
-                                    "#addr": 46912480,
+                                    "#addr": 128281840,
                                     "#data": {
                                         "markAsLight": false,
                                         "emission": {
                                             "#type": "RGBShader",
-                                            "#addr": 46854400,
+                                            "#addr": 128747472,
                                             "#data": {
                                                 "value": {
                                                     "value0": 0.0,
@@ -120,7 +120,7 @@
                                         },
                                         "emissionStrength": {
                                             "#type": "FloatShader",
-                                            "#addr": 46854112,
+                                            "#addr": 128745600,
                                             "#data": {
                                                 "value": 0.0
                                             },
@@ -128,11 +128,11 @@
                                         },
                                         "bsdf": {
                                             "#type": "DiffuseBSDF",
-                                            "#addr": 46854304,
+                                            "#addr": 128753504,
                                             "#data": {
                                                 "color": {
                                                     "#type": "RGBShader",
-                                                    "#addr": 46854352,
+                                                    "#addr": 128753024,
                                                     "#data": {
                                                         "value": {
                                                             "value0": 0.6299999952316284,
@@ -153,12 +153,12 @@
                                 "key": "shortBox:tallBox",
                                 "value": {
                                     "#type": "Material",
-                                    "#addr": 46422016,
+                                    "#addr": 128281648,
                                     "#data": {
                                         "markAsLight": false,
                                         "emission": {
                                             "#type": "RGBShader",
-                                            "#addr": 47211488,
+                                            "#addr": 128397344,
                                             "#data": {
                                                 "value": {
                                                     "value0": 0.0,
@@ -170,7 +170,7 @@
                                         },
                                         "emissionStrength": {
                                             "#type": "FloatShader",
-                                            "#addr": 47211872,
+                                            "#addr": 128398448,
                                             "#data": {
                                                 "value": 0.0
                                             },
@@ -178,11 +178,11 @@
                                         },
                                         "bsdf": {
                                             "#type": "MicrofacetBSDF",
-                                            "#addr": 13220704,
+                                            "#addr": 2013568,
                                             "#data": {
                                                 "color": {
                                                     "#type": "RGBShader",
-                                                    "#addr": 47212064,
+                                                    "#addr": 128397440,
                                                     "#data": {
                                                         "value": {
                                                             "value0": 0.9358974099159241,
@@ -193,10 +193,30 @@
                                                     "#valid": 2
                                                 },
                                                 "roughness": {
-                                                    "#type": "FloatShader",
-                                                    "#addr": 47211344,
+                                                    "#type": "MathShader",
+                                                    "#addr": 2016672,
                                                     "#data": {
-                                                        "value": 0.10000000149011612
+                                                        "op": {
+                                                            "#type": "MathShaderMul",
+                                                            "#addr": 128326368,
+                                                            "#valid": 2
+                                                        },
+                                                        "shaderA": {
+                                                            "#type": "NoiseShader",
+                                                            "#addr": 128398112,
+                                                            "#data": {
+                                                                "scale": 10.0
+                                                            },
+                                                            "#valid": 2
+                                                        },
+                                                        "shaderB": {
+                                                            "#type": "FloatShader",
+                                                            "#addr": 128398784,
+                                                            "#data": {
+                                                                "value": 0.30000001192092898
+                                                            },
+                                                            "#valid": 2
+                                                        }
                                                     },
                                                     "#valid": 2
                                                 }
@@ -211,12 +231,12 @@
                                 "key": "light:light",
                                 "value": {
                                     "#type": "Material",
-                                    "#addr": 46422496,
+                                    "#addr": 128281072,
                                     "#data": {
                                         "markAsLight": true,
                                         "emission": {
                                             "#type": "RGBShader",
-                                            "#addr": 47208416,
+                                            "#addr": 128664784,
                                             "#data": {
                                                 "value": {
                                                     "value0": 1.0,
@@ -228,7 +248,7 @@
                                         },
                                         "emissionStrength": {
                                             "#type": "FloatShader",
-                                            "#addr": 47208464,
+                                            "#addr": 128664832,
                                             "#data": {
                                                 "value": 17.0
                                             },
@@ -236,11 +256,11 @@
                                         },
                                         "bsdf": {
                                             "#type": "DiffuseBSDF",
-                                            "#addr": 47208800,
+                                            "#addr": 128664160,
                                             "#data": {
                                                 "color": {
                                                     "#type": "RGBShader",
-                                                    "#addr": 47208704,
+                                                    "#addr": 128665600,
                                                     "#data": {
                                                         "value": {
                                                             "value0": 0.7799999713897705,
@@ -261,12 +281,12 @@
                                 "key": "backWall:backWall",
                                 "value": {
                                     "#type": "Material",
-                                    "#addr": 46423552,
+                                    "#addr": 128282416,
                                     "#data": {
                                         "markAsLight": false,
                                         "emission": {
                                             "#type": "RGBShader",
-                                            "#addr": 46840352,
+                                            "#addr": 128397248,
                                             "#data": {
                                                 "value": {
                                                     "value0": 0.0,
@@ -278,7 +298,7 @@
                                         },
                                         "emissionStrength": {
                                             "#type": "FloatShader",
-                                            "#addr": 46839968,
+                                            "#addr": 128398304,
                                             "#data": {
                                                 "value": 0.0
                                             },
@@ -286,11 +306,11 @@
                                         },
                                         "bsdf": {
                                             "#type": "DiffuseBSDF",
-                                            "#addr": 46840496,
+                                            "#addr": 128397584,
                                             "#data": {
                                                 "color": {
                                                     "#type": "RGBShader",
-                                                    "#addr": 46840592,
+                                                    "#addr": 128398064,
                                                     "#data": {
                                                         "value": {
                                                             "value0": 0.7250000238418579,
@@ -311,12 +331,12 @@
                                 "key": "ceiling:ceiling",
                                 "value": {
                                     "#type": "Material",
-                                    "#addr": 46422304,
+                                    "#addr": 128282320,
                                     "#data": {
                                         "markAsLight": false,
                                         "emission": {
                                             "#type": "RGBShader",
-                                            "#addr": 46915312,
+                                            "#addr": 128306544,
                                             "#data": {
                                                 "value": {
                                                     "value0": 0.0,
@@ -328,7 +348,7 @@
                                         },
                                         "emissionStrength": {
                                             "#type": "FloatShader",
-                                            "#addr": 46915456,
+                                            "#addr": 128306064,
                                             "#data": {
                                                 "value": 0.0
                                             },
@@ -336,11 +356,11 @@
                                         },
                                         "bsdf": {
                                             "#type": "DiffuseBSDF",
-                                            "#addr": 46915552,
+                                            "#addr": 128746464,
                                             "#data": {
                                                 "color": {
                                                     "#type": "RGBShader",
-                                                    "#addr": 46915792,
+                                                    "#addr": 128747232,
                                                     "#data": {
                                                         "value": {
                                                             "value0": 0.7250000238418579,
@@ -361,12 +381,12 @@
                                 "key": "floor:floor",
                                 "value": {
                                     "#type": "Material",
-                                    "#addr": 46908640,
+                                    "#addr": 128281744,
                                     "#data": {
                                         "markAsLight": false,
                                         "emission": {
                                             "#type": "RGBShader",
-                                            "#addr": 46853120,
+                                            "#addr": 128746992,
                                             "#data": {
                                                 "value": {
                                                     "value0": 0.0,
@@ -378,24 +398,86 @@
                                         },
                                         "emissionStrength": {
                                             "#type": "FloatShader",
-                                            "#addr": 46852736,
+                                            "#addr": 128745744,
                                             "#data": {
                                                 "value": 0.0
                                             },
                                             "#valid": 2
                                         },
                                         "bsdf": {
-                                            "#type": "DiffuseBSDF",
-                                            "#addr": 46853024,
+                                            "#type": "MixBDSF",
+                                            "#addr": 2018592,
                                             "#data": {
-                                                "color": {
-                                                    "#type": "RGBShader",
-                                                    "#addr": 46853312,
+                                                "fraction": {
+                                                    "#type": "MathShader",
+                                                    "#addr": 2018832,
                                                     "#data": {
-                                                        "value": {
-                                                            "value0": 0.7250000238418579,
-                                                            "value1": 0.7099999785423279,
-                                                            "value2": 0.6800000071525574
+                                                        "op": {
+                                                            "#type": "MathShaderMul",
+                                                            "#addr": 128743488,
+                                                            "#valid": 2
+                                                        },
+                                                        "shaderA": {
+                                                            "#type": "FloatShader",
+                                                            "#addr": 128745888,
+                                                            "#data": {
+                                                                "value": 1.0
+                                                            },
+                                                            "#valid": 2
+                                                        },
+                                                        "shaderB": {
+                                                            "#type": "NoiseShader",
+                                                            "#addr": 128746032,
+                                                            "#data": {
+                                                                "scale": 10.0
+                                                            },
+                                                            "#valid": 2
+                                                        }
+                                                    },
+                                                    "#valid": 2
+                                                },
+                                                "bsdfA": {
+                                                    "#type": "DiffuseBSDF",
+                                                    "#addr": 128746368,
+                                                    "#data": {
+                                                        "color": {
+                                                            "#type": "RGBShader",
+                                                            "#addr": 128746944,
+                                                            "#data": {
+                                                                "value": {
+                                                                    "value0": 0.8395061492919922,
+                                                                    "value1": 0.8394977450370789,
+                                                                    "value2": 0.8394977450370789
+                                                                }
+                                                            },
+                                                            "#valid": 2
+                                                        }
+                                                    },
+                                                    "#valid": 2
+                                                },
+                                                "bsdfB": {
+                                                    "#type": "MicrofacetBSDF",
+                                                    "#addr": 2014400,
+                                                    "#data": {
+                                                        "color": {
+                                                            "#type": "RGBShader",
+                                                            "#addr": 128746848,
+                                                            "#data": {
+                                                                "value": {
+                                                                    "value0": 0.8630573153495789,
+                                                                    "value1": 0.8630486726760864,
+                                                                    "value2": 0.8630486726760864
+                                                                }
+                                                            },
+                                                            "#valid": 2
+                                                        },
+                                                        "roughness": {
+                                                            "#type": "FloatShader",
+                                                            "#addr": 128746176,
+                                                            "#data": {
+                                                                "value": 0.10000000149011612
+                                                            },
+                                                            "#valid": 2
                                                         }
                                                     },
                                                     "#valid": 2
@@ -411,12 +493,12 @@
                                 "key": "rightWall:rightWall",
                                 "value": {
                                     "#type": "Material",
-                                    "#addr": 46911808,
+                                    "#addr": 128282224,
                                     "#data": {
                                         "markAsLight": false,
                                         "emission": {
                                             "#type": "RGBShader",
-                                            "#addr": 46852784,
+                                            "#addr": 128747040,
                                             "#data": {
                                                 "value": {
                                                     "value0": 0.0,
@@ -428,7 +510,7 @@
                                         },
                                         "emissionStrength": {
                                             "#type": "FloatShader",
-                                            "#addr": 46853552,
+                                            "#addr": 128746896,
                                             "#data": {
                                                 "value": 0.0
                                             },
@@ -436,11 +518,11 @@
                                         },
                                         "bsdf": {
                                             "#type": "DiffuseBSDF",
-                                            "#addr": 46852688,
+                                            "#addr": 128747136,
                                             "#data": {
                                                 "color": {
                                                     "#type": "RGBShader",
-                                                    "#addr": 46915216,
+                                                    "#addr": 128745648,
                                                     "#data": {
                                                         "value": {
                                                             "value0": 0.14000000059604646,

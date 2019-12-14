@@ -76,6 +76,15 @@ namespace miyuki::core {
         return max(Spectrum(0), R * F * GGX_D(alpha, wh) * GGX_G(alpha, wo, wi, wh) / (4.0f * cosThetaI * cosThetaO));
     }
 
+    Float MicrofacetBSDF::evaluatePdf(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {
+        if (!SameHemisphere(wo, wi)) {
+            return 0.0f;
+        }
+        auto wh = normalize(wo + wi);
+        auto alpha = std::max(1e-6f,roughness->evaluate(point).x);
+        alpha *= alpha;
+        return GGX_D(alpha, FaceForward(wh, vec3(0,1,0))) * AbsCosTheta(wh);
+    }
     void MicrofacetBSDF::sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const {
         auto alpha = std::max(1e-6f,roughness->evaluate(sp).x);
         alpha *= alpha;
@@ -87,14 +96,6 @@ namespace miyuki::core {
        // printf("%f %f %f %f %f\n",sample.wo.y, sample.wi.y, wh.y, maxComp(sample.f),sample.pdf);
     }
 
-    Float MicrofacetBSDF::evaluatePdf(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {
-        if (!SameHemisphere(wo, wi)) {
-            return 0.0f;
-        }
-        auto wh = normalize(wo + wi);
-        auto alpha = roughness->evaluate(point).x;
-        alpha *= alpha;
-        return GGX_D(alpha, FaceForward(wh, vec3(0,1,0))) * AbsCosTheta(wh);
-    }
+
 
 } // namespace miyuki::core

@@ -51,11 +51,11 @@ namespace miyuki::core {
         float y = float(raster.y) / filmDimension.y;
 
         Point2f pixelWidth(1.0 / filmDimension.x, 1.0 / filmDimension.y);
-        sample.pFilm = Point2f(x, y);
-        sample.pFilm += u1 * pixelWidth - 0.5f * pixelWidth;
+        sample.pFilm = raster;
+        auto p = Point2f(x, y) + u1 * pixelWidth - 0.5f * pixelWidth;
         sample.pLens = {0, 0};
-        x = sample.pFilm[0];
-        y = sample.pFilm[1];
+        x = p[0];
+        y = p[1];
         y = 1 - y;
         x = -(2 * x - 1);
         y = 2 * y - 1;

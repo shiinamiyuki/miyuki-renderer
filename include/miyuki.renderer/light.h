@@ -36,12 +36,14 @@ namespace miyuki::core {
     struct LightSample {
         Vec3f wi;
         Spectrum Li;
+        Normal3f normal;
         float pdf;
     };
 
     struct LightRaySample {
         Ray ray;
         Spectrum Le;
+        Normal3f normal;
         float pdfPos, pdfDir;
     };
 
@@ -58,9 +60,10 @@ namespace miyuki::core {
 
     };
     class Scene;
+
     struct VisibilityTester {
         Ray shadowRay;
-
+        const MeshTriangle * target = nullptr;
         bool visible(Scene &scene) ;
     };
 

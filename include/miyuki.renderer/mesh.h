@@ -109,7 +109,7 @@ namespace miyuki::core {
             }
             sample.uv = uv;
             sample.pdf = 1 / area();
-            sample.p = (1 - uv.x - uv.y) * vertex(0) + uv.x * vertex(1) + uv.y * vertex(1);
+            sample.p = positionAt(sample.uv);
             sample.normal = Ng();
         }
 

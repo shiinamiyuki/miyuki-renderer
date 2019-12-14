@@ -29,7 +29,7 @@
 namespace miyuki::core {
     struct CameraSample {
         Point2f pLens;
-        Point2f pFilm;
+        Point2i pFilm;
         Ray ray;
     };
 

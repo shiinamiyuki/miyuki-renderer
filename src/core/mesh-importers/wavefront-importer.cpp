@@ -58,13 +58,24 @@ namespace miyuki::core {
         auto material = std::make_shared<Material>();
         auto kd = Vec3f(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
         auto ks = Vec3f(mat.specular[0], mat.specular[1], mat.specular[2]);
+        std::shared_ptr<Shader> kdMap = nullptr, ksMap = nullptr;
+        if (!mat.diffuse_texname.empty()) {
+            kdMap = std::make_shared<ImageTextureShader>(mat.diffuse_texname);
+        }
+        if (!mat.specular_texname.empty()) {
+            ksMap = std::make_shared<ImageTextureShader>(mat.specular_texname);
+        }
+
+        auto frac = std::clamp(maxComp(ks) == 0 ? 1.0 : maxComp(kd) / maxComp(ks),0.0,1.0);
         auto emission = Vec3f(mat.emission[0], mat.emission[1], mat.emission[2]);
         auto strength = maxComp(emission) == 0.0 ? 0.0 : maxComp(emission);
         emission = strength == 0.0 ? vec3(0) : emission / maxComp(emission);
-        auto diffuse = std::make_shared<DiffuseBSDF>(std::make_shared<RGBShader>(kd));
-        auto specular = std::make_shared<DiffuseBSDF>(std::make_shared<RGBShader>(ks));
-        auto mixed = std::make_shared<MixBSDF>(std::make_shared<FloatShader>(0.5f), diffuse, specular);
-        material->bsdf = diffuse;// mixed;
+        auto diffuse = std::make_shared<DiffuseBSDF>(kdMap ? kdMap : std::make_shared<RGBShader>(kd));
+        auto roughness = std::sqrt(2.0 / (2.0 + mat.shininess));
+        auto specular = std::make_shared<MicrofacetBSDF>(ksMap ? ksMap : std::make_shared<RGBShader>(ks),
+                                                         std::make_shared<FloatShader>(roughness));
+        auto mixed = std::make_shared<MixBSDF>(std::make_shared<FloatShader>(frac), diffuse, specular);
+        material->bsdf = mixed;
         material->emission = std::make_shared<RGBShader>(emission);
         material->emissionStrength = std::make_shared<FloatShader>(strength);
         return material;

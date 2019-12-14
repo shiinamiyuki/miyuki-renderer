@@ -24,7 +24,11 @@
 #include "../core/export.h"
 #include <iostream>
 #include <stdexcept>
-
+#include <miyuki.foundation/defs.h>
+#include <miyuki.foundation/arena.hpp>
+#include <miyuki.foundation/parallel.h>
+#include <miyuki.foundation/log.hpp>
+#include <mutex>
 
 int main() {
     using namespace miyuki;

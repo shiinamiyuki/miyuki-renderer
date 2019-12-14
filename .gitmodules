@@ -15,3 +15,6 @@
 [submodule "external/oidn"]
 	path = external/oidn
 	url = https://github.com/OpenImageDenoise/oidn
+[submodule "external/PerlinNoise"]
+	path = external/PerlinNoise
+	url = https://github.com/Reputeless/PerlinNoise

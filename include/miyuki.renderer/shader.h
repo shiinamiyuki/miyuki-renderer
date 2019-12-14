@@ -37,6 +37,7 @@ namespace miyuki::core {
     public:
         MYK_INTERFACE(Shader, "Shader")
         virtual Spectrum evaluate(const ShadingPoint &) const = 0;
+
     };
 
 }
