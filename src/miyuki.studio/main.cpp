@@ -29,11 +29,20 @@
 #include <miyuki.foundation/parallel.h>
 #include <miyuki.foundation/log.hpp>
 #include <mutex>
+#include <nlohmann/json.hpp>
+#include <miyuki.foundation/object.hpp>
+#include <fstream>
 
 int main() {
     using namespace miyuki;
     try {
         core::Initialize();
+        {
+            nlohmann::json schema;
+            DumpJsonSchema(schema);
+            std::ofstream out("schema.json");
+            out << schema.dump(1);
+        }
         auto window = ui::MakeMainWindow(1280, 720, "miyuki.studio");
         window->show();
     } catch (std::runtime_error &e) {

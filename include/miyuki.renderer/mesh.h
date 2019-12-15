@@ -135,6 +135,8 @@ namespace miyuki::core {
     };
 
     class MeshBase : public Object {
+    public:
+        MYK_INTERFACE(MeshBase, "MeshBase")
     };
 
     class Mesh final : public MeshBase {
@@ -175,7 +177,7 @@ namespace miyuki::core {
     public:
         MYK_DECL_CLASS(MeshInstance, "MeshInstance", interface = "MeshBase")
 
-        Transform transform, invTransform;
+        TransformManipulator transform;
         std::shared_ptr<Mesh> mesh;
 
         MYK_AUTO_SER(transform, mesh)
@@ -183,7 +185,7 @@ namespace miyuki::core {
         void foreach(const std::function<void(MeshTriangle *)> &func) { mesh->foreach(func); }
 
     protected:
-        void preprocess() override { invTransform = transform.inverse(); }
+        void preprocess() override { MIYUKI_NOT_IMPLEMENTED(); }
     };
 
 } // namespace miyuki::core

@@ -566,7 +566,7 @@ void main(){
                     InspectorPropertyVisitor visitor;
                     graph->sampler->accept(&visitor);
                 }
-
+                ImGui::EndTabItem();
             }
         }
         void showIntegrator() {
