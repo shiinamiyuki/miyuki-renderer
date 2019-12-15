@@ -34,12 +34,16 @@ namespace miyuki::core {
 
     class AreaLight;
 
-    /// SOA
-    /// Arranged for efficient OpenGL rendering
     struct VertexData {
         std::vector<Point3f> position;
         std::vector<Normal3f> normal;
         std::vector<Point2f> tex_coord;
+    };
+
+    struct VertexIndices {
+        Point3i position;
+        Point3i normal;
+        Point3i texCoord;
     };
 
     class Light;
@@ -54,11 +58,11 @@ namespace miyuki::core {
 
         [[nodiscard]] const Point3f &vertex(size_t) const;
 
-        [[nodiscard]] const Normal3f &normal(size_t) const;
+        [[nodiscard]] Normal3f normal(size_t) const;
 
-        [[nodiscard]] const Point2f &texCoord(size_t) const;
+        [[nodiscard]] Point2f texCoord(size_t) const;
 
-        [[nodiscard]] const Vec3f Ng() const {
+        [[nodiscard]] Vec3f Ng() const {
             Vec3f e1 = (vertex(1) - vertex(0));
             Vec3f e2 = (vertex(2) - vertex(0));
             return normalize(cross(e1, e2));
@@ -145,7 +149,7 @@ namespace miyuki::core {
         bool _loaded = false;
         std::vector<MeshTriangle> triangles;
         VertexData _vertex_data;
-        std::vector<Point3i> _indices;
+        std::vector<VertexIndices> _indices;
         std::vector<std::string> _names;
         std::vector<std::shared_ptr<Material>> _materials;
         std::unordered_map<std::string, std::shared_ptr<Material>> materials;

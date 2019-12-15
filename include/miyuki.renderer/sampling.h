@@ -45,7 +45,7 @@ namespace miyuki::core {
     inline Vec3f CosineHemisphereSampling(const Point2f &u) {
         auto uv = ConcentricSampleDisk(u);
         auto r = dot(uv, uv);
-        auto h = std::sqrt(1 - r);
+        auto h = std::sqrt(std::max(0.0f, 1 - r));
         return Vec3f(uv.x, h, uv.y);
     }
 }

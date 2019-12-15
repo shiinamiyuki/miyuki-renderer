@@ -61,7 +61,7 @@ namespace miyuki::core {
                     geometry, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, sizeof(uint32_t) * 3, mesh->triangles.size());
                 for (size_t i = 0; i < mesh->triangles.size(); i++) {
                     for (size_t j = 0; j < 3; j++) {
-                        triangles[3 * i + j] = mesh->_indices[mesh->triangles[i].primID][j];
+                        triangles[3 * i + j] = mesh->_indices[mesh->triangles[i].primID].position[j];
                     }
                 }
                 for (size_t i = 0; i < mesh->_vertex_data.position.size(); i++) {

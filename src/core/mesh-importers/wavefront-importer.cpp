@@ -66,7 +66,7 @@ namespace miyuki::core {
             ksMap = std::make_shared<ImageTextureShader>(mat.specular_texname);
         }
 
-        auto frac = std::clamp(maxComp(ks) == 0 ? 1.0 : maxComp(kd) / maxComp(ks),0.0,1.0);
+        auto frac = std::clamp(maxComp(ks) == 0 ? 1.0 : maxComp(kd) / maxComp(ks), 0.0, 1.0);
         auto emission = Vec3f(mat.emission[0], mat.emission[1], mat.emission[2]);
         auto strength = maxComp(emission) == 0.0 ? 0.0 : maxComp(emission);
         emission = strength == 0.0 ? vec3(0) : emission / maxComp(emission);
@@ -106,14 +106,21 @@ namespace miyuki::core {
         //log::log("vert: {}\n",attrib.vertices.size());
         auto mesh = std::make_shared<Mesh>();
         mesh->filename = path.string();
-        mesh->_vertex_data.position.reserve(attrib.vertices.size());
+        mesh->_vertex_data.position.reserve(attrib.vertices.size() / 3);
+        mesh->_vertex_data.normal.reserve(attrib.normals.size() / 3);
+        mesh->_vertex_data.tex_coord.reserve(attrib.texcoords.size() / 2);
         for (size_t i = 0; i < attrib.vertices.size(); i += 3) {
             mesh->_vertex_data.position.emplace_back(
                     Vec3f(attrib.vertices[i + 0], attrib.vertices[i + 1], attrib.vertices[i + 2]));
         }
-
-        mesh->_vertex_data.normal.resize(mesh->_vertex_data.position.size());
-        mesh->_vertex_data.tex_coord.resize(mesh->_vertex_data.position.size());
+        for (size_t i = 0; i < attrib.normals.size(); i += 3) {
+            mesh->_vertex_data.normal.emplace_back(
+                    Vec3f(attrib.normals[i + 0], attrib.normals[i + 1], attrib.normals[i + 2]));
+        }
+        for (size_t i = 0; i < attrib.texcoords.size(); i += 2) {
+            mesh->_vertex_data.tex_coord.emplace_back(
+                    Point2f(attrib.texcoords[i + 0], attrib.texcoords[i + 1]));
+        }
 
         std::unordered_map<std::string, size_t> name_to_id;
         std::unordered_map<size_t, std::string> id_to_name;
@@ -164,38 +171,26 @@ namespace miyuki::core {
             size_t index_offset = 0;
             for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
                 MeshTriangle primitive;
+                VertexIndices indices{};
                 auto mat_id = shapes[s].mesh.material_ids[f];
                 primitive.name_id = name_to_id.at(to_mangled_name.at(shapes[s].name).at(mat_id));
                 int fv = shapes[s].mesh.num_face_vertices[f];
-                Point3i vertex_indices;
-                // Loop over vertices in the face.
-                for (size_t v = 0; v < fv; v++) {
-                    tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-                    vertex_indices[v] = idx.vertex_index;
-                }
+                MIYUKI_CHECK(fv == 3);
                 for (size_t v = 0; v < fv; v++) {
                     // access to vertex
                     tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+                    indices.position[v] = idx.vertex_index;
                     if (idx.normal_index >= 0) {
-                        mesh->_vertex_data.normal[idx.vertex_index] =
-                                Vec3f(attrib.normals[3 * idx.normal_index + 0],
-                                      attrib.normals[3 * idx.normal_index + 1],
-                                      attrib.normals[3 * idx.normal_index + 2]);
+                        MIYUKI_CHECK(3 * idx.normal_index + 2 < attrib.normals.size());
+                        indices.normal[v] = idx.normal_index;
                     } else {
-                        // use the last normal (Ng)
-
-                        Vec3f e1 = mesh->_vertex_data.position[vertex_indices[2]] -
-                                   mesh->_vertex_data.position[vertex_indices[0]];
-                        Vec3f e2 = mesh->_vertex_data.position[vertex_indices[1]] -
-                                   mesh->_vertex_data.position[vertex_indices[0]];
-                        mesh->_vertex_data.normal[idx.vertex_index] = normalize(cross(e1, e2));
+                        indices.normal[v] = -1;
                     }
                     if (idx.texcoord_index >= 0) {
-                        mesh->_vertex_data.tex_coord[idx.vertex_index] = Point2f(
-                                attrib.texcoords[2 * idx.texcoord_index + 0],
-                                attrib.texcoords[2 * idx.texcoord_index + 1]);
+                        MIYUKI_CHECK(2 * idx.texcoord_index + 1 < attrib.texcoords.size());
+                        indices.texCoord[v] = idx.texcoord_index;
                     } else {
-                        mesh->_vertex_data.tex_coord[idx.vertex_index] = Point2f(v > 0, v > 1);
+                        indices.texCoord[v] = -1;
                     }
                 }
                 index_offset += fv;
@@ -205,11 +200,11 @@ namespace miyuki::core {
 
                 primitive.mesh = mesh.get();
                 mesh->triangles.push_back(primitive);
-                mesh->_indices.push_back(vertex_indices);
+                mesh->_indices.push_back(indices);
             }
         }
-        log::log("loaded {} vertices, {} normals, {} primitives\n", mesh->_vertex_data.position.size(),
-                 mesh->_vertex_data.normal.size(), mesh->triangles.size());
+        log::log("loaded {} vertices, {} normals, {} tex coords, {} primitives\n", mesh->_vertex_data.position.size(),
+                 mesh->_vertex_data.normal.size(), mesh->_vertex_data.tex_coord.size(), mesh->triangles.size());
         mesh->_loaded = true;
         result.mesh = mesh;
         return result;

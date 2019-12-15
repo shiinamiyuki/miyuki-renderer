@@ -28,7 +28,7 @@ namespace miyuki::core {
     template<class T>
     void write(std::vector<char> &buffer, const T &v) {
         unsigned char _buffer[sizeof(T)];
-        *(T *) _buffer = v;
+        memcpy(_buffer, &v, sizeof(T));
         for (auto i: _buffer) {
             buffer.emplace_back(i);
         }
@@ -45,7 +45,7 @@ namespace miyuki::core {
             begin++;
 
         }
-        v = *(T *) _buffer;
+        memcpy(&v, _buffer, sizeof(T));
         return begin;
     }
 
@@ -75,20 +75,19 @@ namespace miyuki::core {
                 if (!loadFromFile(filename)) {
                     log::log("failed to load {}\n", fs::absolute(fs::path(filename)).string());
                 }
-            }
-            else {
+            } else {
                 throw std::runtime_error("Only .mesh files are supported");
-			}
+            }
         }
         for (int i = 0; i < triangles.size(); i++) {
             triangles[i].primID = i;
         }
         _materials.clear();
         for (const auto &name : _names) {
-            if(materials.find(name)!=materials.end()) {
+            if (materials.find(name) != materials.end()) {
                 auto mat = materials.at(name);
                 _materials.emplace_back(mat);
-            }else{
+            } else {
                 _materials.emplace_back(nullptr);
             }
         }
@@ -163,6 +162,7 @@ namespace miyuki::core {
         _indices.resize(size);
         for (auto &i: _indices) {
             iter = read(iter, end, i);
+
         }
         iter = read(iter, end, size);
         triangles.resize(size);
@@ -171,8 +171,8 @@ namespace miyuki::core {
             i.mesh = this;
         }
         MIYUKI_CHECK(_indices.size() == triangles.size());
-        log::log("loaded {} vertices, {} normals, {} primitives\n",
-                 _vertex_data.position.size(), _vertex_data.normal.size(),
+        log::log("loaded {} vertices, {} normals, {} tex coords, {} primitives\n",
+                 _vertex_data.position.size(), _vertex_data.normal.size(), _vertex_data.tex_coord.size(),
                  triangles.size());
 
     }
@@ -205,15 +205,17 @@ namespace miyuki::core {
     }
 
     const Point3f &MeshTriangle::vertex(size_t i) const {
-        return mesh->_vertex_data.position[mesh->_indices[primID][i]];
+        return mesh->_vertex_data.position[mesh->_indices[primID].position[i]];
     }
 
-    const Normal3f &MeshTriangle::normal(size_t i) const {
-        return mesh->_vertex_data.normal[mesh->_indices[primID][i]];
+    Normal3f MeshTriangle::normal(size_t i) const {
+        auto idx = mesh->_indices[primID].normal[i];
+        return idx >= 0 ? mesh->_vertex_data.normal[idx] : Ng();
     }
 
-    const Point2f &MeshTriangle::texCoord(size_t i) const {
-        return mesh->_vertex_data.tex_coord[mesh->_indices[primID][i]];
+    Point2f MeshTriangle::texCoord(size_t i) const {
+        auto idx = mesh->_indices[primID].texCoord[i];
+        return idx >= 0 ? mesh->_vertex_data.tex_coord[idx] : Point2f(i > 0, i > 1);
     }
 
     Material *MeshTriangle::getMaterial() const {

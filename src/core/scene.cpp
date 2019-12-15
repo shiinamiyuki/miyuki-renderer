@@ -29,7 +29,11 @@
 
 namespace miyuki::core {
     void Scene::preprocess() {
+#ifdef MYK_USE_EMBREE
         accelerator = std::make_shared<EmbreeAccelerator>();
+#else
+        accelerator = std::make_shared<BVHAccelerator>();
+#endif
         auto setLight = [=](MeshTriangle *triangle) {
             auto mat = triangle->getMaterial();
             if (mat && mat->markAsLight && mat->emission && mat->emissionStrength) {
@@ -39,10 +43,10 @@ namespace miyuki::core {
                 lights.emplace_back(light);
             }
         };
-        struct PreprocessVisitor : public PropertyVisitor{
+        struct PreprocessVisitor : public PropertyVisitor {
             void visit(ObjectProperty *aProperty) override {
                 PropertyVisitor::visit(aProperty);
-                if(aProperty->getRef()){
+                if (aProperty->getRef()) {
                     aProperty->getRef()->preprocess();
                     aProperty->getRef()->accept(this);
                 }

@@ -20,36 +20,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #include "mixbsdf.h"
+#include <miyuki.foundation/log.hpp>
 
 namespace miyuki::core {
 
-    Spectrum MixBSDF::evaluate(const ShadingPoint &sp, const Vec3f &wo, const Vec3f &wi) const {
-        return lerp<Spectrum>(bsdfA->evaluate(sp, wo, wi), bsdfB->evaluate(sp, wo, wi), vec3(1) - fraction->evaluate(sp));
+    template<class T>
+    T select(const T &a, const T &b, float frac) {
+        return frac * a + (1.0f - frac) * b;
     }
+
+    Spectrum MixBSDF::evaluate(const ShadingPoint &sp, const Vec3f &wo, const Vec3f &wi) const {
+        return select<Spectrum>(bsdfA->evaluate(sp, wo, wi),
+                                bsdfB->evaluate(sp, wo, wi),
+                                fraction->evaluate(sp)[0]);
+    }
+
     Float MixBSDF::evaluatePdf(const ShadingPoint &sp, const Vec3f &wo, const Vec3f &wi) const {
-        return lerp(bsdfB->evaluatePdf(sp, wo, wi), bsdfA->evaluatePdf(sp, wo, wi), 1.0f - (float)fraction->evaluate(sp)[0]);
+        return select(bsdfA->evaluatePdf(sp, wo, wi),
+                      bsdfB->evaluatePdf(sp, wo, wi),
+                      (float) fraction->evaluate(sp)[0]);
     }
 
     void MixBSDF::sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const {
         auto frac = fraction->evaluate(sp)[0];
+        MIYUKI_CHECK(frac >= 0.0);
         BSDF *first, *second;
         if (u[0] < frac) {
             u[0] /= frac;
             first = bsdfA.get();
             second = bsdfB.get();
-            frac = u[0];
         } else {
             u[0] = (u[0] - frac) / (1.0f - frac);
             first = bsdfB.get();
             second = bsdfA.get();
-            frac = 1.0f - u[0];
+            frac = 1.0f - frac;
         }
         first->sample(u, sp, sample);
 
         // evaluate whole bsdf if not sampled specular
         if ((sample.sampledType & BSDF::ESpecular) == 0) {
-            sample.f = lerp<Spectrum>(second->evaluate(sp, sample.wo, sample.wi), sample.f, vec3(1) - Vec3f(frac));
-            sample.pdf = lerp<Float>(second->evaluatePdf(sp, sample.wo, sample.wi), sample.pdf, 1 - frac);
+            sample.f = select<Spectrum>(sample.f, second->evaluate(sp, sample.wo, sample.wi), frac);
+            sample.pdf = select<Float>(sample.pdf, second->evaluatePdf(sp, sample.wo, sample.wi), frac);
         }
     }
 
