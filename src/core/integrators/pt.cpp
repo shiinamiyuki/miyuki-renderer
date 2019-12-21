@@ -30,6 +30,7 @@
 #include <miyuki.renderer/sampling.h>
 #include <miyuki.renderer/scene.h>
 #include <miyuki.renderer/lightdistribution.h>
+#include <miyuki.renderer/denoiser.h>
 
 
 namespace miyuki::core {
@@ -40,7 +41,7 @@ namespace miyuki::core {
         return pdfA / (pdfA + pdfB);
     }
 
-    static RenderOutput PathTracerRender(const Task<RenderSettings>::ContFunc &cont,
+    static RenderOutput PathTracerRender(bool denoise, const Task<RenderSettings>::ContFunc &cont,
                                          int spp, int minDepth, int maxDepth, const RenderSettings &settings,
                                          const mpsc::Sender<std::shared_ptr<Film>> &tx) {
 
@@ -162,7 +163,7 @@ namespace miyuki::core {
 
             }
             MIYUKI_CHECK(minComp(Li) >= 0.0f);
-            return RemoveNaN(clamp(Li,vec3(0),vec3(1e16f)));
+            return RemoveNaN(clamp(Li, vec3(0), vec3(1e16f)));
         };
 
         ParallelFor(0, film.height, [=, &film](int64_t j, uint64_t) {
@@ -186,13 +187,18 @@ namespace miyuki::core {
         log::log("Rendering done in {}secs, traced {} rays, {} M rays/sec\n", duration.count(), scene->getRayCounter(),
                  scene->getRayCounter() / duration.count() / 1e6f);
         tx.send(std::shared_ptr<Film>(filmPtr));
+        if (denoise) {
+            auto denoiser = std::dynamic_pointer_cast<Denoiser>(CreateObject("OIDNDenoiser"));
+            RGBAImage image(ivec2(0));
+            denoiser->denoise(film, image);
+        }
         return RenderOutput{filmPtr};
     }
 
     Task<RenderOutput>
     core::PathTracer::createRenderTask(const RenderSettings &settings, const mpsc::Sender<std::shared_ptr<Film>> &tx) {
         return Task<RenderOutput>([=, &tx](const Task<RenderSettings>::ContFunc &func) {
-            return PathTracerRender(func, spp, minDepth, maxDepth, settings, tx);
+            return PathTracerRender(denoise, func, spp, minDepth, maxDepth, settings, tx);
         });
     }
 }

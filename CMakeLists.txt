@@ -77,14 +77,14 @@ IF(USE_EMBREE)
     ENDIF()
 ENDIF()
 
-
-IF(USE_OIDN)
-    link_libraries(tbb)
-    add_subdirectory(external/oidn)
-    include_directories(external/oidn/include)
-    add_compile_definitions(MYK_USE_OIDN)
-    set(OIDN_LIBRARIES OpenImageDenoise)
-ENDIF()
+#
+#IF(USE_OIDN)
+#    link_libraries(tbb)
+#    add_subdirectory(external/oidn)
+#    include_directories(external/oidn/include)
+#    add_compile_definitions(MYK_USE_OIDN)
+#    set(OIDN_LIBRARIES OpenImageDenoise)
+#ENDIF()
 
 add_library(core ${MiyukiAPI} ${libcoreSource})
 target_link_libraries(core foundation ${CXX_FS_LIBS} ${OIDN_LIBRARIES})

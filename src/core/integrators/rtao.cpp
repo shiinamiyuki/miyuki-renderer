@@ -58,16 +58,15 @@ namespace miyuki::core {
                         if (wo.y * w.y < 0) {
                             w = -w;
                         }
-//                        w = isct.localToWorld(w);
-//                        auto ray = isct.spawnRay(w);
-//                        ray.tMax = occludeDistance;
-//                        isct = Intersection();
-//                        if (!scene->intersect(ray, isct) || isct.distance >= occludeDistance) {
-//                            film.addSample(sample.pFilm, Spectrum(1), 1);
-//                        } else {
-//                            film.addSample(sample.pFilm, Spectrum(0), 1);
-//                        }
-                            film.addSample(sample.pFilm,vec3(isct.shape->texCoordAt(isct.uv),0),1);
+                        w = isct.localToWorld(w);
+                        auto ray = isct.spawnRay(w);
+                        ray.tMax = occludeDistance;
+                        isct = Intersection();
+                        if (!scene->intersect(ray, isct) || isct.distance >= occludeDistance) {
+                            film.addSample(sample.pFilm, Spectrum(1), 1);
+                        } else {
+                            film.addSample(sample.pFilm, Spectrum(0), 1);
+                        }
                     } else {
                         film.addSample(sample.pFilm, Spectrum(0), 1);
                     }

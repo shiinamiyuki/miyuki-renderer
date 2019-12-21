@@ -26,6 +26,7 @@
 #include <OpenImageDenoise/oidn.hpp>
 #include <miyuki.foundation/log.hpp>
 #include <miyuki.foundation/spectrum.h>
+#include <miyuki.foundation/parallel.h>
 
 namespace miyuki::core {
     class OIDNDenoiser::Impl {
@@ -47,8 +48,16 @@ namespace miyuki::core {
 
         }
 
-        void denoise(RGBAImage &image) {
+        void denoise(const Film &film, RGBAImage &image) {
             image = RGBAImage(dim);
+
+            ParallelFor(0, dim[0] * dim[1], [=, &film, &image](int i, int) {
+                float invWeight = film.weight.data()[i][0];
+                invWeight = invWeight == 0 ? 0 : 1.0f / invWeight;
+                color.data()[i] = film.color.data()[i] * invWeight;
+                albedo.data()[i] = film.albedo.data()[i] * invWeight;
+                normal.data()[i] = film.normal.data()[i] * invWeight;
+            }, 1024);
 
             filter = oidnNewFilter(getDevice().getHandle(), "RT");
 
@@ -64,7 +73,9 @@ namespace miyuki::core {
             const char *errorMessage;
             if (oidnGetDeviceError(getDevice().getHandle(), &errorMessage) != OIDN_ERROR_NONE)
                 log::log("Error: {}\n", errorMessage);
-
+            else{
+                log::log("Denoising complete\n");
+            }
         }
     };
 

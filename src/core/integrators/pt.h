@@ -30,18 +30,20 @@
 namespace miyuki::core {
     class PathTracer final : public Integrator {
         int spp = 16;
-        int minDepth  = 3;
+        int minDepth = 3;
         int maxDepth = 5;
+        bool denoise = false;
     public:
         MYK_DECL_CLASS(PathTracer, "PathTracer", interface = "Integrator");
 
-        MYK_AUTO_SER(spp,minDepth,maxDepth)
+        MYK_AUTO_SER(spp, minDepth, maxDepth, denoise)
 
-        MYK_AUTO_INIT(spp,minDepth,maxDepth)
+        MYK_AUTO_INIT(spp, minDepth, maxDepth, denoise)
 
-        MYK_PROP(spp,minDepth,maxDepth)
+        MYK_PROP(spp, minDepth, maxDepth, denoise)
 
-        virtual Task<RenderOutput> createRenderTask(const RenderSettings &settings,const mpsc::Sender<std::shared_ptr<Film>>& tx) override;
+        virtual Task<RenderOutput>
+        createRenderTask(const RenderSettings &settings, const mpsc::Sender<std::shared_ptr<Film>> &tx) override;
     };
 } // namespace miyuki::core
 

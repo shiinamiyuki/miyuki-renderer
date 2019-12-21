@@ -39,6 +39,7 @@
 #include <miyuki.renderer/material.h>
 #include <miyuki.renderer/mesh.h>
 #include "lightdistributions/uniformlightdistribution.h"
+#include "denoisers/oidndenoiser.h"
 
 namespace miyuki::core {
     void Initialize() {
@@ -68,6 +69,7 @@ namespace miyuki::core {
         Register<SeparateX>();
         Register<SeparateY>();
         Register<SeparateZ>();
+        Register<OIDNDenoiser>();
     }
 
     void Finalize() {}
