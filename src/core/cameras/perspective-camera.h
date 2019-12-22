@@ -24,19 +24,19 @@
 #define MIYUKIRENDERER_PERSPECTIVE_CAMERA_H
 
 #include <miyuki.renderer/camera.h>
-#include <miyuki.foundation/property.hpp>
-#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/math.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace miyuki::core {
     class PerspectiveCamera final : public Camera {
         Transform _transform{}, _invTransform{};
-        Radians<float> fov = Radians<float>(Degrees<float>(80.0));
+        Angle<float> fov = DegreesToRadians(80);
         TransformManipulator transform{};
     public:
         PerspectiveCamera() = default;
 
-        PerspectiveCamera(const Vec3f &p1, const Vec3f &p2, Radians<float> fov) : fov(fov) {
+        PerspectiveCamera(const Vec3f &p1, const Vec3f &p2, Angle<float> fov) : fov(fov) {
             _transform = Transform(lookAt(p1, p2, vec3(0, 1, 0)));
             _invTransform = _transform.inverse();
         }
@@ -46,16 +46,12 @@ namespace miyuki::core {
     public:
         MYK_DECL_CLASS(PerspectiveCamera, "PerspectiveCamera", interface = "Camera")
 
-        MYK_AUTO_SER(transform, fov)
-
-        MYK_PROP(transform, fov)
-
-        void initialize(const json &params) override;
+        MYK_SER(transform, fov)
 
         void generateRay(const Point2f &u1, const Point2f &u2, const Point2i &raster, Point2i filmDimension,
                          CameraSample &sample) const override;
 
-        void preprocess()override;
+        void preprocess() override;
     };
 
 } // namespace miyuki::core

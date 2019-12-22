@@ -23,7 +23,7 @@
 
 #include <miyuki.foundation/defs.h>
 #include <miyuki.renderer/material.h>
-#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/interfaces.h>
 
 namespace miyuki ::core {
     class Mesh;
@@ -33,9 +33,10 @@ namespace miyuki ::core {
         std::shared_ptr<Mesh> mesh;
     };
 
-    class MeshImporter : public Object {
+    class MeshImporter : public serialize::Serializable {
     public:
         MYK_INTERFACE(MeshImporter, "MeshImporter")
+
         virtual MeshImportResult importMesh(const fs::path &) = 0;
     };
 } // namespace miyuki::core

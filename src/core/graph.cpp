@@ -28,7 +28,8 @@
 #include <miyuki.renderer/lightdistribution.h>
 
 namespace miyuki::core {
-    Task<RenderOutput> SceneGraph::createRenderTask(const mpsc::Sender<std::shared_ptr<Film>> &tx) {
+    Task<RenderOutput> SceneGraph::createRenderTask(const std::shared_ptr<serialize::Context> &ctx,
+                                                    const mpsc::Sender<std::shared_ptr<Film>> &tx) {
 
         camera->preprocess();
         integrator->preprocess();
@@ -50,14 +51,15 @@ namespace miyuki::core {
         settings.scene = scene;
         settings.camera = camera;
         settings.sampler = sampler;
-        settings.lightDistribution = std::dynamic_pointer_cast<LightDistribution>(CreateObject("UniformLightDistribution"));
+        settings.lightDistribution = std::dynamic_pointer_cast<LightDistribution>(
+                std::shared_ptr<serialize::Serializable>(ctx->getType("UniformLightDistribution")->_create()));
         settings.lightDistribution->build(*scene);
         return integrator->createRenderTask(settings, tx);
     }
 
-    void SceneGraph::render(const std::string &outImageFile) {
+    void SceneGraph::render(const std::shared_ptr<serialize::Context> &ctx,const std::string &outImageFile) {
         auto[tx, rx] = mpsc::channel<std::shared_ptr<Film>>();
-        Task<RenderOutput> task = createRenderTask(tx);
+        Task<RenderOutput> task = createRenderTask(ctx, tx);
         log::log("Start Rendering...\n");
         task.launch();
         std::shared_ptr<Film> film;

@@ -24,8 +24,7 @@
 #define MIYUKIRENDERER_DIFFUSEBSDF_H
 
 #include <miyuki.renderer/bsdf.h>
-#include <miyuki.foundation/serialize.hpp>
-#include <miyuki.foundation/property.hpp>
+#include <miyuki.foundation/interfaces.h>
 
 namespace miyuki::core {
     class Shader;
@@ -35,11 +34,8 @@ namespace miyuki::core {
     public:
         MYK_DECL_CLASS(DiffuseBSDF, "DiffuseBSDF", interface = "BSDF")
 
-        MYK_AUTO_SER(color)
+        MYK_SER(color)
 
-        MYK_AUTO_INIT(color)
-
-        MYK_PROP(color)
 
         DiffuseBSDF() = default;
 

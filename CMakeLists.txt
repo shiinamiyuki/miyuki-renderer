@@ -38,6 +38,7 @@ include_directories(external/cxxopts/include)
 include_directories(external/gl3w/include)
 include_directories(external/imgui/)
 include_directories(external/PerlinNoise)
+include_directories(external/miyuki.foundation/external/miyuki.serialize/include)
 
 file(GLOB MiyukiAPI include/miyuki.renderer/*.h include/miyuki.renderer/*.hpp include/miyuki.renderer/detail/*.hpp include/miyuki.renderer/detail/*.h)
 file(GLOB libcoreSource src/core/*.cpp
@@ -88,18 +89,8 @@ ENDIF()
 
 add_library(core ${MiyukiAPI} ${libcoreSource})
 target_link_libraries(core foundation ${CXX_FS_LIBS} ${OIDN_LIBRARIES})
-add_executable(myk-cli src/standalone-renderer/main.cpp ${MiyukiAPI})
+add_executable(myk.cli src/standalone-renderer/main.cpp ${MiyukiAPI})
 add_executable(mesh-importer src/mesh-importer/importer.cpp ${MiyukiAPI})
 target_link_libraries(mesh-importer core ${EMBREE_LIBRARY})
-target_link_libraries(myk-cli core ${EMBREE_LIBRARY})
+target_link_libraries(myk.cli core ${EMBREE_LIBRARY})
 
-file(GLOB IMGUI_SRC external/imgui/*.cpp
-        external/imgui/examples/imgui_impl_opengl3.cpp
-        external/imgui/examples/imgui_impl_glfw.cpp)
-add_compile_definitions(IMGUI_IMPL_OPENGL_LOADER_GL3W)
-include_directories(external/gl3w/include)
-
-file(GLOB UI_SRC src/ui/*.*)
-
-add_executable(miyuki.studio src/miyuki.studio/main.cpp ${UI_SRC}  ${MiyukiAPI} ${IMGUI_SRC})
-target_link_libraries(miyuki.studio core ${EMBREE_LIBRARY} glfw gl3w)

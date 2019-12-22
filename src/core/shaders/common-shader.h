@@ -24,9 +24,8 @@
 #define MIYUKIRENDERER_COMMON_SHADER_H
 
 #include <miyuki.renderer/shader.h>
-#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <miyuki.foundation/image.hpp>
-#include <miyuki.foundation/property.hpp>
 
 namespace miyuki::core {
     inline Spectrum SafeEvaluate(const std::shared_ptr<Shader> &shader, const ShadingPoint &point) {
@@ -40,11 +39,8 @@ namespace miyuki::core {
 
         FloatShader(float v) : value(v) {}
 
-        MYK_AUTO_SER(value)
+        MYK_SER(value)
 
-        MYK_AUTO_INIT(value)
-
-        MYK_PROP(value)
 
         MYK_DECL_CLASS(FloatShader, "FloatShader", interface = "Shader")
 
@@ -60,11 +56,8 @@ namespace miyuki::core {
 
         explicit RGBShader(RGBSpectrum v) : value(v) {}
 
-        MYK_AUTO_SER(value)
+        MYK_SER(value)
 
-        MYK_AUTO_INIT(value)
-
-        MYK_PROP(value)
 
         MYK_DECL_CLASS(RGBShader, "RGBShader", interface = "Shader")
 
@@ -73,7 +66,7 @@ namespace miyuki::core {
         }
     };
 
-    class MathShaderOperator : public Object {
+    class MathShaderOperator : public serialize::Serializable {
     public:
         MYK_INTERFACE(MathShaderOperator, "MathOperator")
 
@@ -102,11 +95,8 @@ namespace miyuki::core {
     public:
         MYK_DECL_CLASS(MathShader, "MathShader", interface = "Shader")
 
-        MYK_AUTO_SER(op, shaderA, shaderB)
+        MYK_SER(op, shaderA, shaderB)
 
-        MYK_AUTO_INIT(op, shaderA, shaderB)
-
-        MYK_PROP(op, shaderA, shaderB)
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
             return op->evaluate(SafeEvaluate(shaderA, point), SafeEvaluate(shaderB, point));
@@ -118,11 +108,7 @@ namespace miyuki::core {
     public:
         MYK_DECL_CLASS(NoiseShader, "NoiseShader", interface = "Shader")
 
-        MYK_AUTO_SER(scale)
-
-        MYK_AUTO_INIT(scale)
-
-        MYK_PROP(scale)
+        MYK_SER(scale)
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override;
     };
@@ -132,11 +118,8 @@ namespace miyuki::core {
     public:
         MYK_DECL_CLASS(SeparateX, "SeparateX", interface = "Shader")
 
-        MYK_AUTO_SER(input)
+        MYK_SER(input)
 
-        MYK_AUTO_INIT(input)
-
-        MYK_PROP(input)
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
             return Spectrum(SafeEvaluate(input, point).x);
@@ -148,11 +131,7 @@ namespace miyuki::core {
     public:
         MYK_DECL_CLASS(SeparateY, "SeparateY", interface = "Shader")
 
-        MYK_AUTO_SER(input)
-
-        MYK_AUTO_INIT(input)
-
-        MYK_PROP(input)
+        MYK_SER(input)
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
             return Spectrum(SafeEvaluate(input, point).y);
@@ -164,11 +143,7 @@ namespace miyuki::core {
     public:
         MYK_DECL_CLASS(SeparateZ, "SeparateZ", interface = "Shader")
 
-        MYK_AUTO_SER(input)
-
-        MYK_AUTO_INIT(input)
-
-        MYK_PROP(input)
+        MYK_SER(input)
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
             return Spectrum(SafeEvaluate(input, point).z);
@@ -183,11 +158,8 @@ namespace miyuki::core {
 
         explicit ImageTextureShader(const std::string &path) : imagePath(path) {}
 
-        MYK_AUTO_SER(imagePath)
+        MYK_SER(imagePath)
 
-        MYK_AUTO_INIT(imagePath)
-
-        // MYK_PROP(imagePath)
 
         MYK_DECL_CLASS(ImageTextureShader, "ImageTextureShader", interface = "Shader")
 

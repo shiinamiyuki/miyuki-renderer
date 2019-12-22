@@ -28,9 +28,9 @@
 namespace miyuki::core {
     class Scene;
 
-    class Accelerator : public Object {
+    class Accelerator : public serialize::Serializable {
     public:
-        MYK_INTERFACE(Accelerator, "Acclerator")
+        MYK_INTERFACE(Accelerator, "Accelerator")
 
         virtual void build(Scene &scene) = 0;
 

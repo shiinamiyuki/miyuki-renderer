@@ -25,38 +25,31 @@
 
 #include <miyuki.renderer/bsdf.h>
 #include <miyuki.renderer/camera.h>
-#include <miyuki.foundation/object.hpp>
 #include <miyuki.renderer/integrator.h>
-#include <miyuki.foundation/property.hpp>
 #include <miyuki.renderer/sampler.h>
 #include <miyuki.renderer/scene.h>
-#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.serialize/serialize.hpp>
 #include <miyuki.renderer/shape.h>
-#include <cereal/types/vector.hpp>
 
 namespace miyuki::core {
 
-    class SceneGraph final : public Object {
-    public:
+    class SceneGraph final : public serialize::Serializable {
         std::shared_ptr<Camera> camera;
         std::shared_ptr<Integrator> integrator;
         std::shared_ptr<Sampler> sampler;
         std::vector<std::shared_ptr<MeshBase>> shapes;
         Point2i filmDimension;
         Float rayBias = 1e-5f;
+    public:
+        SceneGraph() = default;
 
-
-        MYK_AUTO_SER(camera, sampler, integrator, shapes, filmDimension, rayBias)
-
-        MYK_AUTO_INIT(camera, sampler, integrator, shapes, filmDimension, rayBias)
-
-        MYK_PROP(camera, sampler, integrator)
+        MYK_SER(camera, sampler, integrator, shapes, filmDimension, rayBias)
 
         MYK_DECL_CLASS(SceneGraph, "SceneGraph")
 
-        void render(const std::string &outImageFile);
+        void render(const std::shared_ptr<serialize::Context> &ctx,const std::string &outImageFile);
 
-        Task<RenderOutput> createRenderTask(const mpsc::Sender<std::shared_ptr<Film>> &tx);
+        Task<RenderOutput> createRenderTask(const std::shared_ptr<serialize::Context> &ctx,const mpsc::Sender<std::shared_ptr<Film>> &tx);
     };
 } // namespace miyuki::core
 #endif // MIYUKIRENDERER_GRAPH_H

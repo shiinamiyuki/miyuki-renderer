@@ -24,9 +24,10 @@
 #define MIYUKIRENDERER_INTEGRATOR_H
 
 #include <miyuki.foundation/math.hpp>
-#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <miyuki.foundation/mpsc.hpp>
 #include <miyuki.foundation/task.hpp>
+#include <miyuki.serialize/serialize.hpp>
 
 
 namespace miyuki::core {
@@ -54,11 +55,14 @@ namespace miyuki::core {
 
     };
 
-    class Integrator : public Object {
+    class Integrator : public serialize::Serializable {
     public:
         MYK_INTERFACE(Integrator, "Integrator")
 
-        virtual Task<RenderOutput> createRenderTask(const RenderSettings &settings, const mpsc::Sender<std::shared_ptr<Film>>& tx) = 0;
+        virtual Task<RenderOutput>
+        createRenderTask(const RenderSettings &settings, const mpsc::Sender<std::shared_ptr<Film>> &tx) = 0;
+
+        virtual void preprocess(){}
     };
 }
 

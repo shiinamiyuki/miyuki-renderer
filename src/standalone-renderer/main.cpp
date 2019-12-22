@@ -35,7 +35,6 @@ int main(int argc, char **argv) {
     try {
         cxxopts::Options options("myk-cli", "miyuki-renderer :: Standalone");
         options.add_options()
-                ("s,ser", "Read scene file as serialized data")
                 ("f,file", "Scene file name", cxxopts::value<std::string>())
                 ("o,out", "Output image file name", cxxopts::value<std::string>())
                 ("h,help", "Print help and exit.");
@@ -58,19 +57,17 @@ int main(int argc, char **argv) {
             fs::current_path(sceneDir);
             sceneFile = fs::path(sceneFile).filename().string();
 
-            core::Initialize();
+            auto ctx = core::Initialize();
 
             std::ifstream in(sceneFile);
             std::string str((std::istreambuf_iterator<char>(in)),
                             std::istreambuf_iterator<char>());
             json data = json::parse(str);
 
-            auto graph = std::make_shared<core::SceneGraph>();
-            graph->initialize(data);
+            auto graph = serialize::fromJson<std::shared_ptr<core::SceneGraph>>(*ctx,data);
 
-            graph->render(outFile);
+            graph->render(ctx, outFile);
 
-            core::Finalize();
         }
         return 0;
     } catch (std::exception &e) {

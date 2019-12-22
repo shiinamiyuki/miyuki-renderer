@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_SHADER_H
 #define MIYUKIRENDERER_SHADER_H
 
-#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <miyuki.foundation/spectrum.h>
 
 namespace miyuki::core {
@@ -33,11 +33,13 @@ namespace miyuki::core {
         Normal3f Ng;
     };
 
-    class Shader : public Object {
+    class Shader : public serialize::Serializable {
     public:
         MYK_INTERFACE(Shader, "Shader")
+
         virtual Spectrum evaluate(const ShadingPoint &) const = 0;
 
+        virtual void preprocess() {}
     };
 
 }

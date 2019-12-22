@@ -25,9 +25,8 @@
 
 #include <miyuki.renderer/accelerator.h>
 #include <miyuki.renderer/material.h>
-#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <miyuki.renderer/shape.h>
-#include <cereal/types/unordered_map.hpp>
 
 namespace miyuki::core {
     class Mesh;
@@ -138,9 +137,11 @@ namespace miyuki::core {
         }
     };
 
-    class MeshBase : public Object {
+    class MeshBase : public serialize::Serializable {
     public:
         MYK_INTERFACE(MeshBase, "MeshBase")
+
+        virtual void preprocess() = 0;
     };
 
     class Mesh final : public MeshBase {
@@ -157,11 +158,7 @@ namespace miyuki::core {
 
         MYK_DECL_CLASS(Mesh, "Mesh", interface = "MeshBase")
 
-        MYK_AUTO_SER(filename, materials)
-
-        MYK_AUTO_INIT(filename, materials)
-
-        MYK_PROP(_materials)
+        MYK_SER(filename, materials)
 
         void toBinary(std::vector<char> &buffer) const;
 
@@ -184,7 +181,7 @@ namespace miyuki::core {
         TransformManipulator transform;
         std::shared_ptr<Mesh> mesh;
 
-        MYK_AUTO_SER(transform, mesh)
+        MYK_SER(transform, mesh)
 
         void foreach(const std::function<void(MeshTriangle *)> &func) { mesh->foreach(func); }
 

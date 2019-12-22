@@ -22,10 +22,10 @@
 #pragma once
 
 #include <miyuki.foundation/math.hpp>
-#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/interfaces.h>
 
 namespace miyuki::core {
-    class Frensel : public Object {
+    class Frensel {
       public:
         virtual Float evaluate(const Float cosTheta) const = 0;
     };

@@ -25,7 +25,7 @@
 #define MIYUKIRENDERER_SOBOL_SAMPLER_H
 
 #include <miyuki.renderer/sampler.h>
-#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/interfaces.h>
 
 namespace miyuki::core {
     class SobolSampler final: public Sampler {

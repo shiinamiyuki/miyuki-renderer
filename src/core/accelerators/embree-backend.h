@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_EMBREE_BACKEND_H
 
 #include <miyuki.renderer/accelerator.h>
-#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <miyuki.foundation/noncopyable.hpp>
 #include <miyuki.renderer/ray.h>
 

@@ -24,8 +24,7 @@
 #define MIYUKIRENDERER_PT_H
 
 #include <miyuki.renderer/integrator.h>
-#include <miyuki.foundation/property.hpp>
-#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/interfaces.h>
 
 namespace miyuki::core {
     class PathTracer final : public Integrator {
@@ -36,11 +35,8 @@ namespace miyuki::core {
     public:
         MYK_DECL_CLASS(PathTracer, "PathTracer", interface = "Integrator");
 
-        MYK_AUTO_SER(spp, minDepth, maxDepth, denoise)
+        MYK_SER(spp, minDepth, maxDepth, denoise)
 
-        MYK_AUTO_INIT(spp, minDepth, maxDepth, denoise)
-
-        MYK_PROP(spp, minDepth, maxDepth, denoise)
 
         virtual Task<RenderOutput>
         createRenderTask(const RenderSettings &settings, const mpsc::Sender<std::shared_ptr<Film>> &tx) override;

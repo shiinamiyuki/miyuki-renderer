@@ -24,23 +24,6 @@
 #include <glm/gtx/transform.hpp>
 
 namespace miyuki::core {
-    void PerspectiveCamera::initialize(const json &params) {
-        fov = (params.at("fov").get<Radians<float>>());
-        if (params.contains("translate")) {
-            auto translate = params.at("translate").get<Vec3f>();
-            auto rotation = DegreesToRadians(params.at("rotate").get<Vec3f>());
-            mat4 m = identity<mat4>();
-            m = rotate(rotation.z, Vec3f(0, 0, 1)) * m;
-            m = rotate(rotation.y, Vec3f(1, 0, 0)) * m;
-            m = rotate(rotation.x, Vec3f(0, 1, 0)) * m;
-            m = glm::translate(translate) * m;
-            _transform = Transform(m);
-            transform = {Radians<vec3>(rotation), translate};
-        } else {
-            MIYUKI_THROW(std::runtime_error, "Unknown input format to PerspectiveCamera");
-        }
-        _invTransform = _transform.inverse();
-    }
 
     void PerspectiveCamera::generateRay(const Point2f &u1,
                                         const Point2f &u2,

@@ -25,13 +25,12 @@
 
 #include <miyuki.renderer/bsdf.h>
 #include <miyuki.renderer/shader.h>
-#include <miyuki.foundation/property.hpp>
-#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.serialize/serialize.hpp>
 
 
 namespace miyuki::core {
 
-    class Material final : public Object {
+    class Material final : public serialize::Serializable {
     public:
         bool markAsLight = false;
         std::shared_ptr<Shader> emission;
@@ -40,11 +39,7 @@ namespace miyuki::core {
 
         MYK_DECL_CLASS(Material, "Material")
 
-        MYK_AUTO_INIT(markAsLight, emission, emissionStrength, bsdf)
-
-        MYK_AUTO_SER(markAsLight, emission, emissionStrength, bsdf)
-
-        MYK_PROP(markAsLight, emission, emissionStrength, bsdf)
+        MYK_SER(markAsLight, emission, emissionStrength, bsdf)
     };
 } // namespace miyuki::core
 

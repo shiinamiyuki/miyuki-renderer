@@ -25,7 +25,7 @@
 
 #include <miyuki.foundation/rng.h>
 #include <miyuki.renderer/sampler.h>
-#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/interfaces.h>
 
 namespace miyuki::core {
     class RandomSampler final : public Sampler {

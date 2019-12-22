@@ -24,8 +24,7 @@
 #define MIYUKIRENDERER_RTAO_H
 
 #include <miyuki.renderer/integrator.h>
-#include <miyuki.foundation/property.hpp>
-#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/interfaces.h>
 
 namespace miyuki::core {
     class RTAO final : public Integrator {
@@ -38,11 +37,7 @@ namespace miyuki::core {
     public:
         MYK_DECL_CLASS(RTAO, "RTAO", interface = "Integrator");
 
-        MYK_AUTO_SER(spp, occludeDistance)
-
-        MYK_AUTO_INIT(spp, occludeDistance)
-
-        MYK_PROP(spp, occludeDistance)
+        MYK_SER(spp, occludeDistance)
 
         virtual Task<RenderOutput> createRenderTask(const RenderSettings &settings,const mpsc::Sender<std::shared_ptr<Film>>& tx) override;
     };

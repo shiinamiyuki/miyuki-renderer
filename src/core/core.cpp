@@ -20,11 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <miyuki.foundation/detail/staticobject.hpp>
+
 #include <cstdio>
 
-#include <miyuki.foundation/object.hpp>
-#include <miyuki.foundation/serialize.hpp>
 
 
 namespace miyuki {

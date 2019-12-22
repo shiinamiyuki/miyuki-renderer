@@ -23,7 +23,6 @@
 #ifndef MIYUKIRENDERER_SCENE_H
 #define MIYUKIRENDERER_SCENE_H
 
-#include <miyuki.foundation/object.hpp>
 #include <miyuki.renderer/accelerator.h>
 #include <miyuki.renderer/light.h>
 #include <miyuki.renderer/ray.h>

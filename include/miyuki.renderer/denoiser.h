@@ -23,12 +23,12 @@
 #ifndef MIYUKIRENDERER_DENOISER_H
 #define MIYUKIRENDERER_DENOISER_H
 
-#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <miyuki.foundation/image.hpp>
 #include <miyuki.foundation/film.h>
 
 namespace miyuki::core {
-    class Denoiser : public Object {
+    class Denoiser : public serialize::Serializable{
     public:
         MYK_INTERFACE(Denoiser, "Denoiser")
         virtual void denoise(const Film & film, RGBAImage & image ) = 0;

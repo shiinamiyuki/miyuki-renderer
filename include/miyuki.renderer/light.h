@@ -25,7 +25,7 @@
 
 #include <miyuki.foundation/spectrum.h>
 #include <miyuki.renderer/ray.h>
-#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/interfaces.h>
 
 namespace miyuki::core {
     struct VisibilityTester;
@@ -47,7 +47,7 @@ namespace miyuki::core {
         float pdfPos, pdfDir;
     };
 
-    class Light : public Object {
+    class Light : public serialize::Serializable {
     public:
         MYK_INTERFACE(Light, "Light")
         virtual Spectrum Li(ShadingPoint &sp) const = 0;

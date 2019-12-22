@@ -23,15 +23,16 @@
 #ifndef MIYUKIRENDERER_BSDF_H
 #define MIYUKIRENDERER_BSDF_H
 
-#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <miyuki.foundation/spectrum.h>
+#include <miyuki.serialize/serialize.hpp>
 
 
 namespace miyuki::core {
     struct BSDFSample;
     struct ShadingPoint;
 
-    class BSDF : public Object {
+    class BSDF : public serialize::Serializable{
     public:
         MYK_INTERFACE(BSDF, "BSDF")
         enum Type : int {

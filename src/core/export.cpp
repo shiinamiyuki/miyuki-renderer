@@ -42,35 +42,36 @@
 #include "denoisers/oidndenoiser.h"
 
 namespace miyuki::core {
-    void Initialize() {
-        Register<Material>();
-        Register<SceneGraph>();
-        Register<BVHAccelerator>();
-        Register<Mesh>();
-        Register<MeshInstance>();
-        Register<FloatShader>();
-        Register<RGBShader>();
-        Register<ImageTextureShader>();
-        Register<PerspectiveCamera>();
-        Register<DiffuseBSDF>();
-        Register<MicrofacetBSDF>();
-        Register<MixBSDF>();
-        Register<RTAO>();
-        Register<PathTracer>();
-        Register<RandomSampler>();
-        Register<SobolSampler>();
-        Register<EmbreeAccelerator>();
-        Register<WavefrontImporter>();
-        Register<UniformLightDistribution>();
-        Register<MathShader>();
-        Register<MathShaderAdd>();
-        Register<MathShaderMul>();
-        Register<NoiseShader>();
-        Register<SeparateX>();
-        Register<SeparateY>();
-        Register<SeparateZ>();
-        Register<OIDNDenoiser>();
+    std::shared_ptr<serialize::Context>  Initialize() {
+        auto ctx = std::make_shared<serialize::Context>();
+        ctx->registerType<Material>();
+        ctx->registerType<SceneGraph>();
+        ctx->registerType<BVHAccelerator>();
+        ctx->registerType<Mesh>();
+        ctx->registerType<MeshInstance>();
+        ctx->registerType<FloatShader>();
+        ctx->registerType<RGBShader>();
+        ctx->registerType<ImageTextureShader>();
+        ctx->registerType<PerspectiveCamera>();
+        ctx->registerType<DiffuseBSDF>();
+        ctx->registerType<MicrofacetBSDF>();
+        ctx->registerType<MixBSDF>();
+        ctx->registerType<RTAO>();
+        ctx->registerType<PathTracer>();
+        ctx->registerType<RandomSampler>();
+        ctx->registerType<SobolSampler>();
+        ctx->registerType<EmbreeAccelerator>();
+        ctx->registerType<WavefrontImporter>();
+        ctx->registerType<UniformLightDistribution>();
+        ctx->registerType<MathShader>();
+        ctx->registerType<MathShaderAdd>();
+        ctx->registerType<MathShaderMul>();
+        ctx->registerType<NoiseShader>();
+        ctx->registerType<SeparateX>();
+        ctx->registerType<SeparateY>();
+        ctx->registerType<SeparateZ>();
+        ctx->registerType<OIDNDenoiser>();
+        return ctx;
     }
 
-    void Finalize() {}
 } // namespace miyuki::core

@@ -24,8 +24,8 @@
 #define MIYUKIRENDERER_EXPORT_H
 
 #include <miyuki.foundation/defs.h>
+#include <miyuki.serialize/serialize-fwd.hpp>
 namespace miyuki::core{
-   MYK_PUBLIC_API void Initialize();
-    MYK_PUBLIC_API void Finalize();
+    std::shared_ptr<serialize::Context> Initialize();
 }
 #endif //MIYUKIRENDERER_EXPORT_H

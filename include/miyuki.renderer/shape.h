@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_SHAPE_H
 
 #include <miyuki.foundation/spectrum.h>
-#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <miyuki.renderer/ray.h>
 #include <functional>
 
@@ -40,7 +40,7 @@ namespace miyuki::core {
     };
 
 
-    class Shape : public Object {
+    class Shape {
     public:
         MYK_INTERFACE(Shape, "Shape")
 

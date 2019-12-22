@@ -22,8 +22,7 @@
 #pragma once
 
 #include <miyuki.renderer/bsdf.h>
-#include <miyuki.foundation/property.hpp>
-#include <miyuki.foundation/serialize.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <miyuki.renderer/shader.h>
 
 namespace miyuki::core {
@@ -33,17 +32,14 @@ namespace miyuki::core {
 
     public:
         MixBSDF() = default;
+
         MixBSDF(const std::shared_ptr<Shader> &fraction,
                 const std::shared_ptr<BSDF> &bsdfA,
-                const std::shared_ptr<BSDF> &bsdfB) : fraction(fraction), bsdfA(bsdfA), bsdfB(bsdfB) {        }
+                const std::shared_ptr<BSDF> &bsdfB) : fraction(fraction), bsdfA(bsdfA), bsdfB(bsdfB) {}
 
         MYK_DECL_CLASS(MixBSDF, "MixBDSF", interface = "BSDF")
 
-        MYK_AUTO_SER(fraction, bsdfA, bsdfB)
-
-        MYK_AUTO_INIT(fraction, bsdfA, bsdfB)
-
-        MYK_PROP(fraction, bsdfA, bsdfB)
+        MYK_SER(fraction, bsdfA, bsdfB)
 
         [[nodiscard]] virtual Type getBSDFType() const override;
 

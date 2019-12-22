@@ -22,7 +22,6 @@
 #pragma once
 
 #include <miyuki.renderer/mesh-importer.h>
-#include <miyuki.foundation/serialize.hpp>
 
 namespace miyuki::core {
 

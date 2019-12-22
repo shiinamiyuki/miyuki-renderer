@@ -188,9 +188,9 @@ namespace miyuki::core {
                  scene->getRayCounter() / duration.count() / 1e6f);
         tx.send(std::shared_ptr<Film>(filmPtr));
         if (denoise) {
-            auto denoiser = std::dynamic_pointer_cast<Denoiser>(CreateObject("OIDNDenoiser"));
-            RGBAImage image(ivec2(0));
-            denoiser->denoise(film, image);
+//            auto denoiser = std::dynamic_pointer_cast<Denoiser>(CreateObject("OIDNDenoiser"));
+//            RGBAImage image(ivec2(0));
+//            denoiser->denoise(film, image);
         }
         return RenderOutput{filmPtr};
     }

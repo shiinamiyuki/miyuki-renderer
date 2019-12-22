@@ -20,12 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <miyuki.foundation/detail/object-funcs.h>
 #include <miyuki.renderer/scene.h>
 #include "accelerators/sahbvh.h"
 #include "accelerators/embree-backend.h"
 #include "lights/arealight.h"
-#include <miyuki.foundation/property.hpp>
 
 namespace miyuki::core {
     void Scene::preprocess() {
@@ -43,20 +41,9 @@ namespace miyuki::core {
                 lights.emplace_back(light);
             }
         };
-        struct PreprocessVisitor : public PropertyVisitor {
-            void visit(ObjectProperty *aProperty) override {
-                PropertyVisitor::visit(aProperty);
-                if (aProperty->getRef()) {
-                    aProperty->getRef()->preprocess();
-                    aProperty->getRef()->accept(this);
-                }
-            }
-        };
 
-        PreprocessVisitor visitor;
         for (auto &i : meshes) {
             i->preprocess();
-            i->accept(&visitor);
             i->foreach(setLight);
         }
         accelerator->build(*this);

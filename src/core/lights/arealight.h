@@ -25,7 +25,6 @@
 
 #include <miyuki.renderer/light.h>
 #include <miyuki.renderer/shader.h>
-#include <miyuki.foundation/serialize.hpp>
 
 namespace miyuki::core {
     class AreaLight final: public Light {

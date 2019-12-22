@@ -23,13 +23,13 @@
 #ifndef MIYUKIRENDERER_LIGHTDISTRIBUTION_H
 #define MIYUKIRENDERER_LIGHTDISTRIBUTION_H
 
-#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/interfaces.h>
 
 namespace miyuki::core{
     class Sampler;
     class Light;
     class Scene;
-    class LightDistribution : public Object{
+    class LightDistribution : public serialize::Serializable{
     public:
         MYK_INTERFACE(LightDistribution, "LightDistribution")
         virtual const Light * sampleLight(Sampler & sampler, Float * pdf) = 0;

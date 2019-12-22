@@ -23,8 +23,9 @@
 #ifndef MIYUKIRENDERER_CAMERA_H
 #define MIYUKIRENDERER_CAMERA_H
 
-#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <miyuki.renderer/ray.h>
+#include <miyuki.foundation/interfaces.h>
 
 namespace miyuki::core {
     struct CameraSample {
@@ -33,9 +34,11 @@ namespace miyuki::core {
         Ray ray;
     };
 
-    class Camera : public Object {
+    class Camera : public serialize::Serializable {
     public:
         MYK_INTERFACE(Camera, "Camera")
+
+
         virtual const Transform &getTransform() const = 0;
 
         virtual void generateRay(const Point2f &u1,
@@ -43,6 +46,8 @@ namespace miyuki::core {
                                  const Point2i &raster,
                                  Point2i filmDimension,
                                  CameraSample &sample) const = 0;
+
+        virtual void preprocess(){}
     };
 }
 #endif //MIYUKIRENDERER_CAMERA_H

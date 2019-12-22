@@ -23,13 +23,14 @@
 #ifndef MIYUKIRENDERER_SAMPLER_H
 #define MIYUKIRENDERER_SAMPLER_H
 
-#include <miyuki.foundation/object.hpp>
+#include <miyuki.foundation/interfaces.h>
 #include <miyuki.foundation/math.hpp>
 
 namespace miyuki::core {
-    class Sampler : public Object {
+    class Sampler : public serialize::Serializable {
     public:
         MYK_INTERFACE(Sampler, "Sampler")
+
         virtual void startPixel(const Point2i &, const Point2i &filmDimension) = 0;
 
         virtual Float next1D() = 0;
@@ -41,6 +42,8 @@ namespace miyuki::core {
         virtual void startNextSample() = 0;
 
         [[nodiscard]] virtual std::shared_ptr<Sampler> clone() const = 0;
+
+        virtual void preprocess(){}
     };
 }
 
