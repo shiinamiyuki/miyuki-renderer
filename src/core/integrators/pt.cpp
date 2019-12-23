@@ -31,6 +31,7 @@
 #include <miyuki.renderer/scene.h>
 #include <miyuki.renderer/lightdistribution.h>
 #include <miyuki.renderer/denoiser.h>
+#include <miyuki.renderer/progressreporter.h>
 
 
 namespace miyuki::core {
@@ -166,7 +167,14 @@ namespace miyuki::core {
             return RemoveNaN(clamp(Li, vec3(0), vec3(1e16f)));
         };
 
-        ParallelFor(0, film.height, [=, &film](int64_t j, uint64_t) {
+        std::mutex _reporterMutex;
+        ProgressReporter reporter(film.height, [=, &_reporterMutex](size_t cur, size_t total) {
+            std::unique_lock<std::mutex> lock(_reporterMutex, std::try_to_lock);
+            if (lock.owns_lock()) {
+                PrintProgressBar(double(cur) / total);
+            }
+        });
+        ParallelFor(0, film.height, [=, &film, &reporter](int64_t j, uint64_t) {
             auto sampler = settings.sampler->clone();
             for (int i = 0; i < film.width && cont(); i++) {
 
@@ -179,6 +187,7 @@ namespace miyuki::core {
                     film.addSample(sample.pFilm, Li(*sampler, sample.ray), 1);
                 }
             }
+            reporter.update();
         });
         if (!cont()) {
             return {};

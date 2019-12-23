@@ -28,7 +28,7 @@
   "integrator": {
     "type": "PathTracer",
     "props": {
-      "spp": 16,
+      "spp": 64,
       "minDepth": 3,
       "maxDepth": 5
     }
