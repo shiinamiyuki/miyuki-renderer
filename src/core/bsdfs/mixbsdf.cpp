@@ -66,4 +66,10 @@ namespace miyuki::core {
 
     BSDF::Type MixBSDF::getBSDFType() const { return BSDF::Type(bsdfA->getBSDFType() | bsdfB->getBSDFType()); }
 
+    void MixBSDF::preprocess() {
+        bsdfA->preprocess();
+        bsdfB->preprocess();
+        fraction->preprocess();
+    }
+
 } // namespace miyuki::core

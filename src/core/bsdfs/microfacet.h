@@ -49,5 +49,7 @@ namespace miyuki::core {
         [[nodiscard]] Float evaluatePdf(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const override;
 
         [[nodiscard]] Type getBSDFType() const override { return Type(EGlossy | EReflection); }
+
+        void preprocess()override ;
     };
 } // namespace miyuki::core

@@ -96,6 +96,11 @@ namespace miyuki::core {
        // printf("%f %f %f %f %f\n",sample.wo.y, sample.wi.y, wh.y, maxComp(sample.f),sample.pdf);
     }
 
+    void MicrofacetBSDF::preprocess() {
+        roughness->preprocess();
+        color->preprocess();
+    }
+
 
 
 } // namespace miyuki::core

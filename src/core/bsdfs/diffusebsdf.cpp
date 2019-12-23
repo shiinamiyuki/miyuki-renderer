@@ -47,4 +47,7 @@ namespace miyuki::core {
             return std::abs(wi.y) * InvPi;
         return 0;
     }
+    void DiffuseBSDF::preprocess() {
+        color->preprocess();
+    }
 }

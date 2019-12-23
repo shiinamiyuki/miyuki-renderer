@@ -101,6 +101,11 @@ namespace miyuki::core {
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
             return op->evaluate(SafeEvaluate(shaderA, point), SafeEvaluate(shaderB, point));
         }
+
+        void preprocess()override{
+            if(shaderA)shaderA->preprocess();
+            if(shaderB)shaderB->preprocess();
+        }
     };
 
     class NoiseShader final : public Shader {

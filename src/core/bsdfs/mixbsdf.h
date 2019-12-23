@@ -48,5 +48,7 @@ namespace miyuki::core {
         [[nodiscard]] virtual Float evaluatePdf(const ShadingPoint &, const Vec3f &wo, const Vec3f &wi) const override;
 
         virtual void sample(Point2f u, const ShadingPoint &, BSDFSample &sample) const override;
+
+        void preprocess()override ;
     };
 } // namespace miyuki::core

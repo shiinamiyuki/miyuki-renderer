@@ -39,17 +39,19 @@ namespace miyuki::core {
         std::shared_ptr<Integrator> integrator;
         std::shared_ptr<Sampler> sampler;
         std::vector<std::shared_ptr<MeshBase>> shapes;
-        Point2i filmDimension;
+        Point2i filmDimension = ivec2(100, 100);
         Float rayBias = 1e-5f;
+
         SceneGraph() = default;
 
         MYK_SER(camera, sampler, integrator, shapes, filmDimension, rayBias)
 
         MYK_DECL_CLASS(SceneGraph, "SceneGraph")
 
-        void render(const std::shared_ptr<serialize::Context> &ctx,const std::string &outImageFile);
+        void render(const std::shared_ptr<serialize::Context> &ctx, const std::string &outImageFile);
 
-        Task<RenderOutput> createRenderTask(const std::shared_ptr<serialize::Context> &ctx,const mpsc::Sender<std::shared_ptr<Film>> &tx);
+        Task<RenderOutput>
+        createRenderTask(const std::shared_ptr<serialize::Context> &ctx, const mpsc::Sender<std::shared_ptr<Film>> &tx);
     };
 } // namespace miyuki::core
 #endif // MIYUKIRENDERER_GRAPH_H

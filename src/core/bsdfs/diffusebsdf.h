@@ -52,6 +52,7 @@ namespace miyuki::core {
             return Type(EDiffuse | EReflection);
         }
 
+        void preprocess()override ;
     };
 }
 

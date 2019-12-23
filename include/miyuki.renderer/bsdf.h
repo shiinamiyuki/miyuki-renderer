@@ -32,7 +32,7 @@ namespace miyuki::core {
     struct BSDFSample;
     struct ShadingPoint;
 
-    class BSDF : public serialize::Serializable{
+    class BSDF : public serialize::Serializable {
     public:
         MYK_INTERFACE(BSDF, "BSDF")
         enum Type : int {
@@ -57,6 +57,8 @@ namespace miyuki::core {
         [[nodiscard]] virtual bool isSpecular() const {
             return getBSDFType() & ESpecular;
         }
+
+        virtual void preprocess() {}
     };
 
     struct BSDFSample {

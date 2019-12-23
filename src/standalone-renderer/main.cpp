@@ -64,9 +64,9 @@ int main(int argc, char **argv) {
                             std::istreambuf_iterator<char>());
             json data = json::parse(str);
 
-            auto graph = serialize::fromJson<std::shared_ptr<core::SceneGraph>>(*ctx,data);
+            auto graph = serialize::fromJson<core::SceneGraph>(*ctx,data);
 
-            graph->render(ctx, outFile);
+            graph.render(ctx, outFile);
 
         }
         return 0;
