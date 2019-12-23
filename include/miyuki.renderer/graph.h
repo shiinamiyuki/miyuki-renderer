@@ -34,13 +34,13 @@
 namespace miyuki::core {
 
     class SceneGraph final : public serialize::Serializable {
+    public:
         std::shared_ptr<Camera> camera;
         std::shared_ptr<Integrator> integrator;
         std::shared_ptr<Sampler> sampler;
         std::vector<std::shared_ptr<MeshBase>> shapes;
         Point2i filmDimension;
         Float rayBias = 1e-5f;
-    public:
         SceneGraph() = default;
 
         MYK_SER(camera, sampler, integrator, shapes, filmDimension, rayBias)

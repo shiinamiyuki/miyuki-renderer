@@ -20,21 +20,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <api/defs.h>
-#include <api/graph.h>
-#include <api/mesh.h>
+
 #include <fstream>
 #include <string>
-#include <core/mesh-importers/wavefront-importer.h>
+#include "../core/mesh-importers/wavefront-importer.h"
+#include "../core/export.h"
+#include <iostream>
+#include <miyuki.renderer/graph.h>
 
 int main(int argc, char **argv) {
     using namespace miyuki;
     if (argc != 3) {
-        printf("Usage: mesh-importer src dst\n");
+        printf("Usage: mesh-importer mesh scene\n");
         return 0;
     }
     auto importer = std::make_shared<core::WavefrontImporter>();
     auto result = importer->importMesh(argv[1]);
-    result.mesh->writeToFile(argv[2]);	
+    if (!result.mesh) {
+        std::cerr << "error importing " << argv[1] << std::endl;
+    } else {
+        auto sceneFile = fs::path(argv[2]);
+        core::SceneGraph graph;
+        auto ctx = core::Initialize();
+        if (!fs::exists(sceneFile)) {
+
+        } else {
+            std::ifstream in(sceneFile);
+            std::string content((std::istreambuf_iterator<char>(in)),
+                                std::istreambuf_iterator<char>());
+            auto j = json::parse(content);
+            graph = serialize::fromJson<core::SceneGraph>(*ctx, j);
+        }
+
+        auto outFile = fs::path(argv[1]).stem().string().append(".mesh");
+        result.mesh->writeToFile(outFile);
+        graph.shapes.emplace_back(result.mesh);
+        std::ofstream out(sceneFile);
+        out << serialize::toJson(*ctx, graph).dump() << std::endl;
+    }
     return 0;
 }

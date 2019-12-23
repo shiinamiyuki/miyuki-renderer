@@ -90,7 +90,10 @@ ENDIF()
 add_library(core ${MiyukiAPI} ${libcoreSource})
 target_link_libraries(core foundation ${CXX_FS_LIBS} ${OIDN_LIBRARIES})
 add_executable(myk.cli src/standalone-renderer/main.cpp ${MiyukiAPI})
+target_link_libraries(myk.cli core ${EMBREE_LIBRARY})
 add_executable(mesh-importer src/mesh-importer/importer.cpp ${MiyukiAPI})
 target_link_libraries(mesh-importer core ${EMBREE_LIBRARY})
-target_link_libraries(myk.cli core ${EMBREE_LIBRARY})
+add_executable(miyuki.server src/miyuki.server/main.cpp ${MiyukiAPI})
+target_link_libraries(miyuki.server asio wsock32 ws2_32 core ${EMBREE_LIBRARY})
+
 
