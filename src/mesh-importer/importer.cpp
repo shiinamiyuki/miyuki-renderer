@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
         result.mesh->writeToFile(outFile);
         graph.shapes.emplace_back(result.mesh);
         std::ofstream out(sceneFile);
-        out << serialize::toJson(*ctx, graph).dump() << std::endl;
+        out << serialize::toJson(*ctx, graph).dump(2) << std::endl;
     }
     return 0;
 }
