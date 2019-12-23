@@ -40,6 +40,6 @@ namespace miyuki::core {
     static const siv::PerlinNoise perlin(0);
 
     Spectrum NoiseShader::evaluate(const miyuki::core::ShadingPoint &point) const {
-        return Spectrum(perlin.noise0_1(scale * point.texCoord.x, scale * point.texCoord.y));
+        return Spectrum(perlin.octaveNoise0_1(scale * point.texCoord.x, scale * point.texCoord.y,this->detail));
     }
 }

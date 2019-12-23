@@ -40,6 +40,8 @@ int main(int argc, char **argv) {
         std::cerr << "error importing " << argv[1] << std::endl;
     } else {
         auto sceneFile = fs::path(argv[2]);
+        fs::current_path(fs::absolute(sceneFile).parent_path());
+        sceneFile = sceneFile.filename();
         core::SceneGraph graph;
         auto ctx = core::Initialize();
         if (!fs::exists(sceneFile)) {

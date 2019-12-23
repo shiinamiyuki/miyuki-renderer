@@ -102,18 +102,19 @@ namespace miyuki::core {
             return op->evaluate(SafeEvaluate(shaderA, point), SafeEvaluate(shaderB, point));
         }
 
-        void preprocess()override{
-            if(shaderA)shaderA->preprocess();
-            if(shaderB)shaderB->preprocess();
+        void preprocess() override {
+            if (shaderA)shaderA->preprocess();
+            if (shaderB)shaderB->preprocess();
         }
     };
 
     class NoiseShader final : public Shader {
         Float scale = 1.0;
+        int detail = 1;
     public:
         MYK_DECL_CLASS(NoiseShader, "NoiseShader", interface = "Shader")
 
-        MYK_SER(scale)
+        MYK_SER(scale, detail)
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override;
     };
@@ -171,6 +172,31 @@ namespace miyuki::core {
         void preprocess() override;
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override;
+    };
+
+    class ColorRamp final : public Shader {
+        Spectrum left, right;
+        Float minVal = 0.0, maxVal = 1.0;
+        std::shared_ptr<Shader> fraction;
+    public:
+        MYK_DECL_CLASS(ColorRamp, "ColorRamp", interface = "Shader")
+
+        MYK_SER(left, right, minVal, maxVal, fraction)
+
+        void preprocess() override {
+            fraction->preprocess();
+        }
+
+        [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
+            auto frac = SafeEvaluate(fraction, point)[0];
+            if (frac < minVal) {
+                return left;
+            }
+            if (frac > maxVal) {
+                return right;
+            }
+            return lerp<Spectrum>(left, right, Spectrum((frac - minVal) / (maxVal - minVal)));
+        }
     };
 }
 

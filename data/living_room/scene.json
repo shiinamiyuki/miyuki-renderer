@@ -28,7 +28,7 @@
   "integrator": {
     "type": "PathTracer",
     "props": {
-      "spp": 64,
+      "spp": 4,
       "minDepth": 3,
       "maxDepth": 5
     }
@@ -186,9 +186,9 @@
                       "color": {
                         "props": {
                           "value": [
-                            0.0,
-                            0.0,
-                            0.0
+                            0.1,
+                            0.1,
+                            0.1
                           ]
                         },
                         "type": "RGBShader"
@@ -201,16 +201,16 @@
                       "color": {
                         "props": {
                           "value": [
-                            0.009999999776482582,
-                            0.009999999776482582,
-                            0.009999999776482582
+                            0.4,
+                            0.4,
+                            0.4
                           ]
                         },
                         "type": "RGBShader"
                       },
                       "roughness": {
                         "props": {
-                          "value": 0.30151134729385376
+                          "value": 0.10151134729385376
                         },
                         "type": "FloatShader"
                       }
@@ -219,7 +219,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.3
                     },
                     "type": "FloatShader"
                   }
@@ -672,9 +672,9 @@
                       "color": {
                         "props": {
                           "value": [
-                            0.10000000149011612,
-                            0.10000000149011612,
-                            0.10000000149011612
+                            0.20000000149011612,
+                            0.20000000149011612,
+                            0.20000000149011612
                           ]
                         },
                         "type": "RGBShader"
@@ -690,7 +690,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 1.0
+                      "value": 0.8
                     },
                     "type": "FloatShader"
                   }

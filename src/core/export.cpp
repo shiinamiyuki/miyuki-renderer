@@ -63,6 +63,7 @@ namespace miyuki::core {
         ctx->registerType<EmbreeAccelerator>();
         ctx->registerType<WavefrontImporter>();
         ctx->registerType<UniformLightDistribution>();
+        ctx->registerType<ColorRamp>();
         ctx->registerType<MathShader>();
         ctx->registerType<MathShaderAdd>();
         ctx->registerType<MathShaderMul>();

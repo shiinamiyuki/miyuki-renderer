@@ -28,7 +28,9 @@ namespace miyuki::core {
         float m = std::clamp(1.0 - cosTheta, 0.0, 1.0);
         return (m * m) * (m * m) * m;
     }
+
     static float Schlick(float R0, float cosTheta) { return lerp(R0, 1.0f, SchlickWeight(cosTheta)); }
+
     static float GGX_D(float alpha, Vec3f m) {
         if (m.y <= 0.0f) {
             return 0.0f;
@@ -39,15 +41,18 @@ namespace miyuki::core {
         float at = (a2 + t2);
         return a2 / (Pi * c2 * c2 * at * at);
     }
+
     static float GGX_G1(float alpha, const Vec3f &v, const Vec3f &m) {
-//        if (dot(v,m) * v.y <= 0.0f) {
-//            return 0.0f;
-//        }
+        if (dot(v,m) * v.y <= 0.0f) {
+            return 0.0f;
+        }
         return 2.0f / (1.0 + sqrt(1.0 + alpha * alpha * Tan2Theta(m)));
     }
+
     static float GGX_G(float alpha, const Vec3f &i, const Vec3f &o, const Vec3f &m) {
         return GGX_G1(alpha, i, m) * GGX_G1(alpha, o, m);
     }
+
     static Vec3f GGX_SampleWh(float alpha, const Vec3f &wo, const Point2f &u) {
         float phi = 2.0 * Pi * u.y;
         float t2 = alpha * alpha * u.x / (1.0 - u.x);
@@ -55,6 +60,7 @@ namespace miyuki::core {
         float sinTheta = sqrt(std::fmax(0.0f, 1.0 - cosTheta * cosTheta));
         return Vec3f(cos(phi) * sinTheta, cosTheta, sin(phi) * sinTheta);
     }
+
     Spectrum MicrofacetBSDF::evaluate(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {
         if (!SameHemisphere(wo, wi)) {
             return Spectrum(0);
@@ -68,10 +74,10 @@ namespace miyuki::core {
         if (wh.x == 0 && wh.y == 0 && wh.z == 0)
             return Spectrum(0);
         wh = normalize(wh);
-        wh = FaceForward(wh, vec3(0,1,0));
+        wh = FaceForward(wh, vec3(0, 1, 0));
         float F = Schlick(0.4f, abs(dot(wi, wh)));
         auto R = color->evaluate(point);
-        auto alpha = std::max(1e-6f,roughness->evaluate(point).x);
+        auto alpha = std::max(1e-6f, roughness->evaluate(point).x);
         alpha *= alpha;
         return max(Spectrum(0), R * F * GGX_D(alpha, wh) * GGX_G(alpha, wo, wi, wh) / (4.0f * cosThetaI * cosThetaO));
     }
@@ -81,26 +87,26 @@ namespace miyuki::core {
             return 0.0f;
         }
         auto wh = normalize(wo + wi);
-        auto alpha = std::max(1e-6f,roughness->evaluate(point).x);
+        auto alpha = std::max(1e-6f, roughness->evaluate(point).x);
         alpha *= alpha;
-        return GGX_D(alpha, FaceForward(wh, vec3(0,1,0))) * AbsCosTheta(wh);
+        return GGX_D(alpha, FaceForward(wh, vec3(0, 1, 0))) * AbsCosTheta(wh);
     }
+
     void MicrofacetBSDF::sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const {
-        auto alpha = std::max(1e-6f,roughness->evaluate(sp).x);
+        auto alpha = std::max(1e-6f, roughness->evaluate(sp).x);
         alpha *= alpha;
         Normal3f wh = GGX_SampleWh(alpha, sample.wo, u);
         sample.wi = Reflect(sample.wo, wh);
         sample.f = evaluate(sp, sample.wo, sample.wi);
         sample.pdf = evaluatePdf(sp, sample.wo, sample.wi);
         sample.sampledType = BSDF::Type(int(BSDF::Type::EReflection) | int(BSDF::Type::EGlossy));
-       // printf("%f %f %f %f %f\n",sample.wo.y, sample.wi.y, wh.y, maxComp(sample.f),sample.pdf);
+        // printf("%f %f %f %f %f\n",sample.wo.y, sample.wi.y, wh.y, maxComp(sample.f),sample.pdf);
     }
 
     void MicrofacetBSDF::preprocess() {
         roughness->preprocess();
         color->preprocess();
     }
-
 
 
 } // namespace miyuki::core
