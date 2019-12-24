@@ -88,9 +88,12 @@ namespace miyuki::core {
             if (materials.find(name) != materials.end()) {
                 auto mat = materials.at(name);
                 _materials.emplace_back(mat);
-                mat->emission->preprocess();
-                mat->emissionStrength->preprocess();
-                mat->bsdf->preprocess();
+                if (mat->emission)
+                    mat->emission->preprocess();
+                if (mat->emissionStrength)
+                    mat->emissionStrength->preprocess();
+                if (mat->bsdf)
+                    mat->bsdf->preprocess();
             } else {
                 _materials.emplace_back(nullptr);
             }

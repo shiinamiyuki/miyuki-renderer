@@ -3,17 +3,17 @@
     "type": "PerspectiveCamera",
     "props": {
       "fov": {
-        "deg": 110.0
+        "deg": 39.6
       },
       "transform": {
         "translation": [
-          1,
-          0.8,
-          2.6
+          2.27,
+          1.4,
+          5
         ],
         "rotation": {
           "deg": [
-            195,
+            203.1,
             13,
             0
           ]
@@ -28,7 +28,7 @@
   "integrator": {
     "type": "PathTracer",
     "props": {
-      "spp": 64,
+      "spp": 8,
       "minDepth": 3,
       "maxDepth": 5
     }
@@ -96,7 +96,7 @@
                 "props": {
                   "expr": [
                     "rgb",
-                    "d93d7e"
+                    "64a7de"
                   ]
                 },
                 "type": "ExprShader"
@@ -151,7 +151,7 @@
                             "color-ramp",
                             0.4,
                             1.0,
-                            0.01,
+                            0.15,
                             1.0,
                             [
                               "noise",
@@ -227,7 +227,7 @@
                       },
                       "roughness": {
                         "props": {
-                          "value": 0.09386464953422546
+                          "value": 0.3
                         },
                         "type": "FloatShader"
                       }
@@ -236,7 +236,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.2
                     },
                     "type": "FloatShader"
                   }

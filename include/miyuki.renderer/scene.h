@@ -28,16 +28,19 @@
 #include <miyuki.renderer/ray.h>
 #include <miyuki.renderer/shape.h>
 #include <miyuki.renderer/mesh.h>
+#include <miyuki.renderer/shader.h>
 #include <atomic>
 
 
 namespace miyuki::core {
     class EmbreeAccelerator;
+
     class Scene {
         std::shared_ptr<Accelerator> accelerator;
         std::atomic<size_t> rayCounter = 0;
 
-      public:
+    public:
+        std::shared_ptr<Shader> background;
         std::vector<std::shared_ptr<Light>> lights;
         std::vector<std::shared_ptr<Mesh>> meshes;
         std::vector<std::shared_ptr<MeshInstance>> instances;

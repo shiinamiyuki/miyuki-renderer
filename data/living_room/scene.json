@@ -1058,9 +1058,12 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\wood4.jpg"
+                          "expr": [
+                            "image",
+                            "textures\\wood4.jpg"
+                          ]
                         },
-                        "type": "ImageTextureShader"
+                        "type": "ExprShader"
                       }
                     },
                     "type": "DiffuseBSDF"
@@ -2703,7 +2706,7 @@
                       },
                       "roughness": {
                         "props": {
-                          "value": 0.6324555277824402
+                          "value": 0.1
                         },
                         "type": "FloatShader"
                       }

@@ -5,12 +5,11 @@
 ### Standalone Renderer
 
 ```
-myk-cli [-s|--ser] -f scene-file [-o output-image]
+myk.cli  -f scene-file [-o output-image]
 
--s, --ser read scene-file as serialized data
 ```
 
+##  Feature
 
-
-## Extending the renderer
+- Custom Shader graph
 

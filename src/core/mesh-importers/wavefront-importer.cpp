@@ -61,12 +61,14 @@ namespace miyuki::core {
         std::shared_ptr<Shader> kdMap = nullptr, ksMap = nullptr;
         if (!mat.diffuse_texname.empty()) {
             kdMap = std::make_shared<ImageTextureShader>(mat.diffuse_texname);
+            kd = vec3(1);
         }
         if (!mat.specular_texname.empty()) {
             ksMap = std::make_shared<ImageTextureShader>(mat.specular_texname);
+            ks = vec3(1);
         }
 
-        auto frac = 1.0f - std::clamp(maxComp(ks) == 0 ? 1.0 : maxComp(kd) / maxComp(ks), 0.0, 1.0);
+        auto frac = std::clamp(maxComp(kd) == 0 ? 1.0 : maxComp(ks) / maxComp(kd), 0.0, 1.0);
         auto emission = Vec3f(mat.emission[0], mat.emission[1], mat.emission[2]);
         auto strength = maxComp(emission) == 0.0 ? 0.0 : maxComp(emission);
         emission = strength == 0.0 ? vec3(0) : emission / maxComp(emission);
