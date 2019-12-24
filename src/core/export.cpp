@@ -33,6 +33,7 @@
 #include "integrators/pt.h"
 #include "samplers/random-sampler.h"
 #include "shaders/common-shader.h"
+#include "shaders/expr-shader.h"
 #include "mesh-importers/wavefront-importer.h"
 #include "samplers/sobol-sampler.h"
 #include <miyuki.renderer/graph.h>
@@ -64,6 +65,7 @@ namespace miyuki::core {
         ctx->registerType<WavefrontImporter>();
         ctx->registerType<UniformLightDistribution>();
         ctx->registerType<ColorRamp>();
+        ctx->registerType<ExprShader>();
         ctx->registerType<MathShader>();
         ctx->registerType<MathShaderAdd>();
         ctx->registerType<MathShaderMul>();

@@ -28,12 +28,12 @@
   "integrator": {
     "type": "PathTracer",
     "props": {
-      "spp": 8,
+      "spp": 64,
       "minDepth": 3,
       "maxDepth": 5
     }
   },
-  "rayBias": 0.01,
+  "rayBias": 0.001,
   "sampler": {
     "type": "SobolSampler",
     "props": {}
@@ -85,7 +85,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 1.0
+                      "value": 0.0
                     },
                     "type": "FloatShader"
                   }
@@ -94,17 +94,21 @@
               },
               "emission": {
                 "props": {
-                  "value": [
-                    0.80, 0.431, 0.564
+                  "expr": [
+                    "rgb",
+                    "d93d7e"
                   ]
                 },
-                "type": "RGBShader"
+                "type": "ExprShader"
               },
               "emissionStrength": {
                 "props": {
-                  "value": 0.8
+                  "expr": [
+                    "float",
+                    0.8
+                  ]
                 },
-                "type": "FloatShader"
+                "type": "ExprShader"
               },
               "markAsLight": true
             },
@@ -143,34 +147,27 @@
                       },
                       "roughness": {
                         "props": {
-                          "minVal": 0.5,
-                          "maxVal": 1.0,
-                          "left": [
+                          "expr": [
+                            "color-ramp",
+                            0.4,
+                            1.0,
                             0.01,
-                            0.01,
-                            0.01
-                          ],
-                          "right": [
-                            0.6,
-                            0.6,
-                            0.6
-                          ],
-                          "fraction": {
-                            "type": "NoiseShader",
-                            "props": {
-                              "scale": 20.0,
-                              "detail": 8
-                            }
-                          }
+                            1.0,
+                            [
+                              "noise",
+                              20.0,
+                              8.0
+                            ]
+                          ]
                         },
-                        "type": "ColorRamp"
+                        "type": "ExprShader"
                       }
                     },
                     "type": "MicrofacetBSDF"
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.7
+                      "value": 0.8
                     },
                     "type": "FloatShader"
                   }
@@ -239,7 +236,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.8
+                      "value": 0.0
                     },
                     "type": "FloatShader"
                   }
