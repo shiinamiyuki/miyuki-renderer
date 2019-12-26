@@ -25,6 +25,7 @@
 
 #include <miyuki.foundation/defs.h>
 #include <miyuki.foundation/math.hpp>
+#include <miyuki.foundation/vectorize.hpp>
 
 namespace miyuki::core {
     struct Ray {
@@ -50,7 +51,7 @@ namespace miyuki::core {
 
     struct Intersection {
         const MeshTriangle *shape = nullptr;
-        const Material * material = nullptr;
+        const Material *material = nullptr;
         float distance = MaxFloat;
         Vec3f wo;
         Point3f p;
@@ -84,5 +85,30 @@ namespace miyuki::core {
             return Ray(this->p, (p - this->p), RayBias, 1);
         }
     };
+
+    MYK_VEC_STRUCT_BEGIN(Ray)
+        MYK_VEC_MEMBER(tMin)
+        MYK_VEC_MEMBER(tMax)
+        MYK_VEC_MEMBER(o)
+        MYK_VEC_MEMBER(d)
+    MYK_VEC_STRUCT_END
+
+    using Ray4 = TRay<4>;
+    using Ray8 = TRay<8>;
+
+    MYK_VEC_STRUCT_BEGIN(Intersection)
+        MYK_VEC_MEMBER(shape)
+        MYK_VEC_MEMBER(material)
+        MYK_VEC_MEMBER(distance)
+        MYK_VEC_MEMBER(wo)
+        MYK_VEC_MEMBER(p)
+        MYK_VEC_MEMBER(Ns)
+        MYK_VEC_MEMBER(Ng)
+        MYK_VEC_MEMBER(uv)
+        MYK_VEC_MEMBER(localFrame)
+    MYK_VEC_STRUCT_END
+
+    using Intersection4 = TIntersection<4>;
+    using Intersection8 = TIntersection<8>;
 }
 #endif //MIYUKIRENDERER_RAY_H

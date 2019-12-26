@@ -25,6 +25,7 @@
 
 #include <miyuki.renderer/shape.h>
 
+
 namespace miyuki::core {
     class Scene;
 
@@ -35,6 +36,14 @@ namespace miyuki::core {
         virtual void build(Scene &scene) = 0;
 
         virtual bool intersect(const Ray &ray, Intersection &isct) = 0;
+
+        virtual bool4 intersect4(const Ray4 &ray, Intersection4 &isct) {
+            MIYUKI_NOT_IMPLEMENTED();
+        }
+
+        virtual bool8 intersect8(const Ray8 &ray, Intersection8 &isct) {
+            MIYUKI_NOT_IMPLEMENTED();
+        }
     };
 
 }

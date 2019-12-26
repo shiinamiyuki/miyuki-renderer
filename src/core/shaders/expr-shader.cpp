@@ -25,6 +25,7 @@
 #include <PerlinNoise.hpp>
 #include <memory>
 #include <miyuki.foundation/imageloader.h>
+#include <sstream>
 
 static const siv::PerlinNoise perlin(0);
 

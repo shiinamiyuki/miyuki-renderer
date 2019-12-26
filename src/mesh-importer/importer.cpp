@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 
         auto outFile = fs::path(argv[1]).stem().string().append(".mesh");
         result.mesh->writeToFile(outFile);
-        graph.shapes.emplace_back(result.mesh);
+        graph.shapes.push_back(result.mesh);
         std::ofstream out(sceneFile);
         out << serialize::toJson(*ctx, graph).dump(2) << std::endl;
     }

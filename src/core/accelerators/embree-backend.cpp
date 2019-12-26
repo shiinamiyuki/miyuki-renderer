@@ -35,7 +35,7 @@ namespace miyuki::core {
         RTCScene rtcScene = nullptr;
         const Scene *scene;
 
-      public:
+    public:
         Impl() {
             device = rtcNewDevice(nullptr);
             if (rtcGetDeviceError(device) != RTC_ERROR_NONE) {
@@ -45,7 +45,9 @@ namespace miyuki::core {
             QUERY_PROP(RTC_DEVICE_PROPERTY_NATIVE_RAY8_SUPPORTED);
             QUERY_PROP(RTC_DEVICE_PROPERTY_NATIVE_RAY16_SUPPORTED);
         }
+
         ~Impl() { rtcReleaseDevice(device); }
+
         void build(const Scene &scene) {
             if (rtcScene != nullptr) {
                 rtcReleaseScene(rtcScene);
@@ -55,13 +57,16 @@ namespace miyuki::core {
             int id = 0;
             for (const auto &mesh : scene.meshes) {
                 auto geometry = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
-                auto vertices = (Float *)rtcSetNewGeometryBuffer(geometry, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3,
-                                                                 sizeof(Float) * 3, mesh->_vertex_data.position.size());
-                auto triangles = (uint32_t *)rtcSetNewGeometryBuffer(
-                    geometry, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, sizeof(uint32_t) * 3, mesh->triangles.size());
+                auto vertices = (Float *) rtcSetNewGeometryBuffer(geometry, RTC_BUFFER_TYPE_VERTEX, 0,
+                                                                  RTC_FORMAT_FLOAT3,
+                                                                  sizeof(Float) * 3,
+                                                                  mesh->_vertex_data.position.size());
+                auto triangles = (uint32_t *) rtcSetNewGeometryBuffer(
+                        geometry, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, sizeof(uint32_t) * 3,
+                        mesh->triangles.size());
                 for (size_t i = 0; i < mesh->triangles.size(); i++) {
                     for (size_t j = 0; j < 3; j++) {
-                        triangles[3 * i + j] =mesh->triangles[i].indices.position[j];
+                        triangles[3 * i + j] = mesh->triangles[i].indices.position[j];
                     }
                 }
                 for (size_t i = 0; i < mesh->_vertex_data.position.size(); i++) {
@@ -75,6 +80,7 @@ namespace miyuki::core {
             }
             rtcCommitScene(rtcScene);
         }
+
         static inline RTCRay toRTCRay(const Ray &_ray) {
             RTCRay ray;
             auto _o = _ray.o;
@@ -89,6 +95,7 @@ namespace miyuki::core {
             ray.flags = 0;
             return ray;
         }
+
         bool intersect(const Ray &ray, Intersection &isct) {
             RTCRayHit rayHit;
             rayHit.ray = toRTCRay(ray);
@@ -110,20 +117,30 @@ namespace miyuki::core {
             return true;
         }
     };
+
     EmbreeAccelerator::EmbreeAccelerator() : impl(new Impl()) {}
 
     void EmbreeAccelerator::build(Scene &scene) { impl->build(scene); }
 
     bool EmbreeAccelerator::intersect(const Ray &ray, Intersection &isct) { return impl->intersect(ray, isct); }
+
     EmbreeAccelerator::~EmbreeAccelerator() { delete impl; }
 
-#else
-void miyuki::core::EmbreeAccelerator::build(miyuki::core::Scene &scene) { MIYUKI_NOT_IMPLEMENTED(); }
+    bool4 EmbreeAccelerator::intersect4(const Ray4 &ray, Intersection4 &isct) {
+        return Accelerator::intersect4(ray, isct);
+    }
 
-bool miyuki::core::EmbreeAccelerator::intersect(const miyuki::core::Ray &ray, miyuki::core::Intersection &isct) {
-    MIYUKI_NOT_IMPLEMENTED();
-}
-return false;
+    bool8 EmbreeAccelerator::intersect8(const Ray8 &ray, Intersection8 &isct) {
+        return Accelerator::intersect8(ray, isct);
+    }
+
+#else
+    void miyuki::core::EmbreeAccelerator::build(miyuki::core::Scene &scene) { MIYUKI_NOT_IMPLEMENTED(); }
+
+    bool miyuki::core::EmbreeAccelerator::intersect(const miyuki::core::Ray &ray, miyuki::core::Intersection &isct) {
+        MIYUKI_NOT_IMPLEMENTED();
+    }
+    return false;
 
 #endif
 }
