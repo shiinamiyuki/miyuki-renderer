@@ -102,6 +102,7 @@ add_executable(miyuki.server ${serverSRC} ${MiyukiAPI})
 if (WIN32)
     target_compile_definitions(miyuki.server PUBLIC _WIN32_WINNT=0x0601)
 endif ()
+target_include_directories(miyuki.server PRIVATE external/cpp-httplib)
 target_link_libraries(miyuki.server asio wsock32 ws2_32 core ${EMBREE_LIBRARY})
 
 

@@ -201,8 +201,8 @@ namespace miyuki::core {
                 // shapes[s].mesh.material_ids[f];
 
                 primitive.mesh = mesh.get();
+                primitive.indices = indices;
                 mesh->triangles.push_back(primitive);
-                mesh->_indices.push_back(indices);
             }
         }
         log::log("loaded {} vertices, {} normals, {} tex coords, {} primitives\n", mesh->_vertex_data.position.size(),

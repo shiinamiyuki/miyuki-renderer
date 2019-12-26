@@ -80,9 +80,6 @@ namespace miyuki::core {
                 throw std::runtime_error("Only .mesh files are supported");
             }
         }
-        for (int i = 0; i < triangles.size(); i++) {
-            triangles[i].primID = i;
-        }
         _materials.clear();
         for (const auto &name : _names) {
             if (materials.find(name) != materials.end()) {
@@ -128,9 +125,9 @@ namespace miyuki::core {
         for (const auto &i: _vertex_data.tex_coord) {
             write(buffer, i);
         }
-        write(buffer, _indices.size());
-        for (const auto &i: _indices) {
-            write(buffer, i);
+        write(buffer, triangles.size());
+        for (const auto &i: triangles) {
+            write(buffer, i.indices);
         }
         write(buffer, triangles.size());
         for (const auto &i:triangles) {
@@ -167,18 +164,19 @@ namespace miyuki::core {
             iter = read(iter, end, i);
         }
         iter = read(iter, end, size);
-        _indices.resize(size);
-        for (auto &i: _indices) {
-            iter = read(iter, end, i);
+
+        triangles.resize(size);
+
+        for (auto &i: triangles) {
+            iter = read(iter, end, i.indices);
 
         }
         iter = read(iter, end, size);
-        triangles.resize(size);
+        MIYUKI_CHECK(size == triangles.size());
         for (auto &i:triangles) {
             iter = read(iter, end, i.name_id);
             i.mesh = this;
         }
-        MIYUKI_CHECK(_indices.size() == triangles.size());
         log::log("loaded {} vertices, {} normals, {} tex coords, {} primitives\n",
                  _vertex_data.position.size(), _vertex_data.normal.size(), _vertex_data.tex_coord.size(),
                  triangles.size());
@@ -213,16 +211,16 @@ namespace miyuki::core {
     }
 
     const Point3f &MeshTriangle::vertex(size_t i) const {
-        return mesh->_vertex_data.position[mesh->_indices[primID].position[i]];
+        return mesh->_vertex_data.position[indices.position[i]];
     }
 
     Normal3f MeshTriangle::normal(size_t i) const {
-        auto idx = mesh->_indices[primID].normal[i];
+        auto idx = indices.normal[i];
         return idx >= 0 ? mesh->_vertex_data.normal[idx] : Ng();
     }
 
     Point2f MeshTriangle::texCoord(size_t i) const {
-        auto idx = mesh->_indices[primID].texCoord[i];
+        auto idx = indices.texCoord[i];
         return idx >= 0 ? mesh->_vertex_data.tex_coord[idx] : Point2f(i > 0, i > 1);
     }
 

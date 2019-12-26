@@ -48,10 +48,10 @@ namespace miyuki::core {
     class Light;
 
     struct MeshTriangle {
+        VertexIndices indices;
         Light *light = nullptr;
         Mesh *mesh = nullptr;
         uint16_t name_id = -1;
-        uint32_t primID = -1;
 
         MeshTriangle() = default;
 
@@ -150,7 +150,6 @@ namespace miyuki::core {
         bool _loaded = false;
         std::vector<MeshTriangle> triangles;
         VertexData _vertex_data;
-        std::vector<VertexIndices> _indices;
         std::vector<std::string> _names;
         std::vector<std::shared_ptr<Material>> _materials;
         std::unordered_map<std::string, std::shared_ptr<Material>> materials;
