@@ -18,3 +18,6 @@
 [submodule "external/PerlinNoise"]
 	path = external/PerlinNoise
 	url = https://github.com/Reputeless/PerlinNoise
+[submodule "external/nanort"]
+	path = external/nanort
+	url = https://github.com/lighttransport/nanort

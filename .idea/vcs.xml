@@ -13,6 +13,7 @@
     <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/miyuki.serialize" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/openexr" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/stb" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/nanort" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/oidn" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/oidn/mkl-dnn" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/oidn/weights" vcs="Git" />

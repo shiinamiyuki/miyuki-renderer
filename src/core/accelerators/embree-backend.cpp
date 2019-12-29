@@ -56,19 +56,13 @@ namespace miyuki::core {
             rtcScene = rtcNewScene(device);
             for (const auto &mesh : scene.meshes) {
                 auto geometry = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
-                auto vertices = (Float *) rtcSetNewGeometryBuffer(geometry, RTC_BUFFER_TYPE_VERTEX, 0,
+                rtcSetSharedGeometryBuffer(geometry, RTC_BUFFER_TYPE_VERTEX, 0,
                                                                   RTC_FORMAT_FLOAT3,
+                                                                     &mesh->_vertex_data.position[0][0],0,
                                                                   sizeof(Float) * 3,
                                                                   mesh->_vertex_data.position.size());
-                auto triangles = (uint32_t *) rtcSetNewGeometryBuffer(
-                        geometry, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, sizeof(uint32_t) * 3,
-                        mesh->triangles.size());
-                for (size_t i = 0; i < mesh->triangles.size(); i++) {
-                    for (size_t j = 0; j < 3; j++) {
-                        triangles[3 * i + j] = mesh->triangles[i].indices.position[j];
-                    }
-                }
-                std::memcpy(vertices,&mesh->_vertex_data.position[0][0], mesh->_vertex_data.position.size() * sizeof(float) * 3);
+                rtcSetSharedGeometryBuffer(geometry,RTC_BUFFER_TYPE_INDEX,0,RTC_FORMAT_UINT3, &mesh->triangles[0],0,
+                        sizeof(MeshTriangle),mesh->triangles.size());
                 rtcCommitGeometry(geometry);
                 rtcAttachGeometry(rtcScene, geometry);
                 rtcReleaseGeometry(geometry);

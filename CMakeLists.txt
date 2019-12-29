@@ -39,6 +39,7 @@ include_directories(external/gl3w/include)
 include_directories(external/imgui/)
 include_directories(external/PerlinNoise)
 include_directories(external/miyuki.foundation/external/miyuki.serialize/include)
+include_directories(external/nanort/)
 
 file(GLOB MiyukiAPI include/miyuki.renderer/*.h include/miyuki.renderer/*.hpp include/miyuki.renderer/detail/*.hpp include/miyuki.renderer/detail/*.h)
 file(GLOB libcoreSource src/core/*.cpp
