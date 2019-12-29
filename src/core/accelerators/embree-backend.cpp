@@ -54,7 +54,6 @@ namespace miyuki::core {
             }
             this->scene = &scene;
             rtcScene = rtcNewScene(device);
-            int id = 0;
             for (const auto &mesh : scene.meshes) {
                 auto geometry = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
                 auto vertices = (Float *) rtcSetNewGeometryBuffer(geometry, RTC_BUFFER_TYPE_VERTEX, 0,
@@ -69,14 +68,10 @@ namespace miyuki::core {
                         triangles[3 * i + j] = mesh->triangles[i].indices.position[j];
                     }
                 }
-                for (size_t i = 0; i < mesh->_vertex_data.position.size(); i++) {
-                    for (int32_t j = 0; j < 3; j++)
-                        vertices[3 * i + j] = mesh->_vertex_data.position[i][j];
-                }
+                std::memcpy(vertices,&mesh->_vertex_data.position[0][0], mesh->_vertex_data.position.size() * sizeof(float) * 3);
                 rtcCommitGeometry(geometry);
-                rtcAttachGeometryByID(rtcScene, geometry, id);
+                rtcAttachGeometry(rtcScene, geometry);
                 rtcReleaseGeometry(geometry);
-                id++;
             }
             rtcCommitScene(rtcScene);
         }
@@ -109,9 +104,8 @@ namespace miyuki::core {
             if (rayHit.hit.geomID == RTC_INVALID_GEOMETRY_ID || rayHit.hit.primID == RTC_INVALID_GEOMETRY_ID)
                 return false;
             isct.shape = &scene->meshes[rayHit.hit.geomID]->triangles[rayHit.hit.primID];
-            isct.Ng = isct.shape->Ng();
+            isct.Ng = normalize(vec3(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
             isct.uv = Point2f(rayHit.hit.u, rayHit.hit.v);
-            isct.Ns = isct.shape->normalAt(isct.uv);
             isct.distance = rayHit.ray.tfar;
             isct.p = ray.o + isct.distance * ray.d;
             return true;

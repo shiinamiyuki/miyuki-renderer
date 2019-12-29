@@ -225,7 +225,7 @@ namespace miyuki::core {
     }
 
     Material *MeshTriangle::getMaterial() const {
-        return mesh->_materials[name_id].get();
+        return name_id >= 0 ? mesh->_materials[name_id].get() : nullptr;
     }
 }
 

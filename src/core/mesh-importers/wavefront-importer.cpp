@@ -126,46 +126,17 @@ namespace miyuki::core {
 
         std::unordered_map<std::string, size_t> name_to_id;
         std::unordered_map<size_t, std::string> id_to_name;
-        std::unordered_map<std::string, std::unordered_map<int, std::string>> to_mangled_name;
+//
+//        for (size_t i = 0; i < shapes.size(); i++) {
+//            const auto &name = shapes[i].name;
+//
+//            if(name_to_id.find(name) == name_to_id.end()){
+//                name_to_id[name] = name_to_id.size();
+//                id_to_name[name_to_id[name]] = name;
+//            }
+//
+//        }
 
-        for (size_t i = 0; i < shapes.size(); i++) {
-            const auto &name = shapes[i].name;
-
-            auto iter = to_mangled_name.find(name);
-
-            if (iter == to_mangled_name.end()) {
-                to_mangled_name[name] = {};
-            }
-            auto &m = to_mangled_name[name];
-            size_t count = 0;
-            for (size_t f = 0; f < shapes[i].mesh.num_face_vertices.size(); f++) {
-                bool new_name = false;
-                std::string final_name;
-
-                auto mat_id = shapes[i].mesh.material_ids[f];
-                if (m.find(mat_id) == m.end() || mat_id == -1) {
-                    new_name = true;
-                    if (mat_id >= 0) {
-                        final_name = fmt::format("{}:{}", name, materials[mat_id].name);
-                    } else {
-                        final_name = fmt::format("{}:part{}", name, count + 1);
-                    }
-                }
-                if (new_name) {
-                    count++;
-                    m[mat_id] = final_name;
-                    name_to_id[final_name] = name_to_id.size();
-                    auto mat = convertFromMTL(materials[mat_id]);
-                    result.materials.emplace_back(mat);
-                    mesh->materials[final_name] = mat;
-                    id_to_name[name_to_id[final_name]] = final_name;
-                    fmt::print("generated {}\n", final_name);
-                }
-            }
-        }
-        for (size_t i = 0; i < name_to_id.size(); i++) {
-            mesh->_names.emplace_back(id_to_name[i]);
-        }
 
         // Loop over shapes
         for (size_t s = 0; s < shapes.size(); s++) {
@@ -174,8 +145,16 @@ namespace miyuki::core {
             for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
                 MeshTriangle primitive;
                 VertexIndices indices{};
-                auto mat_id = shapes[s].mesh.material_ids[f];
-                primitive.name_id = name_to_id.at(to_mangled_name.at(shapes[s].name).at(mat_id));
+                auto mat = materials[shapes[s].mesh.material_ids[f]].name;
+                if (mat.empty()) {
+                    primitive.name_id = -1;
+                } else {
+                    if (name_to_id.find(mat) == name_to_id.end()) {
+                        name_to_id[mat] = name_to_id.size();
+                        id_to_name[name_to_id[mat]] = mat;
+                    }
+                    primitive.name_id = name_to_id.at(mat);
+                }
                 int fv = shapes[s].mesh.num_face_vertices[f];
                 MIYUKI_CHECK(fv == 3);
                 for (size_t v = 0; v < fv; v++) {
@@ -205,6 +184,11 @@ namespace miyuki::core {
                 mesh->triangles.push_back(primitive);
             }
         }
+
+        for (size_t i = 0; i < name_to_id.size(); i++) {
+            mesh->_names.emplace_back(id_to_name[i]);
+        }
+
         log::log("loaded {} vertices, {} normals, {} tex coords, {} primitives\n", mesh->_vertex_data.position.size(),
                  mesh->_vertex_data.normal.size(), mesh->_vertex_data.tex_coord.size(), mesh->triangles.size());
         mesh->_loaded = true;

@@ -53,7 +53,7 @@ namespace miyuki::core {
                     //  log::log("{} {} {}\n",sample.ray.o.x,sample.ray.o.y,sample.ray.o.z);
                     Intersection isct;
                     if (scene->intersect(sample.ray, isct)) {
-                        auto wo = isct.worldToLocal(-sample.ray.d);
+                        auto wo = isct.worldToLocal(isct.wo);
                         auto w = CosineHemisphereSampling(sampler->next2D());
                         if (wo.y * w.y < 0) {
                             w = -w;

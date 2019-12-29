@@ -74,7 +74,7 @@ namespace miyuki::core {
                         primitive[i].getBoundingBox().centroid());
             }
 
-            if (end - begin <= 4 || depth >= 64) {
+            if (end - begin <= 4 || depth >= 32) {
                 BVHNode node;
 
                 node.box = box;
@@ -100,61 +100,69 @@ namespace miyuki::core {
                         axis = 2;
                     }
                 }
+                MeshTriangle *mid = nullptr;
+                if (size[axis] > 0) {
+                    constexpr size_t nBuckets = 12;
+                    struct Bucket {
+                        size_t count = 0;
+                        Bounds3f bound;
 
-                constexpr size_t nBuckets = 12;
-                struct Bucket {
-                    size_t count = 0;
-                    Bounds3f bound;
-
-                    Bucket()
-                            : bound({{MaxFloat, MaxFloat, MaxFloat},
-                                     {MinFloat, MinFloat, MinFloat}}) {}
-                };
-                Bucket buckets[nBuckets];
-                for (int i = begin; i < end; i++) {
-                    auto offset = centroidBound.offset(
-                            primitive[i].getBoundingBox().centroid())[axis];
-                    int b = std::min<int>(nBuckets - 1,
-                                          std::floor(offset * nBuckets));
-                    buckets[b].count++;
-                    buckets[b].bound =
-                            buckets[b].bound.unionOf(primitive[i].getBoundingBox());
-                }
-                Float cost[nBuckets - 1] = {0};
-                for (int i = 0; i < nBuckets - 1; i++) {
-                    Bounds3f b0, b1;
-                    int count0 = 0, count1 = 0;
-                    for (int j = 0; j <= i; j++) {
-                        b0 = b0.unionOf(buckets[j].bound);
-                        count0 += buckets[j].count;
+                        Bucket()
+                                : bound({{MaxFloat, MaxFloat, MaxFloat},
+                                         {MinFloat, MinFloat, MinFloat}}) {}
+                    };
+                    Bucket buckets[nBuckets];
+                    for (int i = begin; i < end; i++) {
+                        auto offset = centroidBound.offset(
+                                primitive[i].getBoundingBox().centroid())[axis];
+                        int b = std::min<int>(nBuckets - 1,
+                                              std::floor(offset * nBuckets));
+                        buckets[b].count++;
+                        buckets[b].bound =
+                                buckets[b].bound.unionOf(primitive[i].getBoundingBox());
                     }
-                    for (int j = i + 1; j < nBuckets; j++) {
-                        b1 = b1.unionOf(buckets[j].bound);
-                        count1 += buckets[j].count;
+                    Float cost[nBuckets - 1] = {0};
+                    for (int i = 0; i < nBuckets - 1; i++) {
+                        Bounds3f b0{{MaxFloat, MaxFloat, MaxFloat},
+                                    {MinFloat, MinFloat, MinFloat}};
+                        Bounds3f b1{{MaxFloat, MaxFloat, MaxFloat},
+                           {MinFloat, MinFloat, MinFloat}};
+                        int count0 = 0, count1 = 0;
+                        for (int j = 0; j <= i; j++) {
+                            b0 = b0.unionOf(buckets[j].bound);
+                            count0 += buckets[j].count;
+                        }
+                        for (int j = i + 1; j < nBuckets; j++) {
+                            b1 = b1.unionOf(buckets[j].bound);
+                            count1 += buckets[j].count;
+                        }
+                        cost[i] = 0.125 + (count0 * b0.surfaceArea() +
+                                           count1 * b1.surfaceArea()) /
+                                          box.surfaceArea();
                     }
-                    cost[i] = 0.125 + (count0 * b0.surfaceArea() +
-                                       count1 * b1.surfaceArea()) /
-                                      box.surfaceArea();
-                }
-                int splitBuckets = 0;
-                Float minCost = cost[0];
-                for (int i = 1; i < nBuckets - 1; i++) {
-                    if (cost[i] <= minCost) {
-                        minCost = cost[i];
-                        splitBuckets = i;
+                    int splitBuckets = 0;
+                    Float minCost = cost[0];
+                    for (int i = 1; i < nBuckets - 1; i++) {
+                        if (cost[i] <= minCost) {
+                            minCost = cost[i];
+                            splitBuckets = i;
+                        }
                     }
+                    MIYUKI_CHECK(minCost > 0);
+                    mid = std::partition(
+                            &primitive[begin], &primitive[end - 1] + 1,
+                            [&](MeshTriangle &p) {
+                                int b = centroidBound.offset(
+                                        p.getBoundingBox().centroid())[axis] *
+                                        nBuckets;
+                                if (b == nBuckets) {
+                                    b = nBuckets - 1;
+                                }
+                                return b <= splitBuckets;
+                            });
+                } else {
+                    mid = primitive.data() + (begin + end) / 2;
                 }
-                auto mid = std::partition(
-                        &primitive[begin], &primitive[end - 1] + 1,
-                        [&](MeshTriangle &p) {
-                            int b = centroidBound.offset(
-                                    p.getBoundingBox().centroid())[axis] *
-                                    nBuckets;
-                            if (b == nBuckets) {
-                                b = nBuckets - 1;
-                            }
-                            return b <= splitBuckets;
-                        });
                 auto ret = nodes.size();
                 nodes.emplace_back();
 

@@ -4,13 +4,13 @@ project(MiyukiRenderer)
 
 option(USE_EMBREE "Use Embree as ray intersection backend" ON)
 option(USE_OIDN "Use OIDN as denoiser" ON)
-option(EMBREE_FROM_SOUCE "Download and compile embree from souce" OFF)
+option(EMBREE_FROM_SOURCE "Download and compile embree from source" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 
 if(MSVC)
 	if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Qpar /arch:AVX2 /std:c++17 /GL")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2 /std:c++17 /GL")
 	endif()
 endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -61,7 +61,7 @@ file(GLOB libcoreSource src/core/*.cpp
 
 IF(USE_EMBREE)
     add_compile_definitions(MYK_USE_EMBREE)
-    IF(EMBREE_FROM_SOUCE)
+    IF(EMBREE_FROM_SOURCE)
         include(ExternalProject)
         include(${PROJECT_SOURCE_DIR}/cmake/cmake-embree)
 		include_directories(${EMBREE_INCLUDE_DIRS})

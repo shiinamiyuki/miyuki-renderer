@@ -11,6 +11,9 @@
 #include <chrono>
 #include <cstdio>
 #include <httplib.h>
+#include <miyuki.renderer/graph.h>
+#include <miyuki.foundation/log.hpp>
+#include "../core/export.h"
 
 #define SERVER_CERT_FILE "./cert.pem"
 #define SERVER_PRIVATE_KEY_FILE "./key.pem"
@@ -76,19 +79,44 @@ namespace miyuki::server {
         Server svr;
 #endif
         int port;
+        std::optional<core::SceneGraph> graph;
+        std::shared_ptr<serialize::Context> context;
     public:
         explicit RenderServer(int port) : port(port) {
             if (!svr.is_valid()) {
                 fprintf(stderr, "server has an error...\n");
                 exit(1);
             }
+            context = core::Initialize();
+            svr.Post("/render/start", [=](const Request &req, Response &res, const ContentReader &content_reader) {
+                auto it = req.headers.find("Content-Type");
+                if (it != req.headers.end()) {
+                    auto type = it->second;
+                    if (type == "application/json") {
+                        std::string body;
+                        content_reader([&](const char *data, size_t data_length) {
+                            body.append(data, data_length);
+                            return true;
+                        });
+                        auto data = json::parse(body);
+                        auto path = data.at("workdir").get<std::string>();
+                        res.set_content(body, "text/plain");
+                        fs::current_path(fs::absolute(fs::path(path)));
+                        auto &scene = data.at("scene");
+                        graph = serialize::fromJson<core::SceneGraph>(*context, scene);
+                        graph->render(context, "out.png");
 
-            svr.Get("/", [=](const Request & /*req*/, Response &res) {
-                res.set_redirect("/hi");
+                    }
+                }
+            });
+            svr.Get("/render/status", [=](const Request &req, Response &res) {
+                auto body = R"({ "status":"stopped" })";
+                res.set_content(body, "application/json");
             });
 
-            svr.Get("/hi", [](const Request & /*req*/, Response &res) {
-                res.set_content("Hello World!\n", "text/plain");
+            svr.Get("/render/output", [=](const Request &req, Response &res) {
+                auto body = R"({ "status":"stopped" })";
+                res.set_content(body, "application/json");
             });
 
             svr.Get("/stop",
@@ -102,7 +130,7 @@ namespace miyuki::server {
             });
 
             svr.set_logger([](const Request &req, const Response &res) {
-                printf("%s", log(req, res).c_str());
+                // printf("%s", log(req, res).c_str());
             });
 
         }
