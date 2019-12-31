@@ -28,7 +28,7 @@
   "integrator": {
     "type": "PathTracer",
     "props": {
-      "spp": 1024,
+      "spp": 8,
       "minDepth": 3,
       "maxDepth": 5
     }
@@ -51,7 +51,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\apple.jpg"
+                          "imagePath": "./textures/apple.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -392,7 +392,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\book-spines.jpg"
+                          "imagePath": "./textures/book-spines.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -526,7 +526,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\carpet-text3b.jpg"
+                          "imagePath": "./textures/carpet-text3b.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -591,7 +591,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\Shade-paper.jpg"
+                          "imagePath": "./textures/Shade-paper.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -725,7 +725,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\cushion-green-circles.jpg"
+                          "imagePath": "./textures/cushion-green-circles.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -790,7 +790,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\cushion-stripe-purple.jpg"
+                          "imagePath": "./textures/cushion-stripe-purple.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -855,7 +855,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\cushion-purple-yellow-stripe.jpg"
+                          "imagePath": "./textures/cushion-purple-yellow-stripe.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1060,7 +1060,7 @@
                         "props": {
                           "expr": [
                             "image",
-                            "textures\\wood4.jpg"
+                            "./textures/wood4.jpg"
                           ]
                         },
                         "type": "ExprShader"
@@ -1195,7 +1195,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\shade-stripes.jpg"
+                          "imagePath": "./textures/shade-stripes.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1260,7 +1260,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\pic5wide.jpg"
+                          "imagePath": "./textures/pic5wide.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1463,7 +1463,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\magazine.jpg"
+                          "imagePath": "./textures/magazine.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1597,7 +1597,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\picture11-vert.jpg"
+                          "imagePath": "./textures/picture11-vert.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1662,7 +1662,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\photo1.jpg"
+                          "imagePath": "./textures/photo1.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1727,7 +1727,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\photo3.jpg"
+                          "imagePath": "./textures/photo3.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1792,7 +1792,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\photo2.jpg"
+                          "imagePath": "./textures/photo2.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1857,7 +1857,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "textures\\photo4.jpg"
+                          "imagePath": "./textures/photo4.jpg"
                         },
                         "type": "ImageTextureShader"
                       }

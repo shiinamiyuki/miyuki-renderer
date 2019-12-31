@@ -28,7 +28,8 @@
 #include <miyuki.foundation/noncopyable.hpp>
 #include <miyuki.renderer/ray.h>
 
-namespace miyuki::core {
+namespace miyuki::core{
+
     class EmbreeAccelerator final : public Accelerator, private NonCopyable{
         class Impl;
         Impl *impl = nullptr;
@@ -42,9 +43,9 @@ namespace miyuki::core {
 
         bool occlude(const Ray & ray)override;
 
-        bool4 intersect4(const Ray4 &ray, Intersection4 &isct) override;
+        bool4 intersect4(const Ray4 &ray, Intersection4 &isct) override{}
 
-        bool8 intersect8(const Ray8 &ray, Intersection8 &isct) override;
+        bool8 intersect8(const Ray8 &ray, Intersection8 &isct) override{}
 
         ~EmbreeAccelerator();
 

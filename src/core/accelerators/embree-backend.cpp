@@ -24,12 +24,17 @@
 #include <miyuki.foundation/log.hpp>
 #include <miyuki.renderer/ray.h>
 #include <miyuki.renderer/scene.h>
-#include <embree3/rtcore.h>
 
 #ifdef MYK_USE_EMBREE
+#include <embree3/rtcore.h>
+#endif
+
+
+
 
 #define QUERY_PROP(prop) log::log("{}: {}\n", #prop, rtcGetDeviceProperty(device, prop) ? true : false)
 namespace miyuki::core {
+#ifdef MYK_USE_EMBREE
     class EmbreeAccelerator::Impl {
         RTCDevice device;
         RTCScene rtcScene = nullptr;
@@ -135,12 +140,16 @@ namespace miyuki::core {
     }
 
 #else
+    EmbreeAccelerator::EmbreeAccelerator(){}
+    EmbreeAccelerator::~EmbreeAccelerator() {}
+    bool EmbreeAccelerator::occlude(const struct miyuki::core::Ray &ray) {
+        MIYUKI_NOT_IMPLEMENTED();
+    }
     void miyuki::core::EmbreeAccelerator::build(miyuki::core::Scene &scene) { MIYUKI_NOT_IMPLEMENTED(); }
 
     bool miyuki::core::EmbreeAccelerator::intersect(const miyuki::core::Ray &ray, miyuki::core::Intersection &isct) {
         MIYUKI_NOT_IMPLEMENTED();
+        return false;
     }
-    return false;
-
 #endif
 }

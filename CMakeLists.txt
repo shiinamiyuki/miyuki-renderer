@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.12)
 project(MiyukiRenderer)
 
 
@@ -66,21 +66,22 @@ file(GLOB libcoreSource src/core/*.cpp
 
 
 IF(USE_EMBREE)
-    add_compile_definitions(MYK_USE_EMBREE)
     IF(EMBREE_FROM_SOURCE)
         include(ExternalProject)
         include(${PROJECT_SOURCE_DIR}/cmake/cmake-embree)
 		include_directories(${EMBREE_INCLUDE_DIRS})
+        add_compile_definitions(MYK_USE_EMBREE)
     ELSE()
         IF(WIN32)
             set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files/Intel/Embree3 x64")
         ENDIF()
-        find_package(embree 3.6 REQUIRED)
+        find_package(embree 3.6)
         IF(NOT embree_FOUND)
-            message(FATAL_ERROR "Embree 3.6 not found")
+            message("Embree 3.6 not found; Falling back to custom BVH backend")
+        ELSE()
+            add_compile_definitions(MYK_USE_EMBREE)
+            include_directories(${EMBREE_INCLUDE_DIRS})
         ENDIF()
-        include_directories(${EMBREE_INCLUDE_DIRS})
-
     ENDIF()
 ENDIF()
 
