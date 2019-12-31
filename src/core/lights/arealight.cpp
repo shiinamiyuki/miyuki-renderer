@@ -38,15 +38,16 @@ namespace miyuki::core {
         triangle->sample(u, surfaceSample);
         auto wi = surfaceSample.p - isct.p;
         auto dist2 = dot(wi,wi);
-        wi /= std::sqrt(dist2);
-        tester.shadowRay = Ray(surfaceSample.p, -wi, RayBias / abs(dot(sample.wi, surfaceSample.normal)), std::sqrt(dist2));
+        auto dist = std::sqrt(dist2);
+        wi /= dist;
+        tester.shadowRay = Ray(surfaceSample.p, -wi, RayBias / abs(dot(sample.wi, surfaceSample.normal)), dist * 0.99);
         tester.target = isct.shape;
         ShadingPoint sp;
         sp.Ng = triangle->Ng();
         sp.Ns = triangle->normalAt(surfaceSample.uv);
         sp.texCoord = triangle->texCoordAt(surfaceSample.uv);
         sample.Li = Li(sp);
-        sample.wi = normalize(wi);
+        sample.wi = wi;
         sample.pdf = dist2 / (-dot(sample.wi, surfaceSample.normal)) * surfaceSample.pdf;
     }
 

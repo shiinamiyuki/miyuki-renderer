@@ -126,7 +126,7 @@ namespace miyuki::core {
                         Bounds3f b0{{MaxFloat, MaxFloat, MaxFloat},
                                     {MinFloat, MinFloat, MinFloat}};
                         Bounds3f b1{{MaxFloat, MaxFloat, MaxFloat},
-                           {MinFloat, MinFloat, MinFloat}};
+                                    {MinFloat, MinFloat, MinFloat}};
                         int count0 = 0, count1 = 0;
                         for (int j = 0; j <= i; j++) {
                             b0 = b0.unionOf(buckets[j].bound);
@@ -190,7 +190,7 @@ namespace miyuki::core {
         bool intersect(const Ray &ray, Intersection &isct) const {
             bool hit = false;
             auto invd = Vec3f(1) / ray.d;
-            constexpr int maxDepth = 128;
+            constexpr int maxDepth = 64;
             const BVHNode *stack[maxDepth];
             int sp = 0;
             stack[sp++] = &nodes[0];
@@ -217,6 +217,37 @@ namespace miyuki::core {
             return hit;
         }
 
+        bool occlude(const Ray &ray) {
+            Intersection isct;
+            bool hit = false;
+            auto invd = Vec3f(1) / ray.d;
+            constexpr int maxDepth = 64;
+            const BVHNode *stack[maxDepth];
+            int sp = 0;
+            stack[sp++] = &nodes[0];
+            while (sp > 0) {
+                auto p = stack[--sp];
+                auto t = intersectAABB(p->box, ray, invd);
+
+                if (t < 0 || t > isct.distance) {
+                    continue;
+                }
+                if (p->isLeaf()) {
+                    for (int i = p->first; i < p->first + p->count; i++) {
+                        if (primitive[i].intersect(ray, isct)) {
+                            return true;
+                        }
+                    }
+                } else {
+                    if (p->left >= 0)
+                        stack[sp++] = &nodes[p->left];
+                    if (p->right >= 0)
+                        stack[sp++] = &nodes[p->right];
+                }
+            }
+            return false;
+        }
+
         [[nodiscard]] Bounds3f getBoundingBox() const { return boundBox; }
     };
 
@@ -238,6 +269,14 @@ namespace miyuki::core {
             isct.p = isct.distance * ray.d + ray.o;
         }
         return hit;
+    }
+
+    bool BVHAccelerator::occlude(const struct miyuki::core::Ray &ray) {
+        for (auto i : internal) {
+            if (i->occlude(ray))
+                return true;
+        }
+        return false;
     }
 
     BVHAccelerator::~BVHAccelerator() {

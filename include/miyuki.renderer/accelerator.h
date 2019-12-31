@@ -37,6 +37,8 @@ namespace miyuki::core {
 
         virtual bool intersect(const Ray &ray, Intersection &isct) = 0;
 
+        virtual bool occlude(const Ray &ray) = 0;
+
         virtual bool4 intersect4(const Ray4 &ray, Intersection4 &isct) {
             MIYUKI_NOT_IMPLEMENTED();
         }

@@ -51,7 +51,7 @@ namespace miyuki::core {
         Profiler profiler;
         auto filmPtr = std::make_shared<Film>(settings.filmDimension);
         auto &film = *filmPtr;
-        log::log("Integrator: Pathtracer, samples: {}\n", spp);
+        log::log("Integrator: MIS Path Tracer, samples: {}\n", spp);
 
         auto backgroundLi = [=](const Ray &ray) -> Spectrum {
             return Spectrum(0);
@@ -167,24 +167,34 @@ namespace miyuki::core {
             return RemoveNaN(clamp(Li, vec3(0), vec3(1e16f)));
         };
 
+        const size_t tileSize = 64;
+        std::vector<BoundBox<2, int, qualifier::defaultp>> tiles;
+        for (int i = 0; i < film.width; i += tileSize) {
+            for (int j = 0; j < film.height; j += tileSize) {
+                tiles.push_back({ivec2(i, j), min(ivec2(film.width, film.height), ivec2(i + tileSize, j + tileSize))});
+            }
+        }
+
         std::mutex _reporterMutex;
-        ProgressReporter reporter(film.height, [=, &_reporterMutex](size_t cur, size_t total) {
+        ProgressReporter reporter(tiles.size(), [=, &_reporterMutex](size_t cur, size_t total) {
             std::unique_lock<std::mutex> lock(_reporterMutex, std::try_to_lock);
             if (lock.owns_lock()) {
                 PrintProgressBar(double(cur) / total);
             }
         });
-        ParallelFor(0, film.height, [=, &film, &reporter](int64_t j, uint64_t) {
+        ParallelFor(0, tiles.size(), [=, &tiles, &film, &reporter](int64_t i, uint64_t) {
             auto sampler = settings.sampler->clone();
-            for (int i = 0; i < film.width && cont(); i++) {
-
-                sampler->startPixel(Point2i(i, j), Point2i(film.width, film.height));
-                for (int s = 0; s < spp && cont(); s++) {
-                    CameraSample sample;
-                    sampler->startNextSample();
-                    settings.camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i(i, j),
-                                                 Point2i(film.width, film.height), sample);
-                    film.addSample(sample.pFilm, Li(*sampler, sample.ray), 1);
+            auto &tile = tiles[i];
+            for (int y = tile.pMin.y; cont() && y < tile.pMax.y; y++) {
+                for (int x = tile.pMin.x; x < tile.pMax.x; x++) {
+                    sampler->startPixel(Point2i(x, y), Point2i(film.width, film.height));
+                    for (int s = 0; s < spp && cont(); s++) {
+                        CameraSample sample;
+                        sampler->startNextSample();
+                        settings.camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i(x, y),
+                                                     Point2i(film.width, film.height), sample);
+                        film.addSample(sample.pFilm, Li(*sampler, sample.ray), 1);
+                    }
                 }
             }
             reporter.update();

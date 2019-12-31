@@ -33,7 +33,7 @@ namespace miyuki::core {
         Impl *impl = nullptr;
     public:
         NanoRTAccelerator();
-        MYK_DECL_CLASS(NanoRTAccelerator, "NanoRTAccelerator", interface = "Accelerator")
+      //  MYK_DECL_CLASS(NanoRTAccelerator, "NanoRTAccelerator", interface = "Accelerator")
 
         void build(Scene &scene) override;
 

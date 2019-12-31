@@ -47,6 +47,8 @@ namespace miyuki::core {
 
         bool intersect(const Ray &ray, Intersection &isct);
 
+        bool occlude(const Ray & ray);
+
         void preprocess();
 
         [[nodiscard]] size_t getRayCounter() const { return rayCounter; }

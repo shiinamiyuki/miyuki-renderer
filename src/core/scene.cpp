@@ -60,4 +60,9 @@ namespace miyuki::core {
         }
         return false;
     }
+
+    bool Scene::occlude(const miyuki::core::Ray & ray) {
+        rayCounter++;
+        return accelerator->occlude(ray);
+    }
 } // namespace miyuki::core

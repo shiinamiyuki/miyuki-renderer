@@ -41,6 +41,8 @@ namespace miyuki::core {
 
         bool intersect(const Ray &ray, Intersection &isct) override;
 
+        bool occlude(const Ray & ray)override;
+
         ~BVHAccelerator();
     };
 }

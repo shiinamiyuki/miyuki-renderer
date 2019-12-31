@@ -57,12 +57,12 @@ namespace miyuki::core {
             for (const auto &mesh : scene.meshes) {
                 auto geometry = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
                 rtcSetSharedGeometryBuffer(geometry, RTC_BUFFER_TYPE_VERTEX, 0,
-                                                                  RTC_FORMAT_FLOAT3,
-                                                                     &mesh->_vertex_data.position[0][0],0,
-                                                                  sizeof(Float) * 3,
-                                                                  mesh->_vertex_data.position.size());
-                rtcSetSharedGeometryBuffer(geometry,RTC_BUFFER_TYPE_INDEX,0,RTC_FORMAT_UINT3, &mesh->triangles[0],0,
-                        sizeof(MeshTriangle),mesh->triangles.size());
+                                           RTC_FORMAT_FLOAT3,
+                                           &mesh->_vertex_data.position[0][0], 0,
+                                           sizeof(Float) * 3,
+                                           mesh->_vertex_data.position.size());
+                rtcSetSharedGeometryBuffer(geometry, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, &mesh->triangles[0], 0,
+                                           sizeof(MeshTriangle), mesh->triangles.size());
                 rtcCommitGeometry(geometry);
                 rtcAttachGeometry(rtcScene, geometry);
                 rtcReleaseGeometry(geometry);
@@ -104,6 +104,14 @@ namespace miyuki::core {
             isct.p = ray.o + isct.distance * ray.d;
             return true;
         }
+
+        bool occlude(const Ray &ray) {
+            RTCRay rtcRay = toRTCRay(ray);
+            RTCIntersectContext context;
+            rtcInitIntersectContext(&context);
+            rtcOccluded1(rtcScene, &context, &rtcRay);
+            return rtcRay.tfar < 0;
+        }
     };
 
     EmbreeAccelerator::EmbreeAccelerator() : impl(new Impl()) {}
@@ -111,6 +119,10 @@ namespace miyuki::core {
     void EmbreeAccelerator::build(Scene &scene) { impl->build(scene); }
 
     bool EmbreeAccelerator::intersect(const Ray &ray, Intersection &isct) { return impl->intersect(ray, isct); }
+
+    bool EmbreeAccelerator::occlude(const struct miyuki::core::Ray &ray) {
+        return impl->occlude(ray);
+    }
 
     EmbreeAccelerator::~EmbreeAccelerator() { delete impl; }
 
