@@ -28,8 +28,8 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CXX_FS_LIBS stdc++fs)
 endif()
 
-find_package(Python3 REQUIRED)
-find_package(PythonLibs 3 REQUIRED)
+#find_package(Python3 REQUIRED)
+#find_package(PythonLibs 3 REQUIRED)
 
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(include)
