@@ -43,9 +43,9 @@ namespace miyuki::core{
 
         bool occlude(const Ray & ray)override;
 
-        bool4 intersect4(const Ray4 &ray, Intersection4 &isct) override{}
+        bool4 intersect4(const Ray4 &ray, Intersection4 &isct) override{MIYUKI_NOT_IMPLEMENTED();}
 
-        bool8 intersect8(const Ray8 &ray, Intersection8 &isct) override{}
+        bool8 intersect8(const Ray8 &ray, Intersection8 &isct) override{MIYUKI_NOT_IMPLEMENTED();}
 
         ~EmbreeAccelerator();
 

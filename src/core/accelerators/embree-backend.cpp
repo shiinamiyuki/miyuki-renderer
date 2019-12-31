@@ -131,13 +131,6 @@ namespace miyuki::core {
 
     EmbreeAccelerator::~EmbreeAccelerator() { delete impl; }
 
-    bool4 EmbreeAccelerator::intersect4(const Ray4 &ray, Intersection4 &isct) {
-        return Accelerator::intersect4(ray, isct);
-    }
-
-    bool8 EmbreeAccelerator::intersect8(const Ray8 &ray, Intersection8 &isct) {
-        return Accelerator::intersect8(ray, isct);
-    }
 
 #else
     EmbreeAccelerator::EmbreeAccelerator(){}
