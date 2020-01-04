@@ -78,12 +78,12 @@ namespace miyuki::core {
         static inline RTCRay toRTCRay(const Ray &_ray) {
             RTCRay ray;
             auto _o = _ray.o;
-            ray.dir_x = _ray.d.x;
-            ray.dir_y = _ray.d.y;
-            ray.dir_z = _ray.d.z;
-            ray.org_x = _o.x;
-            ray.org_y = _o.y;
-            ray.org_z = _o.z;
+            ray.dir_x = _ray.d.x();
+            ray.dir_y = _ray.d.y();
+            ray.dir_z = _ray.d.z();
+            ray.org_x = _o.x();
+            ray.org_y = _o.y();
+            ray.org_z = _o.z();
             ray.tnear = _ray.tMin;
             ray.tfar = _ray.tMax;
             ray.flags = 0;
@@ -103,7 +103,7 @@ namespace miyuki::core {
             if (rayHit.hit.geomID == RTC_INVALID_GEOMETRY_ID || rayHit.hit.primID == RTC_INVALID_GEOMETRY_ID)
                 return false;
             isct.shape = &scene->meshes[rayHit.hit.geomID]->triangles[rayHit.hit.primID];
-            isct.Ng = normalize(vec3(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
+            isct.Ng = normalize(Vec3f(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
             isct.uv = Point2f(rayHit.hit.u, rayHit.hit.v);
             isct.distance = rayHit.ray.tfar;
             isct.p = ray.o + isct.distance * ray.d;

@@ -55,8 +55,8 @@ namespace miyuki::core {
                     if (scene->intersect(sample.ray, isct)) {
                         auto wo = isct.worldToLocal(isct.wo);
                         auto w = CosineHemisphereSampling(sampler->next2D());
-                        if (wo.y * w.y < 0) {
-                            w = -w;
+                        if (wo.y() * w.y() < 0) {
+                            w = -1.0f * w;
                         }
                         w = isct.localToWorld(w);
                         auto ray = isct.spawnRay(w);

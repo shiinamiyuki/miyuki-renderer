@@ -128,7 +128,7 @@ namespace miyuki::core {
 
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
-            return Spectrum(SafeEvaluate(input, point).x);
+            return Spectrum(SafeEvaluate(input, point).x());
         }
     };
 
@@ -140,7 +140,7 @@ namespace miyuki::core {
         MYK_SER(input)
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
-            return Spectrum(SafeEvaluate(input, point).y);
+            return Spectrum(SafeEvaluate(input, point).y());
         }
     };
 
@@ -152,7 +152,7 @@ namespace miyuki::core {
         MYK_SER(input)
 
         [[nodiscard]] Spectrum evaluate(const ShadingPoint &point) const override {
-            return Spectrum(SafeEvaluate(input, point).z);
+            return Spectrum(SafeEvaluate(input, point).z());
         }
     };
 

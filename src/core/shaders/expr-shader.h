@@ -45,10 +45,10 @@ namespace miyuki::core {
 
         struct Instruction {
             Opcode opcode;
-            vec4 operand;
+            Vec3f operand;
 
             static Instruction Image(RGBAImage *p) {
-                vec4 data;
+                Vec3f data;
                 RGBAImage *tmp = p;
                 std::memcpy(&data, &tmp, sizeof(RGBAImage *));
                 return Instruction{Opcode::Image, data};
@@ -59,7 +59,7 @@ namespace miyuki::core {
             int pc = 0;
             int sp = 0;
             static const size_t stackSize = 64;
-            std::array<vec4, stackSize> stack{};
+            std::array<Vec3f, stackSize> stack{};
 
             auto &top() { return stack[sp - 1]; }
 
@@ -69,7 +69,7 @@ namespace miyuki::core {
                 return v;
             }
 
-            void push(vec4 v){
+            void push(Vec3f v){
                 stack[sp++] = v;
             }
         };

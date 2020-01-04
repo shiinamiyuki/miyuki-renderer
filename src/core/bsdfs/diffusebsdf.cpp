@@ -26,7 +26,7 @@
 
 namespace miyuki::core {
     Spectrum DiffuseBSDF::evaluate(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {
-        if (wo.y * wi.y > 0)
+        if (wo.y() * wi.y() > 0)
             return Spectrum(color->evaluate(point) * InvPi);
         return {};
     }
@@ -34,17 +34,17 @@ namespace miyuki::core {
     void DiffuseBSDF::sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const {
         sample.wi = CosineHemisphereSampling(u);
         sample.sampledType = BSDF::Type(sample.sampledType | getBSDFType());
-        if (sample.wo.y * sample.wi.y < 0) {
-            sample.wi.y = -sample.wi.y;
+        if (sample.wo.y() * sample.wi.y() < 0) {
+            sample.wi.y() = -sample.wi.y();
         }
-        sample.pdf = std::abs(sample.wi.y) * InvPi;
+        sample.pdf = std::abs(sample.wi.y()) * InvPi;
         sample.f = evaluate(sp, sample.wo, sample.wi);
         sample.sampledType = BSDF::Type(int(BSDF::Type::EReflection) | int(BSDF::Type::EDiffuse));
     }
 
     Float DiffuseBSDF::evaluatePdf(const ShadingPoint &point, const Vec3f &wo, const Vec3f &wi) const {
-        if (wo.y * wi.y > 0)
-            return std::abs(wi.y) * InvPi;
+        if (wo.y() * wi.y() > 0)
+            return std::abs(wi.y()) * InvPi;
         return 0;
     }
     void DiffuseBSDF::preprocess() {

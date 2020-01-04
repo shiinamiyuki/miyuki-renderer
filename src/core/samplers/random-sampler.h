@@ -36,7 +36,7 @@ namespace miyuki::core {
         RandomSampler(uint32_t seed = 0) : rng(seed) {}
 
         void startPixel(const Point2i &i, const Point2i &filmDimension) override {
-            rng = Rng(i.x + i.y * filmDimension.x);
+            rng = Rng(i.x() + i.y() * filmDimension.x());
         }
 
         Float next1D() override {

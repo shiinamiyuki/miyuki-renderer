@@ -53,7 +53,7 @@ namespace miyuki::core {
     }
 
     void SobolSampler::startPixel(const Point2i &i, const Point2i &filmDimension) {
-        Rng rng(i.x + i.y * filmDimension.x);
+        Rng rng(i.x() + i.y() * filmDimension.x());
         rotation = rng.uniformUint32();
         sample = -1;
     }

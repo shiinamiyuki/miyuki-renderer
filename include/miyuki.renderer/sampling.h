@@ -28,16 +28,16 @@
 namespace miyuki::core {
     inline Point2f ConcentricSampleDisk(const Point2f &u) {
         Point2f uOffset = 2.f * u - Point2f(1, 1);
-        if (uOffset.x == 0 && uOffset.y == 0)
+        if (uOffset.x() == 0 && uOffset.y() == 0)
             return Point2f(0, 0);
 
         Float theta, r;
-        if (std::abs(uOffset.x) > std::abs(uOffset.y)) {
-            r = uOffset.x;
-            theta = Pi4 * (uOffset.y / uOffset.x);
+        if (std::abs(uOffset.x()) > std::abs(uOffset.y())) {
+            r = uOffset.x();
+            theta = Pi4 * (uOffset.y() / uOffset.x());
         } else {
-            r = uOffset.y;
-            theta = Pi2 - Pi4 * (uOffset.x / uOffset.y);
+            r = uOffset.y();
+            theta = Pi2 - Pi4 * (uOffset.x() / uOffset.y());
         }
         return r * Point2f(std::cos(theta), std::sin(theta));
     }
@@ -46,7 +46,7 @@ namespace miyuki::core {
         auto uv = ConcentricSampleDisk(u);
         auto r = dot(uv, uv);
         auto h = std::sqrt(std::max(0.0f, 1 - r));
-        return Vec3f(uv.x, h, uv.y);
+        return Vec3f(uv.x(), h, uv.y());
     }
 }
 #endif //MIYUKIRENDERER_SAMPLING_H

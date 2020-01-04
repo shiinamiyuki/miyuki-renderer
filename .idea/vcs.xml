@@ -8,8 +8,8 @@
     <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/asio" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/fmt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/glfw" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/glm" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/lodepng" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/miyuki.math" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/miyuki.serialize" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/openexr" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/miyuki.foundation/external/stb" vcs="Git" />

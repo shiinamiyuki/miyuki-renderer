@@ -75,7 +75,7 @@ namespace miyuki::core {
                 BSDF *bsdf = intersection.material->bsdf.get();
                 if (!bsdf)break;
 
-                Vec3f wo = intersection.worldToLocal(normalize(-ray.d));
+                Vec3f wo = intersection.worldToLocal(normalize(-1.0f * ray.d));
                 ShadingPoint sp;
                 sp.texCoord = intersection.shape->texCoordAt(intersection.uv);
                 sp.Ng = intersection.Ng;
@@ -164,14 +164,14 @@ namespace miyuki::core {
 
             }
             MIYUKI_CHECK(minComp(Li) >= 0.0f);
-            return RemoveNaN(clamp(Li, vec3(0), vec3(1e16f)));
+            return RemoveNaN(clamp(Li, Vec3f(0), Vec3f(1e16f)));
         };
 
         const size_t tileSize = 64;
-        std::vector<BoundBox<2, int, qualifier::defaultp>> tiles;
+        std::vector<Bounds2i> tiles;
         for (int i = 0; i < film.width; i += tileSize) {
             for (int j = 0; j < film.height; j += tileSize) {
-                tiles.push_back({ivec2(i, j), min(ivec2(film.width, film.height), ivec2(i + tileSize, j + tileSize))});
+                tiles.push_back({Vec2i(i, j), min(Vec2i(film.width, film.height), Vec2i(i + tileSize, j + tileSize))});
             }
         }
 
@@ -185,8 +185,8 @@ namespace miyuki::core {
         ParallelFor(0, tiles.size(), [=, &tiles, &film, &reporter](int64_t i, uint64_t) {
             auto sampler = settings.sampler->clone();
             auto &tile = tiles[i];
-            for (int y = tile.pMin.y; cont() && y < tile.pMax.y; y++) {
-                for (int x = tile.pMin.x; x < tile.pMax.x; x++) {
+            for (int y = tile.pMin.y(); cont() && y < tile.pMax.y(); y++) {
+                for (int x = tile.pMin.x(); x < tile.pMax.x(); x++) {
                     sampler->startPixel(Point2i(x, y), Point2i(film.width, film.height));
                     for (int s = 0; s < spp && cont(); s++) {
                         CameraSample sample;

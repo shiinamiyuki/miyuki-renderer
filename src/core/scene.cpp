@@ -54,7 +54,7 @@ namespace miyuki::core {
         if (accelerator->intersect(ray, isct)) {
             isct.Ns = isct.shape->normalAt(isct.uv);
             isct.material = isct.shape->getMaterial();
-            isct.wo = -ray.d;
+            isct.wo = -1.0f * ray.d;
             isct.computeLocalFrame();
             return true;
         }

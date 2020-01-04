@@ -106,9 +106,9 @@ namespace miyuki::core {
 
         void sample(const Point2f &u, SurfaceSample &sample) const {
             Point2f uv = u;
-            if (uv.x + uv.y > 1.0f) {
-                uv.x = 1.0f - uv.x;
-                uv.y = 1.0f - uv.y;
+            if (uv.x() + uv.y() > 1.0f) {
+                uv.x() = 1.0f - uv.x();
+                uv.y() = 1.0f - uv.y();
             }
             sample.uv = uv;
             sample.pdf = 1 / area();

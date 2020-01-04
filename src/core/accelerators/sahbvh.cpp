@@ -87,14 +87,14 @@ namespace miyuki::core {
 
                 int axis = depth % 3;
                 auto size = centroidBound.size();
-                if (size.x > size.y) {
-                    if (size.x > size.z) {
+                if (size.x() > size.y()) {
+                    if (size.x() > size.z()) {
                         axis = 0;
                     } else {
                         axis = 2;
                     }
                 } else {
-                    if (size.y > size.z) {
+                    if (size.y() > size.z()) {
                         axis = 1;
                     } else {
                         axis = 2;
@@ -271,7 +271,7 @@ namespace miyuki::core {
         return hit;
     }
 
-    bool BVHAccelerator::occlude(const struct miyuki::core::Ray &ray) {
+    bool BVHAccelerator::occlude(const Ray &ray) {
         for (auto i : internal) {
             if (i->occlude(ray))
                 return true;

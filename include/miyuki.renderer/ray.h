@@ -25,19 +25,25 @@
 
 #include <miyuki.foundation/defs.h>
 #include <miyuki.foundation/math.hpp>
-#include <miyuki.foundation/vectorize.hpp>
+
 
 namespace miyuki::core {
-    struct Ray {
-        Point3f o;
-        Vec3f d;
-        float tMin, tMax;
+    template<class Value>
+    struct TRay {
+        using Vector = Array<Value, 3>;
+        Vector o;
+        Vector d;
+        Value tMin, tMax;
 
-        Ray() : tMin(-1), tMax(-1) {}
+        TRay() : tMin(-1), tMax(-1) {}
 
-        Ray(const Point3f &o, const Vec3f &d, Float tMin, Float tMax = MaxFloat)
+        TRay(const Vector &o, const Vector &d, Value tMin, Value tMax = Value(MaxFloat))
                 : o(o), d(d), tMin(tMin), tMax(tMax) {}
     };
+
+    using Ray = TRay<float>;
+    using Ray4 = TRay<float4>;
+    using Ray8 = TRay<float8>;
 
     extern Float RayBias;
 
@@ -49,15 +55,19 @@ namespace miyuki::core {
 
     struct MeshTriangle;
 
-    struct Intersection {
-        const MeshTriangle *shape = nullptr;
-        const Material *material = nullptr;
-        float distance = MaxFloat;
-        Vec3f wo;
-        Point3f p;
-        Normal3f Ns, Ng;
-        Point2f uv;
-        CoordinateSystem localFrame;
+    template<class Value>
+    struct TIntersection {
+        using Vector3 = Array<Value, 3>;
+        using Vector2 = Array<Value, 2>;
+        static const int N = LengthOf<Value>;
+        TArray<const MeshTriangle *, N> shape = nullptr;
+        TArray<const Material *, N> material = nullptr;
+        Value distance = MaxFloat;
+        Vector3 wo;
+        Vector3 p;
+        Vector3 Ns, Ng;
+        Vector2 uv;
+        CoordinateSystem <Value> localFrame;
 
         [[nodiscard]] bool hit() const {
             return shape != nullptr;
@@ -67,48 +77,28 @@ namespace miyuki::core {
             localFrame = CoordinateSystem(Ns);
         }
 
-        [[nodiscard]] Vec3f worldToLocal(const Vec3f &v) const {
+        [[nodiscard]] Vector3 worldToLocal(const Vector3 &v) const {
             return localFrame.worldToLocal(v);
         }
 
-        [[nodiscard]] Vec3f localToWorld(const Vec3f &v) const {
+        [[nodiscard]] Vector3 localToWorld(const Vector3 &v) const {
             return localFrame.localToWorld(v);
         }
 
         // w should be normalized
-        [[nodiscard]] Ray spawnRay(const Vec3f &w) const {
+        [[nodiscard]] TRay<Value> spawnRay(const Vector3 &w) const {
             auto t = RayBias / abs(dot(w, Ng));
-            return Ray(p, w, t, MaxFloat);
+            return TRay<Value>(p, w, t, MaxFloat);
         }
 
-        [[nodiscard]] Ray spawnTo(const Point3f &p) const {
-            return Ray(this->p, (p - this->p), RayBias, 1);
+        [[nodiscard]] TRay<Value> spawnTo(const Point3f &p) const {
+            return TRay<Value>(this->p, (p - this->p), RayBias, Value(1.0f));
         }
     };
 
-    MYK_VEC_STRUCT_BEGIN(Ray)
-        MYK_VEC_MEMBER(tMin)
-        MYK_VEC_MEMBER(tMax)
-        MYK_VEC_MEMBER(o)
-        MYK_VEC_MEMBER(d)
-    MYK_VEC_STRUCT_END
+    using Intersection = TIntersection<float>;
+    using Intersection4 = TIntersection<float4>;
+    using Intersection8 = TIntersection<float8>;
 
-    using Ray4 = TRay<4>;
-    using Ray8 = TRay<8>;
-
-    MYK_VEC_STRUCT_BEGIN(Intersection)
-        MYK_VEC_MEMBER(shape)
-        MYK_VEC_MEMBER(material)
-        MYK_VEC_MEMBER(distance)
-        MYK_VEC_MEMBER(wo)
-        MYK_VEC_MEMBER(p)
-        MYK_VEC_MEMBER(Ns)
-        MYK_VEC_MEMBER(Ng)
-        MYK_VEC_MEMBER(uv)
-        MYK_VEC_MEMBER(localFrame)
-    MYK_VEC_STRUCT_END
-
-    using Intersection4 = TIntersection<4>;
-    using Intersection8 = TIntersection<8>;
 }
 #endif //MIYUKIRENDERER_RAY_H

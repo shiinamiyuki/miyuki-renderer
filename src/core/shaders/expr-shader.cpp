@@ -59,40 +59,43 @@ miyuki::core::Spectrum miyuki::core::shading::ExecutionEngine::execute(const miy
                 break;
             case Pow: {
                 auto B = state.pop();
-                state.top() = glm::pow(state.top(), glm::min(vec4(0), B));
+                state.top() = pow(state.top(), min(float3(0), B));
             }
                 break;
             case Noise: {
-                auto detail = state.pop().x;
-                auto scale = state.top().x;
-                auto n = std::clamp(perlin.octaveNoise0_1(scale * sp.texCoord.x, scale * sp.texCoord.y, detail),
+                auto detail = state.pop().x();
+                auto scale = state.top().x();
+                auto n = std::clamp(perlin.octaveNoise0_1(scale * sp.texCoord.x(), scale * sp.texCoord.y(), detail),
                         0.0,
                                     1.0);
-                state.top() = vec4(n);
+                state.top() = float3(n);
             }
                 break;
             case Image: {
                 RGBAImage *image;
                 std::memcpy(&image, &inst.operand, sizeof(RGBAImage *));
                 MIYUKI_CHECK(image != nullptr);
-                auto color = image ? (*image)(mod(vec2(sp.texCoord.x, 1.0f - sp.texCoord.y), vec2(1))) : Spectrum(0);
-                state.push(vec4(color, 1.0));
+                if (image) {
+                    auto color = (*image)(mod(Vec2f(sp.texCoord.x(), 1.0f - sp.texCoord.y()), Vec2f(1.0f)));
+                    state.push(Spectrum(color[0], color[1], color[2]));
+                }else
+                    state.push(Spectrum(0));
             }
                 break;
             case Mix: {
                 auto frac = state.pop()[0];
                 auto B = state.pop();
                 auto A = state.top();
-                state.top() = lerp(A, B, vec4(frac));
+                state.top() = lerp(A, B, float3(frac));
             }
                 break;
             case ColorRamp: {
-                auto frac = state.pop().x;
+                auto frac = state.pop().x();
                 auto right = state.pop();
                 auto left = state.pop();
-                auto maxVal = state.pop().x;
-                auto minVal = state.pop().x;
-                state.push(lerp(left, right, vec4(std::clamp((frac - minVal) / (maxVal - minVal), 0.0f, 1.0f))));
+                auto maxVal = state.pop().x();
+                auto minVal = state.pop().x();
+                state.push(lerp(left, right, float3(std::clamp((frac - minVal) / (maxVal - minVal), 0.0f, 1.0f))));
             }
                 break;
         }
@@ -109,16 +112,16 @@ void miyuki::core::ExprShader::preprocess() {
     images.clear();
     auto compileFunc = [&](const json &e, auto &compile) -> void {
         if (e.is_number()) {
-            engine->addInstruction(Instruction{Push, vec4(e.get<float>())});
+            engine->addInstruction(Instruction{Push, float3(e.get<float>())});
         } else if (e.is_array()) {
             auto op = e.at(0).get<std::string>();
             if (op == "float") {
-                engine->addInstruction(Instruction{Push, vec4(e.at(1).get<float>())});
+                engine->addInstruction(Instruction{Push, float3(e.at(1).get<float>())});
             } else if (op == "float3") {
-                engine->addInstruction(Instruction{Push, vec4(e.at(1).get<vec3>(), 1)});
+                engine->addInstruction(Instruction{Push, float3(e.at(1).get<float3>())});
             } else if (op == "rgb") {
                 if (e.at(1).is_array()) {
-                    engine->addInstruction(Instruction{Push, vec4(e.at(1).get<vec3>(), 1)});
+                    engine->addInstruction(Instruction{Push, float3(e.at(1).get<float3>())});
                 } else if (e.at(1).is_string()) {
                     std::istringstream in(e.at(1).get<std::string>());
                     size_t rgb;
@@ -126,7 +129,7 @@ void miyuki::core::ExprShader::preprocess() {
                     auto b = rgb & 0xffUL;
                     auto g = (rgb & 0xff00UL) >> 8UL;
                     auto r = (rgb & 0xff0000UL) >> 16UL;
-                    engine->addInstruction(Instruction{Push, vec4(vec3(r, g, b) / 255.0f, 1)});
+                    engine->addInstruction(Instruction{Push, float3(r, g, b) / 255.0f});
                 } else {
                     MIYUKI_THROW(std::runtime_error, "Unexpected RGB format");
                 }

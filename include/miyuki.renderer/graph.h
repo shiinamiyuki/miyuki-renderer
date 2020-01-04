@@ -41,7 +41,7 @@ namespace miyuki::core {
         std::vector<std::shared_ptr<MeshBase>> shapes;
         std::shared_ptr<Shader> background;
         std::vector<std::shared_ptr<Light>> lights;
-        Point2i filmDimension = ivec2(100, 100);
+        Point2i filmDimension = Vec2i(100, 100);
         Float rayBias = 1e-5f;
 
         SceneGraph() = default;

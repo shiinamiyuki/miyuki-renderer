@@ -40,7 +40,7 @@ namespace miyuki::core {
         auto dist2 = dot(wi,wi);
         auto dist = std::sqrt(dist2);
         wi /= dist;
-        tester.shadowRay = Ray(surfaceSample.p, -wi, RayBias / abs(dot(sample.wi, surfaceSample.normal)), dist * 0.99);
+        tester.shadowRay = Ray(surfaceSample.p, -1.0f * wi, RayBias / abs(dot(sample.wi, surfaceSample.normal)), dist * 0.99);
         tester.target = isct.shape;
         ShadingPoint sp;
         sp.Ng = triangle->Ng();

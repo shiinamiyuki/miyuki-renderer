@@ -26,8 +26,6 @@
 #include <miyuki.renderer/camera.h>
 #include <miyuki.foundation/math.hpp>
 #include <miyuki.foundation/interfaces.h>
-#include <glm/gtc/matrix_transform.hpp>
-
 namespace miyuki::core {
     class PerspectiveCamera final : public Camera {
         Transform _transform{}, _invTransform{};
@@ -35,11 +33,6 @@ namespace miyuki::core {
         TransformManipulator transform{};
     public:
         PerspectiveCamera() = default;
-
-        PerspectiveCamera(const Vec3f &p1, const Vec3f &p2, Angle<float> fov) : fov(fov) {
-            _transform = Transform(lookAt(p1, p2, vec3(0, 1, 0)));
-            _invTransform = _transform.inverse();
-        }
 
         [[nodiscard]] const Transform &getTransform() const override { return _transform; }
 

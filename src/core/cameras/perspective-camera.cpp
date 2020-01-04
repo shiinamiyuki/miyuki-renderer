@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 #include "perspective-camera.h"
-#include <glm/gtx/transform.hpp>
+
 
 namespace miyuki::core {
 
@@ -30,10 +30,10 @@ namespace miyuki::core {
                                         const Point2i &raster,
                                         Point2i filmDimension,
                                         CameraSample &sample) const {
-        float x = float(raster.x) / filmDimension.x;
-        float y = float(raster.y) / filmDimension.y;
+        float x = float(raster.x()) / filmDimension.x();
+        float y = float(raster.y()) / filmDimension.y();
 
-        Point2f pixelWidth(1.0 / filmDimension.x, 1.0 / filmDimension.y);
+        Point2f pixelWidth(1.0 / filmDimension.x(), 1.0 / filmDimension.y());
         sample.pFilm = raster;
         auto p = Point2f(x, y) + u1 * pixelWidth - 0.5f * pixelWidth;
         sample.pLens = {0, 0};
@@ -42,11 +42,11 @@ namespace miyuki::core {
         y = 1 - y;
         x = -(2 * x - 1);
         y = 2 * y - 1;
-        y *= float(filmDimension.y) / filmDimension.x;
+        y *= float(filmDimension.y()) / filmDimension.x();
         float z = 1.0f / std::atan(fov.get() / 2);
         Vec3f d = Vec3f(x, y, 0) - Vec3f(0, 0, -z);
         d = normalize(d);
-        Point3f o = Vec3f(sample.pLens.x, sample.pLens.y, 0);
+        Point3f o = Vec3f(sample.pLens.x(), sample.pLens.y(), 0);
         o = _transform.transformPoint3(o);
         d = _transform.transformVec3(d);
         sample.ray = Ray(o, d, RayBias);

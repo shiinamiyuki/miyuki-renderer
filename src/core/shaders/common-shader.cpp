@@ -27,7 +27,11 @@
 
 namespace miyuki::core {
     [[nodiscard]] Spectrum ImageTextureShader::evaluate(const ShadingPoint &point) const {
-        return image ? (*image)(mod(vec2(point.texCoord.x, 1.0f - point.texCoord.y), vec2(1))) : Spectrum(0);
+        if (image) {
+            auto color = (*image)(mod(Vec2f(point.texCoord.x(), 1.0f - point.texCoord.y()), Vec2f(1.0f)));
+            return Spectrum(color[0], color[1], color[2]);
+        }
+        return Spectrum(0);
     }
 
     void ImageTextureShader::preprocess() {
@@ -40,6 +44,6 @@ namespace miyuki::core {
     static const siv::PerlinNoise perlin(0);
 
     Spectrum NoiseShader::evaluate(const miyuki::core::ShadingPoint &point) const {
-        return Spectrum(perlin.octaveNoise0_1(scale * point.texCoord.x, scale * point.texCoord.y,this->detail));
+        return Spectrum(perlin.octaveNoise0_1(scale * point.texCoord.x(), scale * point.texCoord.y(), this->detail));
     }
 }
