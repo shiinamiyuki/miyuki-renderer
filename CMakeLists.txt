@@ -95,14 +95,14 @@ ENDIF()
 #ENDIF()
 
 add_library(core ${MiyukiAPI} ${libcoreSource})
-target_link_libraries(core foundation ${CXX_FS_LIBS} ${OIDN_LIBRARIES})
+target_link_libraries(core foundation ${CXX_FS_LIBS} ${OIDN_LIBRARIES}  ${EMBREE_LIBRARY})
 
 add_executable(myk.cli src/standalone-renderer/main.cpp ${MiyukiAPI})
-target_link_libraries(myk.cli core ${EMBREE_LIBRARY})
+target_link_libraries(myk.cli core)
 
 
 add_executable(mesh-importer src/mesh-importer/importer.cpp ${MiyukiAPI})
-target_link_libraries(mesh-importer core ${EMBREE_LIBRARY})
+target_link_libraries(mesh-importer core)
 
 file(GLOB serverSRC src/miyuki.server/*.*)
 add_executable(miyuki.server ${serverSRC} ${MiyukiAPI})
@@ -110,6 +110,11 @@ if (WIN32)
     target_compile_definitions(miyuki.server PUBLIC _WIN32_WINNT=0x0601)
 endif ()
 target_include_directories(miyuki.server PRIVATE external/cpp-httplib)
-target_link_libraries(miyuki.server asio wsock32 ws2_32 core ${EMBREE_LIBRARY})
+target_link_libraries(miyuki.server asio wsock32 ws2_32 core)
 
 
+add_executable(test-sdtree tests/test-sdtree.cpp)
+target_link_libraries(test-sdtree core)
+
+add_executable(test-adt tests/test-adt.cpp )
+target_link_libraries(test-adt foundation)

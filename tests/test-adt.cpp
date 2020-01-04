@@ -20,40 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_ATMOICFLOAT_HPP
-#define MIYUKIRENDERER_ATMOICFLOAT_HPP
+#include <variant>
+#include <miyuki.foundation/vectorize.hpp>
 
-#include <atomic>
-#include <miyuki.foundation/math.hpp>
+#define MYK_DECL_METHOD(Ret, Name, ...) \
+template<class T, class... Args> \
+struct InvokeMember{             \
+    using type = decltype(std::declval<T&>().Name(std::declval<Args>()...));        \
+};  \
+template<class T, typename = void> \
+struct has_##Name : std::false_type { \
+}; \
+template<class T> \
+struct  has_##Name <T, std::void_t<typename InvokeMember<T, __VA_ARGS__>::type>> : std::true_type { \
+};
 
-namespace miyuki {
-    class AtomicFloat {
-        std::atomic<uint32_t> bits;
-    public:
-        explicit AtomicFloat(Float v = 0) : bits(floatBitsToUint(v)) {}
+struct Foo {
+    MYK_DECL_METHOD(void, f, int)
+};
 
-        AtomicFloat(const AtomicFloat &rhs) : bits(uint32_t(rhs.bits)) {}
+struct Bar {
+    void g(int) {}
+};
 
-        void add(Float v) {
-            do {
-                uint32_t oldBits = bits;
-                auto old = uintBitsToFloat(oldBits);
-                auto newBits = floatBitsToUint(old + v);
-            } while (bits.compare_exchange_weak(oldBits, newBits, std::memory_order_relaxed));
+int main() {
+//    static_assert(std::is_same_v<std::invoke_result_t<Foo::f, Foo, void>, void>);
 
-        }
-
-        float value() const {
-            return uintBitsToFloat(bits);
-        }
-
-        explicit operator float() const {
-            return value();
-        }
-
-        void set(Float v){
-            bits = floatBitsToUint(v);
-        }
-    };
 }
-#endif //MIYUKIRENDERER_ATMOICFLOAT_HPP
