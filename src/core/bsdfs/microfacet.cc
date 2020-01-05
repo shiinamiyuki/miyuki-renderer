@@ -22,6 +22,7 @@
 #include "microfacet.h"
 #include <miyuki.renderer/shader.h>
 #include <miyuki.renderer/trignometry.hpp>
+#include <miyuki.foundation/log.hpp>
 
 namespace miyuki::core {
     static float SchlickWeight(float cosTheta) {
@@ -46,7 +47,7 @@ namespace miyuki::core {
         if (dot(v,m) * v.y() <= 0.0f) {
             return 0.0f;
         }
-        return 2.0f / (1.0 + sqrt(1.0 + alpha * alpha * Tan2Theta(m)));
+        return 2.0 / (1.0 + sqrt(1.0 + alpha * alpha * Tan2Theta(m)));
     }
 
     static float GGX_G(float alpha, const Vec3f &i, const Vec3f &o, const Vec3f &m) {

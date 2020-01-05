@@ -68,7 +68,8 @@ namespace miyuki::core {
             ks = Vec3f(1);
         }
 
-        auto frac = std::clamp(maxComp(kd) == 0 ? 1.0 : maxComp(ks) / maxComp(kd), 0.0, 1.0);
+
+        auto frac = std::clamp((maxComp(kd) + maxComp(ks))== 0 ? 1.0 : maxComp(ks) / (maxComp(kd) + maxComp(ks)), 0.0, 1.0);
         auto emission = Vec3f(mat.emission[0], mat.emission[1], mat.emission[2]);
         auto strength = maxComp(emission) == 0.0 ? 0.0 : maxComp(emission);
         emission = strength == 0.0 ? Vec3f(0) : emission / maxComp(emission);

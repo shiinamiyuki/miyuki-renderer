@@ -53,20 +53,22 @@ namespace miyuki::core {
                     // log::log("{} {} {}\n",sample.ray.o.x(),sample.ray.o.y(),sample.ray.o.z());
                     Intersection isct;
                     if (scene->intersect(sample.ray, isct)) {
-                        auto wo = isct.worldToLocal(isct.wo);
-                        auto w = CosineHemisphereSampling(sampler->next2D());
-                        if (wo.y() * w.y() < 0) {
-                            w = -1.0f * w;
-                        }
-                        w = isct.localToWorld(w);
-                        auto ray = isct.spawnRay(w);
-                        ray.tMax = occludeDistance;
-                        isct = Intersection();
-                        if (!scene->intersect(ray, isct) || isct.distance >= occludeDistance) {
-                            film.addSample(sample.pFilm, Spectrum(1), 1);
-                        } else {
-                            film.addSample(sample.pFilm, Spectrum(0), 1);
-                        }
+//                        auto tex = isct.shape->texCoordAt(isct.uv);
+                        film.addSample(sample.pFilm, isct.Ng, 1);
+//                        auto wo = isct.worldToLocal(isct.wo);
+//                        auto w = CosineHemisphereSampling(sampler->next2D());
+//                        if (wo.y() * w.y() < 0) {
+//                            w = -1.0f * w;
+//                        }
+//                        w = isct.localToWorld(w);
+//                        auto ray = isct.spawnRay(w);
+//                        ray.tMax = occludeDistance;
+//                        isct = Intersection();
+//                        if (!scene->intersect(ray, isct) || isct.distance >= occludeDistance) {
+//                            film.addSample(sample.pFilm, Spectrum(1), 1);
+//                        } else {
+//                            film.addSample(sample.pFilm, Spectrum(0), 1);
+//                        }
                     } else {
                         film.addSample(sample.pFilm, Spectrum(0), 1);
                     }

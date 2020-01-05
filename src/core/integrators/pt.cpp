@@ -57,7 +57,7 @@ namespace miyuki::core {
             return Spectrum(0);
         };
 
-
+        bool enableNEE = true;
         auto Li = [=](Sampler &sampler, Ray ray) -> Spectrum {
             Spectrum Li(0);
             Spectrum beta(1);
@@ -83,9 +83,10 @@ namespace miyuki::core {
 
                 if (intersection.material->emission && intersection.material->emissionStrength &&
                     dot(ray.d, intersection.Ng) < 0) {
+
                     auto light = intersection.shape->light;
                     auto lightPdf = settings.lightDistribution->lightPdf(light);
-                    if (depth == 0 || !light || lightPdf <= 0.0f || specular) {
+                    if (!enableNEE || depth == 0 || !light || lightPdf <= 0.0f || specular) {
                         Li += beta * intersection.material->emission->evaluate(sp)
                               * intersection.material->emissionStrength->evaluate(sp);
                     } else {
@@ -108,6 +109,7 @@ namespace miyuki::core {
                     bsdf->sample(sampler.next2D(), sp, bsdfSample);
                     MIYUKI_CHECK(!std::isnan(bsdfSample.pdf));
                     MIYUKI_CHECK(bsdfSample.pdf >= 0.0);
+                    MIYUKI_CHECK(minComp(bsdfSample.f) >= 0.0f);
                     if (std::isnan(bsdfSample.pdf) || bsdfSample.pdf <= 0.0f) {
                         break;
                     }
@@ -116,7 +118,7 @@ namespace miyuki::core {
                 }
 
                 // Light Sampling
-                {
+                if (enableNEE) {
                     Float lightPdf = 0;
                     auto light = settings.lightDistribution->sampleLight(sampler, &lightPdf);
                     if (light) {

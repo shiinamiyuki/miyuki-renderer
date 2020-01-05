@@ -31,8 +31,7 @@
       "denoise": false,
       "maxDepth": 5,
       "minDepth": 3,
-      "spp": 4,
-      "occludeDistance": 2
+      "spp": 8
     },
     "type": "PathTracer"
   },
@@ -85,7 +84,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.029999999329447746
+                      "value": 0.029126213863492012
                     },
                     "type": "FloatShader"
                   }
@@ -292,7 +291,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 1.0
+                      "value": 0.555555522441864
                     },
                     "type": "FloatShader"
                   }
@@ -361,7 +360,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.05263157933950424
+                      "value": 0.05000000074505806
                     },
                     "type": "FloatShader"
                   }
@@ -426,7 +425,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.05000000074505806
+                      "value": 0.0476190522313118
                     },
                     "type": "FloatShader"
                   }
@@ -694,7 +693,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.3333333134651184
+                      "value": 0.25
                     },
                     "type": "FloatShader"
                   }
@@ -1027,7 +1026,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 1.0
+                      "value": 0.6666666269302368
                     },
                     "type": "FloatShader"
                   }
@@ -1092,7 +1091,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.05000000074505806
+                      "value": 0.0476190522313118
                     },
                     "type": "FloatShader"
                   }
@@ -1161,7 +1160,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.111111119389534
+                      "value": 0.10000000149011612
                     },
                     "type": "FloatShader"
                   }
@@ -1494,7 +1493,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.05000000074505806
+                      "value": 0.0476190522313118
                     },
                     "type": "FloatShader"
                   }
@@ -1628,7 +1627,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.20000000298023224
+                      "value": 0.1666666567325592
                     },
                     "type": "FloatShader"
                   }
@@ -1693,7 +1692,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.20000000298023224
+                      "value": 0.1666666567325592
                     },
                     "type": "FloatShader"
                   }
@@ -1758,7 +1757,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.20000000298023224
+                      "value": 0.1666666567325592
                     },
                     "type": "FloatShader"
                   }
@@ -1823,7 +1822,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.20000000298023224
+                      "value": 0.1666666567325592
                     },
                     "type": "FloatShader"
                   }
@@ -1888,7 +1887,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.20000000298023224
+                      "value": 0.1666666567325592
                     },
                     "type": "FloatShader"
                   }
@@ -1957,7 +1956,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.125
+                      "value": 0.1111111119389534
                     },
                     "type": "FloatShader"
                   }
@@ -2026,7 +2025,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.21052631735801697
+                      "value": 0.17391304671764374
                     },
                     "type": "FloatShader"
                   }
@@ -2164,7 +2163,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.3076923191547394
+                      "value": 0.2352941334247589
                     },
                     "type": "FloatShader"
                   }
@@ -2233,7 +2232,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 1.0
+                      "value": 0.5
                     },
                     "type": "FloatShader"
                   }
@@ -2440,7 +2439,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.222222238779068
+                      "value": 0.1818181872367859
                     },
                     "type": "FloatShader"
                   }
@@ -2509,7 +2508,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.10101009905338287
+                      "value": 0.0917431190609932
                     },
                     "type": "FloatShader"
                   }
@@ -2578,7 +2577,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.042105261236429214
+                      "value": 0.04040404036641121
                     },
                     "type": "FloatShader"
                   }
@@ -2716,7 +2715,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 1.0
+                      "value": 0.9523809552192688
                     },
                     "type": "FloatShader"
                   }
@@ -2854,7 +2853,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.042105261236429214
+                      "value": 0.04040404036641121
                     },
                     "type": "FloatShader"
                   }
