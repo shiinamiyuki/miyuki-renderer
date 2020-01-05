@@ -1,49 +1,53 @@
 {
+  "background": null,
   "camera": {
-    "type": "PerspectiveCamera",
     "props": {
       "fov": {
-        "deg": 120.0
+        "rad": 2.094395160675049
       },
       "transform": {
+        "rotation": {
+          "rad": [
+            3.4033923149108887,
+            0.0,
+            0.0
+          ]
+        },
         "translation": [
           2.0,
           1.5,
           8.0
-        ],
-        "rotation": {
-          "deg": [
-            195,
-            0,
-            0
-          ]
-        }
+        ]
       }
-    }
+    },
+    "type": "PerspectiveCamera"
   },
   "filmDimension": [
     1280,
     720
   ],
   "integrator": {
-    "type": "PathTracer",
     "props": {
-      "spp": 8,
+      "denoise": false,
+      "maxDepth": 5,
       "minDepth": 3,
-      "maxDepth": 5
-    }
+      "spp": 4,
+      "occludeDistance": 2
+    },
+    "type": "PathTracer"
   },
-  "rayBias": 0.01,
+  "lights": [],
+  "rayBias": 0.009999999776482582,
   "sampler": {
-    "type": "SobolSampler",
-    "props": {}
+    "props": null,
+    "type": "SobolSampler"
   },
   "shapes": [
     {
       "props": {
         "filename": "living_room.mesh",
         "materials": {
-          "Default:Apple": {
+          "Apple": {
             "props": {
               "bsdf": {
                 "props": {
@@ -51,7 +55,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/apple.jpg"
+                          "imagePath": "textures\\apple.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -81,7 +85,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.029999999329447746
                     },
                     "type": "FloatShader"
                   }
@@ -108,7 +112,7 @@
             },
             "type": "Material"
           },
-          "Default:BackLight": {
+          "BackLight": {
             "props": {
               "bsdf": {
                 "props": {
@@ -177,7 +181,7 @@
             },
             "type": "Material"
           },
-          "Default:BlackMarble": {
+          "BlackMarble": {
             "props": {
               "bsdf": {
                 "props": {
@@ -246,7 +250,7 @@
             },
             "type": "Material"
           },
-          "Default:BlackWroughtIron": {
+          "BlackWroughtIron": {
             "props": {
               "bsdf": {
                 "props": {
@@ -288,7 +292,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.20000004768371582
+                      "value": 1.0
                     },
                     "type": "FloatShader"
                   }
@@ -315,7 +319,7 @@
             },
             "type": "Material"
           },
-          "Default:BlindMaterial": {
+          "BlindMaterial": {
             "props": {
               "bsdf": {
                 "props": {
@@ -357,7 +361,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.05263157933950424
                     },
                     "type": "FloatShader"
                   }
@@ -384,7 +388,7 @@
             },
             "type": "Material"
           },
-          "Default:Books": {
+          "Books": {
             "props": {
               "bsdf": {
                 "props": {
@@ -392,7 +396,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/book-spines.jpg"
+                          "imagePath": "textures\\book-spines.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -422,7 +426,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.05000000074505806
                     },
                     "type": "FloatShader"
                   }
@@ -449,7 +453,7 @@
             },
             "type": "Material"
           },
-          "Default:CandleHolders": {
+          "CandleHolders": {
             "props": {
               "bsdf": {
                 "props": {
@@ -518,7 +522,7 @@
             },
             "type": "Material"
           },
-          "Default:Carpet": {
+          "Carpet": {
             "props": {
               "bsdf": {
                 "props": {
@@ -526,7 +530,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/carpet-text3b.jpg"
+                          "imagePath": "textures\\carpet-text3b.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -583,7 +587,7 @@
             },
             "type": "Material"
           },
-          "Default:CeilingLampshade": {
+          "CeilingLampshade": {
             "props": {
               "bsdf": {
                 "props": {
@@ -591,7 +595,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/Shade-paper.jpg"
+                          "imagePath": "textures\\Shade-paper.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -648,7 +652,7 @@
             },
             "type": "Material"
           },
-          "Default:Ceramic": {
+          "Ceramic": {
             "props": {
               "bsdf": {
                 "props": {
@@ -690,7 +694,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.3333333134651184
                     },
                     "type": "FloatShader"
                   }
@@ -717,7 +721,7 @@
             },
             "type": "Material"
           },
-          "Default:Cushion": {
+          "Cushion": {
             "props": {
               "bsdf": {
                 "props": {
@@ -725,7 +729,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/cushion-green-circles.jpg"
+                          "imagePath": "textures\\cushion-green-circles.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -782,7 +786,7 @@
             },
             "type": "Material"
           },
-          "Default:Cushion1": {
+          "Cushion1": {
             "props": {
               "bsdf": {
                 "props": {
@@ -790,7 +794,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/cushion-stripe-purple.jpg"
+                          "imagePath": "textures\\cushion-stripe-purple.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -847,7 +851,7 @@
             },
             "type": "Material"
           },
-          "Default:Cushion3": {
+          "Cushion3": {
             "props": {
               "bsdf": {
                 "props": {
@@ -855,7 +859,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/cushion-purple-yellow-stripe.jpg"
+                          "imagePath": "textures\\cushion-purple-yellow-stripe.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -912,7 +916,7 @@
             },
             "type": "Material"
           },
-          "Default:Default": {
+          "Default": {
             "props": {
               "bsdf": {
                 "props": {
@@ -954,7 +958,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 1.0
                     },
                     "type": "FloatShader"
                   }
@@ -981,7 +985,7 @@
             },
             "type": "Material"
           },
-          "Default:DullSteel": {
+          "DullSteel": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1023,7 +1027,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.5
+                      "value": 1.0
                     },
                     "type": "FloatShader"
                   }
@@ -1050,7 +1054,7 @@
             },
             "type": "Material"
           },
-          "Default:Floor": {
+          "Floor": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1058,12 +1062,9 @@
                     "props": {
                       "color": {
                         "props": {
-                          "expr": [
-                            "image",
-                            "./textures/wood4.jpg"
-                          ]
+                          "imagePath": "textures\\wood4.jpg"
                         },
-                        "type": "ExprShader"
+                        "type": "ImageTextureShader"
                       }
                     },
                     "type": "DiffuseBSDF"
@@ -1091,7 +1092,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.05000000074505806
                     },
                     "type": "FloatShader"
                   }
@@ -1118,7 +1119,7 @@
             },
             "type": "Material"
           },
-          "Default:LampStand": {
+          "LampStand": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1160,7 +1161,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.111111119389534
                     },
                     "type": "FloatShader"
                   }
@@ -1187,7 +1188,7 @@
             },
             "type": "Material"
           },
-          "Default:LampshaderOuter": {
+          "LampshaderOuter": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1195,7 +1196,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/shade-stripes.jpg"
+                          "imagePath": "textures\\shade-stripes.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1252,7 +1253,7 @@
             },
             "type": "Material"
           },
-          "Default:LargePicture": {
+          "LargePicture": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1260,7 +1261,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/pic5wide.jpg"
+                          "imagePath": "textures\\pic5wide.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1317,7 +1318,7 @@
             },
             "type": "Material"
           },
-          "Default:LeftLight": {
+          "LeftLight": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1359,7 +1360,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 1.0
                     },
                     "type": "FloatShader"
                   }
@@ -1386,7 +1387,7 @@
             },
             "type": "Material"
           },
-          "Default:LoveLettersBack": {
+          "LoveLettersBack": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1455,7 +1456,7 @@
             },
             "type": "Material"
           },
-          "Default:Magazine": {
+          "Magazine": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1463,7 +1464,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/magazine.jpg"
+                          "imagePath": "textures\\magazine.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1493,7 +1494,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.05000000074505806
                     },
                     "type": "FloatShader"
                   }
@@ -1520,7 +1521,7 @@
             },
             "type": "Material"
           },
-          "Default:MiddleLight": {
+          "MiddleLight": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1562,7 +1563,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 1.0
                     },
                     "type": "FloatShader"
                   }
@@ -1589,7 +1590,7 @@
             },
             "type": "Material"
           },
-          "Default:Picture": {
+          "Picture": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1597,7 +1598,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/picture11-vert.jpg"
+                          "imagePath": "textures\\picture11-vert.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1627,7 +1628,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.20000000298023224
                     },
                     "type": "FloatShader"
                   }
@@ -1654,7 +1655,7 @@
             },
             "type": "Material"
           },
-          "Default:Picture1": {
+          "Picture1": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1662,7 +1663,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/photo1.jpg"
+                          "imagePath": "textures\\photo1.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1692,7 +1693,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.20000000298023224
                     },
                     "type": "FloatShader"
                   }
@@ -1719,7 +1720,7 @@
             },
             "type": "Material"
           },
-          "Default:Picture2": {
+          "Picture2": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1727,7 +1728,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/photo3.jpg"
+                          "imagePath": "textures\\photo3.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1757,7 +1758,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.20000000298023224
                     },
                     "type": "FloatShader"
                   }
@@ -1784,7 +1785,7 @@
             },
             "type": "Material"
           },
-          "Default:Picture4": {
+          "Picture4": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1792,7 +1793,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/photo2.jpg"
+                          "imagePath": "textures\\photo2.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1822,7 +1823,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.20000000298023224
                     },
                     "type": "FloatShader"
                   }
@@ -1849,7 +1850,7 @@
             },
             "type": "Material"
           },
-          "Default:Picture5": {
+          "Picture5": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1857,7 +1858,7 @@
                     "props": {
                       "color": {
                         "props": {
-                          "imagePath": "./textures/photo4.jpg"
+                          "imagePath": "textures\\photo4.jpg"
                         },
                         "type": "ImageTextureShader"
                       }
@@ -1887,7 +1888,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.20000000298023224
                     },
                     "type": "FloatShader"
                   }
@@ -1914,7 +1915,7 @@
             },
             "type": "Material"
           },
-          "Default:RadiatorKnobOuter": {
+          "RadiatorKnobOuter": {
             "props": {
               "bsdf": {
                 "props": {
@@ -1956,7 +1957,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.125
                     },
                     "type": "FloatShader"
                   }
@@ -1983,7 +1984,7 @@
             },
             "type": "Material"
           },
-          "Default:RadiatorPanelsEnamel": {
+          "RadiatorPanelsEnamel": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2025,7 +2026,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.21052631735801697
                     },
                     "type": "FloatShader"
                   }
@@ -2052,7 +2053,7 @@
             },
             "type": "Material"
           },
-          "Default:RadioInside": {
+          "RadioInside": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2121,7 +2122,7 @@
             },
             "type": "Material"
           },
-          "Default:RadioPlastic": {
+          "RadioPlastic": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2163,7 +2164,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.3076923191547394
                     },
                     "type": "FloatShader"
                   }
@@ -2190,7 +2191,7 @@
             },
             "type": "Material"
           },
-          "Default:RadioSurround": {
+          "RadioSurround": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2232,7 +2233,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 1.0
                     },
                     "type": "FloatShader"
                   }
@@ -2259,7 +2260,7 @@
             },
             "type": "Material"
           },
-          "Default:RightLight": {
+          "RightLight": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2301,7 +2302,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 1.0
                     },
                     "type": "FloatShader"
                   }
@@ -2328,7 +2329,7 @@
             },
             "type": "Material"
           },
-          "Default:SmallPictureFrame": {
+          "SmallPictureFrame": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2397,7 +2398,7 @@
             },
             "type": "Material"
           },
-          "Default:SofaLeather": {
+          "SofaLeather": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2439,7 +2440,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.222222238779068
                     },
                     "type": "FloatShader"
                   }
@@ -2466,7 +2467,7 @@
             },
             "type": "Material"
           },
-          "Default:TableGlossy": {
+          "TableGlossy": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2508,7 +2509,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.10101009905338287
                     },
                     "type": "FloatShader"
                   }
@@ -2535,7 +2536,7 @@
             },
             "type": "Material"
           },
-          "Default:Trim": {
+          "Trim": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2577,7 +2578,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.042105261236429214
                     },
                     "type": "FloatShader"
                   }
@@ -2604,7 +2605,7 @@
             },
             "type": "Material"
           },
-          "Default:TvBevel": {
+          "TvBevel": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2673,7 +2674,7 @@
             },
             "type": "Material"
           },
-          "Default:TvScreen": {
+          "TvScreen": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2706,7 +2707,7 @@
                       },
                       "roughness": {
                         "props": {
-                          "value": 0.1
+                          "value": 0.6324555277824402
                         },
                         "type": "FloatShader"
                       }
@@ -2715,7 +2716,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.949999988079071
+                      "value": 1.0
                     },
                     "type": "FloatShader"
                   }
@@ -2742,7 +2743,7 @@
             },
             "type": "Material"
           },
-          "Default:Walls": {
+          "Walls": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2811,7 +2812,7 @@
             },
             "type": "Material"
           },
-          "Default:WhitePaint": {
+          "WhitePaint": {
             "props": {
               "bsdf": {
                 "props": {
@@ -2853,7 +2854,7 @@
                   },
                   "fraction": {
                     "props": {
-                      "value": 0.0
+                      "value": 0.042105261236429214
                     },
                     "type": "FloatShader"
                   }

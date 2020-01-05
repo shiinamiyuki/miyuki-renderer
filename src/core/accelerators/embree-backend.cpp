@@ -64,7 +64,7 @@ namespace miyuki::core {
                 rtcSetSharedGeometryBuffer(geometry, RTC_BUFFER_TYPE_VERTEX, 0,
                                            RTC_FORMAT_FLOAT3,
                                            &mesh->_vertex_data.position[0][0], 0,
-                                           sizeof(Float) * 3,
+                                           sizeof(mesh->_vertex_data.position[0]),
                                            mesh->_vertex_data.position.size());
                 rtcSetSharedGeometryBuffer(geometry, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, &mesh->triangles[0], 0,
                                            sizeof(MeshTriangle), mesh->triangles.size());
@@ -125,7 +125,7 @@ namespace miyuki::core {
 
     bool EmbreeAccelerator::intersect(const Ray &ray, Intersection &isct) { return impl->intersect(ray, isct); }
 
-    bool EmbreeAccelerator::occlude(const struct miyuki::core::Ray &ray) {
+    bool EmbreeAccelerator::occlude(const Ray &ray) {
         return impl->occlude(ray);
     }
 

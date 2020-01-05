@@ -126,6 +126,7 @@ namespace miyuki::core {
                         lightPdf *= lightSample.pdf;
                         auto f = bsdf->evaluate(sp, wo, intersection.worldToLocal(lightSample.wi)) *
                                  abs(dot(lightSample.wi, intersection.Ns));
+
                         if (lightPdf > 0 && !IsBlack(f) && visibilityTester.visible(*scene)) {
 
                             if (specular) {

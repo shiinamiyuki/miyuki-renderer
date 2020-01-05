@@ -37,11 +37,10 @@ namespace miyuki::core {
         SurfaceSample surfaceSample;
         triangle->sample(u, surfaceSample);
         auto wi = surfaceSample.p - isct.p;
-        auto dist2 = dot(wi,wi);
+        auto dist2 = dot(wi, wi);
         auto dist = std::sqrt(dist2);
         wi /= dist;
-        tester.shadowRay = Ray(surfaceSample.p, -1.0f * wi, RayBias / abs(dot(sample.wi, surfaceSample.normal)), dist * 0.99);
-        tester.target = isct.shape;
+
         ShadingPoint sp;
         sp.Ng = triangle->Ng();
         sp.Ns = triangle->normalAt(surfaceSample.uv);
@@ -49,6 +48,13 @@ namespace miyuki::core {
         sample.Li = Li(sp);
         sample.wi = wi;
         sample.pdf = dist2 / (-dot(sample.wi, surfaceSample.normal)) * surfaceSample.pdf;
+        sample.normal = sp.Ns;
+
+        // MIYUKI_CHECK(abs(dot(sample.wi, surfaceSample.normal))!=0);
+        tester.shadowRay = Ray(surfaceSample.p, -1.0f * wi, RayBias / abs(dot(sample.wi, surfaceSample.normal)),
+                               dist * 0.99);
+
+        tester.target = isct.shape;
     }
 
     Float AreaLight::pdfLi(const Intersection &intersection, const Vec3f &wi) const {
@@ -57,7 +63,7 @@ namespace miyuki::core {
         if (!triangle->intersect(ray, _isct)) {
             return 0.0f;
         }
-        Float SA = triangle->area() * (-dot(wi,_isct.Ng)) / (_isct.distance * _isct.distance);
+        Float SA = triangle->area() * (-dot(wi, _isct.Ng)) / (_isct.distance * _isct.distance);
         return 1.0f / SA;
     }
 

@@ -111,7 +111,7 @@ namespace miyuki::core {
                 uv.y() = 1.0f - uv.y();
             }
             sample.uv = uv;
-            sample.pdf = 1 / area();
+            sample.pdf = 1.0f / area();
             sample.p = positionAt(sample.uv);
             sample.normal = Ng();
         }

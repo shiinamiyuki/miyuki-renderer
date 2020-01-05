@@ -124,6 +124,10 @@ namespace miyuki::core {
                     Point2f(attrib.texcoords[i + 0], attrib.texcoords[i + 1]));
         }
 
+        for(auto &i:materials){
+            auto mat = convertFromMTL(i);
+            mesh->materials[i.name] = mat;
+        }
         std::unordered_map<std::string, size_t> name_to_id;
         std::unordered_map<size_t, std::string> id_to_name;
 //

@@ -28,7 +28,7 @@
 #include <miyuki.foundation/defs.h>
 #include <fstream>
 #include <miyuki.renderer/graph.h>
-
+#include <miyuki.foundation/log.hpp>
 
 int main(int argc, char **argv) {
     using namespace miyuki;

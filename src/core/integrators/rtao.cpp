@@ -50,7 +50,7 @@ namespace miyuki::core {
                     settings.camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i(i, j),
                                                  Point2i(film.width, film.height), sample);
                     //  film.addSample(sample.pFilm,sample.ray.d, 1);
-                    //  log::log("{} {} {}\n",sample.ray.o.x,sample.ray.o.y,sample.ray.o.z);
+                    // log::log("{} {} {}\n",sample.ray.o.x(),sample.ray.o.y(),sample.ray.o.z());
                     Intersection isct;
                     if (scene->intersect(sample.ray, isct)) {
                         auto wo = isct.worldToLocal(isct.wo);

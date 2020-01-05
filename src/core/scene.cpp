@@ -24,6 +24,7 @@
 #include "accelerators/sahbvh.h"
 #include "accelerators/embree-backend.h"
 #include "lights/arealight.h"
+#include <miyuki.foundation/log.hpp>
 
 namespace miyuki::core {
     void Scene::preprocess() {
