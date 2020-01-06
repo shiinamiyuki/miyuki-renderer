@@ -24,31 +24,16 @@
 #include <miyuki.renderer/bsdf.h>
 #include <miyuki.foundation/interfaces.h>
 #include <miyuki.renderer/shader.h>
+#include <miyuki.renderer/mixbsdf-template.hpp>
 
 namespace miyuki::core {
-    class MixBSDF final : public BSDF {
-        std::shared_ptr<BSDF> bsdfA, bsdfB;
-        std::shared_ptr<Shader> fraction;
-
+    class MixBSDF final : public TMixBSDF<BSDF, BSDF> {
     public:
-        MixBSDF() = default;
-
-        MixBSDF(const std::shared_ptr<Shader> &fraction,
-                const std::shared_ptr<BSDF> &bsdfA,
-                const std::shared_ptr<BSDF> &bsdfB) : fraction(fraction), bsdfA(bsdfA), bsdfB(bsdfB) {}
+        using TMixBSDF::TMixBSDF;
 
         MYK_DECL_CLASS(MixBSDF, "MixBDSF", interface = "BSDF")
 
         MYK_SER(fraction, bsdfA, bsdfB)
 
-        [[nodiscard]] virtual Type getBSDFType() const override;
-
-        [[nodiscard]] virtual Spectrum evaluate(const ShadingPoint &, const Vec3f &wo, const Vec3f &wi) const override;
-
-        [[nodiscard]] virtual Float evaluatePdf(const ShadingPoint &, const Vec3f &wo, const Vec3f &wi) const override;
-
-        virtual void sample(Point2f u, const ShadingPoint &, BSDFSample &sample) const override;
-
-        void preprocess()override ;
     };
 } // namespace miyuki::core

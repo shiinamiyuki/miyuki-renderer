@@ -24,57 +24,5 @@
 
 namespace miyuki::core {
 
-    Spectrum MixBSDF::evaluate(const ShadingPoint &sp, const Vec3f &wo, const Vec3f &wi) const {
-        auto fA = bsdfA->evaluate(sp, wo, wi);
-        auto fB = bsdfB->evaluate(sp, wo, wi);
-        auto frac = fraction->evaluate(sp)[0];
-        MIYUKI_CHECK(minComp(fA) >= 0.0f);
-        MIYUKI_CHECK(minComp(fB) >= 0.0f);
-        MIYUKI_CHECK(frac >= 0.0f && frac <= 1.0f);
-        return lerp<Spectrum>(fA, fB, Vec3f(frac));
-    }
-
-    Float MixBSDF::evaluatePdf(const ShadingPoint &sp, const Vec3f &wo, const Vec3f &wi) const {
-        auto pdfA = bsdfA->evaluatePdf(sp, wo, wi);
-        auto pdfB = bsdfB->evaluatePdf(sp, wo, wi);
-        auto frac = fraction->evaluate(sp)[0];
-        MIYUKI_CHECK(pdfA >= 0.0f);
-        MIYUKI_CHECK(pdfB >= 0.0f);
-        MIYUKI_CHECK(frac >= 0.0f && frac <= 1.0f);
-        return lerp(pdfA, pdfB, frac);
-    }
-
-    void MixBSDF::sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const {
-        auto frac = fraction->evaluate(sp)[0];
-        MIYUKI_CHECK(frac >= 0.0);
-        BSDF *first, *second;
-        auto p = 1.0f - frac;
-        if (u[0] < p) {
-            u[0] /= p;
-            first = bsdfA.get();  // p = 1 - frac
-            second = bsdfB.get();
-        } else {
-            u[0] = (u[0] - p) / (1.0f - p);
-            first = bsdfB.get();
-            second = bsdfA.get();
-            frac = 1.0f - frac;
-        }
-        first->sample(u, sp, sample);
-        MIYUKI_CHECK(0 <= frac && frac <= 1);
-        MIYUKI_CHECK(minComp(sample.f) >= 0.0f);
-        // evaluate whole bsdf if not sampled specular
-        if ((sample.sampledType & BSDF::ESpecular) == 0) {
-            sample.f = lerp<Spectrum>(sample.f, second->evaluate(sp, sample.wo, sample.wi), Vec3f(frac));
-            sample.pdf = lerp<Float>(sample.pdf, second->evaluatePdf(sp, sample.wo, sample.wi), frac);
-        }
-    }
-
-    BSDF::Type MixBSDF::getBSDFType() const { return BSDF::Type(bsdfA->getBSDFType() | bsdfB->getBSDFType()); }
-
-    void MixBSDF::preprocess() {
-        bsdfA->preprocess();
-        bsdfB->preprocess();
-        fraction->preprocess();
-    }
 
 } // namespace miyuki::core
