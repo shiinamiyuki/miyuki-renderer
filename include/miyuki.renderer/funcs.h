@@ -20,42 +20,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_ATMOICFLOAT_HPP
-#define MIYUKIRENDERER_ATMOICFLOAT_HPP
-
-#include <atomic>
-#include <miyuki.foundation/math.hpp>
-#include <miyuki.renderer/funcs.h>
-
+#ifndef MIYUKIRENDERER_FUNCS_H
+#define MIYUKIRENDERER_FUNCS_H
 namespace miyuki {
-    class AtomicFloat {
-        std::atomic<uint32_t> bits;
-    public:
-        explicit AtomicFloat(Float v = 0) : bits(floatBitsToUint(v)) {}
 
-        AtomicFloat(const AtomicFloat &rhs) : bits(uint32_t(rhs.bits)) {}
-
-        void add(Float v) {
-            uint32_t oldBits, newBits;
-            do {
-                oldBits = bits;
-                auto old = uintBitsToFloat(oldBits);
-                newBits = floatBitsToUint(old + v);
-            } while (!bits.compare_exchange_weak(oldBits, newBits, std::memory_order_relaxed));
-
+    template<int N, typename T>
+    T powN(const T &v) {
+        if constexpr (N == 0) {
+            return T(1.0);
+        } else if constexpr(N == 1) {
+            return v;
+        } else if constexpr (N % 2 == 0) {
+            auto t = powN<N / 2, T>(v);
+            return t * t;
+        } else {
+            auto t = powN<N / 2, T>(v);
+            return t * t * v;
         }
+    }
 
-        float value() const {
-            return uintBitsToFloat(bits);
-        }
+    float uintBitsToFloat(const uint32_t &i) {
+        float v;
+        std::memcpy(&v, &i, sizeof(float));
+        return v;
+    }
 
-        explicit operator float() const {
-            return value();
-        }
-
-        void set(Float v){
-            bits = floatBitsToUint(v);
-        }
-    };
+    uint32_t floatBitsToUint(const float &v) {
+        uint32_t i;
+        std::memcpy(&i, &v, sizeof(uint32_t));
+        return i;
+    }
 }
-#endif //MIYUKIRENDERER_ATMOICFLOAT_HPP
+#endif //MIYUKIRENDERER_FUNCS_H

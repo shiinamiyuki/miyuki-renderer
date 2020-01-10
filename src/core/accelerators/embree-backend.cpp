@@ -135,7 +135,7 @@ namespace miyuki::core {
 #else
     EmbreeAccelerator::EmbreeAccelerator(){}
     EmbreeAccelerator::~EmbreeAccelerator() {}
-    bool EmbreeAccelerator::occlude(const struct miyuki::core::Ray &ray) {
+    bool EmbreeAccelerator::occlude(const Ray &ray) {
         MIYUKI_NOT_IMPLEMENTED();
     }
     void miyuki::core::EmbreeAccelerator::build(miyuki::core::Scene &scene) { MIYUKI_NOT_IMPLEMENTED(); }

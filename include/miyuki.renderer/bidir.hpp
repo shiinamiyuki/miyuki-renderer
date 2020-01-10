@@ -90,7 +90,7 @@ namespace miyuki::core::bidir {
                 }
                 default: {
                     MIYUKI_CHECK(false);
-                    return vec3(0);
+                    return Vec3f(0);
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace miyuki::core::bidir {
                 }
                 default: {
                     MIYUKI_CHECK(false);
-                    return vec3(0);
+                    return Vec3f(0);
                 }
             }
         }
@@ -120,7 +120,7 @@ namespace miyuki::core::bidir {
                 }
                 default: {
                     MIYUKI_CHECK(false);
-                    return vec3(0);
+                    return Vec3f(0);
                 }
             }
         }

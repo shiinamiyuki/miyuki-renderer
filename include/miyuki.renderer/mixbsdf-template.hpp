@@ -25,6 +25,7 @@
 
 #include <miyuki.renderer/bsdf.h>
 #include <miyuki.renderer/shader.h>
+#include <miyuki.foundation/log.hpp>
 
 namespace miyuki::core {
     template<class BSDFA, class BSDFB>
@@ -40,7 +41,6 @@ namespace miyuki::core {
                  const std::shared_ptr<BSDFA> &bsdfA,
                  const std::shared_ptr<BSDFB> &bsdfB) : fraction(fraction), bsdfA(bsdfA), bsdfB(bsdfB) {}
 
-        MYK_DECL_CLASS(MixBSDF, "MixBDSF", interface = "BSDF")
 
         MYK_SER(fraction, bsdfA, bsdfB)
 
@@ -68,7 +68,7 @@ namespace miyuki::core {
             return lerp(pdfA, pdfB, frac);
         }
 
-        void sample(Point2f u, const ShadingPoint &, BSDFSample &sample) const override {
+        void sample(Point2f u, const ShadingPoint &sp, BSDFSample &sample) const override {
             auto frac = fraction->evaluate(sp)[0];
             MIYUKI_CHECK(frac >= 0.0);
             BSDF *first, *second;
