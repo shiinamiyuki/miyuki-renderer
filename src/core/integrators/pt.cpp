@@ -243,15 +243,16 @@ namespace miyuki::core {
         struct PathVertex {
             Vec3f wi;
             Point3f p;
-            Float irradiance = 0.0f;
+            Spectrum L;
+            Spectrum beta;
         };
-        auto Li = [=](bool enableNEE, bool training, Arena<PathVertex> &arena, Sampler &sampler,
+        auto Li = [=](bool enableNEE, bool training, Arena &arena, Sampler &sampler,
                       Ray ray) -> Spectrum {
             Spectrum Li(0);
             Spectrum beta(1);
             bool specular = false;
-            //auto vertices = arena.allocN(maxDepth + 1);
-            PathVertex vertices[12];
+            auto vertices = arena.allocN<PathVertex>(maxDepth + 1);
+//            PathVertex vertices[12];
             Intersection intersection, prevIntersection;
             if (!scene->intersect(ray, intersection)) {
                 return backgroundLi(ray);
@@ -276,49 +277,25 @@ namespace miyuki::core {
 
                     auto light = intersection.shape->light;
                     auto lightPdf = settings.lightDistribution->lightPdf(light);
+                    Spectrum radiance;
                     if (!enableNEE || depth == 0 || !light || lightPdf <= 0.0f || specular) {
-                        Li += beta * intersection.material->emission->evaluate(sp)
-                              * intersection.material->emissionStrength->evaluate(sp);
+                        radiance = intersection.material->emission->evaluate(sp)
+                                   * intersection.material->emissionStrength->evaluate(sp);
                     } else {
                         lightPdf *= light->pdfLi(prevIntersection, ray.d);
                         auto weight = MisWeight(prevScatteringPdf, lightPdf);
-                        Li += beta * weight * intersection.material->emission->evaluate(sp)
-                              * intersection.material->emissionStrength->evaluate(sp);
+                        radiance = weight * intersection.material->emission->evaluate(sp)
+                                   * intersection.material->emissionStrength->evaluate(sp);
                     }
+                    Li += beta * radiance;
                 }
-                vertices[depth].irradiance = Li.luminance();
+                vertices[depth].L = Li;
                 vertices[depth].p = intersection.p;
                 if (++depth > maxDepth) {
                     break;
                 }
 
 
-                BSDFSample bsdfSample;
-                // BSDF Sampling
-                {
-                    bsdfSample.wo = wo;
-                    auto u = sampler.next2D();
-                    if (u[0] < 0.5f) {
-                        u[0] *= 2.0f;
-                        bsdf->sample(u, sp, bsdfSample);
-                        bsdfSample.pdf *= 0.5f;
-                    } else {
-                        u[0] = (u[0] - 0.5f) * 2.0f;
-                        auto w = sTree->sample(intersection.p, u);
-                        bsdfSample.wi = intersection.worldToLocal(w);
-                        bsdfSample.pdf = sTree->pdf(intersection.p, w) * 0.5f * Inv4Pi;
-                        bsdfSample.f = bsdf->evaluate(sp, bsdfSample.wo, bsdfSample.wi);
-                        bsdfSample.sampledType = BSDF::EAllButSpecular;
-                    }
-                    MIYUKI_CHECK(!std::isnan(bsdfSample.pdf));
-                    MIYUKI_CHECK(bsdfSample.pdf >= 0.0);
-                    MIYUKI_CHECK(minComp(bsdfSample.f) >= 0.0f);
-                    if (std::isnan(bsdfSample.pdf) || bsdfSample.pdf <= 0.0f) {
-                        break;
-                    }
-                    prevScatteringPdf = bsdfSample.pdf;
-                    specular = (bsdfSample.sampledType & BSDF::ESpecular) != 0;
-                }
 
                 // Light Sampling
                 if (enableNEE) {
@@ -333,25 +310,60 @@ namespace miyuki::core {
                                  abs(dot(lightSample.wi, intersection.Ns));
 
                         if (lightPdf > 0 && !IsBlack(f) && visibilityTester.visible(*scene)) {
-
+                            Spectrum radiance;
                             if (specular) {
-                                Li += beta * f * lightSample.Li / lightPdf;
+                                radiance = f * lightSample.Li / lightPdf;
                             } else {
                                 auto scatteringPdf = bsdf->evaluatePdf(sp, wo,
                                                                        intersection.worldToLocal(lightSample.wi));
                                 MIYUKI_CHECK(!std::isnan(scatteringPdf));
                                 MIYUKI_CHECK(scatteringPdf > 0.0f);
                                 auto weight = MisWeight(lightPdf, scatteringPdf);
-                                Li += beta * f * lightSample.Li / lightPdf * weight;
+                                radiance = f * lightSample.Li / lightPdf * weight;
                             }
+                            Li += beta * radiance;
                         }
                     }
+                }
+                BSDFSample bsdfSample;
+                // BSDF Sampling
+                {
+                    bsdfSample.wo = wo;
+                    auto u = sampler.next2D();
+                    if (u[0] < 0.5f) {
+                        u[0] *= 2.0f;
+                        bsdf->sample(u, sp, bsdfSample);
+//                        auto alternatePdf = sTree->pdf(intersection.p, intersection.localToWorld(bsdfSample.wi));
+//                        auto weight = MisWeight(bsdfSample.pdf, alternatePdf);;
+//                        beta *= weight;
+                        bsdfSample.pdf *= 0.5f;
+                    } else {
+                        u[0] = (u[0] - 0.5f) * 2.0f;
+                        auto w = sTree->sample(intersection.p, u);
+                        bsdfSample.wi = intersection.worldToLocal(w);
+                        bsdfSample.pdf = sTree->pdf(intersection.p, w);
+                        bsdfSample.f = bsdf->evaluate(sp, bsdfSample.wo, bsdfSample.wi);
+                        bsdfSample.sampledType = BSDF::EAllButSpecular;
+//                        auto alternatePdf = bsdf->evaluatePdf(sp, bsdfSample.wo, bsdfSample.wi);
+//                        auto weight = MisWeight(bsdfSample.pdf, alternatePdf);;
+//                        beta *= weight;
+                        bsdfSample.pdf *= 0.5f;
+                    }
+                    MIYUKI_CHECK(!std::isnan(bsdfSample.pdf));
+                    MIYUKI_CHECK(bsdfSample.pdf >= 0.0);
+                    MIYUKI_CHECK(minComp(bsdfSample.f) >= 0.0f);
+                    if (std::isnan(bsdfSample.pdf) || bsdfSample.pdf <= 0.0f) {
+                        break;
+                    }
+                    prevScatteringPdf = bsdfSample.pdf;
+                    specular = (bsdfSample.sampledType & BSDF::ESpecular) != 0;
                 }
 
                 auto wiW = intersection.localToWorld(bsdfSample.wi);
                 beta *= bsdfSample.f * abs(dot(intersection.Ng, wiW)) / bsdfSample.pdf;
                 ray = intersection.spawnRay(wiW);
                 vertices[depth - 1].wi = wiW;
+                vertices[depth - 1].beta = beta;
                 if (depth > minDepth) {
                     auto p = std::min(1.0f, maxComp(beta)) * 0.95;
                     if (sampler.next1D() < p) {
@@ -371,8 +383,9 @@ namespace miyuki::core {
             }
             if (training) {
                 for (int i = 0; i < depth; i++) {
-                    vertices[i].irradiance = Li.luminance() - vertices[i].irradiance;
-                    sTree->deposit(vertices[i].p, vertices[i].wi, vertices[i].irradiance);
+                    vertices[i].L = (Li - vertices[i].L) / vertices[i].beta;
+                    vertices[i].L = RemoveNaN(vertices[i].L);
+                    sTree->deposit(vertices[i].p, vertices[i].wi, vertices[i].L.luminance());
                 }
             }
             MIYUKI_CHECK(minComp(Li) >= 0.0f);
@@ -395,11 +408,11 @@ namespace miyuki::core {
             }
         });
         uint32_t pass = 0;
-        for (int i = 0; i < 6; i++) {
+        for (pass = 0; pass < 6; pass++) {
             ParallelFor(0, tiles.size(), [=, &tiles, &film](int64_t i, uint64_t) {
                 auto sampler = settings.sampler->clone();
                 sampler->startSample(pass == 0 ? 0u : (1u << pass));
-                Arena<PathVertex> arena;
+                Arena arena;
                 auto &tile = tiles[i];
                 for (int y = tile.pMin.y(); cont() && y < tile.pMax.y(); y++) {
                     for (int x = tile.pMin.x(); x < tile.pMax.x(); x++) {
@@ -417,14 +430,14 @@ namespace miyuki::core {
                 }
             });
             log::log("Refining SDTree\n");
-            sTree->refine(6000 * std::sqrt(1u << (int32_t) i));
+            sTree->refine(1000 * std::sqrt(1u << (int32_t) pass));
             log::log("Done refining SDTree\n");
         }
         log::log("Start Rendering\n");
         {
             ParallelFor(0, tiles.size(), [=, &tiles, &film, &reporter](int64_t i, uint64_t) {
                 auto sampler = settings.sampler->clone();
-                Arena<PathVertex> arena;
+                Arena arena;
                 auto &tile = tiles[i];
                 for (int y = tile.pMin.y(); cont() && y < tile.pMax.y(); y++) {
                     for (int x = tile.pMin.x(); x < tile.pMax.x(); x++) {

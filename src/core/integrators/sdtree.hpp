@@ -391,8 +391,6 @@ namespace miyuki::core {
                 }
             }
         }
-
-
     };
 
     class STree {
@@ -411,7 +409,7 @@ namespace miyuki::core {
         }
 
         Float pdf(const Point3f &p, const Vec3f &w) {
-            return nodes.at(0).pdf(box.offset(p), w, nodes);
+            return nodes.at(0).pdf(box.offset(p), w, nodes) * Inv4Pi;
         }
 
         void deposit(Point3f p, const Vec3f &w, Float irradiance) {
