@@ -41,6 +41,7 @@ namespace miyuki::core {
 
         void startNextSample() override;
 
+        void startSample(int s)override{sample = s;}
         [[nodiscard]] std::shared_ptr<Sampler> clone() const override;
     };
 }

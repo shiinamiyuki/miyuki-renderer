@@ -39,13 +39,13 @@ namespace miyuki {
         }
     }
 
-    float uintBitsToFloat(const uint32_t &i) {
+    inline float uintBitsToFloat(const uint32_t &i) {
         float v;
         std::memcpy(&v, &i, sizeof(float));
         return v;
     }
 
-    uint32_t floatBitsToUint(const float &v) {
+    inline uint32_t floatBitsToUint(const float &v) {
         uint32_t i;
         std::memcpy(&i, &v, sizeof(uint32_t));
         return i;

@@ -210,22 +210,6 @@ namespace miyuki::core {
         }
     }
 
-    const Point3f &MeshTriangle::vertex(size_t i) const {
-        return mesh->_vertex_data.position[indices.position[i]];
-    }
 
-    Normal3f MeshTriangle::normal(size_t i) const {
-        auto idx = indices.normal[i];
-        return idx >= 0 ? mesh->_vertex_data.normal[idx] : Ng();
-    }
-
-    Point2f MeshTriangle::texCoord(size_t i) const {
-        auto idx = indices.texCoord[i];
-        return idx >= 0 ? mesh->_vertex_data.tex_coord[idx] : Point2f(i > 0, i > 1);
-    }
-
-    Material *MeshTriangle::getMaterial() const {
-        return name_id >= 0 ? mesh->_materials[name_id].get() : nullptr;
-    }
 }
 

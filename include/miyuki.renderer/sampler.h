@@ -39,11 +39,13 @@ namespace miyuki::core {
             return Point2f(next1D(), next1D());
         }
 
+        virtual void startSample(int) = 0;
+
         virtual void startNextSample() = 0;
 
         [[nodiscard]] virtual std::shared_ptr<Sampler> clone() const = 0;
 
-        virtual void preprocess(){}
+        virtual void preprocess() {}
     };
 }
 

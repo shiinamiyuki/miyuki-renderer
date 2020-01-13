@@ -76,7 +76,7 @@ namespace miyuki::core {
             return Spectrum(0);
         wh = normalize(wh);
         wh = FaceForward(wh, Vec3f(0, 1, 0));
-        float F = Schlick(0.4f, abs(dot(wi, wh)));
+        float F = 1.0f;//Schlick(0.4f, abs(dot(wi, wh)));
         auto R = color->evaluate(point);
         auto alpha = std::max(1e-6f, roughness->evaluate(point).x());
         alpha *= alpha;

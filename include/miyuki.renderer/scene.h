@@ -54,6 +54,10 @@ namespace miyuki::core {
         [[nodiscard]] size_t getRayCounter() const { return rayCounter; }
 
         void resetRayCounter() { rayCounter = 0; }
+
+        Bounds3f getBoundingBox()const{
+            return accelerator->getBoundingBox();
+        }
     };
 } // namespace miyuki::core
 #endif // MIYUKIRENDERER_SCENE_H

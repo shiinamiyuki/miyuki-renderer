@@ -55,15 +55,16 @@ namespace miyuki::core {
 
         MeshTriangle() = default;
 
-        [[nodiscard]] const Point3f &vertex(size_t) const;
+        [[nodiscard]] inline const Point3f &vertex(size_t) const;
 
-        [[nodiscard]] Normal3f normal(size_t) const;
+        [[nodiscard]] inline Normal3f normal(size_t) const;
 
-        [[nodiscard]] Point2f texCoord(size_t) const;
+        [[nodiscard]] inline Point2f texCoord(size_t) const;
 
         [[nodiscard]] Vec3f Ng() const {
-            Vec3f e1 = (vertex(1) - vertex(0));
-            Vec3f e2 = (vertex(2) - vertex(0));
+            auto v0 = vertex(0);
+            Vec3f e1 = (vertex(1) - v0);
+            Vec3f e2 = (vertex(2) - v0);
             return normalize(cross(e1, e2));
         }
 
@@ -87,7 +88,7 @@ namespace miyuki::core {
                 return false;
             float t = f * dot(e2, q);
             if (t > ray.tMin) {
-                if (t < isct.distance) {
+                if (t < isct.distance && t < ray.tMax) {
                     isct.distance = t;
                     isct.Ng = Ng;
                     isct.uv = Point2f(u, v);
@@ -187,7 +188,23 @@ namespace miyuki::core {
     protected:
         void preprocess() override { MIYUKI_NOT_IMPLEMENTED(); }
     };
+    inline const Point3f &MeshTriangle::vertex(size_t i) const {
+        return mesh->_vertex_data.position[indices.position[i]];
+    }
 
+    inline Normal3f MeshTriangle::normal(size_t i) const {
+        auto idx = indices.normal[i];
+        return idx >= 0 ? mesh->_vertex_data.normal[idx] : Ng();
+    }
+
+    inline Point2f MeshTriangle::texCoord(size_t i) const {
+        auto idx = indices.texCoord[i];
+        return idx >= 0 ? mesh->_vertex_data.tex_coord[idx] : Point2f(i > 0, i > 1);
+    }
+
+    inline Material *MeshTriangle::getMaterial() const {
+        return name_id >= 0 ? mesh->_materials[name_id].get() : nullptr;
+    }
 } // namespace miyuki::core
 
 #endif // MIYUKIRENDERER_MESH_H

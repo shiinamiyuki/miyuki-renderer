@@ -50,6 +50,9 @@ namespace miyuki::core {
         void startNextSample() override {
 
         }
+
+        void startSample(int) override{}
+
     };
 
 }

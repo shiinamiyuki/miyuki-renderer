@@ -59,6 +59,7 @@ namespace miyuki::core {
         ctx->registerType<MixBSDF>();
         ctx->registerType<RTAO>();
         ctx->registerType<PathTracer>();
+        ctx->registerType<GuidedPathTracer>();
         ctx->registerType<RandomSampler>();
         ctx->registerType<SobolSampler>();
         ctx->registerType<EmbreeAccelerator>();

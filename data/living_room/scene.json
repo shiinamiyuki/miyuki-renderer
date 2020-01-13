@@ -31,9 +31,9 @@
       "denoise": false,
       "maxDepth": 5,
       "minDepth": 3,
-      "spp": 8
+      "spp": 16
     },
-    "type": "PathTracer"
+    "type": "GuidedPathTracer"
   },
   "lights": [],
   "rayBias": 0.009999999776482582,

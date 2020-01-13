@@ -26,15 +26,16 @@
 #include <miyuki.renderer/scene.h>
 
 #ifdef MYK_USE_EMBREE
+
 #include <embree3/rtcore.h>
+
 #endif
-
-
 
 
 #define QUERY_PROP(prop) log::log("{}: {}\n", #prop, rtcGetDeviceProperty(device, prop) ? true : false)
 namespace miyuki::core {
 #ifdef MYK_USE_EMBREE
+
     class EmbreeAccelerator::Impl {
         RTCDevice device;
         RTCScene rtcScene = nullptr;
@@ -117,6 +118,21 @@ namespace miyuki::core {
             rtcOccluded1(rtcScene, &context, &rtcRay);
             return rtcRay.tfar < 0;
         }
+
+        [[nodiscard]] Bounds3f getBoundingBox() const {
+            RTCBounds bounds{};
+            rtcGetSceneBounds(rtcScene, &bounds);
+            Bounds3f box;
+            box.pMin[0] = bounds.lower_x;
+            box.pMin[1] = bounds.lower_y;
+            box.pMin[2] = bounds.lower_z;
+
+            box.pMax[0] = bounds.upper_x;
+            box.pMax[1] = bounds.upper_y;
+            box.pMax[2] = bounds.upper_z;
+
+            return box;
+        }
     };
 
     EmbreeAccelerator::EmbreeAccelerator() : impl(new Impl()) {}
@@ -130,6 +146,10 @@ namespace miyuki::core {
     }
 
     EmbreeAccelerator::~EmbreeAccelerator() { delete impl; }
+
+    Bounds3f EmbreeAccelerator::getBoundingBox() const {
+        return impl->getBoundingBox();
+    }
 
 
 #else

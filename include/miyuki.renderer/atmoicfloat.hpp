@@ -36,12 +36,10 @@ namespace miyuki {
         AtomicFloat(const AtomicFloat &rhs) : bits(uint32_t(rhs.bits)) {}
 
         void add(Float v) {
-            uint32_t oldBits, newBits;
+            uint32_t oldBits = bits, newBits;
             do {
-                oldBits = bits;
-                auto old = uintBitsToFloat(oldBits);
-                newBits = floatBitsToUint(old + v);
-            } while (!bits.compare_exchange_weak(oldBits, newBits, std::memory_order_relaxed));
+                newBits = floatBitsToUint(uintBitsToFloat(oldBits) + v);
+            } while (!bits.compare_exchange_weak(oldBits, newBits));
 
         }
 

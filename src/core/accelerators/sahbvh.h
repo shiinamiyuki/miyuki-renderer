@@ -43,6 +43,8 @@ namespace miyuki::core {
 
         bool occlude(const Ray & ray)override;
 
+        Bounds3f getBoundingBox() const override;
+
         ~BVHAccelerator();
     };
 }

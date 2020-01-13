@@ -180,6 +180,7 @@ namespace miyuki::core {
         }
 
     public:
+
         void build(const std::vector<MeshTriangle> &primitives) {
             nodes.clear();
             primitive = primitives;
@@ -283,5 +284,14 @@ namespace miyuki::core {
         for (auto i : internal) {
             delete i;
         }
+    }
+
+    Bounds3f BVHAccelerator::getBoundingBox() const {
+        Bounds3f box{{MaxFloat, MaxFloat, MaxFloat},
+                     {MinFloat, MinFloat, MinFloat}};
+        for (auto i : internal) {
+            box = box.unionOf(i->getBoundingBox());
+        }
+        return box;
     }
 } // namespace miyuki::core

@@ -46,6 +46,8 @@ namespace miyuki::core {
         virtual bool8 intersect8(const Ray8 &ray, Intersection8 &isct) {
             MIYUKI_NOT_IMPLEMENTED();
         }
+
+        virtual Bounds3f getBoundingBox() const = 0;
     };
 
 }

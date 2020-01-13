@@ -28,24 +28,28 @@
 #include <miyuki.foundation/noncopyable.hpp>
 #include <miyuki.renderer/ray.h>
 
-namespace miyuki::core{
+namespace miyuki::core {
 
-    class EmbreeAccelerator final : public Accelerator, private NonCopyable{
+    class EmbreeAccelerator final : public Accelerator, private NonCopyable {
         class Impl;
+
         Impl *impl = nullptr;
     public:
         EmbreeAccelerator();
+
         MYK_DECL_CLASS(EmbreeAccelerator, "EmbreeAccelerator", interface = "Accelerator")
 
         void build(Scene &scene) override;
 
         bool intersect(const Ray &ray, Intersection &isct) override;
 
-        bool occlude(const Ray & ray)override;
+        bool occlude(const Ray &ray) override;
 
-        bool4 intersect4(const Ray4 &ray, Intersection4 &isct) override{MIYUKI_NOT_IMPLEMENTED();}
+        bool4 intersect4(const Ray4 &ray, Intersection4 &isct) override { MIYUKI_NOT_IMPLEMENTED(); }
 
-        bool8 intersect8(const Ray8 &ray, Intersection8 &isct) override{MIYUKI_NOT_IMPLEMENTED();}
+        bool8 intersect8(const Ray8 &ray, Intersection8 &isct) override { MIYUKI_NOT_IMPLEMENTED(); }
+
+        Bounds3f getBoundingBox() const;
 
         ~EmbreeAccelerator();
 
