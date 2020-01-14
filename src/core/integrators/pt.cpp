@@ -43,7 +43,7 @@ namespace miyuki::core {
         return pdfA / (pdfA + pdfB);
     }
 
-    static RenderOutput PathTracerRender(bool denoise, const Task<RenderSettings>::ContFunc &cont,
+    static RenderOutput PathTracerRender(bool enableNEE, bool denoise, const Task<RenderSettings>::ContFunc &cont,
                                          int spp, int minDepth, int maxDepth, const RenderSettings &settings,
                                          const mpsc::Sender<std::shared_ptr<Film>> &tx) {
 
@@ -58,7 +58,6 @@ namespace miyuki::core {
             return Spectrum(0);
         };
 
-        bool enableNEE = true;
         auto Li = [=](Sampler &sampler, Ray ray) -> Spectrum {
             Spectrum Li(0);
             Spectrum beta(1);
@@ -221,7 +220,7 @@ namespace miyuki::core {
     Task<RenderOutput>
     core::PathTracer::createRenderTask(const RenderSettings &settings, const mpsc::Sender<std::shared_ptr<Film>> &tx) {
         return Task<RenderOutput>([=, &tx](const Task<RenderSettings>::ContFunc &func) {
-            return PathTracerRender(denoise, func, spp, minDepth, maxDepth, settings, tx);
+            return PathTracerRender(enableNEE, denoise, func, spp, minDepth, maxDepth, settings, tx);
         });
     }
 

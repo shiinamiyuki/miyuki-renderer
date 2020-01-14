@@ -311,6 +311,7 @@ namespace miyuki::core {
         }
 
         void deposit(const Point2f &p, Float e) {
+            if(e == 0)return;
             sum.add(e);
             nodes[0].deposit(p, e, nodes);
         }
@@ -450,7 +451,7 @@ namespace miyuki::core {
         }
 
         void deposit(Point3f p, const Vec3f &w, Float irradiance) {
-            if (irradiance > 0 && !std::isnan(irradiance)) {
+            if (irradiance >= 0 && !std::isnan(irradiance)) {
                 nodes.at(0).deposit(box.offset(p), w, irradiance, nodes);
             }
         }
