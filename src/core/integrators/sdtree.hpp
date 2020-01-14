@@ -49,6 +49,11 @@ namespace miyuki::core {
             for (int i = 0; i < 4; i++) {
                 _sum[i].set(float(node._sum[i]));
             }
+
+        }
+
+        QTreeNode(const QTreeNode &node) {
+            copyFrom(node);
         }
 
         QTreeNode &operator=(const QTreeNode &node) {
@@ -111,9 +116,12 @@ namespace miyuki::core {
         float pdf(const Point2f &p, std::vector<QTreeNode> &nodes) const {
             auto idx = childIndex(p);
             auto s = sum();
-            // MIYUKI_CHECK(s > 0);
+            MIYUKI_CHECK(s >= 0);
             MIYUKI_CHECK(!std::isnan(s));
             auto factor = s == 0.0f ? 0.25f : _sum[idx].value() / s;
+            if(factor < 0){
+                log::log("{} {} {}\n",factor, _sum[idx].value(), s);
+            }
             MIYUKI_CHECK(factor > 0);
             if (child(idx, nodes)) {
                 return 4.0f * factor * child(idx, nodes)->pdf((p - offset(idx)) * 2.0f, nodes);
@@ -151,9 +159,9 @@ namespace miyuki::core {
             auto up = m[x];
             auto down = m[2 + x];
             total = up + down;
-            if (u[0] < up / total) {
+            if (u[1] < up / total) {
                 y = 0;
-                u[0] /= up / total;
+                u[1] /= up / total;
             } else {
                 y = 1;
                 u[1] = (u[1] - up / total) / (down / total);
@@ -172,6 +180,11 @@ namespace miyuki::core {
             int idx = childIndex(p);
             _sum[idx].add(e);
             auto c = child(idx, nodes);
+            MIYUKI_CHECK(e >= 0);
+            MIYUKI_CHECK(_sum[idx].value() >= 0);
+            if(!(_sum[idx].value() >= 0)){
+                log::log("{}",_sum[idx].value() >= 0);
+            }
             if (c) {
                 c->deposit((p - offset(idx)) * 2.0f, e, nodes);
             }
@@ -200,7 +213,7 @@ namespace miyuki::core {
         while (phi < 0)
             phi += 2.0 * Pi;
 
-        return Point2f(phi / (2 * Pi),(cosTheta + 1) / 2);
+        return Point2f(phi / (2 * Pi) ,(cosTheta + 1) / 2);
     }
 
     class DTree {
@@ -238,7 +251,7 @@ namespace miyuki::core {
         }
 
         Float eval(const Point2f &u) {
-            return nodes[0].eval(u, nodes) ;/// weight.value();
+            return nodes[0].eval(u, nodes);/// weight.value();
         }
 
         void _build() {
@@ -250,7 +263,7 @@ namespace miyuki::core {
                         node._sum[i].set(c->sum());
                     }
                 }
-                //log::log("sum: {}\n",node.sum());
+            //    log::log("sum: {}\n",node.sum());
                 return node.sum();
             };
             sum.set(updateSum(nodes.front(), updateSum));
@@ -267,7 +280,7 @@ namespace miyuki::core {
             stack.push({0, 0, &prev});
             sum.set(0.0f);
             auto total = prev.sum.value();
-//            log::log("{} {}\n", total, threshold);
+            log::log("{} {}\n", total, threshold);
             while (!stack.empty()) {
                 auto node = stack.top();
                 stack.pop();
@@ -346,7 +359,8 @@ namespace miyuki::core {
         STreeNode() = default;
 
         STreeNode(const STreeNode &other) : nSample((int) other.nSample), _children(other._children),
-                                            axis(other.axis), _isLeaf(other._isLeaf), dTree(other.dTree) {}
+                                            axis(other.axis), _isLeaf(other._isLeaf), dTree(other.dTree) {
+        }
 
 
         [[nodiscard]] bool isLeaf() const {
@@ -436,7 +450,7 @@ namespace miyuki::core {
         }
 
         void deposit(Point3f p, const Vec3f &w, Float irradiance) {
-            if (irradiance >= 0 && !std::isnan(irradiance)) {
+            if (irradiance > 0 && !std::isnan(irradiance)) {
                 nodes.at(0).deposit(box.offset(p), w, irradiance, nodes);
             }
         }

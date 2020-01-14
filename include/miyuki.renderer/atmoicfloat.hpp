@@ -29,22 +29,19 @@
 
 namespace miyuki {
     class AtomicFloat {
-        std::atomic<uint32_t> bits;
+        std::atomic<float> val;
     public:
-        explicit AtomicFloat(Float v = 0) : bits(floatBitsToUint(v)) {}
+        explicit AtomicFloat(Float v = 0) : val(v) {}
 
-        AtomicFloat(const AtomicFloat &rhs) : bits(uint32_t(rhs.bits)) {}
+        AtomicFloat(const AtomicFloat &rhs) : val((float)rhs.val) {}
 
         void add(Float v) {
-            uint32_t oldBits = bits, newBits;
-            do {
-                newBits = floatBitsToUint(uintBitsToFloat(oldBits) + v);
-            } while (!bits.compare_exchange_weak(oldBits, newBits));
-
+            auto current = val.load();
+            while (!val.compare_exchange_weak(current, current + v)){}
         }
 
         float value() const {
-            return uintBitsToFloat(bits);
+            return val.load();
         }
 
         explicit operator float() const {
@@ -52,7 +49,7 @@ namespace miyuki {
         }
 
         void set(Float v){
-            bits = floatBitsToUint(v);
+            val = v;
         }
     };
 }
