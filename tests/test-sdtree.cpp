@@ -167,7 +167,7 @@ namespace miyuki::core {
         }
         log::log("{}\n", sum / cnt);
 
-        auto v = dirToCanonical(canonicalToDir(Point2f{0.7, 0.7}));
+        auto v = dirToCanonical(canonicalToDir(Point2f{0.3, 0.7}));
         log::log("{} {}\n", v.x(), v.y());
     }
 }

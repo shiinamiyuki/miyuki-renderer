@@ -45,3 +45,4 @@ cmake-*/
 *.mesh
 
 external/embree3/
+data/*/*.png

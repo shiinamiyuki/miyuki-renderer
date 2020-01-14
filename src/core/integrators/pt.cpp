@@ -258,7 +258,25 @@ namespace miyuki::core {
                 return backgroundLi(ray);
             }
             Float prevScatteringPdf = 0.0f;
+            int nVertices = 0;
             int depth = 0;
+
+            auto addRadiance = [&](const Spectrum &L) {
+                for (int i = 0; i < nVertices; i++) {
+                    vertices[i].L += vertices[i].beta * L;
+                }
+                Li += L;
+            };
+            auto updateBeta = [&](const Spectrum &k) {
+                beta *= k;
+                for (int i = 0; i < nVertices; i++) {
+                    vertices[i].beta *= k;
+                }
+            };
+            for (int i = 0; i < maxDepth + 1; i++) {
+                vertices[i].L = Spectrum(0);
+                vertices[i].beta = Spectrum(1);
+            }
             while (true) {
 
                 if (!intersection.material)
@@ -287,10 +305,10 @@ namespace miyuki::core {
                         radiance = weight * intersection.material->emission->evaluate(sp)
                                    * intersection.material->emissionStrength->evaluate(sp);
                     }
-                    Li += beta * radiance;
+                    addRadiance(beta * radiance);
                 }
-                vertices[depth].L = Li;
-                vertices[depth].p = intersection.p;
+
+                vertices[nVertices].p = intersection.p;
                 if (++depth > maxDepth) {
                     break;
                 }
@@ -314,14 +332,15 @@ namespace miyuki::core {
                             if (specular) {
                                 radiance = f * lightSample.Li / lightPdf;
                             } else {
-                                auto scatteringPdf = bsdf->evaluatePdf(sp, wo,
-                                                                       intersection.worldToLocal(lightSample.wi));
+                                auto scatteringPdf = 0.5f * bsdf->evaluatePdf(sp, wo,
+                                                                              intersection.worldToLocal(lightSample.wi))
+                                                     + 0.5f * sTree->pdf(intersection.p, lightSample.wi);
                                 MIYUKI_CHECK(!std::isnan(scatteringPdf));
                                 MIYUKI_CHECK(scatteringPdf > 0.0f);
                                 auto weight = MisWeight(lightPdf, scatteringPdf);
                                 radiance = f * lightSample.Li / lightPdf * weight;
                             }
-                            Li += beta * radiance;
+                            addRadiance(beta * radiance);
                         }
                     }
                 }
@@ -329,25 +348,21 @@ namespace miyuki::core {
                 // BSDF Sampling
                 {
                     bsdfSample.wo = wo;
+                    auto u0 = sampler.next1D();
                     auto u = sampler.next2D();
-                    if (u[0] < 0.5f) {
-                        u[0] *= 2.0f;
+                    if (u0 < 0.5f) {
                         bsdf->sample(u, sp, bsdfSample);
-//                        auto alternatePdf = sTree->pdf(intersection.p, intersection.localToWorld(bsdfSample.wi));
-//                        auto weight = MisWeight(bsdfSample.pdf, alternatePdf);;
-//                        beta *= weight;
                         bsdfSample.pdf *= 0.5f;
                     } else {
-                        u[0] = (u[0] - 0.5f) * 2.0f;
                         auto w = sTree->sample(intersection.p, u);
                         bsdfSample.wi = intersection.worldToLocal(w);
                         bsdfSample.pdf = sTree->pdf(intersection.p, w);
                         bsdfSample.f = bsdf->evaluate(sp, bsdfSample.wo, bsdfSample.wi);
                         bsdfSample.sampledType = BSDF::EAllButSpecular;
-//                        auto alternatePdf = bsdf->evaluatePdf(sp, bsdfSample.wo, bsdfSample.wi);
-//                        auto weight = MisWeight(bsdfSample.pdf, alternatePdf);;
-//                        beta *= weight;
                         bsdfSample.pdf *= 0.5f;
+                        if(bsdfSample.pdf < 0.0f) {
+                            log::log("{} {}\n",  bsdfSample.pdf , sTree->eval(intersection.p, w)/ sTree->pdf(intersection.p, w));
+                        }
                     }
                     MIYUKI_CHECK(!std::isnan(bsdfSample.pdf));
                     MIYUKI_CHECK(bsdfSample.pdf >= 0.0);
@@ -360,32 +375,36 @@ namespace miyuki::core {
                 }
 
                 auto wiW = intersection.localToWorld(bsdfSample.wi);
-                beta *= bsdfSample.f * abs(dot(intersection.Ng, wiW)) / bsdfSample.pdf;
+                vertices[nVertices].wi = wiW;
+                vertices[nVertices].beta = Spectrum(1); //beta * bsdfSample.f / bsdfSample.pdf;
+
+
+                updateBeta(bsdfSample.f * abs(dot(intersection.Ng, wiW)) / bsdfSample.pdf);
                 ray = intersection.spawnRay(wiW);
-                vertices[depth - 1].wi = wiW;
-                vertices[depth - 1].beta = beta;
+
                 if (depth > minDepth) {
                     auto p = std::min(1.0f, maxComp(beta)) * 0.95;
                     if (sampler.next1D() < p) {
-                        beta /= p;
+                        updateBeta((float) (1.0f / p));
                     } else {
                         break;
                     }
                 }
 
+                nVertices++;
                 prevIntersection = intersection;
                 intersection = Intersection();
                 if (!scene->intersect(ray, intersection)) {
-                    Li += beta * backgroundLi(ray);
+                    addRadiance(beta * backgroundLi(ray));
                     break;
                 }
-
             }
             if (training) {
-                for (int i = 0; i < depth; i++) {
-                    vertices[i].L = (Li - vertices[i].L) / vertices[i].beta;
-                    vertices[i].L = RemoveNaN(vertices[i].L);
-                    sTree->deposit(vertices[i].p, vertices[i].wi, vertices[i].L.luminance());
+                for (int i = 0; i < nVertices; i++) {
+                    auto irradiance = RemoveNaN(vertices[i].L).luminance();
+//                    log::log("deposit {} {}\n", i, irradiance);
+                    MIYUKI_CHECK(irradiance >= 0);
+                    sTree->deposit(vertices[i].p, vertices[i].wi, irradiance);
                 }
             }
             MIYUKI_CHECK(minComp(Li) >= 0.0f);
@@ -408,30 +427,47 @@ namespace miyuki::core {
             }
         });
         uint32_t pass = 0;
-        for (pass = 0; pass < 6; pass++) {
+        uint32_t accumulatedSamples = 0;
+        for (pass = 0; pass < 2; pass++) {
+            auto samples = 20;
+            accumulatedSamples += samples * pass;
             ParallelFor(0, tiles.size(), [=, &tiles, &film](int64_t i, uint64_t) {
                 auto sampler = settings.sampler->clone();
-                sampler->startSample(pass == 0 ? 0u : (1u << pass));
+                sampler->startSample(accumulatedSamples);
                 Arena arena;
                 auto &tile = tiles[i];
                 for (int y = tile.pMin.y(); cont() && y < tile.pMax.y(); y++) {
                     for (int x = tile.pMin.x(); x < tile.pMax.x(); x++) {
                         sampler->startPixel(Point2i(x, y), Point2i(film.width, film.height));
-                        for (int s = 0; s < (1u << pass) && cont(); s++) {
+                        for (int s = 0; s < samples && cont(); s++) {
                             CameraSample sample;
                             sampler->startNextSample();
                             settings.camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i(x, y),
                                                          Point2i(film.width, film.height), sample);
-
-                            film.addSample(sample.pFilm, Li(true, true, arena, *sampler, sample.ray), 1);
+                            Li(true, true, arena, *sampler, sample.ray);
                             arena.reset();
                         }
                     }
                 }
             });
             log::log("Refining SDTree\n");
-            sTree->refine(1000 * std::sqrt(1u << (int32_t) pass));
+            sTree->refine(12000 * std::sqrt(1u << (int32_t) pass));
             log::log("Done refining SDTree\n");
+        }
+        int cnt = 0;
+        for (auto &i:sTree->nodes) {
+            if (i.isLeaf()) {
+                auto &tree = i.dTree.sampling;
+                RGBAImage image(int2(512, 512));
+                for (int j = 0; j < 512; j++) {
+                    for (int i = 0; i < 512; i++) {
+                        auto pdf = tree.pdf(float2(i, j) / float2(image.dimension));
+                        pdf = std::log(1.0 + pdf);
+                        image(i, j) = float4(Spectrum(pdf), 1.0f);
+                    }
+                }
+                image.write(fmt::format("tree{}.png", cnt++), 1.0f);
+            }
         }
         log::log("Start Rendering\n");
         {

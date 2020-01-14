@@ -103,7 +103,7 @@ namespace miyuki::core {
             if (child(idx, nodes)) {
                 return 4.0f * child(idx, nodes)->eval((p - offset(idx)) * 2.0f, nodes);
             } else {
-                MIYUKI_CHECK(_sum[idx].value() > 0.0f);
+                MIYUKI_CHECK(_sum[idx].value() >= 0.0f);
                 return 4.0f * float(_sum[idx]);
             }
         }
@@ -179,8 +179,8 @@ namespace miyuki::core {
     };
 
     static Vec3f canonicalToDir(const Point2f &p) {
-        const Float cosTheta = 2 * p.x() - 1;
-        const Float phi = 2 * Pi * p.y();
+        const Float cosTheta = 2 * p.y() - 1;
+        const Float phi = 2 * Pi * p.x();
 
         const Float sinTheta = sqrt(1 - cosTheta * cosTheta);
         Float sinPhi, cosPhi;
@@ -200,7 +200,7 @@ namespace miyuki::core {
         while (phi < 0)
             phi += 2.0 * Pi;
 
-        return Point2f((cosTheta + 1) / 2, phi / (2 * Pi));
+        return Point2f(phi / (2 * Pi),(cosTheta + 1) / 2);
     }
 
     class DTree {
@@ -238,7 +238,7 @@ namespace miyuki::core {
         }
 
         Float eval(const Point2f &u) {
-            return nodes[0].eval(u, nodes) / weight.value();
+            return nodes[0].eval(u, nodes) ;/// weight.value();
         }
 
         void _build() {
@@ -271,10 +271,10 @@ namespace miyuki::core {
             while (!stack.empty()) {
                 auto node = stack.top();
                 stack.pop();
-                auto &otherNode = node.tree->nodes.at(node.otherNode);
+
                 // log::log("other index: {}, sum: {}\n",node.otherNode, otherNode.sum());
                 for (int i = 0; i < 4; ++i) {
-
+                    auto &otherNode = node.tree->nodes.at(node.otherNode);
                     auto fraction = otherNode._sum[i].value() / total;
                     //log::log("{} {}\n", otherNode._sum[i].value(), fraction);
                     if (fraction > threshold) {
@@ -292,7 +292,7 @@ namespace miyuki::core {
                 }
 
             }
-//            log::log("QTreeNodes: {}\n", nodes.size());
+            log::log("QTreeNodes: {}\n", nodes.size());
             weight.add(1);
             _build();
         }
@@ -313,6 +313,10 @@ namespace miyuki::core {
 
         Float pdf(const Vec3f &w) {
             return sampling.pdf(dirToCanonical(w));
+        }
+
+        Float eval(const Vec3f &w) {
+            return sampling.eval(dirToCanonical(w));
         }
 
         void deposit(const Vec3f &w, Float e) {
@@ -377,6 +381,20 @@ namespace miyuki::core {
             }
         }
 
+        Float eval(Point3f p, const Vec3f &w, std::vector<STreeNode> &nodes) {
+            if (isLeaf()) {
+                return dTree.eval(w);
+            } else {
+                if (p[axis] < 0.5f) {
+                    p[axis] *= 2.0f;
+                    return nodes.at(_children[0]).eval(p, w, nodes);
+                } else {
+                    p[axis] = (p[axis] - 0.5f) * 2.0f;
+                    return nodes.at(_children[1]).eval(p, w, nodes);
+                }
+            }
+        }
+
         void deposit(Point3f p, const Vec3f &w, Float irradiance, std::vector<STreeNode> &nodes) {
             if (isLeaf()) {
                 nSample++;
@@ -394,8 +412,9 @@ namespace miyuki::core {
     };
 
     class STree {
-        std::vector<STreeNode> nodes;
     public:
+        std::vector<STreeNode> nodes;
+
         explicit STree(const Bounds3f &box) : nodes(1) {
             auto sz = maxComp(box.size()) * 0.5f;
             auto centroid = box.centroid();
@@ -412,8 +431,12 @@ namespace miyuki::core {
             return nodes.at(0).pdf(box.offset(p), w, nodes) * Inv4Pi;
         }
 
+        Float eval(const Point3f &p, const Vec3f &w) {
+            return nodes.at(0).eval(box.offset(p), w, nodes);
+        }
+
         void deposit(Point3f p, const Vec3f &w, Float irradiance) {
-            if (irradiance > 0 && !std::isnan(irradiance)) {
+            if (irradiance >= 0 && !std::isnan(irradiance)) {
                 nodes.at(0).deposit(box.offset(p), w, irradiance, nodes);
             }
         }

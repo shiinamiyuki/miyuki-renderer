@@ -23,17 +23,17 @@
     "type": "PerspectiveCamera"
   },
   "filmDimension": [
-    1024,
-    1024
+    300,
+    300
   ],
   "integrator": {
     "props": {
       "denoise": false,
-      "maxDepth": 15,
+      "maxDepth": 5,
       "minDepth": 3,
-      "spp": 16
+      "spp": 64
     },
-    "type": "PathTracer"
+    "type": "GuidedPathTracer"
   },
   "lights": [],
   "rayBias": 0.01,
