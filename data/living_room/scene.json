@@ -31,7 +31,9 @@
       "denoise": false,
       "maxDepth": 5,
       "minDepth": 3,
-      "spp": 4
+      "training": 64,
+      "spp": 128,
+      "enableNEE": true
     },
     "type": "GuidedPathTracer"
   },

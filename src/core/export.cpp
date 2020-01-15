@@ -31,6 +31,7 @@
 #include "cameras/perspective-camera.h"
 #include "integrators/rtao.h"
 #include "integrators/pt.h"
+#include "integrators/guided-pt.h"
 #include "samplers/random-sampler.h"
 #include "shaders/common-shader.h"
 #include "shaders/expr-shader.h"

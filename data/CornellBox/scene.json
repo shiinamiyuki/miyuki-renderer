@@ -23,16 +23,17 @@
     "type": "PerspectiveCamera"
   },
   "filmDimension": [
-    300,
-    300
+    1000,
+    1000
   ],
   "integrator": {
     "props": {
       "denoise": false,
       "maxDepth": 5,
       "minDepth": 3,
-      "enableNEE": false,
-      "spp": 1
+      "enableNEE": true,
+      "spp": 16,
+      "training": 64
     },
     "type": "GuidedPathTracer"
   },
@@ -554,9 +555,9 @@
                       "color": {
                         "props": {
                           "value": [
-                            1.0,
-                            1.0,
-                            1.0
+                            2.0,
+                            2.0,
+                            2.0
                           ]
                         },
                         "type": "RGBShader"

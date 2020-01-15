@@ -280,7 +280,7 @@ namespace miyuki::core {
             stack.push({0, 0, &prev});
             sum.set(0.0f);
             auto total = prev.sum.value();
-            log::log("{} {}\n", total, threshold);
+//            log::log("{} {}\n", total, threshold);
             while (!stack.empty()) {
                 auto node = stack.top();
                 stack.pop();
@@ -305,7 +305,7 @@ namespace miyuki::core {
                 }
 
             }
-            log::log("QTreeNodes: {}\n", nodes.size());
+//            log::log("QTreeNodes: {}\n", nodes.size());
             weight.add(1);
             _build();
         }
@@ -395,7 +395,19 @@ namespace miyuki::core {
                 }
             }
         }
-
+        auto getDTree(Point3f p, std::vector<STreeNode> &nodes) {
+            if (isLeaf()) {
+                return &dTree;
+            } else {
+                if (p[axis] < 0.5f) {
+                    p[axis] *= 2.0f;
+                    return nodes.at(_children[0]).getDTree(p,  nodes);
+                } else {
+                    p[axis] = (p[axis] - 0.5f) * 2.0f;
+                    return nodes.at(_children[1]).getDTree(p, nodes);
+                }
+            }
+        }
         Float eval(Point3f p, const Vec3f &w, std::vector<STreeNode> &nodes) {
             if (isLeaf()) {
                 return dTree.eval(w);
@@ -444,6 +456,10 @@ namespace miyuki::core {
 
         Float pdf(const Point3f &p, const Vec3f &w) {
             return nodes.at(0).pdf(box.offset(p), w, nodes) * Inv4Pi;
+        }
+
+        auto dTree(const Point3f &p){
+            return nodes[0].getDTree(p, nodes);
         }
 
         Float eval(const Point3f &p, const Vec3f &w) {
