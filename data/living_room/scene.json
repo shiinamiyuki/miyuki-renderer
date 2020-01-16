@@ -31,11 +31,11 @@
       "denoise": false,
       "maxDepth": 5,
       "minDepth": 3,
-      "training": 64,
-      "spp": 128,
+      "training": 16,
+      "spp": 16,
       "enableNEE": true
     },
-    "type": "GuidedPathTracer"
+    "type": "PathTracer"
   },
   "lights": [],
   "rayBias": 0.009999999776482582,

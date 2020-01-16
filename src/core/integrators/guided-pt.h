@@ -37,11 +37,11 @@ namespace miyuki::core {
         int maxDepth = 5;
         bool denoise = false;
         bool enableNEE = true;
-        int training = 64;
+        int trainingPasses = 64;
     public:
         MYK_DECL_CLASS(GuidedPathTracer, "GuidedPathTracer", interface = "Integrator");
 
-        MYK_SER(spp, minDepth, maxDepth, denoise, enableNEE, training)
+        MYK_SER(spp, minDepth, maxDepth, denoise, enableNEE, trainingPasses)
 
 
         Task<RenderOutput>

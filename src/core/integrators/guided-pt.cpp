@@ -43,7 +43,7 @@ namespace miyuki::core {
 
 
     static RenderOutput
-    GuidedPathTracerRender(int trainingSpp, bool denoise, const Task<RenderSettings>::ContFunc &cont,
+    GuidedPathTracerRender(int trainingPasses, bool denoise, const Task<RenderSettings>::ContFunc &cont,
                            int spp, int minDepth, int maxDepth, const RenderSettings &settings,
                            const mpsc::Sender<std::shared_ptr<Film>> &tx) {
         auto *scene = settings.scene.get();
@@ -177,11 +177,11 @@ namespace miyuki::core {
                     auto dTree = sTree->dTree(intersection.p);
                     if (u0 < bsdfSamplingFraction) {
                         bsdf->sample(u, sp, bsdfSample);
-                        bsdfSample.pdf *= bsdfSamplingFraction;
                         if (!(bsdfSample.sampledType & BSDF::ESpecular)) {
-                            auto alternatePdf = dTree->pdf(intersection.localToWorld(bsdfSample.wi)) *
-                                                (1.0f - bsdfSamplingFraction);
-                            updateBeta(MisWeight(bsdfSample.pdf, alternatePdf));
+                            bsdfSample.pdf *= bsdfSamplingFraction;
+//                            auto alternatePdf = dTree->pdf(intersection.localToWorld(bsdfSample.wi)) *
+//                                                (1.0f - bsdfSamplingFraction);
+//                            updateBeta(MisWeight(bsdfSample.pdf, alternatePdf));
                         }
                     } else {
                         auto w = dTree->sample(u);
@@ -190,8 +190,8 @@ namespace miyuki::core {
                         bsdfSample.f = bsdf->evaluate(sp, bsdfSample.wo, bsdfSample.wi);
                         bsdfSample.sampledType = BSDF::EAllButSpecular;
                         bsdfSample.pdf *= 1.0f - bsdfSamplingFraction;
-                        auto alternatePdf = bsdf->evaluatePdf(sp, bsdfSample.wo, bsdfSample.wi) * bsdfSamplingFraction;
-                        updateBeta(MisWeight(bsdfSample.pdf, alternatePdf));
+//                        auto alternatePdf = bsdf->evaluatePdf(sp, bsdfSample.wo, bsdfSample.wi) * bsdfSamplingFraction;
+//                        updateBeta(MisWeight(bsdfSample.pdf, alternatePdf));
                         if (bsdfSample.pdf < 0.0f) {
                             log::log("{} {}\n", bsdfSample.pdf,
                                      sTree->eval(intersection.p, w) / sTree->pdf(intersection.p, w));
@@ -286,8 +286,8 @@ namespace miyuki::core {
         });
         uint32_t pass = 0;
         uint32_t accumulatedSamples = 0;
-        for (pass = 0; accumulatedSamples < trainingSpp; pass++) {
-            auto samples = std::min<int>(trainingSpp - accumulatedSamples, 1ull << pass);
+        for (pass = 0; pass < trainingPasses; pass++) {
+            auto samples = 1ull << pass;
             accumulatedSamples += samples;
             ParallelFor(0, tiles.size(), [=, &tiles, &film](int64_t i, uint64_t) {
                 auto sampler = settings.sampler->clone();
@@ -309,24 +309,24 @@ namespace miyuki::core {
                 }
             });
             log::log("Refining SDTree\n");
-            sTree->refine(12000 * std::sqrt(1u << (int32_t) pass));
+            sTree->refine(12000 * std::sqrt(1u << (uint32_t) pass));
 //            log::log("Done refining SDTree\n");
         }
-//        int cnt = 0;
-//        for (auto &i:sTree->nodes) {
-//            if (i.isLeaf()) {
-//                auto &tree = i.dTree.sampling;
-//                RGBAImage image(int2(512, 512));
-//                for (int j = 0; j < 512; j++) {
-//                    for (int i = 0; i < 512; i++) {
-//                        auto pdf = tree.pdf(float2(i, 511 -j) / float2(image.dimension));
-//                        pdf = std::log(1.0 + pdf) / std::log(10);
-//                        image(i, j) = float4(Spectrum(pdf), 1.0f);
-//                    }
-//                }
-//                image.write(fmt::format("tree{}.png", cnt++), 1.0f);
-//            }
-//        }
+        int cnt = 0;
+        for (auto &i:sTree->nodes) {
+            if (i.isLeaf()) {
+                auto &tree = i.dTree.sampling;
+                RGBAImage image(int2(512, 512));
+                for (int j = 0; j < 512; j++) {
+                    for (int i = 0; i < 512; i++) {
+                        auto pdf = tree.pdf(float2(i, 511 -j) / float2(image.dimension));
+                        pdf = std::log(1.0 + pdf) / std::log(10);
+                        image(i, j) = float4(Spectrum(pdf), 1.0f);
+                    }
+                }
+                image.write(fmt::format("tree{}.png", cnt++), 1.0f);
+            }
+        }
         log::log("Start Rendering\n");
         {
             ParallelFor(0, tiles.size(), [=, &tiles, &film, &reporter](int64_t i, uint64_t) {
@@ -343,7 +343,7 @@ namespace miyuki::core {
                             settings.camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i(x, y),
                                                          Point2i(film.width, film.height), sample);
 
-                            film.addSample(sample.pFilm, Li(true, false, arena, *sampler, sample.ray), 1);
+                            film.addSample(sample.pFilm, Li(false, false, arena, *sampler, sample.ray), 1);
                             arena.reset();
                         }
                     }
@@ -365,7 +365,7 @@ namespace miyuki::core {
     core::GuidedPathTracer::createRenderTask(const RenderSettings &settings,
                                              const mpsc::Sender<std::shared_ptr<Film>> &tx) {
         return Task<RenderOutput>([=, &tx](const Task<RenderSettings>::ContFunc &func) {
-            return GuidedPathTracerRender(training, denoise, func, spp, minDepth, maxDepth, settings, tx);
+            return GuidedPathTracerRender(trainingPasses, denoise, func, spp, minDepth, maxDepth, settings, tx);
         });
     }
 }

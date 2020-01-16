@@ -119,10 +119,10 @@ namespace miyuki::core {
             MIYUKI_CHECK(s >= 0);
             MIYUKI_CHECK(!std::isnan(s));
             auto factor = s == 0.0f ? 0.25f : _sum[idx].value() / s;
-            if(factor < 0){
-                log::log("{} {} {}\n",factor, _sum[idx].value(), s);
+            if (factor < 0) {
+                log::log("{} {} {}\n", factor, _sum[idx].value(), s);
             }
-            MIYUKI_CHECK(factor > 0);
+            MIYUKI_CHECK(factor >= 0);
             if (child(idx, nodes)) {
                 return 4.0f * factor * child(idx, nodes)->pdf((p - offset(idx)) * 2.0f, nodes);
             } else {
@@ -182,8 +182,8 @@ namespace miyuki::core {
             auto c = child(idx, nodes);
             MIYUKI_CHECK(e >= 0);
             MIYUKI_CHECK(_sum[idx].value() >= 0);
-            if(!(_sum[idx].value() >= 0)){
-                log::log("{}",_sum[idx].value() >= 0);
+            if (!(_sum[idx].value() >= 0)) {
+                log::log("{}", _sum[idx].value() >= 0);
             }
             if (c) {
                 c->deposit((p - offset(idx)) * 2.0f, e, nodes);
@@ -213,7 +213,7 @@ namespace miyuki::core {
         while (phi < 0)
             phi += 2.0 * Pi;
 
-        return Point2f(phi / (2 * Pi) ,(cosTheta + 1) / 2);
+        return Point2f(phi / (2 * Pi), (cosTheta + 1) / 2);
     }
 
     class DTree {
@@ -263,24 +263,32 @@ namespace miyuki::core {
                         node._sum[i].set(c->sum());
                     }
                 }
-            //    log::log("sum: {}\n",node.sum());
+                //    log::log("sum: {}\n",node.sum());
                 return node.sum();
             };
             sum.set(updateSum(nodes.front(), updateSum));
+        }
+
+        void reset() {
+            for (auto &i:nodes) {
+                i.setSum(0);
+            }
+            sum.set(0);
         }
 
         void refine(const DTree &prev, Float threshold) {
             struct StackNode {
                 size_t node = -1, otherNode = -1;
                 const DTree *tree = nullptr;
+                int depth;
             };
             std::stack<StackNode> stack;
             nodes.clear();
             nodes.emplace_back();
-            stack.push({0, 0, &prev});
+            stack.push({0, 0, &prev, 0});
             sum.set(0.0f);
             auto total = prev.sum.value();
-//            log::log("{} {}\n", total, threshold);
+            log::log("{} {}\n", total, threshold);
             while (!stack.empty()) {
                 auto node = stack.top();
                 stack.pop();
@@ -288,30 +296,31 @@ namespace miyuki::core {
                 // log::log("other index: {}, sum: {}\n",node.otherNode, otherNode.sum());
                 for (int i = 0; i < 4; ++i) {
                     auto &otherNode = node.tree->nodes.at(node.otherNode);
-                    auto fraction = otherNode._sum[i].value() / total;
+                    auto fraction =
+                            total == 0.0f ? std::pow(0.25, node.depth) : otherNode._sum[i].value() / total;
                     //log::log("{} {}\n", otherNode._sum[i].value(), fraction);
                     if (fraction > threshold) {
                         if (otherNode.isLeaf(i)) {
-                            stack.push({nodes.size(), nodes.size(), this});
+                            stack.push({nodes.size(), nodes.size(), this, node.depth + 1});
                         } else {
                             MIYUKI_CHECK(otherNode._children[i] > 0);
                             MIYUKI_CHECK(otherNode._children[i] != node.otherNode);
-                            stack.push({nodes.size(), (size_t) otherNode._children[i], &prev});
+                            stack.push({nodes.size(), (size_t) otherNode._children[i], &prev, node.depth + 1});
                         }
+                        nodes[node.node]._children[i] = nodes.size();
+                        nodes.emplace_back();
+                        nodes.back().setSum(otherNode._sum[i].value() / 4.0f);
                     }
-                    nodes[node.node]._children[i] = nodes.size();
-                    nodes.emplace_back();
-                    nodes.back().setSum(otherNode._sum[i].value() / 4.0f);
                 }
 
             }
 //            log::log("QTreeNodes: {}\n", nodes.size());
             weight.add(1);
-            _build();
+            reset();
         }
 
         void deposit(const Point2f &p, Float e) {
-            if(e == 0)return;
+            if (e == 0)return;
             sum.add(e);
             nodes[0].deposit(p, e, nodes);
         }
@@ -340,10 +349,11 @@ namespace miyuki::core {
         }
 
         void refine() {
-            MIYUKI_CHECK(building.sum.value() > 0.0f);
+            MIYUKI_CHECK(building.sum.value() >= 0.0f);
+//            building._build();
             sampling = building;
-//            sampling._build();
-            MIYUKI_CHECK(sampling.sum.value() > 0.0f);
+            //sampling._build();
+            MIYUKI_CHECK(sampling.sum.value() >= 0.0f);
             building.refine(sampling, 0.01);
 
         }
@@ -395,19 +405,21 @@ namespace miyuki::core {
                 }
             }
         }
+
         auto getDTree(Point3f p, std::vector<STreeNode> &nodes) {
             if (isLeaf()) {
                 return &dTree;
             } else {
                 if (p[axis] < 0.5f) {
                     p[axis] *= 2.0f;
-                    return nodes.at(_children[0]).getDTree(p,  nodes);
+                    return nodes.at(_children[0]).getDTree(p, nodes);
                 } else {
                     p[axis] = (p[axis] - 0.5f) * 2.0f;
                     return nodes.at(_children[1]).getDTree(p, nodes);
                 }
             }
         }
+
         Float eval(Point3f p, const Vec3f &w, std::vector<STreeNode> &nodes) {
             if (isLeaf()) {
                 return dTree.eval(w);
@@ -429,10 +441,10 @@ namespace miyuki::core {
             } else {
                 if (p[axis] < 0.5f) {
                     p[axis] *= 2.0f;
-                    nodes[_children[0]].deposit(p, w, irradiance, nodes);
+                    nodes.at(_children[0]).deposit(p, w, irradiance, nodes);
                 } else {
                     p[axis] = (p[axis] - 0.5f) * 2.0f;
-                    nodes[_children[1]].deposit(p, w, irradiance, nodes);
+                    nodes.at(_children[1]).deposit(p, w, irradiance, nodes);
                 }
             }
         }
@@ -458,7 +470,7 @@ namespace miyuki::core {
             return nodes.at(0).pdf(box.offset(p), w, nodes) * Inv4Pi;
         }
 
-        auto dTree(const Point3f &p){
+        auto dTree(const Point3f &p) {
             return nodes[0].getDTree(p, nodes);
         }
 
@@ -472,7 +484,7 @@ namespace miyuki::core {
             }
         }
 
-        void refine(int idx, size_t maxSample, std::vector<STreeNode> &nodes) {
+        void refine(int idx, size_t maxSample) {
 //            log::log("samples: {}\n", (int) nodes[idx].nSample);
             if (nodes[idx].isLeaf() && nodes[idx].nSample > maxSample) {
 //                log::log("sum {}\n", nodes[idx].dTree.building.sum.value());
@@ -493,14 +505,14 @@ namespace miyuki::core {
                 nodes[idx].dTree.refine();
             } else {
                 for (int i = 0; i < 2; i++) {
-                    refine(nodes[idx]._children[i], maxSample, nodes);
+                    refine(nodes[idx]._children[i], maxSample);
                 }
                 MIYUKI_CHECK(nodes[idx]._children[0] > 0 && nodes[idx]._children[1] > 0);
             }
         }
 
         void refine(size_t maxSample) {
-            refine(0, maxSample, nodes);
+            refine(0, maxSample);
         }
     };
 }
