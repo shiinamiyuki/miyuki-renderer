@@ -295,6 +295,7 @@ namespace miyuki::core {
 
                 // log::log("other index: {}, sum: {}\n",node.otherNode, otherNode.sum());
                 for (int i = 0; i < 4; ++i) {
+                    MIYUKI_CHECK(node.otherNode >= 0);
                     auto &otherNode = node.tree->nodes.at(node.otherNode);
                     auto fraction =
                             total == 0.0f ? std::pow(0.25, node.depth) : otherNode._sum[i].value() / total;
@@ -308,8 +309,9 @@ namespace miyuki::core {
                             stack.push({nodes.size(), (size_t) otherNode._children[i], &prev, node.depth + 1});
                         }
                         nodes[node.node]._children[i] = nodes.size();
+                        auto val = otherNode._sum[i].value() / 4.0f;
                         nodes.emplace_back();
-                        nodes.back().setSum(otherNode._sum[i].value() / 4.0f);
+                        nodes.back().setSum(val);
                     }
                 }
 
