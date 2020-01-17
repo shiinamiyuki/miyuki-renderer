@@ -23,8 +23,8 @@
     "type": "PerspectiveCamera"
   },
   "filmDimension": [
-    400,
-    400
+    1000,
+    1000
   ],
   "integrator": {
     "props": {
@@ -32,8 +32,9 @@
       "maxDepth": 5,
       "minDepth": 3,
       "enableNEE": true,
-      "spp": 64,
-      "training": 64
+      "spp": 16,
+
+      "trainingPasses": 3
     },
     "type": "GuidedPathTracer"
   },

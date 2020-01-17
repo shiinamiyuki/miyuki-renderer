@@ -62,9 +62,7 @@ namespace miyuki::core {
                          {MinFloat, MinFloat, MinFloat}};
             Bounds3f centroidBound{{MaxFloat, MaxFloat, MaxFloat},
                                    {MinFloat, MinFloat, MinFloat}};
-            if (depth == 0) {
-                boundBox = box;
-            }
+
 
             if (end == begin)
                 return -1;
@@ -72,6 +70,9 @@ namespace miyuki::core {
                 box = box.unionOf(primitive[i].getBoundingBox());
                 centroidBound = centroidBound.unionOf(
                         primitive[i].getBoundingBox().centroid());
+            }
+            if (depth == 0) {
+                boundBox = box;
             }
 
             if (end - begin <= 4 || depth >= 32) {

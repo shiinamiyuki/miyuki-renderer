@@ -180,9 +180,6 @@ namespace miyuki::core {
                         bsdf->sample(u, sp, bsdfSample);
                         if (!(bsdfSample.sampledType & BSDF::ESpecular)) {
                             bsdfSample.pdf *= bsdfSamplingFraction;
-//                            auto alternatePdf = dTree->pdf(intersection.localToWorld(bsdfSample.wi)) *
-//                                                (1.0f - bsdfSamplingFraction);
-//                            updateBeta(MisWeight(bsdfSample.pdf, alternatePdf));
                         }
                     } else {
                         auto w = dTree->sample(u);
@@ -191,37 +188,9 @@ namespace miyuki::core {
                         bsdfSample.f = bsdf->evaluate(sp, bsdfSample.wo, bsdfSample.wi);
                         bsdfSample.sampledType = BSDF::EAllButSpecular;
                         bsdfSample.pdf *= 1.0f - bsdfSamplingFraction;
-//                        auto alternatePdf = bsdf->evaluatePdf(sp, bsdfSample.wo, bsdfSample.wi) * bsdfSamplingFraction;
-//                        updateBeta(MisWeight(bsdfSample.pdf, alternatePdf));
-                      //  if (bsdfSample.pdf < 0.0f) {
-//                            log::log("{} {} {}\n", bsdfSample.pdf, dTree->pdf(w),
-//                                     dTree->eval(w) / dTree->pdf(w));
-                 //       }
+
                     }
-//                    BSDFSample proposalA = bsdfSample, proposalB = bsdfSample;
-//                    Float weightA = 0.0f, weightB = 0.0f;
-//                    {
-//                        bsdf->sample(u, sp, proposalA);
-//                        auto alternatePdf = sTree->pdf(intersection.p, intersection.localToWorld(proposalA.wi));
-//                        weightA = MisWeight(proposalA.pdf, alternatePdf);
-//                    }
-//                    {
-//                        auto w = sTree->sample(intersection.p, u);
-//                        proposalB.wi = intersection.worldToLocal(w);
-//                        proposalB.pdf = sTree->pdf(intersection.p, w);
-//                        proposalB.f = bsdf->evaluate(sp, proposalB.wo, proposalB.wi);
-//                        proposalB.sampledType = BSDF::EAllButSpecular;
-//                        auto alternatePdf = bsdf->evaluatePdf(sp, proposalB.wo, proposalB.wi);
-//                        weightB = MisWeight(proposalB.pdf, alternatePdf);
-//                    }
-//                    auto total = weightA + weightB;
-//                    if(u0 < weightA / total){
-//                        bsdfSample = proposalA;
-//                        bsdfSample.pdf *= weightA / total;
-//                    }else{
-//                        bsdfSample = proposalB;
-//                        bsdfSample.pdf *= weightB / total;
-//                    }
+
 
                     MIYUKI_CHECK(!std::isnan(bsdfSample.pdf));
                     MIYUKI_CHECK(bsdfSample.pdf >= 0.0);
@@ -344,7 +313,7 @@ namespace miyuki::core {
                             settings.camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i(x, y),
                                                          Point2i(film.width, film.height), sample);
 
-                            film.addSample(sample.pFilm, Li(false, false, arena, *sampler, sample.ray), 1);
+                            film.addSample(sample.pFilm, Li(true, false, arena, *sampler, sample.ray), 1);
                             arena.reset();
                         }
                     }

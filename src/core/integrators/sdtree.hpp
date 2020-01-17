@@ -205,7 +205,7 @@ namespace miyuki::core {
 
     static Point2f dirToCanonical(const Vec3f &d) {
         if (!std::isfinite(d.x()) || !std::isfinite(d.y()) || !std::isfinite(d.z())) {
-            return {0, 0};
+            return Point2f(0, 0);
         }
 
         const Float cosTheta = std::min(std::max(d.y(), -1.0f), 1.0f);
@@ -288,7 +288,7 @@ namespace miyuki::core {
             stack.push({0, 0, &prev, 0});
             sum.set(0.0f);
             auto total = prev.sum.value();
-            log::log("{} {}\n", total, threshold);
+//            log::log("{} {}\n", total, threshold);
             while (!stack.empty()) {
                 auto node = stack.top();
                 stack.pop();
@@ -331,6 +331,7 @@ namespace miyuki::core {
 
     class DTreeWrapper {
     public:
+        bool valid = true;
         DTree building, sampling;
 
         Vec3f sample(const Point2f &u) {
@@ -410,6 +411,7 @@ namespace miyuki::core {
         }
 
         auto getDTree(Point3f p, std::vector<STreeNode> &nodes) {
+//            MIYUKI_CHECK(0.0f - 1e-6f <= p[axis] && p[axis] <= 1.0f + 1e-6f);
             if (isLeaf()) {
                 return &dTree;
             } else {
@@ -502,9 +504,11 @@ namespace miyuki::core {
                 }
                 nodes[idx]._isLeaf = false;
                 nodes[idx].dTree = DTreeWrapper();
+                nodes[idx].dTree.valid = false;
 
             }
             if (nodes[idx].isLeaf()) {
+                MIYUKI_CHECK(nodes[idx].dTree.valid);
                 nodes[idx].dTree.refine();
             } else {
                 for (int i = 0; i < 2; i++) {
