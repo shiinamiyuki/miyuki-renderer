@@ -175,6 +175,7 @@ namespace miyuki::core {
                     auto u0 = sampler.next1D();
                     auto u = sampler.next2D();
                     auto dTree = sTree->dTree(intersection.p);
+//                    log::log("{}\n", reinterpret_cast<size_t>(dTree));
                     if (u0 < bsdfSamplingFraction) {
                         bsdf->sample(u, sp, bsdfSample);
                         if (!(bsdfSample.sampledType & BSDF::ESpecular)) {
@@ -186,16 +187,16 @@ namespace miyuki::core {
                     } else {
                         auto w = dTree->sample(u);
                         bsdfSample.wi = intersection.worldToLocal(w);
-                        bsdfSample.pdf = dTree->pdf(w);
+                        bsdfSample.pdf = dTree->pdf(w) * Inv4Pi;
                         bsdfSample.f = bsdf->evaluate(sp, bsdfSample.wo, bsdfSample.wi);
                         bsdfSample.sampledType = BSDF::EAllButSpecular;
                         bsdfSample.pdf *= 1.0f - bsdfSamplingFraction;
 //                        auto alternatePdf = bsdf->evaluatePdf(sp, bsdfSample.wo, bsdfSample.wi) * bsdfSamplingFraction;
 //                        updateBeta(MisWeight(bsdfSample.pdf, alternatePdf));
-                        if (bsdfSample.pdf < 0.0f) {
-                            log::log("{} {}\n", bsdfSample.pdf,
-                                     sTree->eval(intersection.p, w) / sTree->pdf(intersection.p, w));
-                        }
+                      //  if (bsdfSample.pdf < 0.0f) {
+//                            log::log("{} {} {}\n", bsdfSample.pdf, dTree->pdf(w),
+//                                     dTree->eval(w) / dTree->pdf(w));
+                 //       }
                     }
 //                    BSDFSample proposalA = bsdfSample, proposalB = bsdfSample;
 //                    Float weightA = 0.0f, weightB = 0.0f;
@@ -312,21 +313,21 @@ namespace miyuki::core {
             sTree->refine(12000 * std::sqrt(1u << (uint32_t) pass));
 //            log::log("Done refining SDTree\n");
         }
-        int cnt = 0;
-        for (auto &i:sTree->nodes) {
-            if (i.isLeaf()) {
-                auto &tree = i.dTree.sampling;
-                RGBAImage image(int2(512, 512));
-                for (int j = 0; j < 512; j++) {
-                    for (int i = 0; i < 512; i++) {
-                        auto pdf = tree.pdf(float2(i, 511 -j) / float2(image.dimension));
-                        pdf = std::log(1.0 + pdf) / std::log(10);
-                        image(i, j) = float4(Spectrum(pdf), 1.0f);
-                    }
-                }
-                image.write(fmt::format("tree{}.png", cnt++), 1.0f);
-            }
-        }
+//        int cnt = 0;
+//        for (auto &i:sTree->nodes) {
+//            if (i.isLeaf()) {
+//                auto &tree = i.dTree.sampling;
+//                RGBAImage image(int2(512, 512));
+//                for (int j = 0; j < 512; j++) {
+//                    for (int i = 0; i < 512; i++) {
+//                        auto pdf = tree.pdf(float2(i, 511 -j) / float2(image.dimension));
+//                        pdf = std::log(1.0 + pdf) / std::log(10);
+//                        image(i, j) = float4(Spectrum(pdf), 1.0f);
+//                    }
+//                }
+//                image.write(fmt::format("tree{}.png", cnt++), 1.0f);
+//            }
+//        }
         log::log("Start Rendering\n");
         {
             ParallelFor(0, tiles.size(), [=, &tiles, &film, &reporter](int64_t i, uint64_t) {

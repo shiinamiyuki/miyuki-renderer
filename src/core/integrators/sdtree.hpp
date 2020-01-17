@@ -306,6 +306,7 @@ namespace miyuki::core {
                         } else {
                             MIYUKI_CHECK(otherNode._children[i] > 0);
                             MIYUKI_CHECK(otherNode._children[i] != node.otherNode);
+                            MIYUKI_CHECK(node.tree == &prev);
                             stack.push({nodes.size(), (size_t) otherNode._children[i], &prev, node.depth + 1});
                         }
                         nodes[node.node]._children[i] = nodes.size();
@@ -473,7 +474,7 @@ namespace miyuki::core {
         }
 
         auto dTree(const Point3f &p) {
-            return nodes[0].getDTree(p, nodes);
+            return nodes[0].getDTree(box.offset(p), nodes);
         }
 
         Float eval(const Point3f &p, const Vec3f &w) {
