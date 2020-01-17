@@ -159,7 +159,9 @@ namespace miyuki::core {
         MIYUKI_NOT_IMPLEMENTED();
     }
     void miyuki::core::EmbreeAccelerator::build(miyuki::core::Scene &scene) { MIYUKI_NOT_IMPLEMENTED(); }
-
+    Bounds3f EmbreeAccelerator::getBoundingBox() const {
+        MIYUKI_NOT_IMPLEMENTED();
+    }
     bool miyuki::core::EmbreeAccelerator::intersect(const miyuki::core::Ray &ray, miyuki::core::Intersection &isct) {
         MIYUKI_NOT_IMPLEMENTED();
         return false;
