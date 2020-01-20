@@ -182,9 +182,6 @@ namespace miyuki::core {
             auto c = child(idx, nodes);
             MIYUKI_CHECK(e >= 0);
             MIYUKI_CHECK(_sum[idx].value() >= 0);
-            if (!(_sum[idx].value() >= 0)) {
-                log::log("{}", _sum[idx].value() >= 0);
-            }
             if (c) {
                 c->deposit((p - offset(idx)) * 2.0f, e, nodes);
             }
@@ -339,7 +336,7 @@ namespace miyuki::core {
         }
 
         Float pdf(const Vec3f &w) {
-            return sampling.pdf(dirToCanonical(w));
+            return sampling.pdf(dirToCanonical(w)) * Inv4Pi;
         }
 
         Float eval(const Vec3f &w) {
@@ -472,7 +469,7 @@ namespace miyuki::core {
         }
 
         Float pdf(const Point3f &p, const Vec3f &w) {
-            return nodes.at(0).pdf(box.offset(p), w, nodes) * Inv4Pi;
+            return nodes.at(0).pdf(box.offset(p), w, nodes);
         }
 
         auto dTree(const Point3f &p) {

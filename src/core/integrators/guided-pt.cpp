@@ -70,7 +70,7 @@ namespace miyuki::core {
             Spectrum beta(1);
             bool specular = false;
             auto vertices = arena.allocN<PathVertex>(maxDepth + 1);
-            float bsdfSamplingFraction = 0.5f;//training ? 0.5f : 0.1f;
+            float bsdfSamplingFraction = 0.5f;//training ? 0.5f : 1.0f;
 //            PathVertex vertices[12];
             Intersection intersection, prevIntersection;
             if (!scene->intersect(ray, intersection)) {
@@ -102,7 +102,7 @@ namespace miyuki::core {
                     break;
                 BSDF *bsdf = intersection.material->bsdf.get();
                 if (!bsdf)break;
-
+                auto dTree = sTree->dTree(intersection.p);
                 Vec3f wo = intersection.worldToLocal(normalize(-1.0f * ray.d));
                 ShadingPoint sp;
                 sp.texCoord = intersection.shape->texCoordAt(intersection.uv);
@@ -155,15 +155,14 @@ namespace miyuki::core {
                                 auto scatteringPdf = bsdfSamplingFraction
                                                      * bsdf->evaluatePdf(sp, wo,
                                                                          intersection.worldToLocal(lightSample.wi))
-                                                     + (1.0f - bsdfSamplingFraction) *
-                                                       sTree->pdf(intersection.p, lightSample.wi);
+                                                     + (1.0f - bsdfSamplingFraction) * dTree->pdf(lightSample.wi);
                                 MIYUKI_CHECK(!std::isnan(scatteringPdf));
                                 MIYUKI_CHECK(scatteringPdf > 0.0f);
                                 weight = MisWeight(lightPdf, scatteringPdf);
                                 radiance = f * lightSample.Li / lightPdf * weight;
                             }
-                            sTree->deposit(intersection.p, lightSample.wi,
-                                           Spectrum(weight * lightSample.Li / lightPdf).luminance());
+//                            sTree->deposit(intersection.p, lightSample.wi,
+//                                           Spectrum(weight * lightSample.Li / lightPdf).luminance());
                             addRadiance(radiance);
                         }
                     }
@@ -174,21 +173,25 @@ namespace miyuki::core {
                     bsdfSample.wo = wo;
                     auto u0 = sampler.next1D();
                     auto u = sampler.next2D();
-                    auto dTree = sTree->dTree(intersection.p);
+
 //                    log::log("{}\n", reinterpret_cast<size_t>(dTree));
                     if (u0 < bsdfSamplingFraction) {
                         bsdf->sample(u, sp, bsdfSample);
                         if (!(bsdfSample.sampledType & BSDF::ESpecular)) {
                             bsdfSample.pdf *= bsdfSamplingFraction;
+                            bsdfSample.pdf = bsdfSample.pdf + (1.0f - bsdfSamplingFraction) *
+                                                              dTree->pdf(intersection.localToWorld(bsdfSample.wi));
                         }
                     } else {
                         auto w = dTree->sample(u);
                         bsdfSample.wi = intersection.worldToLocal(w);
-                        bsdfSample.pdf = dTree->pdf(w) * Inv4Pi;
+                        bsdfSample.pdf = dTree->pdf(w);
                         bsdfSample.f = bsdf->evaluate(sp, bsdfSample.wo, bsdfSample.wi);
                         bsdfSample.sampledType = BSDF::EAllButSpecular;
                         bsdfSample.pdf *= 1.0f - bsdfSamplingFraction;
-
+                        bsdfSample.pdf = bsdfSample.pdf +
+                                         bsdfSamplingFraction * bsdf->evaluatePdf(sp, bsdfSample.wo, bsdfSample.wi);
+//                       / log::log("{}\n",dTree->eval(w)/bsdfSample.pdf);
                     }
 
 
