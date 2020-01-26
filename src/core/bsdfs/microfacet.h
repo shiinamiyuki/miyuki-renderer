@@ -22,7 +22,7 @@
 #pragma once
 
 #include <miyuki.renderer/bsdf.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 
 namespace miyuki::core {
     class Fresnel;

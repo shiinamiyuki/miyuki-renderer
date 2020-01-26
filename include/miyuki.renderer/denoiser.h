@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_DENOISER_H
 #define MIYUKIRENDERER_DENOISER_H
 
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.foundation/image.hpp>
 #include <miyuki.foundation/film.h>
 

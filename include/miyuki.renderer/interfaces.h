@@ -20,28 +20,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_NANORT_BACKEND_H
-#define MIYUKIRENDERER_NANORT_BACKEND_H
-#include <miyuki.renderer/accelerator.h>
-#include <miyuki.renderer/interfaces.h>
-#include <miyuki.foundation/noncopyable.hpp>
-#include <miyuki.renderer/ray.h>
+#ifndef MIYUKI_FOUNDATION_INTERFACES_H
+#define MIYUKI_FOUNDATION_INTERFACES_H
 
-namespace miyuki::core {
-    class NanoRTAccelerator final : public Accelerator, private NonCopyable{
-        class Impl;
-        Impl *impl = nullptr;
+#include <miyuki.serialize/serialize.hpp>
+
+namespace miyuki {
+    template<class... Args>
+    void _assign(Args... args) {}
+
+#define MYK_INTERFACE(Classname, Alias)
+#define MYK_DECL_CLASS(Classname, Alias, ...) MYK_TYPE(Classname, Alias) \
+    static std::string _interface(){\
+        std::string interface="";\
+        _assign(__VA_ARGS__);\
+        return interface;\
+    }
+
+    class SerializeContext : public serialize::Context {
+        std::unordered_map<std::string, std::vector<std::string>> _impls;
     public:
-        NanoRTAccelerator();
-      //  MYK_DECL_CLASS(NanoRTAccelerator, "NanoRTAccelerator", interface = "Accelerator")
+        template<class F>
+        void foreachImpl(const std::string &interface, F &&f) {
+            for (auto &i: _impls.at(interface)) {
+                f(i);
+            }
+        }
 
-        void build(Scene &scene) override;
-
-        bool intersect(const Ray &ray, Intersection &isct) override;
-
-        ~NanoRTAccelerator();
-
+        template<class T>
+        void registerType() {
+            serialize::Context::registerType<T>();
+            _impls[T::_interface()].push_back(T::staticType()->name());
+        }
     };
 
 }
-#endif //MIYUKIRENDERER_NANORT_BACKEND_H
+#endif //MIYUKI_FOUNDATION_INTERFACES_H

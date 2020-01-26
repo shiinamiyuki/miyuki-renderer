@@ -44,8 +44,8 @@
 #include "denoisers/oidndenoiser.h"
 
 namespace miyuki::core {
-    std::shared_ptr<serialize::Context>  Initialize() {
-        auto ctx = std::make_shared<serialize::Context>();
+    std::shared_ptr<SerializeContext>  Initialize() {
+        auto ctx = std::make_shared<SerializeContext>();
         ctx->registerType<Material>();
         ctx->registerType<SceneGraph>();
         ctx->registerType<BVHAccelerator>();

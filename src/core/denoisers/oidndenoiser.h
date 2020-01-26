@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_OIDNDENOISER_H
 
 #include <miyuki.renderer/denoiser.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.foundation/noncopyable.hpp>
 #include <miyuki.foundation/film.h>
 

@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_LIGHTDISTRIBUTION_H
 #define MIYUKIRENDERER_LIGHTDISTRIBUTION_H
 
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 
 namespace miyuki::core{
     class Sampler;

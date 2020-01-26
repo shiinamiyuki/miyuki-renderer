@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_SHAPE_H
 
 #include <miyuki.foundation/spectrum.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.renderer/ray.h>
 #include <functional>
 

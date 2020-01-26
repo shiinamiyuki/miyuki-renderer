@@ -25,7 +25,7 @@
 
 #include <miyuki.renderer/accelerator.h>
 #include <miyuki.renderer/material.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.renderer/shape.h>
 
 namespace miyuki::core {

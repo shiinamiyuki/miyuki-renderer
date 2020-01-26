@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_INTEGRATOR_H
 
 #include <miyuki.foundation/math.hpp>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.foundation/mpsc.hpp>
 #include <miyuki.foundation/task.hpp>
 #include <miyuki.serialize/serialize.hpp>

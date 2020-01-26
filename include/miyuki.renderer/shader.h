@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_SHADER_H
 #define MIYUKIRENDERER_SHADER_H
 
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.foundation/spectrum.h>
 
 namespace miyuki::core {

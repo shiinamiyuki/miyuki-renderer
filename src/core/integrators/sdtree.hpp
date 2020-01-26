@@ -30,6 +30,7 @@
 #include <miyuki.foundation/log.hpp>
 #include <miyuki.foundation/parallel.h>
 #include <miyuki.foundation/rng.h>
+#include <miyuki.renderer/sampler.h>
 #include <stack>
 
 
@@ -115,10 +116,13 @@ namespace miyuki::core {
 
         float pdf(const Point2f &p, std::vector<QTreeNode> &nodes) const {
             auto idx = childIndex(p);
+//            if (!(_sum[idx].value() > 0)) {
+//                return 0.0f;
+//            }
             auto s = sum();
             MIYUKI_CHECK(s >= 0);
             MIYUKI_CHECK(!std::isnan(s));
-            auto factor = s == 0.0f ? 0.25f : _sum[idx].value() / s;
+            auto factor = s <= 0.0f ? 0.25f : _sum[idx].value() / s;
             if (factor < 0) {
                 log::log("{} {} {}\n", factor, _sum[idx].value(), s);
             }
@@ -130,7 +134,7 @@ namespace miyuki::core {
             }
         }
 
-        Point2f sample(Point2f u, std::vector<QTreeNode> &nodes) const {
+        Point2f sample(Point2f u, Point2f u2, std::vector<QTreeNode> &nodes) const {
             std::array<float, 4> m = {
                     float(_sum[0]),
                     float(_sum[1]),
@@ -141,6 +145,7 @@ namespace miyuki::core {
             auto right = m[1] + m[3];
             auto total = left + right;
             // log::log("total: {}\n", total);
+//            MIYUKI_CHECK(total > 0);
             if (total == 0) {
                 total = 1;
                 m[0] = m[1] = m[2] = m[3] = 0.25;
@@ -169,9 +174,9 @@ namespace miyuki::core {
             int child = x + 2 * y;
             Point2f sampled;
             if (this->child(child, nodes)) {
-                sampled = this->child(child, nodes)->sample(u, nodes);
+                sampled = this->child(child, nodes)->sample(u, u2, nodes);
             } else {
-                sampled = u;
+                sampled = u2;
             }
             return Point2f(x, y) * 0.5f + sampled * 0.5f;
         }
@@ -182,9 +187,6 @@ namespace miyuki::core {
             auto c = child(idx, nodes);
             MIYUKI_CHECK(e >= 0);
             MIYUKI_CHECK(_sum[idx].value() >= 0);
-            if (!(_sum[idx].value() >= 0)) {
-                log::log("{}", _sum[idx].value() >= 0);
-            }
             if (c) {
                 c->deposit((p - offset(idx)) * 2.0f, e, nodes);
             }
@@ -242,8 +244,8 @@ namespace miyuki::core {
         }
 
 
-        Point2f sample(const Point2f &u) {
-            return nodes[0].sample(u, nodes);
+        Point2f sample(const Point2f &u,const Point2f &u2) {
+            return nodes[0].sample(u, u2,nodes);
         }
 
         Float pdf(const Point2f &p) {
@@ -285,7 +287,7 @@ namespace miyuki::core {
             std::stack<StackNode> stack;
             nodes.clear();
             nodes.emplace_back();
-            stack.push({0, 0, &prev, 0});
+            stack.push({0, 0, &prev, 1});
             sum.set(0.0f);
             auto total = prev.sum.value();
 //            log::log("{} {}\n", total, threshold);
@@ -300,7 +302,7 @@ namespace miyuki::core {
                     auto fraction =
                             total == 0.0f ? std::pow(0.25, node.depth) : otherNode._sum[i].value() / total;
                     //log::log("{} {}\n", otherNode._sum[i].value(), fraction);
-                    if (fraction > threshold) {
+                    if (fraction >= threshold && node.depth < 10) {
                         if (otherNode.isLeaf(i)) {
                             stack.push({nodes.size(), nodes.size(), this, node.depth + 1});
                         } else {
@@ -323,7 +325,7 @@ namespace miyuki::core {
         }
 
         void deposit(const Point2f &p, Float e) {
-            if (e == 0)return;
+            if (e <= 0)return;
             sum.add(e);
             nodes[0].deposit(p, e, nodes);
         }
@@ -334,12 +336,16 @@ namespace miyuki::core {
         bool valid = true;
         DTree building, sampling;
 
-        Vec3f sample(const Point2f &u) {
-            return canonicalToDir(sampling.sample(u));
+//        DTreeWrapper(){
+//            sampling.nodes[0].setSum(0.25);
+//        }
+
+        Vec3f sample(const Point2f &u,const Point2f &u2) {
+            return canonicalToDir(sampling.sample(u, u2));
         }
 
         Float pdf(const Vec3f &w) {
-            return sampling.pdf(dirToCanonical(w));
+            return sampling.pdf(dirToCanonical(w)) * Inv4Pi;
         }
 
         Float eval(const Vec3f &w) {
@@ -356,7 +362,7 @@ namespace miyuki::core {
             MIYUKI_CHECK(building.sum.value() >= 0.0f);
 //            building._build();
             sampling = building;
-            //sampling._build();
+            sampling._build();
             MIYUKI_CHECK(sampling.sum.value() >= 0.0f);
             building.refine(sampling, 0.01);
 
@@ -382,16 +388,16 @@ namespace miyuki::core {
             return _isLeaf;
         }
 
-        Vec3f sample(Point3f p, const Point2f &u, std::vector<STreeNode> &nodes) {
+        Vec3f sample(Point3f p, const Point2f &u,const Point2f &u2, std::vector<STreeNode> &nodes) {
             if (isLeaf()) {
-                return dTree.sample(u);
+                return dTree.sample(u,u2);
             } else {
                 if (p[axis] < 0.5f) {
                     p[axis] *= 2.0f;
-                    return nodes[_children[0]].sample(p, u, nodes);
+                    return nodes[_children[0]].sample(p, u, u2,nodes);
                 } else {
                     p[axis] = (p[axis] - 0.5f) * 2.0f;
-                    return nodes[_children[1]].sample(p, u, nodes);
+                    return nodes[_children[1]].sample(p, u, u2, nodes);
                 }
             }
         }
@@ -467,12 +473,12 @@ namespace miyuki::core {
 
         Bounds3f box;
 
-        Vec3f sample(const Point3f &p, const Point2f &u) {
-            return nodes.at(0).sample(box.offset(p), u, nodes);
+        Vec3f sample(const Point3f &p, const Point2f &u,const Point2f &u2) {
+            return nodes.at(0).sample(box.offset(p), u, u2,nodes);
         }
 
         Float pdf(const Point3f &p, const Vec3f &w) {
-            return nodes.at(0).pdf(box.offset(p), w, nodes) * Inv4Pi;
+            return nodes.at(0).pdf(box.offset(p), w, nodes);
         }
 
         auto dTree(const Point3f &p) {
@@ -489,15 +495,15 @@ namespace miyuki::core {
             }
         }
 
-        void refine(int idx, size_t maxSample) {
-//            log::log("samples: {}\n", (int) nodes[idx].nSample);
+        void refine(int idx, size_t maxSample, int depth) {
             if (nodes[idx].isLeaf() && nodes[idx].nSample > maxSample) {
 //                log::log("sum {}\n", nodes[idx].dTree.building.sum.value());
+//                log::log("samples: {} {}\n", (int) nodes[idx].nSample,maxSample);
                 for (int i = 0; i < 2; i++) {
                     nodes[idx]._children[i] = nodes.size();
                     nodes.emplace_back();
                     auto &node = nodes.back();
-                    node.nSample = maxSample / 2;
+                    node.nSample = nodes[idx].nSample / 2;
                     node.axis = (nodes[idx].axis + 1) % 3;
                     node.dTree = nodes[idx].dTree;
                     MIYUKI_CHECK(node.isLeaf());
@@ -512,14 +518,18 @@ namespace miyuki::core {
                 nodes[idx].dTree.refine();
             } else {
                 for (int i = 0; i < 2; i++) {
-                    refine(nodes[idx]._children[i], maxSample);
+                    refine(nodes[idx]._children[i], maxSample, depth + 1);
                 }
                 MIYUKI_CHECK(nodes[idx]._children[0] > 0 && nodes[idx]._children[1] > 0);
             }
         }
 
         void refine(size_t maxSample) {
-            refine(0, maxSample);
+            MIYUKI_CHECK(maxSample > 0);
+            refine(0, maxSample, 0);
+            for (auto &i :nodes) {
+                i.nSample = 0;
+            }
         }
     };
 }

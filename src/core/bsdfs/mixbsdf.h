@@ -22,7 +22,7 @@
 #pragma once
 
 #include <miyuki.renderer/bsdf.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.renderer/shader.h>
 #include <miyuki.renderer/mixbsdf-template.hpp>
 

@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_RTAO_H
 
 #include <miyuki.renderer/integrator.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 
 namespace miyuki::core {
     class RTAO final : public Integrator {

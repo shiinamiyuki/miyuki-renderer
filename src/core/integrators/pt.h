@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_PT_H
 
 #include <miyuki.renderer/integrator.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.foundation/spectrum.h>
 #include <miyuki.renderer/shader.h>
 #include <miyuki.renderer/ray.h>

@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_COMMON_SHADER_H
 
 #include <miyuki.renderer/shader.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.foundation/image.hpp>
 
 namespace miyuki::core {

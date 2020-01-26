@@ -25,7 +25,7 @@
 
 #include <miyuki.foundation/spectrum.h>
 #include <miyuki.renderer/ray.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 
 namespace miyuki::core {
     struct VisibilityTester;

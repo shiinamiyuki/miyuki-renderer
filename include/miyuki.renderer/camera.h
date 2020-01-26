@@ -23,9 +23,9 @@
 #ifndef MIYUKIRENDERER_CAMERA_H
 #define MIYUKIRENDERER_CAMERA_H
 
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.renderer/ray.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 
 namespace miyuki::core {
     struct CameraSample {

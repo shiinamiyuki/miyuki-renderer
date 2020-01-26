@@ -20,28 +20,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MIYUKIRENDERER_NANORT_BACKEND_H
-#define MIYUKIRENDERER_NANORT_BACKEND_H
-#include <miyuki.renderer/accelerator.h>
-#include <miyuki.renderer/interfaces.h>
-#include <miyuki.foundation/noncopyable.hpp>
-#include <miyuki.renderer/ray.h>
+#ifndef MIYUKIRENDERER_STAT_HPP
+#define MIYUKIRENDERER_STAT_HPP
+
+#include <atomic>
+#include <miyuki.foundation/log.hpp>
 
 namespace miyuki::core {
-    class NanoRTAccelerator final : public Accelerator, private NonCopyable{
-        class Impl;
-        Impl *impl = nullptr;
-    public:
-        NanoRTAccelerator();
-      //  MYK_DECL_CLASS(NanoRTAccelerator, "NanoRTAccelerator", interface = "Accelerator")
+    template<typename T>
+    struct RatioCounter {
+        RatioCounter() : value(0), total(0) {}
 
-        void build(Scene &scene) override;
+        void update(bool b) {
+            if (b)
+                value++;
+            total++;
+        }
 
-        bool intersect(const Ray &ray, Intersection &isct) override;
+        void reset(){
+            value = 0;
+            total = 0;
+        }
 
-        ~NanoRTAccelerator();
+        double ratio() const {
+            return (double) value / (double) total;
+        }
 
+    private:
+        std::atomic<T> value, total;
     };
-
 }
-#endif //MIYUKIRENDERER_NANORT_BACKEND_H
+#endif //MIYUKIRENDERER_STAT_HPP

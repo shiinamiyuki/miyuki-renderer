@@ -33,9 +33,13 @@
 #include <miyuki.renderer/denoiser.h>
 #include <miyuki.renderer/progressreporter.h>
 #include <miyuki.foundation/arena.hpp>
+#include <miyuki.renderer/stat.hpp>
 
 namespace miyuki::core {
     static float MisWeight(float pdfA, float pdfB) {
+        auto m = std::max(pdfA, pdfB);
+        pdfA /= m;
+        pdfB /= m;
         pdfA *= pdfA;
         pdfB *= pdfB;
         return pdfA / (pdfA + pdfB);
@@ -46,6 +50,7 @@ namespace miyuki::core {
     GuidedPathTracerRender(int trainingPasses, bool denoise, const Task<RenderSettings>::ContFunc &cont,
                            int spp, int minDepth, int maxDepth, const RenderSettings &settings,
                            const mpsc::Sender<std::shared_ptr<Film>> &tx) {
+        RatioCounter<size_t> nonZeroPath;
         auto *scene = settings.scene.get();
         scene->resetRayCounter();
         Profiler profiler;
@@ -64,13 +69,13 @@ namespace miyuki::core {
             Spectrum L;
             Spectrum beta;
         };
-        auto Li = [=](bool enableNEE, bool training, Arena &arena, Sampler &sampler,
-                      Ray ray) -> Spectrum {
+        auto Li = [=, &nonZeroPath](bool enableNEE, bool training, Arena &arena, Sampler &sampler,
+                                    Ray ray) -> Spectrum {
             Spectrum Li(0);
             Spectrum beta(1);
             bool specular = false;
             auto vertices = arena.allocN<PathVertex>(maxDepth + 1);
-            float bsdfSamplingFraction = 0.5f;//training ? 0.5f : 0.1f;
+            float bsdfSamplingFraction = 0.5f;//training ? 0.5f : 1.0f;
 //            PathVertex vertices[12];
             Intersection intersection, prevIntersection;
             if (!scene->intersect(ray, intersection)) {
@@ -102,7 +107,7 @@ namespace miyuki::core {
                     break;
                 BSDF *bsdf = intersection.material->bsdf.get();
                 if (!bsdf)break;
-
+                auto dTree = sTree->dTree(intersection.p);
                 Vec3f wo = intersection.worldToLocal(normalize(-1.0f * ray.d));
                 ShadingPoint sp;
                 sp.texCoord = intersection.shape->texCoordAt(intersection.uv);
@@ -155,8 +160,7 @@ namespace miyuki::core {
                                 auto scatteringPdf = bsdfSamplingFraction
                                                      * bsdf->evaluatePdf(sp, wo,
                                                                          intersection.worldToLocal(lightSample.wi))
-                                                     + (1.0f - bsdfSamplingFraction) *
-                                                       sTree->pdf(intersection.p, lightSample.wi);
+                                                     + (1.0f - bsdfSamplingFraction) * dTree->pdf(lightSample.wi);
                                 MIYUKI_CHECK(!std::isnan(scatteringPdf));
                                 MIYUKI_CHECK(scatteringPdf > 0.0f);
                                 weight = MisWeight(lightPdf, scatteringPdf);
@@ -164,6 +168,7 @@ namespace miyuki::core {
                             }
                             sTree->deposit(intersection.p, lightSample.wi,
                                            Spectrum(weight * lightSample.Li / lightPdf).luminance());
+
                             addRadiance(radiance);
                         }
                     }
@@ -174,21 +179,27 @@ namespace miyuki::core {
                     bsdfSample.wo = wo;
                     auto u0 = sampler.next1D();
                     auto u = sampler.next2D();
-                    auto dTree = sTree->dTree(intersection.p);
+                    auto u2 = sampler.next2D();
 //                    log::log("{}\n", reinterpret_cast<size_t>(dTree));
                     if (u0 < bsdfSamplingFraction) {
                         bsdf->sample(u, sp, bsdfSample);
+                        MIYUKI_CHECK(bsdfSample.pdf >= 0);
                         if (!(bsdfSample.sampledType & BSDF::ESpecular)) {
                             bsdfSample.pdf *= bsdfSamplingFraction;
+                            bsdfSample.pdf = bsdfSample.pdf + (1.0f - bsdfSamplingFraction) *
+                                                              dTree->pdf(intersection.localToWorld(bsdfSample.wi));
                         }
                     } else {
-                        auto w = dTree->sample(u);
+                        auto w = dTree->sample(u, u2);
                         bsdfSample.wi = intersection.worldToLocal(w);
-                        bsdfSample.pdf = dTree->pdf(w) * Inv4Pi;
+                        bsdfSample.pdf = dTree->pdf(w);
+                        MIYUKI_CHECK(bsdfSample.pdf >= 0);
                         bsdfSample.f = bsdf->evaluate(sp, bsdfSample.wo, bsdfSample.wi);
                         bsdfSample.sampledType = BSDF::EAllButSpecular;
                         bsdfSample.pdf *= 1.0f - bsdfSamplingFraction;
-
+                        bsdfSample.pdf = bsdfSample.pdf +
+                                         bsdfSamplingFraction * bsdf->evaluatePdf(sp, bsdfSample.wo, bsdfSample.wi);
+//                       / log::log("{}\n",dTree->eval(w)/bsdfSample.pdf);
                     }
 
 
@@ -204,9 +215,7 @@ namespace miyuki::core {
 
                 auto wiW = intersection.localToWorld(bsdfSample.wi);
                 vertices[nVertices].wi = wiW;
-                vertices[nVertices].beta = Spectrum(1); //beta * bsdfSample.f / bsdfSample.pdf;
-
-
+                vertices[nVertices].beta = Spectrum(1);
                 updateBeta(bsdfSample.f * abs(dot(intersection.Ng, wiW)) / bsdfSample.pdf);
                 ray = intersection.spawnRay(wiW);
 
@@ -230,11 +239,13 @@ namespace miyuki::core {
             if (training) {
                 for (int i = 0; i < nVertices; i++) {
                     auto irradiance = RemoveNaN(vertices[i].L).luminance();
-//                    log::log("deposit {} {}\n", i, irradiance);
+//                    if(irradiance>0)
+//                        log::log("deposit {} {}\n", i, irradiance);
                     MIYUKI_CHECK(irradiance >= 0);
                     sTree->deposit(vertices[i].p, vertices[i].wi, irradiance);
                 }
             }
+            nonZeroPath.update(maxComp(Li) > 0);
             MIYUKI_CHECK(minComp(Li) >= 0.0f);
             return RemoveNaN(clamp(Li, Vec3f(0), Vec3f(1e16f)));
         };
@@ -257,7 +268,7 @@ namespace miyuki::core {
         uint32_t pass = 0;
         uint32_t accumulatedSamples = 0;
         for (pass = 0; pass < trainingPasses; pass++) {
-            auto samples = 1ull << pass;
+            auto samples = 2;//1u << pass;//2 * std::pow(1.1, pass);//1ull << pass;
             accumulatedSamples += samples;
             ParallelFor(0, tiles.size(), [=, &tiles, &film](int64_t i, uint64_t) {
                 auto sampler = settings.sampler->clone();
@@ -278,18 +289,20 @@ namespace miyuki::core {
                     }
                 }
             });
-            log::log("Refining SDTree\n");
-            sTree->refine(12000 * std::sqrt(1u << (uint32_t) pass));
+            log::log("Refining SDTree; pass: {}, non-zero path: {:.4f}%\n", pass + 1, nonZeroPath.ratio() * 100.0);
+            log::log("nodes: {}\n", sTree->nodes.size());
+            nonZeroPath.reset();
+            sTree->refine(12000 * std::sqrt(samples));
 //            log::log("Done refining SDTree\n");
         }
 //        int cnt = 0;
 //        for (auto &i:sTree->nodes) {
-//            if (i.isLeaf()) {
-//                auto &tree = i.dTree.sampling;
+//            auto &tree = i.dTree.sampling;
+//            if (i.isLeaf() && tree.sum.value() > 0) {
 //                RGBAImage image(int2(512, 512));
 //                for (int j = 0; j < 512; j++) {
 //                    for (int i = 0; i < 512; i++) {
-//                        auto pdf = tree.pdf(float2(i, 511 -j) / float2(image.dimension));
+//                        auto pdf = tree.pdf(float2(i, 511 - j) / float2(image.dimension));
 //                        pdf = std::log(1.0 + pdf) / std::log(10);
 //                        image(i, j) = float4(Spectrum(pdf), 1.0f);
 //                    }
@@ -313,7 +326,7 @@ namespace miyuki::core {
                             settings.camera->generateRay(sampler->next2D(), sampler->next2D(), Point2i(x, y),
                                                          Point2i(film.width, film.height), sample);
 
-                            film.addSample(sample.pFilm, Li(true, false, arena, *sampler, sample.ray), 1);
+                            film.addSample(sample.pFilm, Li(false, false, arena, *sampler, sample.ray), 1);
                             arena.reset();
                         }
                     }
@@ -325,8 +338,9 @@ namespace miyuki::core {
             return {};
         }
         auto duration = profiler.elapsed<double>();
-        log::log("Rendering done in {}secs, traced {} rays, {} M rays/sec\n", duration.count(), scene->getRayCounter(),
-                 scene->getRayCounter() / duration.count() / 1e6f);
+        log::log("Rendering done in {}secs, traced {} rays, {:.4f} M rays/sec, non-zero path: {:.4f}%\n",
+                 duration.count(), scene->getRayCounter(),
+                 scene->getRayCounter() / duration.count() / 1e6f, nonZeroPath.ratio() * 100);
         tx.send(std::shared_ptr<Film>(filmPtr));
         return RenderOutput{filmPtr};
     }

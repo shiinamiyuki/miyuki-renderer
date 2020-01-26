@@ -24,8 +24,8 @@
 #define MIYUKIRENDERER_EXPORT_H
 
 #include <miyuki.foundation/defs.h>
-#include <miyuki.serialize/serialize-fwd.hpp>
+#include <miyuki.renderer/interfaces.h>
 namespace miyuki::core{
-    std::shared_ptr<serialize::Context> Initialize();
+    std::shared_ptr<SerializeContext> Initialize();
 }
 #endif //MIYUKIRENDERER_EXPORT_H

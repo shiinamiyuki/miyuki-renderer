@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_SAMPLER_H
 #define MIYUKIRENDERER_SAMPLER_H
 
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.foundation/math.hpp>
 
 namespace miyuki::core {

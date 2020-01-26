@@ -25,7 +25,7 @@
 
 #include <miyuki.renderer/camera.h>
 #include <miyuki.foundation/math.hpp>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 namespace miyuki::core {
     class PerspectiveCamera final : public Camera {
         Transform _transform{}, _invTransform{};

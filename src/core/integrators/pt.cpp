@@ -33,6 +33,7 @@
 #include <miyuki.renderer/denoiser.h>
 #include <miyuki.renderer/progressreporter.h>
 #include <miyuki.foundation/arena.hpp>
+#include <miyuki.renderer/stat.hpp>
 
 
 namespace miyuki::core {
@@ -46,7 +47,7 @@ namespace miyuki::core {
     static RenderOutput PathTracerRender(bool enableNEE, bool denoise, const Task<RenderSettings>::ContFunc &cont,
                                          int spp, int minDepth, int maxDepth, const RenderSettings &settings,
                                          const mpsc::Sender<std::shared_ptr<Film>> &tx) {
-
+        RatioCounter<size_t> nonZeroPath;
         auto *scene = settings.scene.get();
         scene->resetRayCounter();
         Profiler profiler;
@@ -58,7 +59,7 @@ namespace miyuki::core {
             return Spectrum(0);
         };
 
-        auto Li = [=](Sampler &sampler, Ray ray) -> Spectrum {
+        auto Li = [=, &nonZeroPath](Sampler &sampler, Ray ray) -> Spectrum {
             Spectrum Li(0);
             Spectrum beta(1);
             bool specular = false;
@@ -166,6 +167,7 @@ namespace miyuki::core {
                 }
 
             }
+            nonZeroPath.update(maxComp(Li) > 0);
             MIYUKI_CHECK(minComp(Li) >= 0.0f);
             return RemoveNaN(clamp(Li, Vec3f(0), Vec3f(1e16f)));
         };
@@ -206,8 +208,8 @@ namespace miyuki::core {
             return {};
         }
         auto duration = profiler.elapsed<double>();
-        log::log("Rendering done in {}secs, traced {} rays, {} M rays/sec\n", duration.count(), scene->getRayCounter(),
-                 scene->getRayCounter() / duration.count() / 1e6f);
+        log::log("Rendering done in {}secs, traced {} rays, {} M rays/sec, non-zero paths: {:.4f}%\n", duration.count(), scene->getRayCounter(),
+                 scene->getRayCounter() / duration.count() / 1e6f, nonZeroPath.ratio() *100);
         tx.send(std::shared_ptr<Film>(filmPtr));
         if (denoise) {
 //            auto denoiser = std::dynamic_pointer_cast<Denoiser>(CreateObject("OIDNDenoiser"));

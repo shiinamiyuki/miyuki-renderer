@@ -24,7 +24,7 @@
 #define MIYUKIRENDERER_SAHBVH_H
 
 #include <miyuki.renderer/accelerator.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.renderer/mesh.h>
 
 

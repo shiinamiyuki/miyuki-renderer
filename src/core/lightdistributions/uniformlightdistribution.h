@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_UNIFORMLIGHTDISTRIBUTION_H
 #define MIYUKIRENDERER_UNIFORMLIGHTDISTRIBUTION_H
 #include <miyuki.renderer/lightdistribution.h>
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.renderer/sampler.h>
 #include <miyuki.renderer/scene.h>
 #include <miyuki.renderer/light.h>

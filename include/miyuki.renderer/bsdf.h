@@ -23,7 +23,7 @@
 #ifndef MIYUKIRENDERER_BSDF_H
 #define MIYUKIRENDERER_BSDF_H
 
-#include <miyuki.foundation/interfaces.h>
+#include <miyuki.renderer/interfaces.h>
 #include <miyuki.foundation/spectrum.h>
 #include <miyuki.serialize/serialize.hpp>
 
