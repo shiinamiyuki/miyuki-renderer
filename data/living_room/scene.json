@@ -35,7 +35,7 @@
       "spp": 16,
       "enableNEE": true
     },
-    "type": "GuidedPathTracer"
+    "type": "PathTracer"
   },
   "lights": [],
   "rayBias": 0.009999999776482582,

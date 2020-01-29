@@ -319,7 +319,7 @@ namespace miyuki::core {
                 }
 
             }
-//            log::log("QTreeNodes: {}\n", nodes.size());
+//           log::log("QTreeNodes: {}\n", nodes.size());
             weight.add(1);
             reset();
         }
@@ -418,6 +418,7 @@ namespace miyuki::core {
 
         auto getDTree(Point3f p, std::vector<STreeNode> &nodes) {
 //            MIYUKI_CHECK(0.0f - 1e-6f <= p[axis] && p[axis] <= 1.0f + 1e-6f);
+//            log::log("{} {}\n",axis,p[axis]);
             if (isLeaf()) {
                 return &dTree;
             } else {
@@ -513,10 +514,7 @@ namespace miyuki::core {
                 nodes[idx].dTree.valid = false;
 
             }
-            if (nodes[idx].isLeaf()) {
-                MIYUKI_CHECK(nodes[idx].dTree.valid);
-                nodes[idx].dTree.refine();
-            } else {
+            if(!nodes[idx].isLeaf()) {
                 for (int i = 0; i < 2; i++) {
                     refine(nodes[idx]._children[i], maxSample, depth + 1);
                 }
@@ -526,6 +524,11 @@ namespace miyuki::core {
 
         void refine(size_t maxSample) {
             MIYUKI_CHECK(maxSample > 0);
+            for(auto & i:nodes){
+                if(i.isLeaf()){
+                    i.dTree.refine();
+                }
+            }
             refine(0, maxSample, 0);
             for (auto &i :nodes) {
                 i.nSample = 0;

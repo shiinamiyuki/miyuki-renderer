@@ -148,8 +148,8 @@ namespace miyuki::core {
                         VisibilityTester visibilityTester;
                         light->sampleLi(sampler.next2D(), intersection, lightSample, visibilityTester);
                         lightPdf *= lightSample.pdf;
-                        auto f = bsdf->evaluate(sp, wo, intersection.worldToLocal(lightSample.wi)) *
-                                 abs(dot(lightSample.wi, intersection.Ns));
+                        auto absCos = abs(dot(lightSample.wi, intersection.Ns));
+                        auto f = bsdf->evaluate(sp, wo, intersection.worldToLocal(lightSample.wi)) * absCos;
 
                         if (lightPdf > 0 && !IsBlack(f) && visibilityTester.visible(*scene)) {
                             Spectrum radiance;
@@ -167,7 +167,7 @@ namespace miyuki::core {
                                 radiance = f * lightSample.Li / lightPdf * weight;
                             }
                             sTree->deposit(intersection.p, lightSample.wi,
-                                           Spectrum(weight * lightSample.Li / lightPdf).luminance());
+                                           Spectrum(weight * lightSample.Li / lightPdf / absCos).luminance());
 
                             addRadiance(radiance);
                         }
@@ -215,7 +215,7 @@ namespace miyuki::core {
 
                 auto wiW = intersection.localToWorld(bsdfSample.wi);
                 vertices[nVertices].wi = wiW;
-                vertices[nVertices].beta = Spectrum(1);
+                vertices[nVertices].beta = Spectrum(1 / bsdfSample.pdf);
                 updateBeta(bsdfSample.f * abs(dot(intersection.Ng, wiW)) / bsdfSample.pdf);
                 ray = intersection.spawnRay(wiW);
 

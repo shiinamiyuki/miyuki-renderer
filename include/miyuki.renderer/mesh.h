@@ -69,8 +69,9 @@ namespace miyuki::core {
         }
 
         bool intersect(const Ray &ray, Intersection &isct) const {
-            Vec3f e1 = (vertex(1) - vertex(0));
-            Vec3f e2 = (vertex(2) - vertex(0));
+            auto v0 = vertex(0);
+            Vec3f e1 = (vertex(1) - v0);
+            Vec3f e2 = (vertex(2) - v0);
             auto Ng = normalize(cross(e1, e2));
             float a, f, u, v;
             auto h = cross(ray.d, e2);
@@ -78,7 +79,7 @@ namespace miyuki::core {
             if (a > -1e-6f && a < 1e-6f)
                 return false;
             f = 1.0f / a;
-            auto s = ray.o - vertex(0);
+            auto s = ray.o - v0;
             u = f * dot(s, h);
             if (u < 0.0 || u > 1.0)
                 return false;

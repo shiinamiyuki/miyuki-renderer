@@ -33,7 +33,7 @@
       "minDepth": 3,
       "enableNEE": true,
       "spp": 4,
-      "trainingPasses": 6
+      "trainingPasses": 16
     },
     "type": "GuidedPathTracer"
   },
