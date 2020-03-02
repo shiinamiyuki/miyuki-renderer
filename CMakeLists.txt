@@ -34,7 +34,6 @@ endif()
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(include)
 add_subdirectory(external/gl3w)
-add_subdirectory(external/miyuki.foundation)
 
 include_directories(external/sobol)
 include_directories(external/pybind11/include)
@@ -45,8 +44,14 @@ include_directories(external/imgui/)
 include_directories(external/PerlinNoise)
 include_directories(external/miyuki.foundation/external/miyuki.serialize/include)
 include_directories(external/nanort/)
+include_directories(external/stb/)
+include_directories(external/lodepng/)
+include_directories(external/fmt/include)
 
-file(GLOB MiyukiAPI include/miyuki.renderer/*.h include/miyuki.renderer/*.hpp include/miyuki.renderer/detail/*.hpp include/miyuki.renderer/detail/*.h)
+add_subdirectory(external/fmt)
+
+file(GLOB MiyukiFoundationSRC src/foundation/*.*)
+file(GLOB MiyukiAPI include/*/*.* include/*/*/*.*)
 file(GLOB libcoreSource src/core/*.cpp
         src/core/accelerators/*.*
         src/core/shaders/*.*
@@ -95,7 +100,8 @@ ENDIF()
 #    add_compile_definitions(MYK_USE_OIDN)
 #    set(OIDN_LIBRARIES OpenImageDenoise)
 #ENDIF()
-
+add_library(foundation ${MiyukiFoundationSRC})
+target_link_libraries(foundation fmt)
 add_library(core ${MiyukiAPI} ${libcoreSource})
 target_link_libraries(core foundation ${CXX_FS_LIBS} ${OIDN_LIBRARIES}  ${EMBREE_LIBRARY})
 

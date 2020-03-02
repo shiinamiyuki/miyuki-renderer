@@ -1,0 +1,329 @@
+{
+  "background": null,
+  "camera": {
+    "props": {
+      "fov": {
+        "rad": 2.094395160675049
+      },
+      "transform": {
+        "rotation": {
+          "deg": [
+            -90,
+            0.0,
+            0.0
+          ]
+        },
+        "translation": [
+          32,
+          2.5,
+          0
+        ]
+      }
+    },
+    "type": "PerspectiveCamera"
+  },
+  "filmDimension": [
+    1280,
+    720
+  ],
+  "integrator": {
+    "props": {
+      "denoise": false,
+      "maxDepth": 7,
+      "minDepth": 5,
+      "trainingPasses": 7,
+      "spp": 64,
+      "enableNEE": true
+    },
+    "type": "GuidedPathTracer"
+  },
+  "lights": [],
+  "rayBias": 0.00001,
+  "sampler": {
+    "props": null,
+    "type": "SobolSampler"
+  },
+  "shapes": [
+    {
+      "props": {
+        "filename": "difficult.mesh",
+        "materials": {
+          "Light": {
+            "props": {
+              "bsdf": {
+                "props": {
+                  "bsdfA": {
+                    "props": {
+                      "color": {
+                        "props": {
+                          "value": [
+                            0.800000011920929,
+                            0.800000011920929,
+                            0.800000011920929
+                          ]
+                        },
+                        "type": "RGBShader"
+                      }
+                    },
+                    "type": "DiffuseBSDF"
+                  },
+                  "bsdfB": {
+                    "props": {
+                      "color": {
+                        "props": {
+                          "value": [
+                            0.5,
+                            0.5,
+                            0.5
+                          ]
+                        },
+                        "type": "RGBShader"
+                      },
+                      "roughness": {
+                        "props": {
+                          "value": 0.07832604646682739
+                        },
+                        "type": "FloatShader"
+                      }
+                    },
+                    "type": "MicrofacetBSDF"
+                  },
+                  "fraction": {
+                    "props": {
+                      "value": 0.38461539149284363
+                    },
+                    "type": "FloatShader"
+                  }
+                },
+                "type": "MixBDSF"
+              },
+              "emission": {
+                "props": {
+                  "value": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "type": "RGBShader"
+              },
+              "emissionStrength": {
+                "props": {
+                  "value": 20000.0
+                },
+                "type": "FloatShader"
+              },
+              "markAsLight": true
+            },
+            "type": "Material"
+          },
+          "None": {
+            "props": {
+              "bsdf": {
+                "props": {
+                  "bsdfA": {
+                    "props": {
+                      "color": {
+                        "props": {
+                          "value": [
+                            1,
+                            1,
+                            1
+                          ]
+                        },
+                        "type": "RGBShader"
+                      }
+                    },
+                    "type": "DiffuseBSDF"
+                  },
+                  "bsdfB": {
+                    "props": {
+                      "color": {
+                        "props": {
+                          "value": [
+                            1,1,1
+                          ]
+                        },
+                        "type": "RGBShader"
+                      },
+                      "roughness": {
+                        "props": {
+                          "value": 0.001                        },
+                        "type": "FloatShader"
+                      }
+                    },
+                    "type": "MicrofacetBSDF"
+                  },
+                  "fraction": {
+                    "props": {
+                      "value": 1.0
+                    },
+                    "type": "FloatShader"
+                  }
+                },
+                "type": "MixBDSF"
+              },
+              "emission": {
+                "props": {
+                  "value": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "type": "RGBShader"
+              },
+              "emissionStrength": {
+                "props": {
+                  "value": 0.0
+                },
+                "type": "FloatShader"
+              },
+              "markAsLight": false
+            },
+            "type": "Material"
+          },
+          "Suzzane": {
+            "props": {
+              "bsdf": {
+                "props": {
+                  "bsdfA": {
+                    "props": {
+                      "color": {
+                        "props": {
+                          "value": [
+                            0.800000011920929,
+                            0.800000011920929,
+                            0.800000011920929
+                          ]
+                        },
+                        "type": "RGBShader"
+                      }
+                    },
+                    "type": "DiffuseBSDF"
+                  },
+                  "bsdfB": {
+                    "props": {
+                      "color": {
+                        "props": {
+                          "value": [
+                            0.5,
+                            0.5,
+                            0.5
+                          ]
+                        },
+                        "type": "RGBShader"
+                      },
+                      "roughness": {
+                        "props": {
+                          "value": 0.09386464953422546
+                        },
+                        "type": "FloatShader"
+                      }
+                    },
+                    "type": "MicrofacetBSDF"
+                  },
+                  "fraction": {
+                    "props": {
+                      "value": 0.38461539149284363
+                    },
+                    "type": "FloatShader"
+                  }
+                },
+                "type": "MixBDSF"
+              },
+              "emission": {
+                "props": {
+                  "value": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "type": "RGBShader"
+              },
+              "emissionStrength": {
+                "props": {
+                  "value": 0.0
+                },
+                "type": "FloatShader"
+              },
+              "markAsLight": false
+            },
+            "type": "Material"
+          },
+          "Wall": {
+            "props": {
+              "bsdf": {
+                "props": {
+                  "bsdfA": {
+                    "props": {
+                      "color": {
+                        "props": {
+                          "value": [
+                            0.800000011920929,
+                            0.800000011920929,
+                            0.800000011920929
+                          ]
+                        },
+                        "type": "RGBShader"
+                      }
+                    },
+                    "type": "DiffuseBSDF"
+                  },
+                  "bsdfB": {
+                    "props": {
+                      "color": {
+                        "props": {
+                          "value": [
+                            0.5,
+                            0.5,
+                            0.5
+                          ]
+                        },
+                        "type": "RGBShader"
+                      },
+                      "roughness": {
+                        "props": {
+                          "value": 0.09386464953422546
+                        },
+                        "type": "FloatShader"
+                      }
+                    },
+                    "type": "MicrofacetBSDF"
+                  },
+                  "fraction": {
+                    "props": {
+                      "value": 0.38461539149284363
+                    },
+                    "type": "FloatShader"
+                  }
+                },
+                "type": "MixBDSF"
+              },
+              "emission": {
+                "props": {
+                  "value": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "type": "RGBShader"
+              },
+              "emissionStrength": {
+                "props": {
+                  "value": 0.0
+                },
+                "type": "FloatShader"
+              },
+              "markAsLight": false
+            },
+            "type": "Material"
+          }
+        }
+      },
+      "type": "Mesh"
+    }
+  ]
+}
